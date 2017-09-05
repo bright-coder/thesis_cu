@@ -2,9 +2,12 @@
 
 class Column{
     
-    private $name,$tableName,$datatype,$isNull,$defaultValue,$numRow;
-
+    private $name,$datatype,$isNull,$defaultValue,$numRow;
     private $constraint = ['PK' => NULL,'FK' => NULL,'Unique' => NULL];
+
+    public function construct(SchemaDB $info){
+
+    }
 
 
 }
