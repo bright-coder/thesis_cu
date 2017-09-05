@@ -15,7 +15,7 @@ class PrimaryKey{
     }
 
     public function getType(): string{
-        return "primary key";
+        return "PK";
     }
 
     public function getPkColumns(): array{

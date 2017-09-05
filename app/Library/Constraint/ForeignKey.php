@@ -26,7 +26,7 @@ class ForeignKey{
     }
 
     public function getType(): string{
-        return "foreign key";
+        return "FK";
     }
 
 
