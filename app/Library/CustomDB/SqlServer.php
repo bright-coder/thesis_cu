@@ -13,4 +13,81 @@ class SqlServer {
         return "sqlsrv";
     }
 
+    public function getTableAll(){
+
+    }
+
+    public function getPkColumns(string $tableName): array{
+        $pkColumns = NULL;
+        $stmt = $this->conObj->prepare("SELECT Col.Column_Name as columnName from
+            INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab,
+            INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE Col
+        WHERE
+            Col.Constraint_Name = Tab.Constraint_Name
+            AND Col.Table_Name = Tab.Table_Name
+            AND Constraint_Type = 'PRIMARY KEY'
+            AND Col.Table_Name = :tableName");
+        if($stmt->execute(array(':tableName' => $tableName)) ){
+            $pkColumns = [];
+            while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+                $pkColumns[] = $row['columnName'];
+            }
+        }
+        return $pkColumns;
+    }
+
+    public function getFkColumns(string $tableName): array{
+        $fkColumns = NULL;
+        //sch.name    AS [schema_name],
+        //tab1.name   AS [tableName]
+        $stmt = $this->conObj->prepare("SELECT 
+                        obj.name      AS FK_NAME,
+                        col1.name     AS [columnName],
+                        tab2.name     AS [referencedTable],
+                        col2.name     AS [referencedColumn]
+                    FROM 
+                        sys.foreign_key_columns fkc
+                    INNER JOIN sys.objects obj
+                        ON obj.object_id = fkc.constraint_object_id
+                    INNER JOIN sys.tables tab1
+                        ON tab1.object_id = fkc.parent_object_id
+                    INNER JOIN sys.columns col1
+                        ON col1.column_id = parent_column_id AND col1.object_id = tab1.object_id
+                    INNER JOIN sys.tables tab2
+                        ON tab2.object_id = fkc.referenced_object_id
+                    INNER JOIN sys.columns col2
+                        ON col2.column_id = referenced_column_id 
+                            AND col2.object_id =  tab2.object_id
+                    WHERE tab1.name = :tableName");
+
+        if($stmt->execute(array($tableName)) ){
+            $fkColumns = [];
+            while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+                $fkColumns[$row['FK_NAME']] = $row;
+            }
+        }
+        return $fkColumns;
+    }
+
+    public function getDataTypeLengthDefaultNull(string $tableName, string $columnName): array{
+        //Table_name as tableName,
+        //Column_Name as columnName,
+        $stmt = $this->conObj->prepare("SELECT
+            Data_Type as dataType,
+            COLUMN_DEFAULT as defaultValue,
+            Character_Maximum_length as length,
+            NUMERIC_PRECISION as precision,
+            NUMERIC_SCALE as scale,
+            IS_NULLABLE as isNULL
+        FROM
+            INFORMATION_SCHEMA.getFkColumns
+        WHERE Table_Name = :tableName AND Column_Name = :columnName");
+
+        if($stmt->execute(array(':tableName' => $tableName, ':columnName' => $columnName)) ){
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
+
+        return null;
+    }
+
 }

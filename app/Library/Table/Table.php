@@ -26,7 +26,7 @@ class Table{
         return $this->columns;
     }
 
-    private function addPkcolumn(array $pkCols){
+    private function addPkcolumn(array $pkCols): void{
     }
 
 

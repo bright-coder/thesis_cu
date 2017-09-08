@@ -5,7 +5,7 @@ namespace App\Library\CustomDB;
 class Database
 {
     private $obj;
-    private $dbname;
+    private $name;
     private $tables = [];
 
     public function __construct(string $server,string $dbname,string $user,string $pass,string $type = 'sqlsrv'){
@@ -20,7 +20,7 @@ class Database
     }
 
     public function getName(): string{
-        return $this->dbname;
+        return $this->name;
     }
 
     public function getType(): string{
