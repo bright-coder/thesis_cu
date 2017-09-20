@@ -8,26 +8,26 @@ class Check{
     private $rawDetail;
     private $detail = ['min' => null, 'max' => null];
 
-    public function __construct($name,$rawDetail){
+    public function __construct($name = "null", $rawDetail = ""){
         $this->name = $name;
         $this->rawDetail = $rawDetail;
 
-        $this->extractDetail();
+        $this->extractMaxMin();
     }
 
-    public function getName(){
+    public function getName(): string{
         return $this->name;
     }
 
-    public function getMin(){
+    public function getMin(): int{
         return $this->detail['min'];
     }
 
-    public function getMax(){
+    public function getMax(): int{
         return $this->detail['max'];
     }
 
-    private function extractDetail(): void{
+    private function extractMaxMin(): void{
         // do something
     }
 

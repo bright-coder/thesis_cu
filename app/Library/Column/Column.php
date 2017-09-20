@@ -5,14 +5,28 @@ namespace App\Library\Column;
 class Column{
     
     private $name,$datatype,$isNullable = FALSE,$default = NULL,$numRow;
-    private $constraint = ['Unique' => NULL,'Check' => NULL];
+    private $constraint;
 
-    public function construct(SchemaDB $info){
-
+    public function construct(string $name,Dataype $datatype){
+        $this->name = $name;
+        $this->datatype = $datatype;
+        $this->constraint = ['Unique' => new Unique(), 'Check' => new Check() ];
     }
 
     public function getName(): string{
         return $this->name;
+    }
+
+    public function getDataype(): Datatype{
+        return $this->datatype;
+    }
+
+    public function setNumRow(int $numRow): void{
+        $this->numRow =$numRow;
+    }
+
+    public function getNumRow(): int{
+        return $this->numRow;
     }
 
     public function isUnique(): boolean{
@@ -39,8 +53,16 @@ class Column{
         $this->constraint['Check'] = $check;
     }
 
+    public function setNullable(boolean $isNullable): void{
+        $this->isNullable = $isNullable;        
+    }
+
     public function isNullable(): boolean{
         return $this->isNullable;
+    }
+
+    public function setDefault(string $dafault): void{
+        $this->default = $dafault;
     }
 
     public function getDefault(): string{

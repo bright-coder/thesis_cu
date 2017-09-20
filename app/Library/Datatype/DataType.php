@@ -5,7 +5,7 @@ namespace App\Library\Datatype;
 class Datatype{
     private $datatype;
 
-    public function __construct(string $type, array $detail){
+    public function __construct(string $type = "null", array $detail = ['length' => 0, 'precision' => 1, 'scale' => 0]){
         switch ($type) {
             case 'char':
             case 'varchar':
