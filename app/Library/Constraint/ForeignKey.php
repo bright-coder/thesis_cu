@@ -5,9 +5,9 @@ namespace App\Library\Constraint;
 class ForeignKey{
     private $name,$refFrom,$refTo;
 
-    public function __construct($name,
-        $refFrom = ['table' => null, 'column' => null],
-        $refTo = ['table' => null, 'column' => null]){
+    public function __construct(string $name = "", 
+    array $refFrom = ['table' => NULL, 'column' => NULL ], 
+    array $refTo = ['table' => NULL, 'column' => NULL]){
             $this->name = $name;
             $this->refFrom = $refFrom;
             $this->refTo = $refTo;
@@ -21,7 +21,7 @@ class ForeignKey{
         return $this->refFrom;
     }
 
-    public function getRefTo(): array{
+    public function getReferTo(): array{
         return $this->refTo;
     }
 

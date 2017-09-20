@@ -2,15 +2,21 @@
 
 namespace App\Library\Table;
 
+use App\Library\Column\Column;
+use App\Library\Constraint\ForeignKey;
+use App\Library\Constraint\PrimaryKey;
+
 class Table{
     private $name;
     private $columns;
-    private $pk = NULL;
-    private $fk = NULL;
+    private $pk;
+    private $fk;
 
     public function __construct(string $name){
         $this->name = $name;
         $this->columns = [];
+        $this->pk = new PrimaryKey();
+        $this->fk = []; // array of foreign key
     }
 
     public function addColumn(Column $col): void{
@@ -38,10 +44,14 @@ class Table{
     }
 
     public function setFK(ForeignKey $fk): void{
-        $this->fk = $fk;
+        $this->fk[$fk->getName()] = $fk;
     }
 
-    public function getFK(): ForeignKey{
+    public function getFKbyName(string $name): ForeignKey{
+        return $this->fk[$name];
+    }
+
+    public function getAllFK(): array{
         return $this->fk;
     }
 

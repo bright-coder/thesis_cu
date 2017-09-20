@@ -5,7 +5,7 @@ namespace App\Library\Constraint;
 class PrimaryKey{
     private $name,$pkColumns;
 
-    public function __construct($name,$pkColumns = []){
+    public function __construct(string $name = "",array $pkColumns = []){
         $this->name = $name;
         $this->pkColumns = $pkColumns;
     }

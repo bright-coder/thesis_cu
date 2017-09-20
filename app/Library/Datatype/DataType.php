@@ -5,7 +5,7 @@ namespace App\Library\Datatype;
 class Datatype{
     private $datatype;
 
-    public function __construct(string $type = "null", array $detail = ['length' => 0, 'precision' => 1, 'scale' => 0]){
+    public function __construct(string $type = "", array $detail = ['length' => 0, 'precision' => 1, 'scale' => 0]){
         switch ($type) {
             case 'char':
             case 'varchar':
@@ -29,5 +29,9 @@ class Datatype{
                 break;
         }
 
+    }
+
+    public function getDatatype(){
+        return $this->datatype;
     }
 }

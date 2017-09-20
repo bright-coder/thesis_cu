@@ -2,6 +2,10 @@
 
 namespace App\Library\Column;
 
+use App\Library\Datatype\Datatype;
+use App\Library\Constraint\Unique;
+use App\Library\Constraint\Check;
+
 class Column{
     
     private $name,$datatype,$isNullable = FALSE,$default = NULL,$numRow;
@@ -22,7 +26,7 @@ class Column{
     }
 
     public function setNumRow(int $numRow): void{
-        $this->numRow =$numRow;
+        $this->numRow = $numRow;
     }
 
     public function getNumRow(): int{
@@ -61,11 +65,11 @@ class Column{
         return $this->isNullable;
     }
 
-    public function setDefault(string $dafault): void{
+    public function setDefault($dafault): void{
         $this->default = $dafault;
     }
 
-    public function getDefault(): string{
+    public function getDefault(){
         return $this->default;
     }
 

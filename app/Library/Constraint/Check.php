@@ -6,9 +6,9 @@ class Check{
     
     private $name;
     private $rawDetail;
-    private $detail = ['min' => null, 'max' => null];
+    private $detail = ['min' => -1, 'max' => 100];
 
-    public function __construct($name = "null", $rawDetail = ""){
+    public function __construct($name = "", $rawDetail = ""){
         $this->name = $name;
         $this->rawDetail = $rawDetail;
 
