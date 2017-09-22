@@ -43,7 +43,7 @@ class Table{
         return $this->pk;
     }
 
-    public function setFK(ForeignKey $fk): void{
+    public function addFK(ForeignKey $fk): void{
         $this->fk[$fk->getName()] = $fk;
     }
 
