@@ -11,7 +11,6 @@ class SqlServer implements DBConnector {
 
     public function __construct(string $server, string $database, string $user, string $pass){
         $this->conObj = new \PDO("sqlsrv:server={$server} ; Database = {$database}",$user,$pass);
-
         $this->server = $server;
         $this->database = $database;
     }
@@ -29,6 +28,7 @@ class SqlServer implements DBConnector {
     }
 
     public function getAllTables(): array{
+        $dd = new PDO();
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if($stmt->execute() ){
             return $stmt->fetchAll(\PDO::FETCH_COLUMN);
