@@ -1,24 +1,41 @@
 <?php
 
-namespace App\Library\CustomDB;
+namespace App\Library\CustomModel;
 
-class SqlServer {
+use App\Library\CustomModel\DBConnector;
+
+class SqlServer implements DBConnector {
     private $conObj;
+    private $server;
+    private $database;
 
-    public function __construct($server,$database,$user,$pass){
+    public function __construct(string $server, string $database, string $user, string $pass){
         $this->conObj = new \PDO("sqlsrv:server={$server} ; Database = {$database}",$user,$pass);
+
+        $this->server = $server;
+        $this->database = $database;
     }
 
-    public function getType(): string{
+    public function getDBType(): string{
         return "sqlsrv";
     }
 
-    public function getTableAll(){
+    public function getDBServer(): string{
+        return $this->server;
+    }
 
+    public function getDBName(): string{
+        return $this->database;
+    }
+
+    public function getAllTables(): array{
+        $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
+        if($stmt->execute() ){
+            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        }
     }
 
     public function getPkColumns(string $tableName): array{
-        $pkColumns = NULL;
         $stmt = $this->conObj->prepare("SELECT Col.Column_Name as columnName from
             INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab,
             INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE Col
@@ -28,12 +45,8 @@ class SqlServer {
             AND Constraint_Type = 'PRIMARY KEY'
             AND Col.Table_Name = :tableName");
         if($stmt->execute(array(':tableName' => $tableName)) ){
-            $pkColumns = [];
-            while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
-                $pkColumns[] = $row['columnName'];
-            }
+            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
         }
-        return $pkColumns;
     }
 
     public function getFkColumns(string $tableName): array{
@@ -87,7 +100,7 @@ class SqlServer {
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
 
-        return null;
+        return [];
     }
 
 }
