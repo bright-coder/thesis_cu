@@ -5,6 +5,9 @@ namespace App\Library\CustomModel;
 use App\Library\CustomModel\DBConnector;
 
 class SqlServer implements DBConnector {
+    /**
+    * @var \PDO
+    */
     private $conObj;
     private $server;
     private $database;
@@ -28,9 +31,17 @@ class SqlServer implements DBConnector {
     }
 
     public function getAllTables(): array{
-        $dd = new PDO();
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if($stmt->execute() ){
+            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        }
+    }
+
+    public function getAllColumns(string $tableName): array{
+        $stmt = $this->conObj->prepare("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = ':tableName'");
+        if($stmt->execute(array(':tableName' => $tableName)) ){
             return $stmt->fetchAll(\PDO::FETCH_COLUMN);
         }
     }
@@ -43,7 +54,7 @@ class SqlServer implements DBConnector {
             Col.Constraint_Name = Tab.Constraint_Name
             AND Col.Table_Name = Tab.Table_Name
             AND Constraint_Type = 'PRIMARY KEY'
-            AND Col.Table_Name = :tableName");
+            AND Col.Table_Name = ':tableName'");
         if($stmt->execute(array(':tableName' => $tableName)) ){
             return $stmt->fetchAll(\PDO::FETCH_COLUMN);
         }

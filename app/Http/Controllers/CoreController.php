@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Library\CustomModel\SqlServer;
-use App\Library\CustomModel\Mysql;
+use App\Library\CustomModel\ModelFactory;
+
+use App\Library\DatabaseBuilder\DatabaseBuilder;
 
 class CoreController extends Controller
 {
     
     public function index(){
-        $model = new SqlServer('DESKTOP-NRK0H8C','customer','thesis','1234');
+
+        $dbBuilder = new DatabaseBuilder(ModelFactory::create('DESKTOP-NRK0H8C','customer','thesis','1234'));
+        
         $tables = $model->getAllTables();
         $pkColumns = [];
          foreach ($tables as $table) {
