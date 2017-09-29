@@ -40,9 +40,9 @@ class SqlServer implements DBConnector {
     public function getAllColumns(string $tableName): array{
         $stmt = $this->conObj->prepare("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = ':tableName'");
+        WHERE TABLE_NAME = :tableName");
         if($stmt->execute(array(':tableName' => $tableName)) ){
-            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            return $stmt->fetchAll(\PDO::FETCH_OBJ);
         }
     }
 
@@ -91,27 +91,6 @@ class SqlServer implements DBConnector {
             }
         }
         return $fkColumns;
-    }
-
-    public function getDataTypeLengthDefaultNull(string $tableName, string $columnName): array{
-        //Table_name as tableName,
-        //Column_Name as columnName,
-        $stmt = $this->conObj->prepare("SELECT
-            Data_Type as dataType,
-            COLUMN_DEFAULT as defaultValue,
-            Character_Maximum_length as length,
-            NUMERIC_PRECISION as precision,
-            NUMERIC_SCALE as scale,
-            IS_NULLABLE as isNULL
-        FROM
-            INFORMATION_SCHEMA.getFkColumns
-        WHERE Table_Name = :tableName AND Column_Name = :columnName");
-
-        if($stmt->execute(array(':tableName' => $tableName, ':columnName' => $columnName)) ){
-            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        }
-
-        return [];
     }
 
 }

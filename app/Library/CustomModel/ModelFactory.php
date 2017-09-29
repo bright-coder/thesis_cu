@@ -10,6 +10,9 @@ class ModelFactory{
 
     private $obj;
 
+    /**
+    * @return DBConnector
+    */
     public static function create(string $dbType,string $server, string $database, string $user, string $pass): DBConnector{
         if($dbType == "sqlsrv")
         return new SqlServer($server,$database,$user,$pass);

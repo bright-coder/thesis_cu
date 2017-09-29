@@ -1,6 +1,6 @@
 
 <html>
     <body>
-        {{ dd($tables) }}
+        {{ dd($database) }}
     </body>
 </html>

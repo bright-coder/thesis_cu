@@ -11,5 +11,4 @@ interface DBConnector
     public function getAllColumns(string $tableName): array;
     public function getPkColumns(string $tableName): array;
     public function getFKColumns(string $tableName): array;
-    public function getDataTypeLengthDefaultNull(string $tableName,string $columnName): array;
 }

@@ -11,7 +11,7 @@ class Column{
     private $name,$datatype,$isNullable = FALSE,$default = NULL,$numRow;
     private $constraint;
 
-    public function construct(string $name,Dataype $datatype){
+    public function __construct(string $name,DataType $datatype){
         $this->name = $name;
         $this->datatype = $datatype;
         $this->constraint = ['Unique' => new Unique(), 'Check' => new Check() ];
@@ -57,7 +57,7 @@ class Column{
         $this->constraint['Check'] = $check;
     }
 
-    public function setNullable(boolean $isNullable): void{
+    public function setNullable(\boolean $isNullable): void{
         $this->isNullable = $isNullable;        
     }
 

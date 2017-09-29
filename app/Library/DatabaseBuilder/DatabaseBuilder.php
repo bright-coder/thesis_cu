@@ -5,6 +5,7 @@ namespace App\Library\DatabaseBuilder;
 use App\Library\Database\Database;
 use App\Library\Table\Table;
 use App\Library\Column\Column;
+use App\Library\Datatype\DataType;
 
 use App\Library\CustomModel\DBConnector;
 
@@ -20,7 +21,10 @@ class DatabaseBuilder{
     */
     private $DBConnector;
 
-    public function __construct(DBConnnector $DBConnector){
+    /**
+    * @param DBConnnector $DBConnector
+    */
+    public function __construct(DBConnector $DBConnector){
         $this->DBConnector = $DBConnector;
         $this->database = new Database($this->DBConnector->getDBServer(),$this->DBConnector->getDBName());
     }
@@ -31,10 +35,17 @@ class DatabaseBuilder{
 
     public function setTable(): void{
         $tables = \array_flip($this->DBConnector->getAllTables());
-        foreach ($tablesName as $name) {
-            $column = new Column();
+        foreach($tables as $name => $value){
+            $tables[$name] = new Table($name);
+            foreach($this->DBConnector->getAllColumns($name) as $column){
+                $tables[$name]->addColumn(new Column($column->COLUMN_NAME,new DataType($column->DATA_TYPE,
+                ['length' => $column->CHARACTER_MAXIMUM_LENGTH,
+                'precision' => $column->NUMERIC_PRECISION,
+                'scale' => $column->NUMERIC_SCALE])));
+            }
         }
-        $this->database->setTables();
+        $this->database->setTables($tables);
     }
+
 
 }

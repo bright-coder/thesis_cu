@@ -13,14 +13,10 @@ class CoreController extends Controller
     
     public function index(){
 
-        $dbBuilder = new DatabaseBuilder(ModelFactory::create('DESKTOP-NRK0H8C','customer','thesis','1234'));
-        
-        $tables = $model->getAllTables();
-        $pkColumns = [];
-         foreach ($tables as $table) {
-            $pkColumns[$table] = $model->getPkColumns($table);
-         }
+        $dbBuilder = new DatabaseBuilder(ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234'));
+        $dbBuilder->setTable();
+       // $model = ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
 
-        return view('test',['tables' => $pkColumns]);
+        return view('test',['database' => $dbBuilder->getDatabase()]);
     }
 }

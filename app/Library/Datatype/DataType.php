@@ -2,7 +2,7 @@
 
 namespace App\Library\Datatype;
 
-class Datatype{
+class DataType{
     private $datatype;
 
     public function __construct(string $type = "", array $detail = ['length' => 0, 'precision' => 1, 'scale' => 0]){
