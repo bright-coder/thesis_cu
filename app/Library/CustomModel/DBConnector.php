@@ -11,6 +11,6 @@ interface DBConnector
     public function getAllColumns(string $tableName): array;
     public function getPkColumns(string $tableName): array;
     public function getFKColumns(string $tableName): array;
-    public function getCheckConstraint(string $columnName): array;
-    public function getUniqueConstraint(string $columnName): array;
+    //public function getCheckConstraint(string $columnName): array;
+   // public function getUniqueConstraint(string $columnName): array;
 }

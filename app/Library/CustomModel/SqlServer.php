@@ -33,16 +33,29 @@ class SqlServer implements DBConnector {
     public function getAllTables(): array{
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if($stmt->execute() ){
-            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            $tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
+            foreach ($tables as $name => $numRow) {
+                $stmt = $this->conObj->prepare("SELECT COUNT(*) as numRows FROM {$name}");
+                if($stmt->execute()){
+                    $tables[$name] = $stmt->fetch(\PDO::FETCH_OBJ)->numRows;
+                }
+            }
+            return $tables;
         }
     }
 
     public function getAllColumns(string $tableName): array{
-        $stmt = $this->conObj->prepare("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE
+        $stmt = $this->conObj->prepare("SELECT COLUMN_NAME as name, 
+        DATA_TYPE as dataType, 
+        COLUMN_DEFAULT as _default, 
+        IS_NULLABLE as isNullable, 
+        CHARACTER_MAXIMUM_LENGTH as length, 
+        NUMERIC_PRECISION as precision, 
+        NUMERIC_SCALE as scale
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = :tableName");
         if($stmt->execute(array(':tableName' => $tableName)) ){
-            return $stmt->fetchAll(\PDO::FETCH_OBJ);
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
     }
 
