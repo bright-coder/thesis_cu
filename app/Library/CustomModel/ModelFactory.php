@@ -6,9 +6,7 @@ use App\Library\CustomModel\DBConnector;
 use App\Library\CustomModel\SqlServer;
 use App\Library\CustomModel\Mysql;
 
-class ModelFactory{
-
-    private $obj;
+final class ModelFactory{
 
     /**
     * @return DBConnector

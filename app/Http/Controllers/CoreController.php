@@ -15,7 +15,6 @@ class CoreController extends Controller
 
         $dbBuilder = new DatabaseBuilder(ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234'));
         $dbBuilder->setTable();
-       // $model = ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
 
         return view('test',['database' => $dbBuilder->getDatabase()]);
     }

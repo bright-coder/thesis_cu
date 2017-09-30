@@ -7,9 +7,25 @@ use App\Library\Constraint\ForeignKey;
 use App\Library\Constraint\PrimaryKey;
 
 class Table{
+    /**
+    * @var string
+    */
     private $name;
+    /**
+     * @var array
+     */
     private $columns;
+    /**
+     * @var int
+     */
+    private $numRows;
+    /**
+     * @var PrimaryKey
+     */
     private $pk;
+    /**
+     * @var ForeignKey
+     */
     private $fk;
 
     public function __construct(string $name){

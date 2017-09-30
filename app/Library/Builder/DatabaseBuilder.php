@@ -38,10 +38,12 @@ class DatabaseBuilder{
         foreach($tables as $name => $value){
             $tables[$name] = new Table($name);
             foreach($this->DBConnector->getAllColumns($name) as $column){
-                $tables[$name]->addColumn(new Column($column->COLUMN_NAME,new DataType($column->DATA_TYPE,
+                $col = new Column($column->COLUMN_NAME,new DataType($column->DATA_TYPE,
                 ['length' => $column->CHARACTER_MAXIMUM_LENGTH,
                 'precision' => $column->NUMERIC_PRECISION,
-                'scale' => $column->NUMERIC_SCALE])));
+                'scale' => $column->NUMERIC_SCALE]));
+                $col->setNullable($column->IS_NULLABLE == "N0" ? FALSE : TRUE);
+                $tables[$name]->addColumn($col);
             }
         }
         $this->database->setTables($tables);
