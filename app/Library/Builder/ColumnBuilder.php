@@ -18,12 +18,13 @@ class ColumnBuilder{
 
     public function setBasicInfo(array $basicInfo): void{
         $this->column->setName($basicInfo['name']);
-        $this->column->setDataType(new DataType($basicInfo['']));
-        $this->column->setDefault();
-        $this->column->setNullable();
+        $this->column->setDataType(new DataType($basicInfo['dataType'],
+            ['length' => $basicInfo['length'], 'precision' => $basicInfo['precision'], 'scale' => $basicInfo['scale'] ]));
+        $this->column->setDefault($basicInfo['_default']);
+        $this->column->setNullable($basicInfo['isNullable'] === "NO" ? FALSE : TRUE);
     }
 
-    public function setConstraint(): void{
+    public function setConstraint(array $constraint): void{
         $this->column->setUnique();
         $this->column->setCheck();
     }

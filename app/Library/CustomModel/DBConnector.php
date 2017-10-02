@@ -4,6 +4,10 @@ namespace App\Library\CustomModel;
 
 interface DBConnector
 {
+    const PRIMARY_KEY = "PRIMARY KEY";
+    const FOREIGN_KEY = "FOREIGN KEY";
+    const UNIQUE = "UNIQUE";
+    const CHECK = "CHECK";
     public function getDBType(): string;
     public function getDBServer(): string;
     public function getDBName(): string;
