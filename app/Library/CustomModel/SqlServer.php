@@ -6,6 +6,8 @@ use App\Library\CustomModel\DBConnector;
 
 use App\Library\Constraint\ConstraintFactory;
 
+use App\Library\Database\Database;
+
 class SqlServer implements DBConnector {
     /**
     * @var \PDO
@@ -46,7 +48,7 @@ class SqlServer implements DBConnector {
         }
     }
 
-    public function getAllColumnsInTable(string $tableName): array{
+    public function getAllColumnsByTable(string $tableName): array{
         $stmt = $this->conObj->prepare("SELECT COLUMN_NAME as name, 
         DATA_TYPE as dataType, 
         COLUMN_DEFAULT as _default, 
@@ -105,11 +107,20 @@ class SqlServer implements DBConnector {
         if($stmt->execute(array(':tableName' => $tableName,':constraintType' => implode(",",$constraintsType) )) ){
             $constraints = [];
             foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $constraint) {
-                $constraints[] = Constraint::create($constraint);
+                if(!array_key_exists($constraint['name'])){
+                    $constraints[$constraint['name']] = ['columnName' => [] ];
+                    if() 
+                }
+                 
             }
             return $constraints;
         }
 
+    }
+
+    public function updateDatabase(Database $db): bool{
+
+        return true;
     }
 
 }

@@ -2,8 +2,12 @@
 
 namespace App\Library\Constraint;
 
+use App\Library\Constraint\Constraint;
+
 class ForeignKey{
-    private $name,$refFrom,$refTo;
+    private $name;
+    private $refFrom;
+    private $refTo;
 
     public function __construct(string $name = "", 
     array $refFrom = ['table' => NULL, 'column' => NULL ], 
@@ -17,16 +21,12 @@ class ForeignKey{
         return $this->name;
     }
 
-    public function getRefFrom(): array{
-        return $this->refFrom;
-    }
-
-    public function getReferTo(): array{
-        return $this->refTo;
-    }
-
     public function getType(): string{
-        return "FK";
+        return Constraint::FOREIGN_KEY;
+    }
+
+    public function getDetail(): array{
+
     }
 
 

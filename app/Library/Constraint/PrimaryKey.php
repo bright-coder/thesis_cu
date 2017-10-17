@@ -2,8 +2,14 @@
 
 namespace App\Library\Constraint;
 
-class PrimaryKey{
-    private $name,$pkColumns;
+use App\Library\Constraint\Constraint;
+
+class PrimaryKey implements Constraint {
+    private $name;
+    /**
+     * @var array
+     */
+    private $pkColumns;
 
     public function __construct(string $name = "",array $pkColumns = []){
         $this->name = $name;
@@ -15,10 +21,16 @@ class PrimaryKey{
     }
 
     public function getType(): string{
-        return "PK";
+        return Constraint::PRIMARY_KEY;
     }
 
-    public function getPkColumns(): array{
-        return $this->pkColumns;
+    /**
+     * getDetail function
+     * 
+     * @return array
+     * return pkColumns
+     */
+    public function getDetail(): array{
+        return $this->getPkColumns;
     }
 }
