@@ -8,8 +8,8 @@ interface Constraint{
     const UNIQUE = "UNIQUE";
     const CHECK = "CHECK";
 
+    public function getName(): string;
     public function getType(): string;
-    public function getColumns(): array;
     public function getDetail(): array;
 
 

@@ -1,6 +1,6 @@
 
 <html>
     <body>
-        {{ dd($database) }}
+        {{ dd($constraintInTable) }}
     </body>
 </html>

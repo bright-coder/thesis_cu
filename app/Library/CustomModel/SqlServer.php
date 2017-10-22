@@ -5,6 +5,7 @@ namespace App\Library\CustomModel;
 use App\Library\CustomModel\DBConnector;
 
 use App\Library\Constraint\ConstraintFactory;
+use App\Library\Constraint\Constraint;
 
 use App\Library\Database\Database;
 
@@ -48,7 +49,7 @@ class SqlServer implements DBConnector {
         }
     }
 
-    public function getAllColumnsByTable(string $tableName): array{
+    public function getAllColumnsByTableName(string $tableName): array{
         $stmt = $this->conObj->prepare("SELECT COLUMN_NAME as name, 
         DATA_TYPE as dataType, 
         COLUMN_DEFAULT as _default, 
@@ -63,7 +64,15 @@ class SqlServer implements DBConnector {
         }
     }
 
-    public function getConstraintInfo(string $tableName, array $constraintsType = [Constraint::PRIMARY_KEY, Constraint::FOREIGN_KEY, Constraint::UNIQUE, Constraint::CHECK] ): array{
+    public function getConstraintsByTableName(string $tableName, array $constraintsType = [Constraint::PRIMARY_KEY, Constraint::FOREIGN_KEY, Constraint::UNIQUE, Constraint::CHECK] ): array{
+        $numConstraints = count($constraintsType);
+        $constraintPlaceholder = [];
+        for($i = 1 ; $i <= $numConstraints ; ++$i){
+            $constraintPlaceholder[] = ":c".$i;
+        }
+        $constraintsType = array_combine($constraintPlaceholder,$constraintsType);
+        $constraintPlaceholder = implode(",",$constraintPlaceholder);
+        
         $stmt = $this->conObj->prepare("SELECT TC.Constraint_Name AS name, 
                         TC.CONSTRAINT_TYPE as type ,
 						SC.definition as definition,
@@ -101,17 +110,25 @@ class SqlServer implements DBConnector {
                             AND col2.object_id =  tab2.object_id
                     ) AS FK
 						ON FK.FK_NAME = TC.Constraint_Name
-					WHERE TC.constraint_type IN (:constraintType) AND
+					WHERE TC.constraint_type IN ({$constraintPlaceholder}) AND
                     CC.TABLE_NAME = :tableName ORDER BY type,name");
 
-        if($stmt->execute(array(':tableName' => $tableName,':constraintType' => implode(",",$constraintsType) )) ){
+        if($stmt->execute( array_merge(array(':tableName'=> $tableName),$constraintsType) ) ){
             $constraints = [];
             foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $constraint) {
-                if(!array_key_exists($constraint['name'])){
-                    $constraints[$constraint['name']] = ['columnName' => [] ];
-                    if() 
+                if(!array_key_exists($constraint['name'],$constraints)){
+                    $constraints[$constraint['name']] = $constraint;
+                    $tempColumnName = $constraints[$constraint['name']]['columnName'];
+                    $constraints[$constraint['name']]['columnName'] = [$tempColumnName];
+                }
+                else{
+                    array_push($constraints[$constraint['name']]['columnName'], $constraint['columnName']);
                 }
                  
+            }
+
+            foreach ($constraints as $constraint) {
+                $constraints[$constraint['name']] = ConstraintFactory::create($constraint);
             }
             return $constraints;
         }

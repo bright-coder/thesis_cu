@@ -4,7 +4,7 @@ namespace App\Library\Constraint;
 
 use App\Library\Constraint\Constraint;
 
-class ForeignKey{
+class ForeignKey implements Constraint{
     private $name;
     private $refFrom;
     private $refTo;
@@ -26,7 +26,7 @@ class ForeignKey{
     }
 
     public function getDetail(): array{
-
+        return ['refFrom' => $refFrom, 'refTo' => $refTo];
     }
 
 
