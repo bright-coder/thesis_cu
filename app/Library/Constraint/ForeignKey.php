@@ -25,6 +25,10 @@ class ForeignKey implements Constraint{
         return Constraint::FOREIGN_KEY;
     }
 
+    public function getColumns(): array{
+        return [];
+    }
+
     public function getDetail(): array{
         return ['refFrom' => $refFrom, 'refTo' => $refTo];
     }

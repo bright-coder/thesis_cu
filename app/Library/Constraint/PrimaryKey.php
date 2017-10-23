@@ -24,13 +24,12 @@ class PrimaryKey implements Constraint {
         return Constraint::PRIMARY_KEY;
     }
 
-    /**
-     * getDetail function
-     * 
-     * @return array
-     * return pkColumns
-     */
-    public function getDetail(): array{
-        return $this->getPkColumns;
+    public function getColumns(): array{
+        return $this->pkColumns();
     }
+
+    public function getDetail(): array{
+        return [];
+    }
+
 }

@@ -21,7 +21,11 @@ class Unique implements Constraint{
         return Constraint::UNIQUE;
     }
 
-    public function getDetail(): array{
+    public function getColumns(): array{
         return $this->uniqueColumns;
+    }
+
+    public function getDetail(): array{
+        return [];
     }
 }
