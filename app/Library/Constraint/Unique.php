@@ -3,6 +3,8 @@
 namespace App\Library\Constraint;
 
 use App\Library\Constraint\Constraint;
+use App\Library\Constraint\ConstraintType;
+
 
 class Unique implements Constraint{
     private $name;
@@ -18,7 +20,7 @@ class Unique implements Constraint{
     }
 
     public function getType(): string{
-        return Constraint::UNIQUE;
+        return ConstraintType::UNIQUE;
     }
 
     public function getColumns(): array{

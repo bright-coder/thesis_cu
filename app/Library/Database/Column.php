@@ -28,8 +28,22 @@ class Column{
      */
     private $constraint;
 
-    public function __construct(){
-        $this->constraint = ['Unique' => NULL,'Check' => NULL];
+    public function __construct(array $columnInfo){
+        $this->name = $columnInfo['name'];
+
+        $this->dataType =
+            new DataType(
+                $columnInfo['dataType'],
+                    [
+                        'length' => $columnInfo['length'], 
+                        'precision' => $columnInfo['precision'], 
+                        'scale' => $columnInfo['scale'] 
+                    ]
+            );
+        
+        $this->$default = $columnInfo['_default'];
+        
+        $this->$isNullable = $columnInfo['isNullable'] === "NO" ? FALSE : TRUE;
     }
 
     public function setName(string $name): void{
@@ -71,36 +85,6 @@ class Column{
 
     public function getDefault(): string{
         return $this->default;
-    }
-
-    public function isUnique(): bool{
-        return $this->constraint['Unique'] === NULL ? FALSE : TRUE;
-    }
-
-    /**
-     * @param Unique $unique
-     */
-    public function setUnique(Unique $unique): void{
-        $this->constraint['Unique'] = $unique;
-    }
-
-    public function getUnique(): Unique{
-        return $this->constraint['Unique'];
-    }
-
-    public function isCheck(): bool{
-        return $this->constraint['Check'] === NULL ? FALSE : TRUE;
-    }
-    
-    public function getCheck(): Check{
-        return $this->constraint['Check']; 
-    }
-    
-    /**
-     * @param Check $check
-     */
-    public function setCheck(Check $check): void{
-        $this->constraint['Check'] = $check;
     }
 
 }

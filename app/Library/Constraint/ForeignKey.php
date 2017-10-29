@@ -3,6 +3,7 @@
 namespace App\Library\Constraint;
 
 use App\Library\Constraint\Constraint;
+use App\Library\Constraint\ConstraintType;
 
 class ForeignKey implements Constraint{
     private $name;
@@ -22,7 +23,7 @@ class ForeignKey implements Constraint{
     }
 
     public function getType(): string{
-        return Constraint::FOREIGN_KEY;
+        return ConstraintType::FOREIGN_KEY;
     }
 
     public function getColumns(): array{

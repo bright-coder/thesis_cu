@@ -11,6 +11,5 @@ interface DBConnector
     public function getDBName(): string;
     public function getAllTables(): array;
     public function getAllColumnsByTableName(string $tableName): array;
-    public function getConstraintsByTableName(string $tableName,  array $constraintsType = [Constraint::PRIMARY_KEY, Constraint::FOREIGN_KEY, Constraint::UNIQUE, Constraint::CHECK]): array;
-    public function updateDatabase(Database $db): bool;
+    public function getAllConstraintsByTableName(string $tableName): array;
 }

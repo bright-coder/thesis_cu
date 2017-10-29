@@ -3,6 +3,7 @@
 namespace App\Library\Constraint;
 
 use App\Library\Constraint\Constraint;
+use App\Library\Constraint\ConstraintType;
 
 class PrimaryKey implements Constraint {
     private $name;
@@ -21,7 +22,7 @@ class PrimaryKey implements Constraint {
     }
 
     public function getType(): string{
-        return Constraint::PRIMARY_KEY;
+        return ConstraintType::PRIMARY_KEY;
     }
 
     public function getColumns(): array{

@@ -3,6 +3,7 @@
 namespace App\Library\Constraint;
 
 use App\Library\Constraint\Constraint;
+use App\Library\Constraint\ConstraintType;
 
 class Check implements Constraint{
     
@@ -17,7 +18,7 @@ class Check implements Constraint{
         $this->checkColumns = $checkColumns;
         $this->definition = $definition;
 
-        $this->extractMaxMin();
+        $this->extractMinMax();
     }
 
     public function getName(): string{
@@ -25,7 +26,7 @@ class Check implements Constraint{
     }
 
     public function getType(): string{
-        return Constraint::CHECK;
+        return ConstraintType::CHECK;
     }
 
     public function getColumns(): array{
@@ -36,24 +37,18 @@ class Check implements Constraint{
         return ['definition' => $definition,'min' => $min, '$max' => $max];
     }
 
-    private function extractMaxMin(): void{
-        $tempDefinition = str_split($this->definition);
-        $count = ['(' => 0 , '[' => 0 , ']' => 0, ')' => 0];
-        while(!empty($tempDefinition)){
-            $char = array_shift($tempDefinition);
-            if($char == '('){
-                $count['(']++;
-            }
-            elseif($char == ")"){
-                $count[')']++;
-            }
-            elseif($char ==)
-            break;
-        }
+    private function extractMinMax(): void{
+       foreach ($this->checkColumns as $key => $value) {
+           # code...
+       }
     }
 
     private function extractFromOperator(string $column): string{ 
         return \strpos($this->definition,'['.$column.']');
+    }
+
+    private function checkPositionQuote():void {
+        
     }
 
 }
