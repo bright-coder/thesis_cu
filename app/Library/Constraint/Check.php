@@ -14,6 +14,7 @@ class Check implements Constraint{
     private $min = [];
 
     public function __construct(string $name = "",array $checkColumns = [],string $definition = ""){
+       
         $this->name = $name;
         $this->checkColumns = $checkColumns;
         $this->definition = $definition;
@@ -38,17 +39,33 @@ class Check implements Constraint{
     }
 
     private function extractMinMax(): void{
-       foreach ($this->checkColumns as $key => $value) {
-           # code...
+
+       foreach ($this->checkColumns as $columnName) {
+           $this->extractMin($columnName);
        }
+
     }
 
-    private function extractFromOperator(string $column): string{ 
-        return \strpos($this->definition,'['.$column.']');
-    }
+    private function extractMin($columnName): void{
+       
+        $pattern = "\[{$columnName}\]>=\(([\d.]+?)\)";
+        preg_match_all("/$pattern/", $this->definition, $values , PREG_SET_ORDER);
 
-    private function checkPositionQuote():void {
-        
+        if ($values !== false && !empty($values)) {
+
+            $this->min[$columnName] = $values[0][1];
+            for ($i = 1 ; $i < count($values) ; ++$i) {
+                if ($values[$i][1] < $this->min[$columnName] ) {
+                    $this->min[$columnName] = $values[$i][1];
+                }
+            }
+
+        }
+        elseif (condition) {
+            # code...
+        }
+    
+
     }
 
 }
