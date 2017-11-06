@@ -2,7 +2,10 @@
 
 namespace App\Library\Datatype;
 
-class Decimal{
+use App\Library\Datatype\DataType;
+use App\Library\Datatype\DataTypeInterface;
+
+class Decimal implements DataTypeInterface{
     private $precision;
     private $scale;
 
@@ -12,14 +15,11 @@ class Decimal{
     }
 
     public function getType(): string{
-        return "decimal";
+        return DataType::DECIMAL;
     }
 
-    public function getPrecision(): int{
-        return $this->precision;
+    public function getDetails(): array{
+        return ['precision' => $this->precision, 'scale' => $this->scale];
     }
 
-    public function getScale(): int{
-        return $this->scale;
-    }
 }

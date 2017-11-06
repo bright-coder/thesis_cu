@@ -2,7 +2,9 @@
 
 namespace App\Library\Datatype;
 
-class Char{
+use App\Library\Datatype\DataTypeInterface;
+
+class Char implements DataTypeInterface {
     private $type;
     private $length;
 
@@ -15,7 +17,7 @@ class Char{
         return $this->type;
     }
 
-    public function getLength(): int{
-        return $this->length;
+    public function getDetails(): array {
+        return ['length' => $this->length];
     }
 }

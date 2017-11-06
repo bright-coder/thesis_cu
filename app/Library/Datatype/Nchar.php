@@ -2,7 +2,9 @@
 
 namespace App\Library\Datatype;
 
-class Nchar{
+use App\Library\Datatype\DataTypeInterface;
+
+class Nchar implements DataTypeInterface{
     private $type;
     private $length;
 
@@ -15,7 +17,7 @@ class Nchar{
         return $this->type;
     }
 
-    public function getLength(): int{
-        return $this->length;
+    public function getDetails(): array{
+        return ['length' => $this->length];
     }
 }

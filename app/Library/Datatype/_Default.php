@@ -2,7 +2,9 @@
 
 namespace App\Library\Datatype;
 
-class _Default{
+use App\Library\Datatype\DataTypeInterface;
+
+class _Default implements DataTypeInterface {
     private $type;
 
     public function __construct(string $type){
@@ -11,6 +13,10 @@ class _Default{
 
     public function getType(): string{
         return $this->type;
+    }
+
+    public function getDetails(): array{
+        return [];
     }
 
 }

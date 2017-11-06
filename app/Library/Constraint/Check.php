@@ -19,7 +19,7 @@ class Check implements Constraint{
         $this->checkColumns = $checkColumns;
         $this->definition = $definition;
 
-        $this->extractMinMax();
+        $this->findMinMaxAllColumns();
     }
 
     public function getName(): string{
@@ -38,34 +38,95 @@ class Check implements Constraint{
         return ['definition' => $definition,'min' => $min, '$max' => $max];
     }
 
-    private function extractMinMax(): void{
+    private function findMinMaxAllColumns(): void{
 
        foreach ($this->checkColumns as $columnName) {
-           $this->extractMin($columnName);
+           $this->findMin($columnName);
+           $this->findMax($columnName);
        }
 
     }
 
-    private function extractMin($columnName): void{
-       
-        $pattern = "\[{$columnName}\]>=\(([\d.]+?)\)";
-        preg_match_all("/$pattern/", $this->definition, $values , PREG_SET_ORDER);
+    private function findMin($columnName): void{
+        
+        $patterns = [];
+        $patterns[0] = "\[{$columnName}\]>=\(([\d.]+?)\)";
+        $patterns[1] = "\(([\d.]+?)\)<=\[{$columnName}\]";
+        $patterns[2] = "\[{$columnName}\]>\(([\d.]+?)\)";
+        $patterns[3] = "\(([\d.]+?)\)<\[{$columnName}\]";
 
-        if ($values !== false && !empty($values)) {
+        $values = $this->findValuesByPatterns($patterns);
 
-            $this->min[$columnName] = $values[0][1];
+        if ( !empty($values) ) {
+            $tempMin = ['value' => $values[0][1], 'isNotBound' => $values['isNotBound']];
+            unset($values['isNotBound']); //prevent error in for loop
+
             for ($i = 1 ; $i < count($values) ; ++$i) {
-                if ($values[$i][1] < $this->min[$columnName] ) {
-                    $this->min[$columnName] = $values[$i][1];
-                }
-            }
 
-        }
-        elseif (condition) {
-            # code...
+                if ($values[$i][1] < $tempMin['value'] ) {
+                    $tempMin['value'] = $values[$i][1];
+                }
+
+            }
+            $this->min[$columnName] = $tempMin;
+
         }
     
+    }
+
+    private function findMax($columnName): void{
+
+        $patterns = [];
+        $patterns[0] = "\[{$columnName}\]<=\(([\d.]+?)\)";
+        $patterns[1] = "\(([\d.]+?)\)>=\[{$columnName}\]";
+        $patterns[2] = "\(([\d.]+?)\)>\[{$columnName}\]";
+        $patterns[3] = "\[{$columnName}\]<\(([\d.]+?)\)";
+
+        $values = $this->findValuesByPatterns($patterns);
+
+        if( !empty($values) ) {
+
+            $tempMax = ['value' => $values[0][1], 'isNotBound' => $values['isNotBound']];
+            unset($values['isNotBound']); //prevent error in for loop
+            for ($i = 1 ; $i < count($values) ; ++$i) {
+
+                if ($values[$i][1] > $tempMax['value'] ) {
+                    $tempMax['value'] = $values[$i][1];
+                }
+
+            }
+            $this->max[$columnName] = $tempMax;
+
+        }
+    }
+
+    private function findValuesByPatterns(array $patterns): array{
+
+        foreach ($patterns as $index => $pattern) {
+            $values = $this->extractValuesFromDefinition($pattern);
+    
+            if (!empty($values) && $values !== false) { 
+                
+                $values['isNotBound'] = false;
+                
+                if ($index > 1) {
+                    $values['isNotBound'] = true;
+                }
+                
+                break; 
+            }
+        }
+
+        return $values;
+    }
+
+    private function extractValuesFromDefinition(string $pattern): array{
+        
+        preg_match_all("/$pattern/", $this->definition, $values, PREG_SET_ORDER);
+        
+            return $values;
 
     }
+
 
 }

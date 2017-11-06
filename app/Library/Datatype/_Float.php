@@ -2,7 +2,10 @@
 
 namespace App\Library\Datatype;
 
-class _Float{
+use App\Library\Datatype\DataType;
+use App\Library\Datatype\DataTypeInterface;
+
+class _Float implements DataTypeInterface {
     private $n;
 
     public function __construct(int $n = 53){
@@ -10,14 +13,11 @@ class _Float{
     }
 
     public function getType(): string{
-        return "float";
+        return DataType::FLOAT ;
     }
 
-    public function getPrecision(): int{
-        return $this->n > 24 ? 7 : 15;
+    public function getDetails(): array{
+        return ['n' => $this->n, 'precision' => $this->n > 24 ? 7 : 15 ];
     }
 
-    public function getN(): int{
-        return $this->n;
-    }
 }
