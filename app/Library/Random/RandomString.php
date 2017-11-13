@@ -1,0 +1,39 @@
+<?php
+ 
+ namespace App\Library\Random;
+
+ use App\Library\Random\RandomInterface;
+
+ class RandomString implements RandomInterface {
+    private $randomData;
+
+    public function __construct() {
+        $this->randomData = [];
+    }
+
+    public function random(int $numRows, array $info, bool $isUnique): void {
+        $length = $info['length'];
+        $characters ='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        if (!$isUnique) {
+            while(true){
+                $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
+                    $this->randomData[] = $r;
+                if (sizeof($this->randomData) == $numRows) { break; }
+            }
+        }
+        else {
+            while(true){
+                $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
+                if(!isset($randomData[$r])){
+                    $this->randomData[$r] = $r;
+                }
+                if (sizeof($this->randomData) == $numRows) { break; }
+            }
+        }
+    }
+
+    public function getRandomData(): array{
+        return $this->randomData;
+    }
+ }
