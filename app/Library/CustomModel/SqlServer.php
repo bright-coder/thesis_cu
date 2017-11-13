@@ -39,14 +39,22 @@ class SqlServer implements DBConnector {
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if($stmt->execute() ){
             $tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
-            foreach ($tables as $name => $numRow) {
-                $stmt = $this->conObj->prepare("SELECT COUNT(*) as numRows FROM {$name}");
-                if($stmt->execute()){
-                    $tables[$name] = $stmt->fetch(\PDO::FETCH_OBJ)->numRows;
-                }
-            }
+            // foreach ($tables as $name => $numRow) {
+            //     $stmt = $this->conObj->prepare("SELECT COUNT(*) as numRows FROM {$name}");
+            //     if($stmt->execute()){
+            //         $tables[$name] = $stmt->fetch(\PDO::FETCH_OBJ)->numRows;
+            //     }
+            // }
             return $tables;
         }
+    }
+
+    public function getNumDistinctValue(string $tableName, string $columnName): int{
+        $stmt = $this->conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as numDistinctValue FROM {$tableName}");
+        if($stmt->execute() ) {
+            return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
+        }
+        return 0;
     }
 
     public function getAllColumnsByTableName(string $tableName): array{
