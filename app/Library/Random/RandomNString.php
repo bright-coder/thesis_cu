@@ -14,19 +14,33 @@
     public function random(int $numRows, array $info, bool $isUnique): void {
         $length = $info['length'];
         $characters ='กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
+        $arrayOfChars = preg_split('//u', $characters, null, PREG_SPLIT_NO_EMPTY);
         if (!$isUnique) {
             while(true){
-                $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
+                shuffle($arrayOfChars);
+                $randomChars = implode("",$arrayOfChars);
+                $r = mb_substr($randomChars,0,$length,"UTF-8");
+                    while(mb_strlen($r) < $length) {
+                        shuffle($arrayOfChars);
+                        $randomChars = implode("",$arrayOfChars);
+                        $r .= mb_substr($randomChars,0, $length - mb_strlen($r),"UTF-8");
+                    }
                     $this->randomData[] = $r;
                 if (sizeof($this->randomData) == $numRows) { break; }
             }
         }
         else {
             while(true){
-                $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
+                shuffle($arrayOfChars);
+                $randomChars = implode("",$arrayOfChars);
+                $r = mb_substr($randomChars,0,$length,"UTF-8");
+                    while(mb_strlen($r) < $length) {
+                        shuffle($arrayOfChars);
+                        $randomChars = implode("",$arrayOfChars);
+                        $r .= mb_substr($randomChars,0, $length - mb_strlen($r),"UTF-8");
+                    }
                 if(!isset($randomData[$r])){
-                    $this->randomData[$r] = $r;
+                    $this->randomData[$r] = false;
                 }
                 if (sizeof($this->randomData) == $numRows) { break; }
             }

@@ -26,7 +26,7 @@
             while(true){
                 $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
                 if(!isset($randomData[$r])){
-                    $this->randomData[$r] = $r;
+                    $this->randomData[$r] = false;
                 }
                 if (sizeof($this->randomData) == $numRows) { break; }
             }

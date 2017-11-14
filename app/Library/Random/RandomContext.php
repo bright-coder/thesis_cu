@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\RandomContext;
+namespace App\Library\Random;
 
 use App\Library\Datatype\DataType;
 
@@ -24,14 +24,19 @@ class RandomContext {
             case DataType::NCHAR :
             case DataType::NVARCHAR :
                 $this->randomType = new RandomNString();
+                break;
             case DataType::FLOAT :
                 $this->randomType = new RandomFloat();
+                break;
             case DataType::DECIMAL :
                 $this->randomType = new RandomDecimal();
+                break;
             case DataType::DATE :
                 $this->randomType = new RandomDate();
+                break;
             case DataType::DATETIME :
                 $this->randomType = new RandomDateTime();
+                break;
             default:
                 $this->randomType = new RandomInteger();
                 break;

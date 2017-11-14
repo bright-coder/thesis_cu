@@ -12,7 +12,7 @@ class RandomDate implements RandomInterface {
     }
 
     public function random(int $numRows, array $info, bool $isUnique): void {
-        $min = strtotime('26 May 2009');
+        $min = strtotime('26 May 1993');
         $max = strtotime('now');
 
 
@@ -25,8 +25,8 @@ class RandomDate implements RandomInterface {
         else {
             while(sizeof($this->randomData) < $numRows){
                 $val = rand($min,$max);
-                if(!isset($this->randomData[$val])){
-                        $this->randomData[$val] = date('Y-m-d',$val);
+                if(!isset($this->randomData[date('Y-m-d',$val)])){
+                        $this->randomData[date('Y-m-d',$val)] = false;
                 }
             }
         }

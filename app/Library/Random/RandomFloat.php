@@ -36,7 +36,7 @@ class RandomFloat implements RandomInterface {
                 while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
                     $r = rand($min,$max);
                     if(!isset($this->randomData[$r])){
-                        $this->randomData[$r] = $r.'';
+                        $this->randomData[$r] = false;
                     }
                 }
                 $min = $max ;

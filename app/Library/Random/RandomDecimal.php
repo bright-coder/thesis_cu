@@ -25,7 +25,7 @@ class RandomDecimal implements RandomInterface {
             for($i = 0; $i < 5; ++$i){
                 while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
                     $r = mt_rand($min * $scale, $max * $scale) / $scale;
-                        $this->randomData[] = $r.'';
+                        $this->randomData[] = false;
                 }
                 $min = $max ;
                 $max = $min + $rangeAvg;

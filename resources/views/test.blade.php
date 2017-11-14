@@ -1,6 +1,10 @@
 
 <html>
+    <meta charset="UTF-8">
     <body>
-        {{ dd($constraintInTable) }}
+    <p>กฤษฎา</p>
+    
+        <p>{{ dd($constraintInTable) }}</p>
+        
     </body>
 </html>

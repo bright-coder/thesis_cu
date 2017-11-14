@@ -4,7 +4,7 @@ namespace App\Library\Random;
 
 use App\Library\Random\RandomInterface;
 
-class RandomInterger implements RandomInterface {
+class RandomInteger implements RandomInterface {
     private $randomData;
 
     public function __construct() {
@@ -16,28 +16,37 @@ class RandomInterger implements RandomInterface {
         $max = $info['max'];
         $range = $max-$min;
         $rangeAvg = $range/5;
-        $max = $min + $rangeAvg;
 
         if(!$isUnique) {
+            $max = $min + $rangeAvg;
             for($i = 0; $i < 5; ++$i){
                 while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1))){
                     $r = rand($min,$max);
-                        $this->datas[] = $r.'';
+                    $this->randomData[] = $r.'';
                 }
                 $min = $max;
                 $max = $min + $rangeAvg;
             }
         }
         else {
-            for($i = 0; $i < 5; ++$i){
-                while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
-                    $r = rand($min,$max);
-                    if(!isset($this->randomData[$r])){
-                        $this->randomData[$r] = $r.'';
-                    }
+            if ($range+1 < $numRows) throw new \Exception("Invalid range", 1);
+            else if ($range+1 == $numRows) {
+                for($i = $min; $i <= $max ; ++$i){
+                    $this->randomData[$i] = false;
                 }
-                $min = $max ;
+            }
+            else {
                 $max = $min + $rangeAvg;
+                for($i = 0; $i < 5; ++$i){
+                    while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
+                        $r = rand($min,$max);
+                        if(!isset($this->randomData[$r])){
+                            $this->randomData[$r] = false;
+                        }
+                    }
+                    $min = $max ;
+                    $max = $min + $rangeAvg;
+                }
             }
         }
     }
