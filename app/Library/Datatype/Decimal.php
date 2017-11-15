@@ -19,7 +19,7 @@ class Decimal implements DataTypeInterface{
     }
 
     public function getDetails(): array{
-        return ['precision' => $this->precision, 'scale' => $this->scale];
+        return ['precision' => $this->precision <= 38 ? $this->precision : 38 , 'scale' => $this->scale < $this->precision ? $this->scale : 0];
     }
 
 }

@@ -19,5 +19,6 @@ class _Float implements DataTypeInterface {
     public function getDetails(): array{
         return ['n' => $this->n, 'precision' => $this->n > 24 ? 7 : 15 ];
     }
+    
 
 }

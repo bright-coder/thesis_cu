@@ -14,7 +14,7 @@ class RandomDecimal implements RandomInterface {
     public function random(int $numRows, array $info, bool $isUnique): void {
         $min = $info['min'];
         $max = $info['max'];
-        $decimals = $info['decimals'];
+        $decimals = $info['scale'];
         
         $range = $max - $min;
         $rangeAvg = $range/5;

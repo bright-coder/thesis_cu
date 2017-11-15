@@ -22,7 +22,7 @@ class CoreController extends Controller
         //return view('test',['constraintInTable' => $model->getAllConstraintsByTableName('profile')]);
        // return view('test',['constraintInTable' => $model->getNumDistinctValue('profile','id')]);
        $r = new RandomContext('float');
-       $r->random(4,['min'=>0.0,'max'=>0.4,'precision'=>1],true);
+       $r->random(4,['min'=>0.4,'max'=>0.5,'precision'=>2],true);
        //$faker = Faker\Factory::create();
        $random;
        try {
