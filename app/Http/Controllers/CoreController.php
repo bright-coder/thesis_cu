@@ -21,8 +21,8 @@ class CoreController extends Controller
         //$model = ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
         //return view('test',['constraintInTable' => $model->getAllConstraintsByTableName('profile')]);
        // return view('test',['constraintInTable' => $model->getNumDistinctValue('profile','id')]);
-       $r = new RandomContext('int');
-       $r->random(8,['min'=>1,'max'=>9],true);
+       $r = new RandomContext('float');
+       $r->random(4,['min'=>0.0,'max'=>0.4,'precision'=>1],true);
        //$faker = Faker\Factory::create();
        $random;
        try {

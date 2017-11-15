@@ -29,7 +29,9 @@ class RandomInteger implements RandomInterface {
             }
         }
         else {
-            if ($range+1 < $numRows) throw new \Exception("Invalid range", 1);
+            if ($range+1 < $numRows) {
+                throw new \Exception("Invalid range", 1);
+            }
             else if ($range+1 == $numRows) {
                 for($i = $min; $i <= $max ; ++$i){
                     $this->randomData[$i] = false;
