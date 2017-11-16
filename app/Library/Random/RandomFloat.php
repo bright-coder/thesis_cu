@@ -12,19 +12,25 @@ class RandomFloat implements RandomInterface {
     }
 
     public function random(int $numRows, array $info, bool $isUnique): void {
+        
+        $this->checMinMaxPrecision(floatval($info['min']),floatval($info['max']),$info['precision']);
         $min = $info['min'];
         $max = $info['max'];
-        $decimals = $this->checkPrecision(floatval($min),floatval($max),$info['precision']);
+        $precision = $info['precision'];
         
         $range = $max - $min;
         $rangeAvg = $range/5;
-        $scale = pow(10, $decimals);
+        $scale = 0;
+        //if( ) {
+            $scale = $precision - strlen(explode(".",strval($precision))[0]);
+        //}
+        $step = pow(10, $scale);
 
         if(!$isUnique) {
             $max = $min + $rangeAvg;
             for($i = 0; $i < 5; ++$i){
                 while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
-                    $r = mt_rand($min * $scale, $max * $scale) / $scale;
+                    $r = mt_rand($min * $step, $max * $step) / $step;
                         $this->randomData[] = $r.'';
                 }
                 $min = $max ;
@@ -32,7 +38,7 @@ class RandomFloat implements RandomInterface {
             }
         }
         else {
-            if ($numRows > intval($range)+1 && $numRows > $range * $scale +1 ) {
+            if ($numRows > intval($range)+1 && $numRows > $range * $step +1 ) {
                 throw new \Exception("Invalid range", 1);
             }
             else if($numRows == intval($range)+1 ) {
@@ -67,17 +73,18 @@ class RandomFloat implements RandomInterface {
         return $this->randomData;
     }
 
-    private function checkPrecision(float $min, float $max, int $precision): int {
+    private function checMinMaxPrecision(float $min, float $max, int $precision): void {
         $precisionMin = strlen(str_replace(".", "", strval($min)));
         $precisionMax = strlen(str_replace(".", "", strval($max)));
         $realPrecision = $precision;
         if($precisionMin > $realPrecision) {
-            $realPrecision = $precisionMin;
+            throw new \Exception("Error : min precision is more than precision", 1);
+            
         }
         if($precisionMax > $realPrecision) {
-            $realPrecision = $precisionMax;
+            throw new \Exception("Error : max precision is more than precision", 1);
         }
-        return $realPrecision;
+
     }
 
 }
