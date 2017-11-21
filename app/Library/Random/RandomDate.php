@@ -12,7 +12,7 @@ class RandomDate implements RandomInterface {
     }
 
     public function random(int $numRows, array $info, bool $isUnique): void {
-        $min = strtotime('26 May 1993');
+        $min = strtotime('1 January 1970');
         $max = strtotime('now');
 
 
