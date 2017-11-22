@@ -14,39 +14,56 @@ class RandomDecimal implements RandomInterface {
     public function random(int $numRows, array $info, bool $isUnique): void {
         $min = $info['min'];
         $max = $info['max'];
-        $decimals = $info['scale'];
+        $precision = $info['precision'];
+        $scale = $info['scale'];
         
         $range = $max - $min;
         $rangeAvg = $range/5;
-        $scale = pow(10, $decimals);
+        $step = pow(10, $precision);
         $max = $min + $rangeAvg;
 
         if(!$isUnique) {
             for($i = 0; $i < 5; ++$i){
                 while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
-                    $r = mt_rand($min * $scale, $max * $scale) / $scale;
-                        $this->randomData[] = false;
+                    $r = mt_rand($min * $step, $max * $step) / $step;
+                        $this->randomData[] = round($r,$scale)."";
                 }
                 $min = $max ;
                 $max = $min + $rangeAvg;
             }
         }
         else {
-            for($i = 0; $i < 5; ++$i){
-                while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
-                    $r = rand($min,$max);
-                    if(!isset($this->randomData[$r])){
-                        $this->randomData[$r] = $r.'';
-                    }
-                }
-                $min = $max ;
-                $max = $min + $rangeAvg;
+            
+            $num = $min;
+            $this->randomData[] = $min.""; 
+            while (sizeof($this->randomData) < $numRows && $num < $max) {
+                $num = round($num+(1/pow(10, $precision - strlen( explode(".",strval($num))[0] ))), $precision - strlen( explode(".",strval($num))[0] ));
+                $this->randomData[] = $num.""; 
             }
+            if(sizeof($this->randomData) < $numRows ) {
+                throw new \Exception("Error : Cannot generate {$numRows} unique values.", 1);
+                
+            }
+        
         }
     }
 
     public function getRandomData(): array {
         return $this->randomData;
+    }
+
+    private function checMinMaxPrecision(float $min, float $max, int $precision): void {
+        $precisionMin = strlen(str_replace(".", "", strval($min)));
+        $precisionMax = strlen(str_replace(".", "", strval($max)));
+
+        if($precisionMin > $precision) {
+            throw new \Exception("Error : min precision is more than precision", 1);
+            
+        }
+        if($precisionMax > $precision) {
+            throw new \Exception("Error : max precision is more than precision", 1);
+        }
+
     }
 
 }
