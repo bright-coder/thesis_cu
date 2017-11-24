@@ -3,41 +3,45 @@
 namespace App\Library\CustomModel;
 
 use App\Library\CustomModel\DBConnector;
-
 use App\Library\CustomModel\ModelOutput\ModelOutputFactory;
 use App\Library\CustomModel\ModelOutput\ModelOutputType;
-
 use App\Library\Database\Database;
 
-class SqlServer implements DBConnector {
+class SqlServer implements DBConnector
+{
     /**
-    * @var \PDO
-    */
+     * @var \PDO
+     */
     private $conObj;
     private $server;
     private $database;
 
-    public function __construct(string $server, string $database, string $user, string $pass){
-        $this->conObj = new \PDO("sqlsrv:server={$server} ; Database = {$database}",$user,$pass);
+    public function __construct(string $server, string $database, string $user, string $pass)
+    {
+        $this->conObj = new \PDO("sqlsrv:server={$server} ; Database = {$database}", $user, $pass);
         $this->server = $server;
         $this->database = $database;
     }
 
-    public function getDBType(): string{
+    public function getDBType(): string
+    {
         return "sqlsrv";
     }
 
-    public function getDBServer(): string{
+    public function getDBServer(): string
+    {
         return $this->server;
     }
 
-    public function getDBName(): string{
+    public function getDBName(): string
+    {
         return $this->database;
     }
 
-    public function getAllTables(): array{
+    public function getAllTables(): array
+    {
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
-        if($stmt->execute() ){
+        if ($stmt->execute()) {
             $tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
             // foreach ($tables as $name => $numRow) {
             //     $stmt = $this->conObj->prepare("SELECT COUNT(*) as numRows FROM {$name}");
@@ -49,48 +53,35 @@ class SqlServer implements DBConnector {
         }
     }
 
-    public function getNumDistinctValue(string $tableName, string $columnName): int{
+    public function getNumDistinctValues(string $tableName, string $columnName): int
+    {
         $stmt = $this->conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as numDistinctValue FROM {$tableName}");
-        if($stmt->execute() ) {
+        if ($stmt->execute()) {
             return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
         }
         return 0;
     }
 
-    public function getAllColumnsByTableName(string $tableName): array{
-        $stmt = $this->conObj->prepare("SELECT COLUMN_NAME as name, 
-        DATA_TYPE as dataType, 
-        COLUMN_DEFAULT as _default, 
-        IS_NULLABLE as isNullable, 
-        CHARACTER_MAXIMUM_LENGTH as length, 
-        NUMERIC_PRECISION as precision, 
+    public function getAllColumnsByTableName(string $tableName): array
+    {
+        $stmt = $this->conObj->prepare("SELECT COLUMN_NAME as name,
+        DATA_TYPE as dataType,
+        COLUMN_DEFAULT as _default,
+        IS_NULLABLE as isNullable,
+        CHARACTER_MAXIMUM_LENGTH as length,
+        NUMERIC_PRECISION as precision,
         NUMERIC_SCALE as scale
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = :tableName");
-        if($stmt->execute(array(':tableName' => $tableName)) ){
-            return ModelOutputFactory::createOutput(ModelOutputType::COLUMN ,$stmt->fetchAll(\PDO::FETCH_ASSOC));
+        if ($stmt->execute(array(':tableName' => $tableName))) {
+            return ModelOutputFactory::createOutput(ModelOutputType::COLUMN, $stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
     }
 
-    public function getAllConstraintsByTableName(string $tableName): array{
-        /*if($constraintsType == NULL){
-            $constraintsType = [
-                ConstraintType::PRIMARY_KEY,
-                ConstraintType::FOREIGN_KEY,
-                ConstraintType::CHECK,
-                ConstraintType::UNIQUE
-            ];
-        }
-        $numConstraints = count($constraintsType);
-        $constraintPlaceholder = [];
-        for($i = 1 ; $i <= $numConstraints ; ++$i){
-            $constraintPlaceholder[] = ":c".$i;
-        }
-        $constraintsType = array_combine($constraintPlaceholder,$constraintsType);
-        $constraintPlaceholder = implode(",",$constraintPlaceholder);
-        */
+    public function getAllConstraintsByTableName(string $tableName): array
+    {
 
-        $stmt = $this->conObj->prepare("SELECT TC.Constraint_Name AS name, 
+        $stmt = $this->conObj->prepare("SELECT TC.Constraint_Name AS name,
                         TC.CONSTRAINT_TYPE as type ,
 						SC.definition as definition,
 						CC.Column_Name AS columnName,
@@ -99,20 +90,20 @@ class SqlServer implements DBConnector {
                         FK.toTable AS toTable,
                         Fk.toColumn AS toColumn
                     FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC
-                    INNER JOIN 
-                        INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE CC ON 
+                    INNER JOIN
+                        INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE CC ON
                         TC.Constraint_Name = CC.Constraint_Name
 					LEFT JOIN
 						sys.check_constraints SC ON
 						SC.name = TC.Constraint_Name
 					LEFT JOIN
-                    (SELECT 
+                    (SELECT
                         obj.name      AS FK_NAME,
                         tab1.name     AS fromTable,
                         col1.name     AS fromColumn,
                         tab2.name     AS toTable,
                         col2.name     AS toColumn
-                    FROM 
+                    FROM
                         sys.foreign_key_columns fkc
                     INNER JOIN sys.objects obj
                         ON obj.object_id = fkc.constraint_object_id
@@ -123,19 +114,16 @@ class SqlServer implements DBConnector {
                     INNER JOIN sys.tables tab2
                         ON tab2.object_id = fkc.referenced_object_id
                     INNER JOIN sys.columns col2
-                        ON col2.column_id = referenced_column_id 
+                        ON col2.column_id = referenced_column_id
                             AND col2.object_id =  tab2.object_id
                     ) AS FK
 						ON FK.FK_NAME = TC.Constraint_Name
                     WHERE CC.TABLE_NAME = :tableName ORDER BY type,name");
-                    //WHERE TC.constraint_type IN ({$constraintPlaceholder}) AND
-                    //$stmt->execute( array_merge(array(':tableName'=> $tableName)) )
-                    
-        if ( $stmt->execute([':tableName' => $tableName]) ) {
-            return ModelOutputFactory::createOutput(ModelOutputType::CONSTRAINT , $stmt->fetchAll(\PDO::FETCH_ASSOC));
+
+        if ($stmt->execute([':tableName' => $tableName])) {
+            return ModelOutputFactory::createOutput(ModelOutputType::CONSTRAINT, $stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
 
     }
-
 
 }

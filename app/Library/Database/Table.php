@@ -3,22 +3,20 @@
 namespace App\Library\Table;
 
 use App\Library\Column\Column;
+use App\Library\Constraint\Constraint;
 use App\Library\Constraint\ForeignKey;
 use App\Library\Constraint\PrimaryKey;
 
-class Table{
+class Table
+{
     /**
-    * @var string
-    */
+     * @var string
+     */
     private $name;
     /**
      * @var array
      */
     private $columns;
-    /**
-     * @var int
-     */
-    private $numRows;
     /**
      * @var PrimaryKey
      */
@@ -26,49 +24,79 @@ class Table{
     /**
      * @var ForeignKey
      */
-    private $fk;
+    private $fks;
+    /**
+     * @var array
+     */
+    private $constraints;
 
-    public function __construct(string $name){
+    public function __construct(string $name)
+    {
         $this->name = $name;
         $this->columns = [];
         $this->pk = new PrimaryKey();
-        $this->fk = []; // array of foreign key
+        $this->fks = []; // array of foreign key
+        $this->constraints = [];
     }
 
-    public function addColumn(Column $col): void{
+    public function addColumn(Column $col): void
+    {
         $this->columns[$col->getName()] = $col;
     }
 
-    public function addColumns(array $cols = []): void{
-        $this->columns = array_merge($this->columns,$cols);
+    public function addColumns(array $cols = []): void
+    {
+        $this->columns = array_merge($this->columns, $cols);
     }
 
-    public function getAllColumns(): array{
+    public function getAllColumns(): array
+    {
         return $this->columns;
-    }    
-    
-    public function getColumnByName(string $colName){
+    }
+
+    public function getColumnByName(string $colName)
+    {
         return $this->columns[$colName];
     }
 
-    public function setPK(PrimaryKey $pk): void{
+    public function setPK(PrimaryKey $pk): void
+    {
         $this->pk = $pk;
     }
 
-    public function getPK(): PrimaryKey{
+    public function getPK(): PrimaryKey
+    {
         return $this->pk;
     }
 
-    public function addFK(ForeignKey $fk): void{
-        $this->fk[$fk->getName()] = $fk;
+    public function addFK(ForeignKey $fk): void
+    {
+        $this->fks[$fk->getName()] = $fk;
     }
 
-    public function getFKbyName(string $name): ForeignKey{
-        return $this->fk[$name];
+    public function getFKbyName(string $name): ForeignKey
+    {
+        return $this->fks[$name];
     }
 
-    public function getAllFK(): array{
-        return $this->fk;
+    public function getAllFK(): array
+    {
+        return $this->fks;
+    }
+
+    public function addConstraint(Constraint $constraint): void
+    {
+        $this->constraints[$constraint->getName()] = $constraint;
+    }
+
+    public function getConstraintByName(string $name): Constraint
+    {
+        return $this->constraints[$name];
+    }
+
+    public function getAllConstraints(): array
+    {
+        return $this->constraints;
     }
 
 }
