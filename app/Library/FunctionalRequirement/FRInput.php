@@ -2,17 +2,18 @@
 
 namespace App\Library\FunctionalRequirement;
 
+
 class FRInput
 {
 
-    private $id;
-    private $name;
-    private $dataType;
-    private $default;
-    private $isNullable;
-    private $isUnique;
-    private $min = null;
-    private $max = null;
+    protected $id;
+    protected $name;
+    protected $dataType;
+    protected $default;
+    protected $isNullable;
+    protected $isUnique;
+    protected $min = null;
+    protected $max = null;
 
     public function getId(): string
     {

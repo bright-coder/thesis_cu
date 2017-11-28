@@ -5,8 +5,6 @@ namespace App\Library\FunctionalRequirement;
 class FR
 {
 
-    private $id;
-
     private $no;
 
     private $description;
@@ -18,16 +16,6 @@ class FR
     public function __construct()
     {
         $this->frInputs = [];
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
     }
 
     public function getNo(): string

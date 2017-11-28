@@ -80,7 +80,7 @@ return [
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'host' => 'DESKTOP-NRK0H8C',
-            'database' => 'customer',
+            'database' => 'systemDB',
             'username' => 'thesis',
             'password' => '1234',
             'charset' => 'utf8',
