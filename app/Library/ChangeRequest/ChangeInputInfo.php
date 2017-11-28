@@ -31,7 +31,7 @@ class ChangeInputInfo
 
     public function setChangeInfo(array $info): void
     {
-        // ["inputName"] => "Student id"
+        ////////// ["inputName"] => "Student id"
         // ["dataType"] => NULL
         // ["dataLength"] => "20"
         // ["scale"] => NULL
