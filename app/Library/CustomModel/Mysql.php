@@ -2,9 +2,9 @@
 
 namespace App\Library\CustomModel;
 
-use App\Library\CustomModel\DBConnector;
+use App\Library\CustomModel\DBTargetInterface;
 
-class Mysql implements DBConnector {
+class Mysql implements DBTargetInterface {
 
     private $conObj;
     private $server;

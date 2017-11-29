@@ -39,6 +39,10 @@ class Table
         $this->constraints = [];
     }
 
+    public function getName(): string {
+        return $this->name;
+    }
+
     public function addColumn(Column $col): void
     {
         $this->columns[$col->getName()] = $col;

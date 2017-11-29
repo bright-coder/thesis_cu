@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Random\RandomContext;
-use App\Library\CustomModel\ModelFactory;
+use App\Library\Builder\DatabaseBuilder;
+use App\Library\CustomModel\DBTargetConnection;
 
 class CoreController extends Controller
 {
@@ -13,7 +13,18 @@ class CoreController extends Controller
 
         //$dbBuilder = new DatabaseBuilder(ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234'));
         //$dbBuilder->setTable();
-        $model = ModelFactory::create('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
+        //$model = DBTargetConnection::getInstance('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
+        $dbCon = DBTargetConnection::getInstance('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
+
+        if( !$dbCon->Connect()) {
+            $msg = "Cannot Connect to Target Database";
+        }
+        else {
+            $databaseBuilder = new DatabaseBuilder($dbCon);
+            $databaseBuilder->setUpTablesAndColumns();
+        }
+            
+        
         //return view('test',['constraintInTable' => $model->getAllConstraintsByTableName('profile')]);
         // return view('test',['constraintInTable' => $model->getNumDistinctValue('profile','id')]);
         // $r = new RandomContext('datetime');
@@ -25,6 +36,6 @@ class CoreController extends Controller
         // } catch (Exception $e) {
         //     $random = $e;
         // }
-        return view('test', ['constraintInTable' => $model->getAllTables()]);
+        return view('test', ['constraintInTable' => $databaseBuilder->getDatabase()]);
     }
 }

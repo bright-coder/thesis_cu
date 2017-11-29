@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Library\DatabaseBuilder;
+namespace App\Library\Builder;
 
-use App\Library\CustomModel\DBConnector;
+use App\Library\CustomModel\DBTargetInterface;
 use App\Library\Database\Database;
 
 class DatabaseBuilder
@@ -14,14 +14,14 @@ class DatabaseBuilder
     private $database;
 
     /**
-     * @var DBConnector
+     * @var DBTargetInterface
      */
     private $DBConnector;
 
     /**
      * @param DBConnnector $DBConnector
      */
-    public function __construct(DBConnector $DBConnector)
+    public function __construct(DBTargetInterface $DBConnector)
     {
         $this->DBConnector = $DBConnector;
         $this->database = new Database($this->DBConnector->getDBServer(), $this->DBConnector->getDBName());
