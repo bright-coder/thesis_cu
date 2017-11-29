@@ -8,7 +8,7 @@ use App\Library\Datatype\DataTypeInterface;
 final class DataTypeFactory
 {
 
-    public function create(string $type = "", array $detail = ['length' => 0, 'precision' => 1, 'scale' => 0]): DataTypeInterface
+    public static function create(string $type = "", array $detail = ['length' => 0, 'precision' => 1, 'scale' => 0]): DataTypeInterface
     {
         switch ($type) {
             case DataType::CHAR:
@@ -25,7 +25,7 @@ final class DataTypeFactory
             case DataType::DECIMAL:
                 return new Decimal($detail['precision'], $detail['scale']);
                 break;
-            case DataType::INT:
+            case DataType::INTEGER:
             case DataType::DATE:
             case DataType::DATETIME:
             default:

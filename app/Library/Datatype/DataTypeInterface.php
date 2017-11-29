@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\DataTypeInterface;
+namespace App\Library\Datatype;
 
 interface DataTypeInterface {
     public function getType(): string;

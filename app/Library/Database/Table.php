@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Table;
+namespace App\Library\Database;
 
 use App\Library\Column\Column;
 use App\Library\Constraint\Constraint;

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Library\Column;
+namespace App\Library\Database;
 
 use App\Library\DataType\DataType;
+use App\Library\DataType\DataTypeFactory;
 
 class Column
 {
@@ -32,7 +33,7 @@ class Column
         $this->name = $columnInfo['name'];
 
         $this->dataType =
-        new DataType(
+        DataTypeFactory::create(
             $columnInfo['dataType'],
             [
                 'length' => $columnInfo['length'],
@@ -41,14 +42,9 @@ class Column
             ]
         );
 
-        $this->$default = $columnInfo['_default'];
+        $this->default = $columnInfo['_default'];
 
-        $this->$isNullable = $columnInfo['isNullable'] === "NO" ? false : true;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
+        $this->isNullable = $columnInfo['isNullable'] === "NO" ? false : true;
     }
 
     public function getName(): string

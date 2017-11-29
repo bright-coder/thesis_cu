@@ -2,6 +2,7 @@
 
 namespace App\Library\FunctionalRequirement;
 
+use App\Library\DataType\Datatype;
 
 class FRInput
 {

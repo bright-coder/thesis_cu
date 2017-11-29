@@ -42,14 +42,8 @@ class SqlServer implements DBConnector
     {
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if ($stmt->execute()) {
-            $tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
-            // foreach ($tables as $name => $numRow) {
-            //     $stmt = $this->conObj->prepare("SELECT COUNT(*) as numRows FROM {$name}");
-            //     if($stmt->execute()){
-            //         $tables[$name] = $stmt->fetch(\PDO::FETCH_OBJ)->numRows;
-            //     }
-            // }
-            return $tables;
+            //$tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
+            return ModelOutputFactory::createOutput(ModelOutputType::TABLE, $stmt->fetchAll(\PDO::FETCH_COLUMN));
         }
     }
 
