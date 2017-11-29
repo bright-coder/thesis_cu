@@ -23,10 +23,6 @@ class Column
      * @var string
      */
     private $default;
-    /**
-     * @var int
-     */
-    private $numDistinctValues;
 
     public function __construct(array $columnInfo)
     {
@@ -86,11 +82,6 @@ class Column
     public function getDefault(): string
     {
         return $this->default;
-    }
-
-    public function getNumDistinctValues(): int
-    {
-        return $this->numDistinctValues;
     }
 
 }

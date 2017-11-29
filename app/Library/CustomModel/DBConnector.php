@@ -6,11 +6,12 @@ use App\Library\Database\Database;
 
 interface DBConnector
 {
-    public function getDBType(): string;
-    public function getDBServer(): string;
-    public function getDBName(): string;
-    public function getAllTables(): array;
-    public function getNumDistinctValues(string $tableName, string $columnName): int;
-    public function getAllColumnsByTableName(string $tableName): array;
-    public function getAllConstraintsByTableName(string $tableName): array;
+    public static function getInstance(): \PDO;
+    public static function getDBType(): string;
+    public static function getDBServer(): string;
+    public static function getDBName(): string;
+    public static function getAllTables(): array;
+    public static function getNumDistinctValues(string $tableName, string $columnName): int;
+    public static function getAllColumnsByTableName(string $tableName): array;
+    public static function getAllConstraintsByTableName(string $tableName): array;
 }

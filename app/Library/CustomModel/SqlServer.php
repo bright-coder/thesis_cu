@@ -5,42 +5,57 @@ namespace App\Library\CustomModel;
 use App\Library\CustomModel\DBConnector;
 use App\Library\CustomModel\ModelOutput\ModelOutputFactory;
 use App\Library\CustomModel\ModelOutput\ModelOutputType;
-use App\Library\Database\Database;
 
 class SqlServer implements DBConnector
 {
     /**
      * @var \PDO
      */
-    private $conObj;
-    private $server;
-    private $database;
+    private static $conObj = null;
+    private static $server;
+    private static $database;
+    private static $user;
+    private static $pass;
 
-    public function __construct(string $server, string $database, string $user, string $pass)
+    public static function getInstance(): PDO
     {
-        $this->conObj = new \PDO("sqlsrv:server={$server} ; Database = {$database}", $user, $pass);
-        $this->server = $server;
-        $this->database = $database;
+        if (SqlServer::$conObj === null) {
+            SqlServer::$conObj = new \PDO(
+                "sqlsrv:server={SqlServer::$server} ; Database = {SqlServer::$database}",
+                SqlServer::$user,
+                SqlServer::$pass
+            );
+        }
+
+        return SqlServer::$conObj;
     }
 
-    public function getDBType(): string
+    public static function setConnectionInfo(string $server, string $database, string $user, string $pass): void
+    {
+        SqlServer::$server = $server;
+        SqlServer::$database = $database;
+        SqlServer::$user = $user;
+        SqlServer::$pass = $pass;
+    }
+
+    public static function getDBType(): string
     {
         return "sqlsrv";
     }
 
-    public function getDBServer(): string
+    public static function getDBServer(): string
     {
-        return $this->server;
+        return SqlServer::$server;
     }
 
-    public function getDBName(): string
+    public static function getDBName(): string
     {
-        return $this->database;
+        return SqlServer::$database;
     }
 
-    public function getAllTables(): array
+    public static function getAllTables(): array
     {
-        $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
+        $stmt = SqlServer::$conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if ($stmt->execute()) {
             //$tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
             return ModelOutputFactory::createOutput(ModelOutputType::TABLE, $stmt->fetchAll(\PDO::FETCH_COLUMN));
@@ -49,7 +64,7 @@ class SqlServer implements DBConnector
 
     public function getNumDistinctValues(string $tableName, string $columnName): int
     {
-        $stmt = $this->conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as numDistinctValue FROM {$tableName}");
+        $stmt = SqlServer::$conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as numDistinctValue FROM {$tableName}");
         if ($stmt->execute()) {
             return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
         }
@@ -58,7 +73,7 @@ class SqlServer implements DBConnector
 
     public function getAllColumnsByTableName(string $tableName): array
     {
-        $stmt = $this->conObj->prepare("SELECT COLUMN_NAME as name,
+        $stmt = SqlServer::$conObj->prepare("SELECT COLUMN_NAME as name,
         DATA_TYPE as dataType,
         COLUMN_DEFAULT as _default,
         IS_NULLABLE as isNullable,
@@ -75,7 +90,7 @@ class SqlServer implements DBConnector
     public function getAllConstraintsByTableName(string $tableName): array
     {
 
-        $stmt = $this->conObj->prepare("SELECT TC.Constraint_Name AS name,
+        $stmt = SqlServer::$conObj->prepare("SELECT TC.Constraint_Name AS name,
                         TC.CONSTRAINT_TYPE as type ,
 						SC.definition as definition,
 						CC.Column_Name AS columnName,

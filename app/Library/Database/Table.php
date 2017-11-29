@@ -44,7 +44,7 @@ class Table
         $this->columns[$col->getName()] = $col;
     }
 
-    public function addColumns(array $cols = []): void
+    public function setColumns(array $cols = []): void
     {
         $this->columns = array_merge($this->columns, $cols);
     }

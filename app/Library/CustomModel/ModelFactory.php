@@ -11,8 +11,11 @@ final class ModelFactory{
     /**
     * @return DBConnector
     */
-    public static function create(string $dbType,string $server, string $database, string $user, string $pass): DBConnector{
-        if($dbType == "sqlsrv")
+    public static function getInstance(string $dbType,string $server, string $database, string $user, string $pass): DBConnector{
+        if($dbType == "sqlsrv") {
+            SqlServer::setConnectionInfo($server,$database,$user,$pass);
+            return $sq
+        }
         return new SqlServer($server,$database,$user,$pass);
 
         else return new Mysql($server,$database,$user,$pass);
