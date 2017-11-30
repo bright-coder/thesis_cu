@@ -2,6 +2,6 @@
 
 namespace App\Library\Analysis;
 
-class Analyzer {
+class ImpactAnalysis {
     
 }

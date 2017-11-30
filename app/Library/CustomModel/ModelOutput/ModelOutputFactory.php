@@ -3,6 +3,7 @@
 namespace App\Library\CustomModel\ModelOutput;
 
 use App\Library\Constraint\ConstraintFactory;
+use App\Library\Constraint\ConstraintType;
 use App\Library\CustomModel\ModelOutput\ModelOutputType;
 use App\Library\Database\Column;
 use App\Library\Database\Table;
@@ -29,11 +30,23 @@ final class ModelOutputFactory
 
             }
 
+            $pk = ConstraintFactory::create(['name' => '', 'type' => ConstraintType::PRIMARY_KEY, 'columnName' => []]);
+            $fks = [];
+            $uniques = [];
+            $checks = [];
             foreach ($constraints as $constraint) {
-                $constraints[$constraint['name']] = ConstraintFactory::create($constraint);
+                if (ConstraintType::CHECK == $constraint['type']) {
+                    $checks[$constraint['name']] = ConstraintFactory::create($constraint);
+                } elseif (ConstraintType::FOREIGN_KEY == $constraint['type']) {
+                    $fks[$constraint['name']] = ConstraintFactory::create($constraint);
+                } elseif (ConstraintType::PRIMARY_KEY == $constraint['type']) {
+                    $pk = ConstraintFactory::create($constraint);
+                } elseif (ConstraintType::UNIQUE == $constraint['type']) {
+                    $uniques[$constraint['name']] = ConstraintFactory::create($constraint);
+                }
             }
 
-            return $constraints;
+            return ['pk' => $pk, 'fks' => $fks, 'uniques' => $uniques, 'checks' => $checks];
 
         } elseif (ModelOutputType::COLUMN === $OutputType) {
             $columns = [];
@@ -43,7 +56,7 @@ final class ModelOutputFactory
             return $columns;
         } elseif (ModelOutputType::TABLE === $OutputType) {
             $tables = [];
-            foreach($queryResult as $tableName) {
+            foreach ($queryResult as $tableName) {
                 $tables[$tableName] = new Table($tableName);
             }
             return $tables;

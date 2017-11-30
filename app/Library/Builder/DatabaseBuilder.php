@@ -34,12 +34,18 @@ class DatabaseBuilder
 
     public function setUpTablesAndColumns(): void
     {
-            $tables = $this->DBConnector->getAllTables();
-                foreach($tables as $table) {
-                    $columns = $this->DBConnector->getAllColumnsByTableName($table->getName());
-                    $tables[$table->getName()]->setColumns($columns);
-                }
-            $this->database->setTables($tables);
+        $tables = $this->DBConnector->getAllTables();
+        foreach ($tables as $table) {
+            $columns = $this->DBConnector->getAllColumnsByTableName($table->getName());
+            $tables[$table->getName()]->setColumns($columns);
+
+            $constraints = $this->DBConnector->getAllConstraintsByTableName($table->getName());
+            $tables[$table->getName()]->setPK($constraints['pk']);
+            $tables[$table->getName()]->setFK($constraints['fks']);
+            $tables[$table->getName()]->setUniqueConstraints($constraints['uniques']);
+            $tables[$table->getName()]->setCheckConstraints($constraints['checks']);
+        }
+        $this->database->setTables($tables);
     }
 
 }

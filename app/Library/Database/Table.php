@@ -3,9 +3,11 @@
 namespace App\Library\Database;
 
 use App\Library\Column\Column;
-use App\Library\Constraint\Constraint;
+use App\Library\Constraint\ConstraintType;
 use App\Library\Constraint\ForeignKey;
 use App\Library\Constraint\PrimaryKey;
+use App\Library\Constraint\Unique;
+use App\Library\Constraint\Check;
 
 class Table
 {
@@ -22,13 +24,17 @@ class Table
      */
     private $pk;
     /**
-     * @var ForeignKey
+     * @var array
      */
     private $fks;
     /**
      * @var array
      */
-    private $constraints;
+    private $uniqueConstraints;
+    /**
+     * @var array
+     */
+    private $checkConstraints;
 
     public function __construct(string $name)
     {
@@ -36,21 +42,23 @@ class Table
         $this->columns = [];
         $this->pk = new PrimaryKey();
         $this->fks = []; // array of foreign key
-        $this->constraints = [];
+        $this->uniqueConstraints = []; // array of uniqueConstraints;
+        $this->checkConstraints = []; // array of checkConstraints;
     }
 
-    public function getName(): string {
+    public function getName(): string
+    {
         return $this->name;
     }
 
-    public function addColumn(Column $col): void
+    public function addColumn(Column $column): void
     {
-        $this->columns[$col->getName()] = $col;
+        $this->columns[$column->getName()] = $column;
     }
 
-    public function setColumns(array $cols = []): void
+    public function setColumns(array $columns): void
     {
-        $this->columns = array_merge($this->columns, $cols);
+        $this->columns = $columns;
     }
 
     public function getAllColumns(): array
@@ -58,9 +66,9 @@ class Table
         return $this->columns;
     }
 
-    public function getColumnByName(string $colName)
+    public function getColumnByName(string $name)
     {
-        return $this->columns[$colName];
+        return $this->columns[$name];
     }
 
     public function setPK(PrimaryKey $pk): void
@@ -78,6 +86,11 @@ class Table
         $this->fks[$fk->getName()] = $fk;
     }
 
+    public function setFK(array $fks): void
+    {
+        $this->fks = $fks;
+    }
+
     public function getFKbyName(string $name): ForeignKey
     {
         return $this->fks[$name];
@@ -88,19 +101,43 @@ class Table
         return $this->fks;
     }
 
-    public function addConstraint(Constraint $constraint): void
+    public function setUniqueConstraints(array $uniqueConstraints): void
     {
-        $this->constraints[$constraint->getName()] = $constraint;
+        $this->uniqueConstraints = $uniqueConstraints;
     }
 
-    public function getConstraintByName(string $name): Constraint
+    public function addUniqueConstraint(Unique $uniqueConstraint): void
     {
-        return $this->constraints[$name];
+        $this->uniqueConstraints[$uniqueConstraint->getName()] = $uniqueConstraint;
     }
 
-    public function getAllConstraints(): array
+    public function getUniqueConstraintByName(string $name): Unique
     {
-        return $this->constraints;
+        return $this->uniqueConstraints[$name];
     }
+
+    public function getAllUniqueConstraint(): array {
+        return $this->uniqueConstraints;
+    }
+
+    public function setCheckConstraints(array $checkConstraints): void
+    {
+        $this->checkConstraints = $checkConstraints;
+    }
+
+    public function addCheckConstraint(array $checkConstraint): void
+    {
+        $this->checkConstraints[$checkConstraint->getName()] = $checkConstraint;
+    }
+
+    public function getCheckConstraintByName(string $name): Unique
+    {
+        return $this->checkConstraints[$name];
+    }
+
+    public function getAllCheckConstraint(): array {
+        return $this->checkConstraints;
+    }
+
 
 }

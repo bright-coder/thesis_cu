@@ -68,13 +68,13 @@ class SqlServer implements DBTargetInterface
         }
     }
 
-    public function getNumDistinctValues(string $tableName, string $columnName): int
+    public function getDistinctValues(string $tableName, string $columnName): array
     {
-        $stmt = $this->conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as numDistinctValue FROM {$tableName}");
+        $stmt = $this->conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as distinctValues FROM {$tableName}");
         if ($stmt->execute()) {
             return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
         }
-        return 0;
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function getAllColumnsByTableName(string $tableName): array

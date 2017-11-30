@@ -26,7 +26,7 @@ class PrimaryKey implements Constraint {
     }
 
     public function getColumns(): array{
-        return $this->pkColumns();
+        return $this->pkColumns;
     }
 
     public function getDetail(): array{

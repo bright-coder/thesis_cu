@@ -10,7 +10,7 @@ interface DBTargetInterface
     public function getDBServer(): string;
     public function getDBName(): string;
     public function getAllTables(): array;
-    public function getNumDistinctValues(string $tableName, string $columnName): int;
+    public function getDistinctValues(string $tableName, string $columnName): array;
     public function getAllColumnsByTableName(string $tableName): array;
     public function getAllConstraintsByTableName(string $tableName): array;
 }
