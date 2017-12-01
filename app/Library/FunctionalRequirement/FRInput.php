@@ -2,7 +2,7 @@
 
 namespace App\Library\FunctionalRequirement;
 
-use App\Library\DataType\Datatype;
+use App\Library\DataType\DataTypeInterface;
 
 class FRInput
 {
@@ -10,11 +10,13 @@ class FRInput
     private $id;
     private $name;
     private $dataType;
-    private $default;
+    private $default = null;
     private $isNullable;
     private $isUnique;
     private $min = null;
     private $max = null;
+    private $table;
+    private $column;
 
     public function getId(): string
     {
@@ -36,12 +38,12 @@ class FRInput
         $this->name = $name;
     }
 
-    public function getDataType(): DataType
+    public function getDataType(): DataTypeInterface
     {
         return $this->dataType;
     }
 
-    public function setDataType(DataType $dataType): void
+    public function setDataType(DataTypeInterface $dataType): void
     {
         $this->dataTye = $dataType;
     }
@@ -61,7 +63,7 @@ class FRInput
         return $this->isNullable;
     }
 
-    public function setNullable(\boolean $isNullable): void
+    public function setNullable(bool $isNullable): void
     {
         $this->isNullable = $isNullable;
     }
@@ -69,6 +71,11 @@ class FRInput
     public function isUnique(): bool
     {
         return $this->isUnique;
+    }
+
+    public function setUnique(bool $isUnique): void
+    {
+        $this->isUnique = $isUnique;
     }
 
     public function getMin(): string
@@ -89,6 +96,26 @@ class FRInput
     public function setMax(string $max): void
     {
         $this->max = $max;
+    }
+
+    public function setTable(string $table): void
+    {
+        $this->table = $table;
+    }
+
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
+    public function setColumn(string $column): void
+    {
+        $this->column = $column;
+    }
+
+    public function getColumn(): string
+    {
+        return $this->column;
     }
 
 }

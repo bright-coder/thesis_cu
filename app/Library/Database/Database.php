@@ -2,8 +2,6 @@
 
 namespace App\Library\Database;
 
-use App\Library\Table\Table;
-
 class Database{
     /**
     * @var string

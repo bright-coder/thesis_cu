@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Library\FunctionalRequirement;
+use App\Library\FunctionalRequirement\FRInput;
 
 class FR
 {
@@ -20,12 +21,12 @@ class FR
 
     public function getNo(): string
     {
-        return $this->$no;
+        return $this->no;
     }
 
     public function setNo(string $no): void
     {
-        $this->$no = $no;
+        $this->no = $no;
     }
 
     public function getDescription(): string
@@ -58,9 +59,9 @@ class FR
         return $this->frInputs;
     }
 
-    public function getInputById(string $id): FRInput
+    public function getInputByName(string $name): FRInput
     {
-        return $this->frInputs[$id];
+        return $this->frInputs[$name];
     }
 
 }

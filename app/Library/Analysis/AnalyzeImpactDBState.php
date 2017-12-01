@@ -6,4 +6,5 @@ use App\Library\Analysis\StateInterface;
 
 class AnalyzeImpactDBState implements StateInterface {
 
+    
 }
