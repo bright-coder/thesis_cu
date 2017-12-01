@@ -11,7 +11,6 @@ class CoreController extends Controller
     public function index()
     {
 
-        
         $dbCon = DBTargetConnection::getInstance('sqlsrv','DESKTOP-NRK0H8C','customer','thesis','1234');
 
         if( !$dbCon->Connect()) {

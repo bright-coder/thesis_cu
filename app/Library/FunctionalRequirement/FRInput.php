@@ -7,14 +7,14 @@ use App\Library\DataType\Datatype;
 class FRInput
 {
 
-    protected $id;
-    protected $name;
-    protected $dataType;
-    protected $default;
-    protected $isNullable;
-    protected $isUnique;
-    protected $min = null;
-    protected $max = null;
+    private $id;
+    private $name;
+    private $dataType;
+    private $default;
+    private $isNullable;
+    private $isUnique;
+    private $min = null;
+    private $max = null;
 
     public function getId(): string
     {
