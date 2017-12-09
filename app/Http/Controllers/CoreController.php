@@ -71,10 +71,15 @@ class CoreController extends Controller
         }
         $dbTarget = $databaseBuilder->getDatabase();
 
+
         foreach ($cr->getAllChangeInputInfo as $changeInputInfo) {
+            $inputName = $changeInputInfo->getInputName();
+            $frInput = $fr->getInputByName($inputName);
             
-            $table = $changeInputInfo->getInputName();
-            $changeInputInfo['firstName'];
+            if($changeInputInfo->getChangeInfo()['dataLength'] < $frInput->getDataType()->getDetails()['length']) {
+                
+            }
+            
         }
         $column = $dbTarget->getTableByName($frInput->getTable())->getColumnByName($frInput->getColumn());
 
@@ -93,6 +98,6 @@ class CoreController extends Controller
         // } catch (Exception $e) {
         //     $random = $e;
         // }
-        return view('test', ['constraintInTable' => $databaseBuilder->getDatabase()]);
+        return view('test', ['constraintInTable' => $cr]);
     }
 }
