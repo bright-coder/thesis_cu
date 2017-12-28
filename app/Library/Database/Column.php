@@ -2,7 +2,7 @@
 
 namespace App\Library\Database;
 
-use App\Library\DataType\DataType;
+use App\Library\DataType\DataTypeInterface;
 use App\Library\DataType\DataTypeFactory;
 
 class Column
@@ -51,12 +51,12 @@ class Column
     /**
      * @param DataType $dataType
      */
-    public function setDataType(DataType $dataType): void
+    public function setDataType(DataTypeInterface $dataType): void
     {
         $this->dataType = $dataType;
     }
 
-    public function getDataType(): Datatype
+    public function getDataType(): DataTypeInterface
     {
         return $this->dataType;
     }

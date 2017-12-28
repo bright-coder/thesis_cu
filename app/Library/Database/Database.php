@@ -39,4 +39,8 @@ class Database{
         return $this->tables[$name];
     }
 
+    public function getColumnByTableAndColumnName(string $tableName, string $columnName) {
+        return $this->getTableByName($tableName)->getColumnByName($columnName);
+    }
+
 }

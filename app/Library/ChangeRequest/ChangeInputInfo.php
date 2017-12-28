@@ -42,7 +42,7 @@ class ChangeInputInfo
         // ["max"] => NULL
         // ["tableName"] => NULL
         // ["columnName"] => NULL
-        $this->info = $info;
+        $this->changeInfo = $info;
     }
 
     public function getChangeInfo(): array

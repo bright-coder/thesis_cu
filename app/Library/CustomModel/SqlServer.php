@@ -70,11 +70,12 @@ class SqlServer implements DBTargetInterface
 
     public function getDistinctValues(string $tableName, string $columnName): array
     {
-        $stmt = $this->conObj->prepare("SELECT COUNT(DISTINCT {$columnName}) as distinctValues FROM {$tableName}");
+        $stmt = $this->conObj->prepare("SELECT DISTINCT {$columnName} as distinctValues FROM {$tableName}");
         if ($stmt->execute()) {
-            return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
+            //return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
+            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
         }
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        //return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function getAllColumnsByTableName(string $tableName): array
@@ -139,6 +140,10 @@ class SqlServer implements DBTargetInterface
             return ModelOutputFactory::createOutput(ModelOutputType::CONSTRAINT, $stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
 
+    }
+
+    public function updateDatabase() {
+        
     }
 
 }

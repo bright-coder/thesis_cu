@@ -51,7 +51,7 @@ class FR
 
     public function addInput(FRInput $frInput): void
     {
-        $this->frInputs[$frInput->getId()] = $frInput;
+        $this->frInputs[$frInput->getName()] = $frInput;
     }
 
     public function getAllInputs(): array

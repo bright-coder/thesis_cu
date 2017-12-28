@@ -11,6 +11,7 @@ use App\Library\TestCase\TestCase;
 use App\Library\TestCase\TestCaseInput;
 use App\Library\ChangeRequest\ChangeRequest;
 use App\Library\ChangeRequest\ChangeInputInfo;
+use App\Library\Random\RandomContext;
 
 class CoreController extends Controller
 {
@@ -35,6 +36,8 @@ class CoreController extends Controller
         $frInput->setTable("test");
         $frInput->setColumn("testChar");
 
+        $fr->addInput($frInput);
+
         $tc = new TestCase();
         $tc->setNo("TC-01");
         $tc->setVersion(1);
@@ -48,7 +51,7 @@ class CoreController extends Controller
 
         $tc->addTestCaseInput($tcInput);
 
-        $rtm = ['FR-01' => ['TC-01'=> true]];
+        $rtm = ['FR-01' => ['TC-01']];
 
         $cr = new ChangeRequest();
         $cr->setFrNo($fr->getNo());
@@ -72,22 +75,30 @@ class CoreController extends Controller
         $dbTarget = $databaseBuilder->getDatabase();
 
 
-        foreach ($cr->getAllChangeInputInfo as $changeInputInfo) {
+        foreach ($cr->getAllChangeInputInfo() as $changeInputInfo) {
             $inputName = $changeInputInfo->getInputName();
             $frInput = $fr->getInputByName($inputName);
-            
+            $table = $dbTarget->getTableByName($frInput->getTable());
+            $column = $table->getColumnByName($frInput->getColumn());
+            $isNotFK = true;
+            $isNotPK = true;
             if($changeInputInfo->getChangeInfo()['dataLength'] < $frInput->getDataType()->getDetails()['length']) {
+                $impact = ['schema' => [['table' => $table->getName(), 'column' => $column->getName()]] , 'instance' => NULL ];
+                $impact['instance'] = true;
+                if($isNotPK && $isNotFK) {
+                    $distinctValues = $dbCon->getDistinctValues($table->getName(),$column->getName());
+                    $numDistinctValues = count($distinctValues);
+                    $random = new RandomContext($column->getDataType()->getType());
+                    $random->random($numDistinctValues,$column->getDataType()->getDetails(),false);
+                }
+                
                 
             }
             
         }
-        $column = $dbTarget->getTableByName($frInput->getTable())->getColumnByName($frInput->getColumn());
 
 
-        
-            
-        
-        //return view('test',['constraintInTable' => $model->getAllConstraintsByTableName('profile')]);
+        // return view('test',['constraintInTable' => $model->getAllConstraintsByTableName('profile')]);
         // return view('test',['constraintInTable' => $model->getNumDistinctValue('profile','id')]);
         // $r = new RandomContext('datetime');
         // $r->random(10, ['min' => 99, 'max' => 1000, 'precision' => 4, 'scale' => 2], true);
@@ -98,6 +109,6 @@ class CoreController extends Controller
         // } catch (Exception $e) {
         //     $random = $e;
         // }
-        return view('test', ['constraintInTable' => $cr]);
+        return view('test', ['constraintInTable' => $random->getRandomData()]);
     }
 }

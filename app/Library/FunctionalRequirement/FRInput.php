@@ -45,7 +45,7 @@ class FRInput
 
     public function setDataType(DataTypeInterface $dataType): void
     {
-        $this->dataTye = $dataType;
+        $this->dataType = $dataType;
     }
 
     public function getDefault(): string
