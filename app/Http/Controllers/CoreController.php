@@ -37,7 +37,7 @@ class CoreController extends Controller
         $frInput->setColumn("testChar");
 
         $fr->addInput($frInput);
-
+        
         $tc = new TestCase();
         $tc->setNo("TC-01");
         $tc->setVersion(1);
@@ -50,7 +50,7 @@ class CoreController extends Controller
         $tcInput->setValue("Kritsada");
 
         $tc->addTestCaseInput($tcInput);
-
+        
         $rtm = ['FR-01' => ['TC-01']];
 
         $cr = new ChangeRequest();

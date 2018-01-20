@@ -16,3 +16,10 @@ Route::get('/', function () {
 });
 
 Route::get('showTable','CoreController@index');
+
+// Route::prefix('api/v1')->group(function () {
+//     Route::get('project', 'ChangeRequestController@index');
+//     Route::get('project/{id}', 'ChangeRequestController@show');
+//     Route::post('project', 'ChangeRequestController@create');
+
+// });
