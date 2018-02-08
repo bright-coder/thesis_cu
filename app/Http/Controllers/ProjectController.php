@@ -45,6 +45,9 @@ class ProjectController extends Controller
         /**
          * example { "msg" : "test message" } => ['msg']
          */
+        /**
+         *  USE SQL => DELETE FROM 'table' instead of TRUNCATE ;
+         */
 
         //
         // DB::beginTransaction();
