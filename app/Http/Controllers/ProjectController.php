@@ -40,33 +40,42 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        DB::beginTransaction();
-        try {
-            $project = new Project;
-            $project->projectId = $request->projectInfo;
-            $project->dbHostName = $request->connectDatabaseInfo["hostname"];
-            $project->dbName = $request->connectDatabaseInfo["databaseName"];
-            $project->dbUsername = $request->connectDatabaseInfo["username"];
-            $project->dbPassword = $request->connectDatabaseInfo["password"];
-            $project->dbPort = $request->connectDatabaseInfo["port"];
-            $project->save();
-            
-            $functionalRequirement = new FunctionalRequirement;
-            $functionalRequirement->FRNo = 
-
-            DB::commit();
-            $msg = "CREATED";
-            $statusCode = 201;
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $msg = $e->getMessage();
-            $statusCode = 303;
-        }
         
+        $data = $request->json()->all(); // jsonObject to Array;
+        /**
+         * example { "msg" : "test message" } => ['msg']
+         */
 
-        return response()->json(['msg' => $msg], $statusCode);
+        //
+        // DB::beginTransaction();
+        // try {
+        //     $project = new Project;
+        //     $project->projectId = $request->projectInfo;
+        //     $project->dbHostName = $request->connectDatabaseInfo["hostname"];
+        //     $project->dbName = $request->connectDatabaseInfo["databaseName"];
+        //     $project->dbUsername = $request->connectDatabaseInfo["username"];
+        //     $project->dbPassword = $request->connectDatabaseInfo["password"];
+        //     $project->dbPort = $request->connectDatabaseInfo["port"];
+        //     $project->save();
+            
+        //     $functionalRequirement = new FunctionalRequirement;
+        //     foreach ($request-> as $key => $value) {
+        //         # code...
+        //     }
+        //     $functionalRequirement->FRNo = $request->
+
+        //     DB::commit();
+        //     $msg = "CREATED";
+        //     $statusCode = 201;
+
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     $msg = $e->getMessage();
+        //     $statusCode = 303;
+        // }
+        
+       // dd(json_decode($request->getContent(), true));
+        return response()->json(['msg' => $data['functionalRequirements']], 200);
     }
 
     /**
