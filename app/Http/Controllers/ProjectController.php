@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Project;
 use App\ChangeRequest;
 use App\FunctionalRequirement;
+use App\FunctionalRequirementInput;
 
 class ProjectController extends Controller
 {
@@ -49,33 +50,43 @@ class ProjectController extends Controller
          *  USE SQL => DELETE FROM 'table' instead of TRUNCATE ;
          */
 
-        //
-        // DB::beginTransaction();
-        // try {
-        //     $project = new Project;
-        //     $project->projectId = $request->projectInfo;
-        //     $project->dbHostName = $request->connectDatabaseInfo["hostname"];
-        //     $project->dbName = $request->connectDatabaseInfo["databaseName"];
-        //     $project->dbUsername = $request->connectDatabaseInfo["username"];
-        //     $project->dbPassword = $request->connectDatabaseInfo["password"];
-        //     $project->dbPort = $request->connectDatabaseInfo["port"];
-        //     $project->save();
+        
+        DB::beginTransaction();
+        try {
+
+            $project = new Project;
+            $project->projectId = $request['projectInfo']['id'];
+            $project->dbHostName = $request['connectDbInfo']["dbHostName"];
+            $project->dbName = $request['connectDbInfo']["dbName"];
+            $project->dbUsername = $request['connectDbInfo']["username"];
+            $project->dbPassword = $request['connectDbInfo']["password"];
+            $project->dbPort = $request['connectDbInfo']["port"];
+            $project->save();
             
-        //     $functionalRequirement = new FunctionalRequirement;
-        //     foreach ($request-> as $key => $value) {
-        //         # code...
-        //     }
-        //     $functionalRequirement->FRNo = $request->
+            $functionalRequirement = new FunctionalRequirement;
+            foreach ($request['functionalRequirements'] as $importFr) {
+                $functionalRequirement = new FunctionalRequirement;
+                $functionalRequirement->no = $importFr['no'];
+                $functionalRequirement->description = $importFr['description'];
+                $functionalRequirement->version = $importFr['version'];
+                $functionalRequirement->save();
+                
+                foreach ($importFr['inputs'] as $importFrInput) {
+                    $functionalRequirementInput = new FunctionalRequirementInput;
+                    
+                }
+            }
+            
 
-        //     DB::commit();
-        //     $msg = "CREATED";
-        //     $statusCode = 201;
+            DB::commit();
+            $msg = "CREATED";
+            $statusCode = 201;
 
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     $msg = $e->getMessage();
-        //     $statusCode = 303;
-        // }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $msg = $e->getMessage();
+            $statusCode = 303;
+        }
         
        // dd(json_decode($request->getContent(), true));
         return response()->json(['msg' => $data['functionalRequirements']], 200);
