@@ -8,7 +8,8 @@ class Project extends Model
 {
     //
     protected $table = "PROJECT";
-    protected $primaryKey = "projectId";
-
+    //protected $primaryKey = "id";
+    
+    public $incrementing = "false";
 
 }

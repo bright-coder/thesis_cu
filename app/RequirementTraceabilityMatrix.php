@@ -4,10 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ChangeRequest extends Model
+class RequirementTraceabilityMatrix extends Model
 {
     //
-    protected $table = "CHANGE_REQUEST";
+    protected $table = "REQUIREMENT_TRACEABILITY_MATRIX";
 
     public $timestamps = false;
 }
