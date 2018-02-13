@@ -6,6 +6,7 @@ use App\Library\Database\Database;
 
 interface DBTargetInterface
 {
+    public function connect(): bool;
     public function getDBType(): string;
     public function getDBServer(): string;
     public function getDBName(): string;

@@ -27,7 +27,7 @@ class SqlServer implements DBTargetInterface
         $this->pass = $pass;
     }
 
-    public function Connect(): bool
+    public function connect(): bool
     {
         try {
             $this->conObj = new \PDO(
