@@ -109,6 +109,6 @@ class CoreController extends Controller
         // } catch (Exception $e) {
         //     $random = $e;
         // }
-        return view('test', ['constraintInTable' => $random->getRandomData()]);
+        return view('test', ['constraintInTable' => $databaseBuilder->getDatabase()]);
     }
 }
