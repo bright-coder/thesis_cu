@@ -2,20 +2,26 @@
 
 namespace App\Library\State;
 
-use App\Library\State\AbstractState;
-
-use DatabaseSchemaTable;
-use DatabaseSchemaColumn;
-use App\Library\CustomModel\DBTargetConnection;
 use App\Library\Builder\DatabaseBuilder;
+use App\Library\CustomModel\DBTargetConnection;
+use App\Library\State\ChangeAnalysis;
+use App\Library\State\StateInterface;
+use DatabaseSchemaColumn;
+use DatabaseSchemaTable;
 use DB;
 
-class AnalyzeImpactDBState extends AbstractState
+class AnalyzeImpactDBState implements StateInterface
 {
     private $dbTargetConnection = null;
     private $dbTarget;
 
-    public function __construct(){
+    public function getStateNo() : int {
+        return 2;
+    }
+
+    public function process(ChangeAnalysis $changeAnalysis): bool
+    {
+        $connectDbInfo = $changeAnalysis->getRequest()['connectDbInfo'];
         $this->dbTargetConnection = DBTargetConnection::getInstance(
             $connectDbInfo["type"],
             $connectDbInfo["hostName"],
@@ -23,28 +29,21 @@ class AnalyzeImpactDBState extends AbstractState
             $connectDbInfo["username"],
             $connectDbInfo["password"]
         );
-    }
-
-    public function analysis(array $connectDbInfo,array $changeRequest) : bool {
-    
-        if( !$this->dbTargetConnection->connect() ) {
-            $this->message = "Cannot Connect to Target Database";
-            $this->statusCode = 303;
+        if (!$this->dbTargetConnection->connect()) {
+            $changeAnalysis->setMessage("Cannot Connect to Target Database");
+            $changeAnalysis->setStatusCode(303);
             return false;
-        }
-        else {
-            $this->getDbSchema();
-        
-        }
-        foreach ($dbTarget->getAllTables() as $table) {
-            $this->message .= $table->getName();
+        } else {
+            //$this->getDbSchema();
         }
 
-        $this->statusCode = 303;
+        $changeAnalysis->setMessage("Connect to Target Database success");
+        $changeAnalysis->setStatusCode(201);
         return true;
     }
 
-    private function getDbSchema() : void {
+    private function getDbSchema(): void
+    {
         $databaseBuilder = new DatabaseBuilder($this->dbTargetConnection);
         $databaseBuilder->setUpTablesAndColumns();
         $this->dbTarget = $databaseBuilder->getDatabase();
@@ -52,9 +51,20 @@ class AnalyzeImpactDBState extends AbstractState
         DB::beginTransaction();
         try {
             foreach ($this->dbTarget->getAllTables() as $table) {
-                
+                $dbSchemaTable = new DatabaseSchemaTable;
+                $dbSchemaTable->projectId = AbstractState::$projectId;
+                $dbSchemaTable->name = $table->getName();
+                $dbSchemaTable->save();
+
+                foreach ($table->getAllColumns() as $column) {
+                    $dbSchemaColumn = new DatabaseSchemaColumn;
+
+                }
+
             }
+
             DB::commit();
+
         } catch (\Exception $e) {
             DB::rollback();
         }

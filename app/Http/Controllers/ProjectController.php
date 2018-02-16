@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Library\State\ImportState;
 use App\Library\State\AnalyzeImpactDBState;
+use App\Library\State\ChangeAnalysis;
 
 class ProjectController extends Controller
 {
@@ -47,17 +48,14 @@ class ProjectController extends Controller
         /**
          *  USE SQL => DELETE FROM 'table' instead of TRUNCATE ;
          */
-        $state = new ImportState;
-        
-        if( $state->importRequest($request) ) {
-            $state = new AnalyzeImpactDBState;
-            if( $state->analysis($request['connectDbInfo'],$request['changeRequest']) ) {
-                
-            }
+        $changeAnalysis = new ChangeAnalysis($request);
+
+        while(!$changeAnalysis->isDone()) {
+            $changeAnalysis->process();
         }
 
         // dd(json_decode($request->getContent(), true));
-        return response()->json(['msg' => $state->getMessage(), 'pId' => $state->getProjectId(), 'cId' => $state->getChangeRequestId()], $state->getStatusCode());
+        return response()->json(['msg' => $changeAnalysis->getMessage()], $changeAnalysis->getStatusCode());
     }
 
     /**

@@ -2,23 +2,31 @@
 
 namespace App\Library\State;
 
-use App\FunctionalRequirement;
-use App\FunctionalRequirementInput;
-use App\Project;
-use App\TestCase;
-use App\testCaseInput;
-use App\RequirementTraceabilityMatrix;
-use App\RequirementTraceabilityMatrixRelation;
 use App\ChangeRequest;
 use App\ChangeRequestInput;
+use App\FunctionalRequirement;
+use App\FunctionalRequirementInput;
+use App\Library\State\AnalyzeImpactDBState;
+use App\Library\State\ChangeAnalysis;
+use App\Library\State\StateInterface;
+use App\Project;
+use App\RequirementTraceabilityMatrix;
+use App\RequirementTraceabilityMatrixRelation;
+use App\TestCase;
+use App\testCaseInput;
 use DB;
 
-use App\Library\State\AbstractState;
-
-class ImportState extends AbstractState
+class ImportState implements StateInterface
 {
+    public function getStateNo() : int {
+        return 1;
+    }
 
-    public function importRequest(array $request): bool {
+    public function process(ChangeAnalysis $changeAnalysis): bool
+    {
+
+        $request = $changeAnalysis->getRequest();
+
         DB::beginTransaction();
         try {
 
@@ -125,18 +133,20 @@ class ImportState extends AbstractState
             }
 
             DB::commit();
-            AbstractState::$projectId = (int) $request['projectInfo']['id'];
-            AbstractState::$changeRequestId = (int) $changeRequest->id;
-            $this->message = "INSERT SUCCESS";
-            $this->statusCode = 201;
+            $changeAnalysis->setProjectId((int) $request['projectInfo']['id']);
+            $changeAnalysis->setChangeRequestId((int) $changeRequest->id);
+            $changeAnalysis->setMessage("INSERT SUCCESS");
+            $changeAnalysis->setStatusCode(201);
+            $changeAnalysis->setState(new AnalyzeImpactDBState);
+            //$changeAnalysis->
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->message = $e->getMessage();
-            $this->statusCode = 303;
+            $changeAnalysis->setMessage($e->getMessage());
+            $changeAnalysis->setStatusCode(303);
             return false;
         }
         return true;
     }
-    
+
 }
