@@ -12,15 +12,24 @@ class _Default implements DataTypeInterface
     {
         $this->type = $type;
     }
-    
+
     public function getType(): string
     {
         return $this->type;
     }
 
-    public function getDetails(): array
+    public function getLength()
     {
-        return [];
+        return null;
     }
 
+    public function getPrecision()
+    {
+        return null;
+    }
+
+    public function getScale()
+    {
+        return null;
+    }
 }

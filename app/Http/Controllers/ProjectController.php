@@ -50,8 +50,9 @@ class ProjectController extends Controller
          */
         $changeAnalysis = new ChangeAnalysis($request);
 
-        while(!$changeAnalysis->isDone()) {
-            $changeAnalysis->process();
+        $currentStateNo = 1;
+        while($changeAnalysis->process() && $currentStateNo <= ChangeAnalysis::LAST_STATE_NO) {
+            ++$currentStateNo;
         }
 
         // dd(json_decode($request->getContent(), true));

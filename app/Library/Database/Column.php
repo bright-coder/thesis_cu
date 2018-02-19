@@ -20,7 +20,7 @@ class Column
      */
     private $isNullable;
     /**
-     * @var string
+     * @var string or null
      */
     private $default;
 
@@ -74,12 +74,12 @@ class Column
         return $this->isNullable;
     }
 
-    public function setDefault(string $dafault): void
+    public function setDefault($dafault): void
     {
         $this->default = $dafault;
     }
 
-    public function getDefault(): string
+    public function getDefault()
     {
         return $this->default;
     }

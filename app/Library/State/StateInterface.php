@@ -9,6 +9,5 @@ interface StateInterface
 
     public function process(ChangeAnalysis $changeAnalysis): bool;
 
-    public function getStateNo(): int;
 
 }

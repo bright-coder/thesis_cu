@@ -15,6 +15,9 @@ class ChangeAnalysis
     private $message = null;
     private $statusCode = null;
     private $completedState = null;
+    private $isProcessError = null;
+
+    public const LAST_STATE_NO = 2;
 
     public function __construct(array $request)
     {
@@ -24,7 +27,7 @@ class ChangeAnalysis
 
     public function process(): bool
     {
-        return $this->state->process($this);
+       return $this->state->process($this);
     }
 
     public function setState(StateInterface $state): void
@@ -76,6 +79,7 @@ class ChangeAnalysis
     {
         return $this->statusCode;
     }
+
 
 
 

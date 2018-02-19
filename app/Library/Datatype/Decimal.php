@@ -10,16 +10,27 @@ class Decimal implements DataTypeInterface{
     private $scale;
 
     public function __construct(int $precision = 18, int $scale = 0){
-        $this->precision = $precision;
-        $this->scale = $scale;
+        $this->precision = ($precision > 38 || $precision < 1) ? 38 : $precision;
+        $this->scale = ($scale > $this->precision || $scale < 1 ) ? 0 : $scale ;
     }
 
     public function getType(): string{
         return DataType::DECIMAL;
     }
 
-    public function getDetails(): array{
-        return ['precision' => $this->precision <= 38 ? $this->precision : 38 , 'scale' => $this->scale < $this->precision ? $this->scale : 0];
+    public function getLength()
+    {
+        return null;
+    }
+
+    public function getPrecision()
+    {
+        return $this->precision;
+    }
+
+    public function getScale()
+    {
+        return $this->scale;
     }
 
 }
