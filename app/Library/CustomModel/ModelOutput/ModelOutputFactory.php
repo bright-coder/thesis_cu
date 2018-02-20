@@ -10,11 +10,26 @@ use App\Library\Database\Table;
 
 final class ModelOutputFactory
 {
+    public static function createPK(array $queryResult): PrimaryKey {
+        return ConstraintFactory::create($queryResult);
+    }
 
-    public static function createOutput(int $OutputType, array $queryResult): array
+    public static function createFK(array $queryResult): array {
+        return ConstraintFactory::create($queryResult);
+    }
+
+    public static function createCheckConstraint(array $queryResult): array {
+        return ConstraintFactory::create($queryResult);
+    }
+
+    public static function createUniqueConstraint(array $queryResult): array {
+        return ConstraintFactory::create($queryResult);
+    }
+    
+    public static function createOutput(int $OutputType, array $queryResult, int $constraintType = 0): array
     {
 
-        if (ModelOutputType::CONSTRAINT === $OutputType) {
+        if (ModelOutputType::CONSTRAINT === $OutputType && (ConstraintType::FOREIGN_KEY !== $constraintType) ) {
             $constraints = [];
             foreach ($queryResult as $row) {
                 if (!array_key_exists($row['name'], $constraints)) {
@@ -29,6 +44,7 @@ final class ModelOutputFactory
                 }
 
             }
+
 
             $pk = ConstraintFactory::create(['name' => '', 'type' => ConstraintType::PRIMARY_KEY, 'columnName' => []]);
             $fks = [];
