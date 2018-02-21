@@ -4,7 +4,6 @@ namespace App\Library\CustomModel;
 
 use App\Library\CustomModel\DBTargetInterface;
 use App\Library\CustomModel\ModelOutput\ModelOutputFactory;
-use App\Library\CustomModel\ModelOutput\ModelOutputType;
 
 class SqlServer implements DBTargetInterface
 {
@@ -96,33 +95,21 @@ class SqlServer implements DBTargetInterface
 
     public function getAllConstraintsByTableName(string $tableName): array
     {
+        $primaryKey = $this->getPKConstraint($tableName);
+        $foreignKeys = $this->getFkConstraints($tableName);
+        $checkConstraints = $this->getCheckConstraints($tableName);
+        $uniqueConstraints = $this->getUniqueConstraints($tableName);
 
-        $stmt = $this->conObj->prepare("SELECT TC.Constraint_Name AS name,
-        TC.CONSTRAINT_TYPE as type ,
-        SC.definition as definition,
-        CC.Column_Name AS columnName
-        FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC
-        INNER JOIN
-            INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE CC ON
-            TC.Constraint_Name = CC.Constraint_Name
-        LEFT JOIN
-            sys.check_constraints SC ON
-            SC.name = TC.Constraint_Name
-        WHERE CC.TABLE_NAME = :tableName AND TC.CONSTRAINT_TYPE IN ('CHECK','PRIMARY KEY','UNIQUE') ORDER BY type,name");
-
-        if ($stmt->execute([':tableName' => $tableName])) {
-            $constraints = $stmt->fetchAll(\PDO::FETECH_ASSOC);
-            //return ModelOutputFactory::createOutput(ModelOutputType::CONSTRAINT, $stmt->fetchAll(\PDO::FETCH_ASSOC));
-        }
-
-        $stmt = $this->conObj->prepare("exec sp_fkeys ':tableName'");
-        if ($stmt->execute([':tablename' => $tableName])) {
-            $constraints[] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        }
+        return [
+            'primaryKey' => $primaryKey,
+            'foreignKeys' => $foreignKeys,
+            'checkConstraints' => $checkConstraints,
+            'uniqueConstraints' => $uniqueConstraints
+        ];
 
     }
 
-    public function getPkConstraint(string $tableName): PrimaryKey
+    public function getPKConstraint(string $tableName): PrimaryKey
     {
         $stmt = $this->conObj->prepare("SELECT TC.Constraint_Name AS name,
         TC.CONSTRAINT_TYPE as type ,
@@ -138,7 +125,7 @@ class SqlServer implements DBTargetInterface
         WHERE CC.TABLE_NAME = :tableName AND TC.CONSTRAINT_TYPE = 'PRIMARY KEY' ORDER BY type,name");
 
         if ($stmt->execute([':tableName' => $tableName])) {
-            return true;
+            return ModelOutputFactory::createPrimaryKey($stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
         return [];
     }
@@ -148,7 +135,7 @@ class SqlServer implements DBTargetInterface
         $stmt = $this->conObj->prepare("exec sp_fkeys ':tableName'");
 
         if ($stmt->execute([':tableName' => $tableName])) {
-            return true;
+            return ModelOutputFactory::createForeignKey($stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
         return [];
     }
@@ -169,8 +156,9 @@ class SqlServer implements DBTargetInterface
         WHERE CC.TABLE_NAME = :tableName AND TC.CONSTRAINT_TYPE = 'CHECK' ORDER BY type,name");
 
         if ($stmt->execute([':tableName' => $tableName])) {
-            return true;
+            return ModelOutputFactory::createCheckConstraint($stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
+        return [];
     }
 
     public function getUniqueConstraints(string $tableName): array
@@ -189,8 +177,9 @@ class SqlServer implements DBTargetInterface
         WHERE CC.TABLE_NAME = :tableName AND TC.CONSTRAINT_TYPE = 'UNIQUE' ORDER BY type,name");
 
         if ($stmt->execute([':tableName' => $tableName])) {
-            return true;
+            return ModelOutputFactory::createUniqueConstraint($stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
+        return [];
     }
 
     public function updateDatabase()

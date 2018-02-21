@@ -16,7 +16,7 @@ final class ConstraintFactory{
             case ConstraintType::PRIMARY_KEY :
                 return new PrimaryKey($detail['name'],$detail['columnName']);
             case ConstraintType::FOREIGN_KEY :
-                return new ForeignKey($detail['name'], ['table' => $detail['fromTable'], 'column' => $detail['fromColumn'] ], ['table' => $detail['toTable'], 'column' => $detail['toColumn'] ]);
+                return new ForeignKey($detail['name'],$detail['links']);
             case ConstraintType::UNIQUE :
                 return new Unique($detail['name'],$detail['columnName']);
             case ConstraintType::CHECK :

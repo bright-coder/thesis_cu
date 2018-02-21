@@ -7,8 +7,7 @@ use App\Library\Constraint\ConstraintType;
 
 class ForeignKey implements Constraint{
     private $name;
-    private $refFrom;
-    private $refTo;
+    private $links;
 
     public function __construct(string $name = "", 
     array $refFrom = ['table' => NULL, 'column' => NULL ], 

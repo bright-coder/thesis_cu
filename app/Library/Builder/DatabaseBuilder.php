@@ -40,10 +40,10 @@ class DatabaseBuilder
             $tables[$table->getName()]->setColumns($columns);
 
             $constraints = $this->DBConnector->getAllConstraintsByTableName($table->getName());
-            $tables[$table->getName()]->setPK($constraints['pk']);
-            $tables[$table->getName()]->setFK($constraints['fks']);
-            $tables[$table->getName()]->setUniqueConstraints($constraints['uniques']);
-            $tables[$table->getName()]->setCheckConstraints($constraints['checks']);
+            $tables[$table->getName()]->setPK($constraints['primaryKey']);
+            $tables[$table->getName()]->setFK($constraints['foreignKeys']);
+            $tables[$table->getName()]->setUniqueConstraints($constraints['uniqueConstraints']);
+            $tables[$table->getName()]->setCheckConstraints($constraints['checkConstraints']);
         }
         $this->database->setTables($tables);
     }

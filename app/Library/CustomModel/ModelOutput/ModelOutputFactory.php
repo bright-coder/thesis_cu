@@ -4,33 +4,70 @@ namespace App\Library\CustomModel\ModelOutput;
 
 use App\Library\Constraint\ConstraintFactory;
 use App\Library\Constraint\ConstraintType;
-use App\Library\CustomModel\ModelOutput\ModelOutputType;
 use App\Library\Database\Column;
 use App\Library\Database\Table;
 
 final class ModelOutputFactory
 {
-    public static function createPK(array $queryResult): PrimaryKey {
-        return ConstraintFactory::create($queryResult);
-    }
-
-    public static function createFK(array $queryResult): array {
-        return ConstraintFactory::create($queryResult);
-    }
-
-    public static function createCheckConstraint(array $queryResult): array {
-        return ConstraintFactory::create($queryResult);
-    }
-
-    public static function createUniqueConstraint(array $queryResult): array {
-        return ConstraintFactory::create($queryResult);
-    }
-    
-    public static function createOutput(int $OutputType, array $queryResult, int $constraintType = 0): array
+    public static function createPrimaryKey(array $queryResult): PrimaryKey
     {
+        $queryResult = modifyResult($queryResult);
+        return ConstraintFactory::create($queryResult);
+    }
 
-        if (ModelOutputType::CONSTRAINT === $OutputType && (ConstraintType::FOREIGN_KEY !== $constraintType) ) {
-            $constraints = [];
+    public static function createForeignKey(array $queryResult): array
+    {
+        //$queryResult = modifyResult($queryResult);
+        $foreignKeys = [];
+        foreach ($queryResult as $foreignKey) {
+            $foreignKeys[$foreignKey['name']] = ConstraintFactory::create($foreignKey);
+        }
+        return $foreignKeys;
+    }
+
+    public static function createCheckConstraint(array $queryResult): array
+    {
+        $queryResult = modifyResult($queryResult);
+        $checkConstraints = [];
+        foreach ($queryResult as $checkConstraint) {
+            $checkConstraints[$checkConstraint['name']] = ConstraintFactory::create($checkConstraint);
+        }
+        return ConstraintFactory::create($queryResult);
+    }
+
+    public static function createUniqueConstraint(array $queryResult): array
+    {
+        $queryResult = modifyResult($queryResult);
+        $uniqueConstraints = [];
+        foreach ($queryResult as $uniqueConstraint) {
+            $uniqueConstraints[$uniqueConstraint['name']] = ConstraintFactory::create($uniqueConstraint);
+        }
+        return $uniqueConstraints;
+    }
+
+    public static function createColumn(array $queryResult): array
+    {
+        $columns = [];
+        foreach ($queryResult as $columnInfo) {
+            $columns[$columnInfo['name']] = new Column($columnInfo);
+        }
+        return $columns;
+    }
+
+    public static function createTable(array $queryResult): array
+    {
+        $tables = [];
+        foreach ($queryResult as $tableName) {
+            $tables[$tableName] = new Table($tableName);
+        }
+        return $tables;
+    }
+
+    private static function modifyResult(array $queryResult, int $constraintType): array
+    {
+        $constraints = [];
+
+        if (ConstraintType::FOREIGN_KEY !== $constraintType) {
             foreach ($queryResult as $row) {
                 if (!array_key_exists($row['name'], $constraints)) {
 
@@ -42,42 +79,45 @@ final class ModelOutputFactory
                 } else {
                     array_push($constraints[$row['name']]['columnName'], $row['columnName']);
                 }
-
             }
+        } else {
+            foreach ($queryResult as $row) {
+                if (!array_key_exists($row['FK_NAME'], $constraints)) {
+                    $constraints[$row['FK_NAME']] = [
+                        'name' => $row['FK_NAME'],
+                        'type' => ConstraintType::FOREIGN_KEY,
+                        'links' =>
+                        [
+                            [
+                                'primary' => [
+                                    'tableName' => $row['PKTABLE_NAME'],
+                                    'columnName' => $row['PKCOLUMN_NAME'],
+                                ],
+                                'reference' => [
+                                    'tableName' => $row['FKTABLE_NAME'],
+                                    'columnName' => $row['FKCOLUMN_NAME'],
+                                ],
+                            ],
+                        ],
+                    ];
 
+                } else {
+                    $link = [
+                        'primary' => [
+                            'tableName' => $row['PKTABLE_NAME'],
+                            'columnName' => $row['PKCOLUMN_NAME'],
+                        ],
+                        'reference' => [
+                            'tableName' => $row['FKTABLE_NAME'],
+                            'columnName' => $row['FKCOLUMN_NAME'],
+                        ],
+                    ];
+                    array_push($constraints[$row['FK_NAME']]['links'], $link);
 
-            $pk = ConstraintFactory::create(['name' => '', 'type' => ConstraintType::PRIMARY_KEY, 'columnName' => []]);
-            $fks = [];
-            $uniques = [];
-            $checks = [];
-            foreach ($constraints as $constraint) {
-                if (ConstraintType::CHECK == $constraint['type']) {
-                    $checks[$constraint['name']] = ConstraintFactory::create($constraint);
-                } elseif (ConstraintType::FOREIGN_KEY == $constraint['type']) {
-                    $fks[$constraint['name']] = ConstraintFactory::create($constraint);
-                } elseif (ConstraintType::PRIMARY_KEY == $constraint['type']) {
-                    $pk = ConstraintFactory::create($constraint);
-                } elseif (ConstraintType::UNIQUE == $constraint['type']) {
-                    $uniques[$constraint['name']] = ConstraintFactory::create($constraint);
                 }
             }
-
-            return ['pk' => $pk, 'fks' => $fks, 'uniques' => $uniques, 'checks' => $checks];
-
-        } elseif (ModelOutputType::COLUMN === $OutputType) {
-            $columns = [];
-            foreach ($queryResult as $columnInfo) {
-                $columns[$columnInfo['name']] = new Column($columnInfo);
-            }
-            return $columns;
-        } elseif (ModelOutputType::TABLE === $OutputType) {
-            $tables = [];
-            foreach ($queryResult as $tableName) {
-                $tables[$tableName] = new Table($tableName);
-            }
-            return $tables;
         }
-
+        return $constraints;
     }
 
 }
