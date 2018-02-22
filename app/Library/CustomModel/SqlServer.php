@@ -4,6 +4,7 @@ namespace App\Library\CustomModel;
 
 use App\Library\CustomModel\DBTargetInterface;
 use App\Library\CustomModel\ModelOutput\ModelOutputFactory;
+use App\Library\Constraint\PrimaryKey;
 
 class SqlServer implements DBTargetInterface
 {
@@ -63,7 +64,7 @@ class SqlServer implements DBTargetInterface
         $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
         if ($stmt->execute()) {
             //$tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
-            return ModelOutputFactory::createOutput(ModelOutputType::TABLE, $stmt->fetchAll(\PDO::FETCH_COLUMN));
+            return ModelOutputFactory::createTable($stmt->fetchAll(\PDO::FETCH_COLUMN));
         }
     }
 
@@ -89,7 +90,7 @@ class SqlServer implements DBTargetInterface
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = :tableName");
         if ($stmt->execute(array(':tableName' => $tableName))) {
-            return ModelOutputFactory::createOutput(ModelOutputType::COLUMN, $stmt->fetchAll(\PDO::FETCH_ASSOC));
+            return ModelOutputFactory::createColumn($stmt->fetchAll(\PDO::FETCH_ASSOC));
         }
     }
 
@@ -132,7 +133,7 @@ class SqlServer implements DBTargetInterface
 
     public function getFkConstraints(string $tableName): array
     {
-        $stmt = $this->conObj->prepare("exec sp_fkeys ':tableName'");
+        $stmt = $this->conObj->prepare("exec sp_fkeys :tableName");
 
         if ($stmt->execute([':tableName' => $tableName])) {
             return ModelOutputFactory::createForeignKey($stmt->fetchAll(\PDO::FETCH_ASSOC));

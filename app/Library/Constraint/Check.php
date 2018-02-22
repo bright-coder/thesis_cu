@@ -35,7 +35,7 @@ class Check implements Constraint{
     }
 
     public function getDetail(): array{
-        return ['definition' => $definition,'min' => $min, '$max' => $max];
+        return ['definition' => $this->definition,'min' => $this->min, 'max' => $this->max];
     }
 
     private function findMinMaxAllColumns(): void{

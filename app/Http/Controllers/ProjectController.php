@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Library\State\ImportState;
-use App\Library\State\AnalyzeImpactDBState;
 use App\Library\State\ChangeAnalysis;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
@@ -51,7 +48,11 @@ class ProjectController extends Controller
         $changeAnalysis = new ChangeAnalysis($request);
 
         $currentStateNo = 1;
-        while($changeAnalysis->process() && $currentStateNo <= ChangeAnalysis::LAST_STATE_NO) {
+        while ($currentStateNo <= ChangeAnalysis::LAST_STATE_NO) {
+            if (!$changeAnalysis->process()) {
+                break;
+            }
+
             ++$currentStateNo;
         }
 

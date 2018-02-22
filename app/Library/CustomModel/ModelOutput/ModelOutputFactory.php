@@ -6,18 +6,19 @@ use App\Library\Constraint\ConstraintFactory;
 use App\Library\Constraint\ConstraintType;
 use App\Library\Database\Column;
 use App\Library\Database\Table;
+use App\Library\Constraint\PrimaryKey;
 
 final class ModelOutputFactory
 {
     public static function createPrimaryKey(array $queryResult): PrimaryKey
     {
-        $queryResult = modifyResult($queryResult);
-        return ConstraintFactory::create($queryResult);
+        $queryResult = ModelOutputFactory::modifyResult($queryResult, ConstraintType::PRIMARY_KEY);
+        return ConstraintFactory::create(array_shift($queryResult));
     }
 
     public static function createForeignKey(array $queryResult): array
     {
-        //$queryResult = modifyResult($queryResult);
+        $queryResult = ModelOutputFactory::modifyResult($queryResult, ConstraintType::FOREIGN_KEY);
         $foreignKeys = [];
         foreach ($queryResult as $foreignKey) {
             $foreignKeys[$foreignKey['name']] = ConstraintFactory::create($foreignKey);
@@ -27,17 +28,17 @@ final class ModelOutputFactory
 
     public static function createCheckConstraint(array $queryResult): array
     {
-        $queryResult = modifyResult($queryResult);
+        $queryResult = ModelOutputFactory::modifyResult($queryResult, ConstraintType::CHECK);
         $checkConstraints = [];
         foreach ($queryResult as $checkConstraint) {
             $checkConstraints[$checkConstraint['name']] = ConstraintFactory::create($checkConstraint);
         }
-        return ConstraintFactory::create($queryResult);
+        return $checkConstraints;
     }
 
     public static function createUniqueConstraint(array $queryResult): array
     {
-        $queryResult = modifyResult($queryResult);
+        $queryResult = ModelOutputFactory::modifyResult($queryResult, ConstraintType::UNIQUE);
         $uniqueConstraints = [];
         foreach ($queryResult as $uniqueConstraint) {
             $uniqueConstraints[$uniqueConstraint['name']] = ConstraintFactory::create($uniqueConstraint);
@@ -63,7 +64,7 @@ final class ModelOutputFactory
         return $tables;
     }
 
-    private static function modifyResult(array $queryResult, int $constraintType): array
+    private static function modifyResult(array $queryResult, string $constraintType): array
     {
         $constraints = [];
 
@@ -91,26 +92,26 @@ final class ModelOutputFactory
                             [
                                 'primary' => [
                                     'tableName' => $row['PKTABLE_NAME'],
-                                    'columnName' => $row['PKCOLUMN_NAME'],
+                                    'columnName' => $row['PKCOLUMN_NAME']
                                 ],
                                 'reference' => [
                                     'tableName' => $row['FKTABLE_NAME'],
-                                    'columnName' => $row['FKCOLUMN_NAME'],
-                                ],
-                            ],
-                        ],
+                                    'columnName' => $row['FKCOLUMN_NAME']
+                                ]
+                            ]
+                        ]
                     ];
 
                 } else {
                     $link = [
                         'primary' => [
                             'tableName' => $row['PKTABLE_NAME'],
-                            'columnName' => $row['PKCOLUMN_NAME'],
+                            'columnName' => $row['PKCOLUMN_NAME']
                         ],
                         'reference' => [
                             'tableName' => $row['FKTABLE_NAME'],
-                            'columnName' => $row['FKCOLUMN_NAME'],
-                        ],
+                            'columnName' => $row['FKCOLUMN_NAME']
+                        ]
                     ];
                     array_push($constraints[$row['FK_NAME']]['links'], $link);
 

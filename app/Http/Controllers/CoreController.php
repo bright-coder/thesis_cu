@@ -75,27 +75,27 @@ class CoreController extends Controller
         $dbTarget = $databaseBuilder->getDatabase();
 
 
-        foreach ($cr->getAllChangeInputInfo() as $changeInputInfo) {
-            $inputName = $changeInputInfo->getInputName();
-            $frInput = $fr->getInputByName($inputName);
-            $table = $dbTarget->getTableByName($frInput->getTable());
-            $column = $table->getColumnByName($frInput->getColumn());
-            $isNotFK = true;
-            $isNotPK = true;
-            if($changeInputInfo->getChangeInfo()['dataLength'] < $frInput->getDataType()->getDetails()['length']) {
-                $impact = ['schema' => [['table' => $table->getName(), 'column' => $column->getName()]] , 'instance' => NULL ];
-                $impact['instance'] = true;
-                if($isNotPK && $isNotFK) {
-                    $distinctValues = $dbCon->getDistinctValues($table->getName(),$column->getName());
-                    $numDistinctValues = count($distinctValues);
-                    $random = new RandomContext($column->getDataType()->getType());
-                    $random->random($numDistinctValues,$column->getDataType()->getDetails(),false);
-                }
+        // foreach ($cr->getAllChangeInputInfo() as $changeInputInfo) {
+        //     $inputName = $changeInputInfo->getInputName();
+        //     $frInput = $fr->getInputByName($inputName);
+        //     $table = $dbTarget->getTableByName($frInput->getTable());
+        //     $column = $table->getColumnByName($frInput->getColumn());
+        //     $isNotFK = true;
+        //     $isNotPK = true;
+        //     if($changeInputInfo->getChangeInfo()['dataLength'] < $frInput->getDataType()->getDetails()['length']) {
+        //         $impact = ['schema' => [['table' => $table->getName(), 'column' => $column->getName()]] , 'instance' => NULL ];
+        //         $impact['instance'] = true;
+        //         if($isNotPK && $isNotFK) {
+        //             $distinctValues = $dbCon->getDistinctValues($table->getName(),$column->getName());
+        //             $numDistinctValues = count($distinctValues);
+        //             $random = new RandomContext($column->getDataType()->getType());
+        //             $random->random($numDistinctValues,$column->getDataType()->getDetails(),false);
+        //         }
                 
                 
-            }
+        //     }
             
-        }
+        // }
 
 
         // return view('test',['constraintInTable' => $model->getAllConstraintsByTableName('profile')]);
