@@ -20,7 +20,8 @@ class AnalyzeImpactDBState implements StateInterface
 
     public function process(ChangeAnalysis $changeAnalysis): bool
     {
-        $connectDbInfo = $changeAnalysis->getRequest()['connectDbInfo'];
+        $requestInfo = $changeAnalysis->getRequest();
+        $connectDbInfo = $requestInfo['connectDbInfo'];
         $this->dbTargetConnection = DBTargetConnection::getInstance(
             $connectDbInfo["type"],
             $connectDbInfo["hostName"],
@@ -35,7 +36,7 @@ class AnalyzeImpactDBState implements StateInterface
         } else {
             $this->getDbSchema();
             if ($this->saveDbSchema($changeAnalysis->getProjectId())) {
-                //analysis();
+                $this->analysis($requestInfo['functionalRequirements'],$requestInfo['changeRequest']);
             } else {
                 $changeAnalysis->setMessage($this->message);
                 $changeAnalysis->setStatusCode(303);
@@ -167,6 +168,20 @@ class AnalyzeImpactDBState implements StateInterface
             return false;
         }
         return true;
+    }
+
+    private function analysis(array $functionalRequirements, array $changeRequest): void {
+
+        foreach ($functionalRequirements as $functionalRequirement) {
+                if($functionalRequirement['no'] == $changeRequest['functionalRequirementNo']) {
+                    $changeFunctionRequirement = $functionalRequirement;
+                    break;
+                }
+        }
+
+        foreach ($changeRequest['inputs'] as $changeInput) {
+            
+        }
     }
 
 }
