@@ -178,7 +178,7 @@ class AnalyzeImpactDBState implements StateInterface
         foreach ($changeRequest['inputs'] as $changeInput) {
 
             if ($changeInput['changeType'] == "edit") {
-                $impact = $this->analysisEditing($changeInput, $this->findInputByName($changeInput['name'], $changeFunctionRequirement));
+                $instanceImpact = $this->analysisEditing($changeInput, $this->findInputByName($changeInput['name'], $changeFunctionRequirement));
 
             } elseif ($changeInput['changeType'] == "add") {
                 $impact = $this->analysisAdding($changeInput, $this->findInputByName($changeInput['name'], $changeFunctionRequirement));
@@ -246,10 +246,16 @@ class AnalyzeImpactDBState implements StateInterface
             }
         }
         if ($changeInput['min'] !== null) {
-            $dbColumnMin = $this->
+            $dbColumnMin = $this->getMin($frInput['tableName'],$frInput['columnName']);
+            if($this->findInstanceImpactByMin($changeInput['min'],$dbColumnMin)) {
+                return true;
+            }
         }
         if ($changeInput['max'] !== null) {
-
+            $dbColumnMax = $this->getMax($frInput['tableName'],$frInput['columnName']);
+            if($this-findInstanceImpactByMax($changeInput['max'],$dbColumnMax)) {
+                return true;
+            }
         }
     }
 
@@ -310,7 +316,43 @@ class AnalyzeImpactDBState implements StateInterface
     }
 
     private function getMin(string $tableName, string $columnName) {
-        
+        $checkConstraints = $this->dbTarget->getTableByName($tableName)->getAllCheckConstraint();
+        foreach ($checkConstraints as $checkConstraint) {
+            foreach ($checkConstraint->getColumns() as $column) {
+                if($column == $columnName) {
+                    $minAllColumn = $checkConstraint->getDetail()['min'];
+                    if(\array_key_exists($columnName,$minAllColumn)) {
+                        return $minAllColumn[$columnName];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private function findInstanceImpactByMin($changeMin, $columnMin): bool {
+        if($columnMin == null) return true;
+        return ($changeMin > $columnMin) ? true : false;
+    }
+
+    private function getMax(string $tableName, string $columnName) {
+        $checkConstraints = $this->dbTarget->getTableByName($tableName)->getAllCheckConstraint();
+        foreach ($checkConstraints as $checkConstraint) {
+            foreach ($checkConstraint->getColumns() as $column) {
+                if($column == $columnName) {
+                    $minAllColumn = $checkConstraint->getDetail()['max'];
+                    if(\array_key_exists($columnName,$minAllColumn)) {
+                        return $minAllColumn[$columnName];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private function findInstanceImpactByMax($changeMax, $columnMax): bool {
+        if($columnMax == null) return true;
+        return ($changeMax < $columnMax) ? true : false;
     }
 
 }
