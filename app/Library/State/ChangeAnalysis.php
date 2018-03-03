@@ -16,6 +16,10 @@ class ChangeAnalysis
     private $statusCode = null;
     private $completedState = null;
     private $isProcessError = null;
+    private $dbImpactResult = null;
+    private $frImpactResult = null;
+    private $tcImpactResult = null;
+    private $rtmImpactResult = null;
 
     public const LAST_STATE_NO = 2;
 

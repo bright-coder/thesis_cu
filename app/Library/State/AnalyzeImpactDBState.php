@@ -17,6 +17,7 @@ class AnalyzeImpactDBState implements StateInterface
     private $dbTargetConnection = null;
     private $dbTarget = null;
     private $message = null;
+    private $impact;
 
     public function process(ChangeAnalysis $changeAnalysis): bool
     {
@@ -172,19 +173,26 @@ class AnalyzeImpactDBState implements StateInterface
 
     private function analysis(array $functionalRequirements, array $changeRequest): void
     {
-
+        $this->impact = array();
         $changeFunctionRequirement = $this->findFrByNo($changeRequest['functionalRequirementNo'], $functionalRequirements);
 
         foreach ($changeRequest['inputs'] as $changeInput) {
-
+            $this->impact[$changeInput['name']] = [];
+            $frInput = $this->findInputByName($changeInput['name'], $changeFunctionRequirement);
             if ($changeInput['changeType'] == "edit") {
-                $instanceImpact = $this->analysisEditing($changeInput, $this->findInputByName($changeInput['name'], $changeFunctionRequirement));
+                $instanceImpact = $this->analysisEditing($changeInput, $frInput);
+                $this->impact[$changeInput['name']]['mainDbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
 
             } elseif ($changeInput['changeType'] == "add") {
-                $impact = $this->analysisAdding($changeInput, $this->findInputByName($changeInput['name'], $changeFunctionRequirement));
+                $instanceImpact = $this->analysisAdding($changeInput, $frInput);
+                $this->impact[$changeInput['name']]['mainDbSchemaImpact'] = ['tableName' => $changeInput['tableName'], 'columnName' => $changeInput['columnName']];
             } else {
-                $impact = $this->analysisDeleting($changeInput, $this->findInputByName($changeInput['name'], $changeFunctionRequirement));
+                $instanceImpact = $this->analysisDeleting($changeInput, $frInput);
+                $this->impact[$changeInput['name']]['mainDbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
             }
+            $this->impact[$changeInput['name']]['instanceImpact'] = $instanceImpact;
+
+
         }
 
     }
@@ -259,14 +267,35 @@ class AnalyzeImpactDBState implements StateInterface
         }
     }
 
-    private function analysisAdding(array $changeInput, array $frInput): array
+    private function analysisAdding(array $changeInput, array $frInput): bool
     {
-
+        if(\is_null($changeInput['tableName']) || \is_null($changeInput['columnName']) ) {
+            return false;
+        }
+        $tables  = $this->dbTarget->getAllTables();
+            if(\array_key_exists($changeInput['tableName'],$tables) ) {
+                $columns = $tables->getAllColumns();
+                if(\array_key_exists($changeInput['columnName'],$columns)) {
+                    return true;
+                }
+            }
+            else {
+                return false;
+            }
     }
 
-    private function analysisDeleting(array $changeInput, array $frInput): array
+    private function analysisDeleting(array $changeInput, array $frInput): bool
     {
+        if($this->isPK($frInput['tableName'],$frInput['columnName'])) {
+            return false;
+        }
+        return true;
+    }
 
+    private function isPK(string $tableName,string $columnName): bool {
+        $table = $this->dbTarget->getTableByName($tableName);
+        $pk = $table->getPK();
+        return \in_array($columnName,$pk->getColumns());
     }
 
     private function findInstanceImpactByDataType(string $changeDataType, string $dbColumnDataType): bool {
