@@ -11,6 +11,7 @@ use App\Library\CustomModel\DBTargetConnection;
 use App\Library\State\ChangeAnalysis;
 use App\Library\State\StateInterface;
 use DB;
+use App\Library\Random\RandomContext;
 
 class AnalyzeImpactDBState implements StateInterface
 {
@@ -180,21 +181,86 @@ class AnalyzeImpactDBState implements StateInterface
             $this->impact[$changeInput['name']] = [];
             $frInput = $this->findInputByName($changeInput['name'], $changeFunctionRequirement);
             if ($changeInput['changeType'] == "edit") {
-                $instanceImpact = $this->analysisEditing($changeInput, $frInput);
+                
                 $this->impact[$changeInput['name']]['mainDbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
-
+                $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisEditing($changeInput, $frInput);
+                $this->updateDbTartgetEdit($changeInput, $this->impact[$changeInput['name']]);
+                
             } elseif ($changeInput['changeType'] == "add") {
-                $instanceImpact = $this->analysisAdding($changeInput, $frInput);
+                
                 $this->impact[$changeInput['name']]['mainDbSchemaImpact'] = ['tableName' => $changeInput['tableName'], 'columnName' => $changeInput['columnName']];
+                $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisAdding($changeInput, $frInput);
+                
             } else {
-                $instanceImpact = $this->analysisDeleting($changeInput, $frInput);
+               
                 $this->impact[$changeInput['name']]['mainDbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
+                $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisDeleting($changeInput, $frInput);
+                
             }
-            $this->impact[$changeInput['name']]['instanceImpact'] = $instanceImpact;
+            
 
 
         }
 
+    }
+
+    private function updateDbTartgetEdit(array $newSchemaInfo, array $impactResult): void {
+        $mainDbSchemaImpact = $impactResult['mainDbSchemaImpact'];
+        $ckDrops = $this->findCheckConstraintRelated($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
+
+        foreach ($ckDrops as $ckName) {
+            $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'],$ckName);
+        }
+
+        $uniqueDrops = $this->findUniqueConstraintRelated($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
+
+        foreach ($uniqueDrops as $uniqueName) {
+            $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'],$uniqueName);
+        }
+
+        if($impactResult['instanceImpact']) {
+            $distinctValues = $this->dbTargetConnection->getDistinctValues($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']); 
+            $this->dbTargetConnection->addColumn($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']."_temp",$newSchemaInfo);
+            $random = new RandomContext(\strtolower($newSchemaInfo['dataType']));
+            $random = $random->random(\count($distinctValues), $newSchemaInfo ,$newSchemaInfo['unique']);
+            $randomData = $random->getRandomData();
+            $this->dbTargetConnection->updateInstance($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName'],$distinctValues,$randomData);
+            $this->dbTargetConnection->dropColumn($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
+            $this->dbTargetConnection->updateColumnName($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']."_temp",$mainDbSchemaImpact['columnName']);
+        }
+        else {
+            $this->dbTargetConnection->updateColumn($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName'],$newSchemaInfo);
+        }
+
+    }
+
+    private function findUniqueConstraintRelated(string $tableName, string $columnName) : array {
+        $uniqueConstraints = $this->dbTarget->getTableByName($tableName)->getAllUniqueConstraint();
+        $arrayUniqueRelated = [];
+        foreach ($uniqueConstraints as $uniqueConstraint) {
+            foreach ($uniqueConstraint->getColumns() as $column) {
+                if($column == $columnName) {
+                    $arrayUniqueRelated[] = $uniqueConstraint->getName();
+                    break;
+                }
+            }
+        }
+        return $arrayUniqueRelated;
+    }
+
+
+    private function findCheckConstraintRelated(string $tableName, string $columnName) : array {
+        $checkConstraints = $this->dbTarget->getTableByName($tableName)->getAllCheckConstraint();
+        $arrayCheckRelated = [];
+        foreach ($checkConstraints as $checkConstraint) {
+            foreach ($checkConstraint->getColumns() as $column) {
+                if($column == $columnName) {
+                    $arrayCheckRelated[] = $checkConstraint->getName();
+                    break;
+                }
+            }
+        }
+        return $arrayCheckRelated;
     }
 
     private function findFrByNo(string $no, array $functionalRequirements): array

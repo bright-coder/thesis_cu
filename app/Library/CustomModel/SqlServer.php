@@ -183,9 +183,93 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
-    public function updateDatabase()
-    {
+    public function dropConstraint(string $tableName, string $constraint) : bool {
 
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName DROP CONSTRAINT $constraint");
+        if($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
+
+    public function dropColumn(string $tableName, string $columnName): bool {
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName DROP COLUMN $columnName");
+        if($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
+
+    public function addColumn(string $tableName, string $columnName,array $columnDetail): bool {
+        $dataType = strtolower($columnDetail['dataType']);
+        
+        if(\strpos('char',$dataType) !== false) {
+            $dataType .= "(".$columnDetail['length'].")";
+        }
+        elseif(\strpos('decimal',$dataType) !== false ) {
+            $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
+            $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
+        
+            $dataType .= "($precision,$scale)";
+        }
+        
+        $nullable = $columnDetail['nullable'] == null ? 'NOT NULL' : "";
+
+        $default = $columnDetail['default'] == null ? "" : "DEFAULT(".$columnDetail['default'].")";
+
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD COLUMN $columnName $dataType $nullable $default");
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function updateColumn(string $tableName, string $columnName,array $columnDetail): bool {
+        $dataType = strtolower($columnDetail['dataType']);
+        
+        if(\strpos('char',$dataType) !== false) {
+            $dataType .= "(".$columnDetail['length'].")";
+        }
+        elseif(\strpos('decimal',$dataType) !== false ) {
+            $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
+            $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
+        
+            $dataType .= "($precision,$scale)";
+        }
+        
+        $nullable = $columnDetail['nullable'] == null ? 'NOT NULL' : "";
+
+        $default = $columnDetail['default'] == null ? "" : "DEFAULT(".$columnDetail['default'].")";
+
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ALTER COLUMN $columnName $dataType $nullable $default");
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function updateInstance(string $tableName, string $columnName, array $oldValues , array $newValues): bool {
+        $columnTemp = $columnName."_temp ";
+        $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";
+        foreach($oldValues as $index => $oldValue) {
+            $strQuery .= "WHEN $columnName = $oldValue THEN ".$newValues[$index]." ";
+        }
+        //$strQuery .= "ELSE ".$newValues[0];
+        $strQuery .= 'END';
+        $stmt = $this->conObj->prepare($strQuery);
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function updateColumnName(string $tableName, string $oldColumnName, string $newColumnName) : bool {
+        $param = $tableName.".".$oldColumnName;
+        $stmt = $this->conObj->prepare("sp_rename '$param', '$newColumnName', 'COLUMN'");
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
     }
 
 }
