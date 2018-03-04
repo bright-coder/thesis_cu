@@ -272,4 +272,23 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
+    public function addUniqueConstraint(string $tableName, string $columnName) : bool {
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD UNIQUE ($columnName)");
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool {
+        $min = $min == null ? "" : $columnName." >= ".$min;
+        $max = $max == null ? "" : $columnName." <= ".$max;
+        $AND = ($min == null) || ($max == null) ? "" : "AND";
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD CHECK ($min $AND $max)");
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
 }

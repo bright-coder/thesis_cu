@@ -208,14 +208,14 @@ class AnalyzeImpactDBState implements StateInterface
         $mainDbSchemaImpact = $impactResult['mainDbSchemaImpact'];
         $ckDrops = $this->findCheckConstraintRelated($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
 
-        foreach ($ckDrops as $ckName) {
-            $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'],$ckName);
+        foreach ($ckDrops as $check) {
+            $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'],$check->getName());
         }
 
         $uniqueDrops = $this->findUniqueConstraintRelated($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
 
-        foreach ($uniqueDrops as $uniqueName) {
-            $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'],$uniqueName);
+        foreach ($uniqueDrops as $unique) {
+            $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'],$unique->getName());
         }
 
         if($impactResult['instanceImpact']) {
@@ -231,6 +231,16 @@ class AnalyzeImpactDBState implements StateInterface
         else {
             $this->dbTargetConnection->updateColumn($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName'],$newSchemaInfo);
         }
+        if($newSchemaInfo['unique'] == true) {
+            //$this->dbTargetConnection->addUniqueConstraint($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
+            foreach($uniqueDrops as $unique) {
+                $columns = $unique->getAllColumns();
+                $this->dbTargetConnection->addUniqueConstraint($mainDbSchemaImpact['tableName'],implode(",",$columns));
+            }
+        }
+        if($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null) {
+            $this->dbTargetConnection->addCheckConstraint($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName'],$newSchemaInfo['min'],$newSchemaInfo['max']);
+        }
 
     }
 
@@ -240,7 +250,7 @@ class AnalyzeImpactDBState implements StateInterface
         foreach ($uniqueConstraints as $uniqueConstraint) {
             foreach ($uniqueConstraint->getColumns() as $column) {
                 if($column == $columnName) {
-                    $arrayUniqueRelated[] = $uniqueConstraint->getName();
+                    $arrayUniqueRelated[] = $uniqueConstraint;
                     break;
                 }
             }
@@ -255,7 +265,7 @@ class AnalyzeImpactDBState implements StateInterface
         foreach ($checkConstraints as $checkConstraint) {
             foreach ($checkConstraint->getColumns() as $column) {
                 if($column == $columnName) {
-                    $arrayCheckRelated[] = $checkConstraint->getName();
+                    $arrayCheckRelated[] = $checkConstraint;
                     break;
                 }
             }
