@@ -188,23 +188,20 @@ class AnalyzeImpactDBState implements StateInterface
 
             } elseif ($changeInput['changeType'] == "add") {
 
-                
                 $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisAdding($changeInput, $frInput);
-                if($this->impact[$changeInput['name']]['instanceImpact'] == true){
+                if ($this->impact[$changeInput['name']]['instanceImpact'] == true) {
                     $this->impact[$changeInput['name']]['dbSchemaImpact'] = ['tableName' => $changeInput['tableName'], 'columnName' => $changeInput['columnName']];
                     $this->updateDbTargetAdding($changeInput);
                 }
-
-                
 
             } else {
 
                 $this->impact[$changeInput['name']]['dbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
                 $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisDeleting($changeInput, $frInput, $functionalRequirements, $changeFunctionRequirement['no']);
-                if($this->impact[$changeInput['name']]['instanceImpact'] == true) {
-                    $this->updateDbTargetDeleting($changeInput,$frInput);
+                if ($this->impact[$changeInput['name']]['instanceImpact'] == true) {
+                    $this->updateDbTargetDeleting($changeInput, $frInput);
                 }
-            
+
             }
 
         }
@@ -255,25 +252,25 @@ class AnalyzeImpactDBState implements StateInterface
     {
         if ($newSchemaInfo['tableName'] != null && $newSchemaInfo['columnName'] != null) {
 
-                $this->dbTargetConnection->addColumn($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo);
-                $pkColumn = $this->dbTarget->getTableByName($newSchemaInfo['tableName'])->getPK()->getAllColumns()[0];
-                $distinctValues = $this->dbTargetConnection->getDistinctValues($newSchemaInfo['tableName'], $pkColumn);
-                $random = new RandomContext(\strtolower($newSchemaInfo['dataType']));
-                $random = $random->random(\count($distinctValues), $newSchemaInfo, $newSchemaInfo['unique']);
-                $randomData = $random->getRandomData();
-                $this->dbTargetConnection->updateInstance($newSchemaInfo['tableName'], $pkColumn, $distinctValues, $newSchemaInfo['columnName'], $randomData);
-                if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null) {
-                    $this->dbTargetConnection->addCheckConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo['min'], $newSchemaInfo['max']);
-                }
-                if($newSchemaInfo['unique'] == true) {
-                    $this->dbTargetConnection->addUniqueConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName']);
-                }
-                
+            $this->dbTargetConnection->addColumn($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo);
+            $pkColumn = $this->dbTarget->getTableByName($newSchemaInfo['tableName'])->getPK()->getAllColumns()[0];
+            $distinctValues = $this->dbTargetConnection->getDistinctValues($newSchemaInfo['tableName'], $pkColumn);
+            $random = new RandomContext(\strtolower($newSchemaInfo['dataType']));
+            $random = $random->random(\count($distinctValues), $newSchemaInfo, $newSchemaInfo['unique']);
+            $randomData = $random->getRandomData();
+            $this->dbTargetConnection->updateInstance($newSchemaInfo['tableName'], $pkColumn, $distinctValues, $newSchemaInfo['columnName'], $randomData);
+            if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null) {
+                $this->dbTargetConnection->addCheckConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo['min'], $newSchemaInfo['max']);
+            }
+            if ($newSchemaInfo['unique'] == true) {
+                $this->dbTargetConnection->addUniqueConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName']);
+            }
 
         }
     }
 
-    private function updateDbTargetDeleting(array $newSchemaInfo, array $frinput): void {
+    private function updateDbTargetDeleting(array $newSchemaInfo, array $frinput): void
+    {
         $ckDrops = $this->findCheckConstraintRelated($frinput['tableName'], $frinput['columnName']);
 
         foreach ($ckDrops as $check) {
@@ -285,9 +282,9 @@ class AnalyzeImpactDBState implements StateInterface
         foreach ($uniqueDrops as $unique) {
             $this->dbTargetConnection->dropConstraint($frinput['tableName'], $unique->getName());
         }
-        
+
         $this->dbTargetConnection->dropColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName']);
-        
+
     }
 
     private function findUniqueConstraintRelated(string $tableName, string $columnName): array
@@ -412,8 +409,8 @@ class AnalyzeImpactDBState implements StateInterface
             return false;
         }
         foreach ($functionalRequirements as $fr) {
-            foreach($fr['inputs'] as $input) {
-                if(($input['name'] == $frInput['name']) && ($fr['no'] != $frChangeNo)) {
+            foreach ($fr['inputs'] as $input) {
+                if (($input['name'] == $frInput['name']) && ($fr['no'] != $frChangeNo)) {
                     return false;
                 }
             }
