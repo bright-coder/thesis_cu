@@ -248,8 +248,8 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    public function updateInstance(string $tableName, string $columnName, array $oldValues , array $newValues): bool {
-        $columnTemp = $columnName."_temp ";
+    public function updateInstance(string $tableName, string $columnName, array $oldValues, string $newColumnName ,array $newValues): bool {
+        $columnTemp = $newColumnName;
         $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";
         foreach($oldValues as $index => $oldValue) {
             $strQuery .= "WHEN $columnName = $oldValue THEN ".$newValues[$index]." ";
