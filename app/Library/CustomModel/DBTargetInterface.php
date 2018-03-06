@@ -27,5 +27,6 @@ interface DBTargetInterface
     public function updateColumnName(string $tableName, string $oldColumnName, string $newColumnName) : bool;
     public function addUniqueConstraint(string $tableName, string $columnName) : bool;
     public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool;
+    public function setNullable(string $tableName, string $columnName, array $columnDetail): bool;
 
 }

@@ -61,7 +61,7 @@ class SqlServer implements DBTargetInterface
 
     public function getAllTables(): array
     {
-        $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
+        $stmt = $this->conObj->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME <> 'sysdiagrams'");
         if ($stmt->execute()) {
             //$tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
             return ModelOutputFactory::createTable($stmt->fetchAll(\PDO::FETCH_COLUMN));
@@ -202,22 +202,32 @@ class SqlServer implements DBTargetInterface
 
     public function addColumn(string $tableName, string $columnName,array $columnDetail): bool {
         $dataType = strtolower($columnDetail['dataType']);
-        
-        if(\strpos('char',$dataType) !== false) {
+        if($dataType == "int" || $dataType == "date" || $dataType == "datetime"){
+
+        }
+        elseif(\strpos($dataType,'char') !== false || \strpos($dataType,'char') == 0) {
             $dataType .= "(".$columnDetail['length'].")";
         }
-        elseif(\strpos('decimal',$dataType) !== false ) {
+        elseif(\strpos($dataType,'decimal') != false ) {
             $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
             $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
         
             $dataType .= "($precision,$scale)";
         }
         
-        $nullable = $columnDetail['nullable'] == null ? 'NOT NULL' : "";
-
-        $default = $columnDetail['default'] == null ? "" : "DEFAULT(".$columnDetail['default'].")";
-
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD COLUMN $columnName $dataType $nullable $default");
+        $default = "DEFAULT(".$columnDetail['default'].")";
+        
+        if($columnDetail['default'] == null && $columnDetail['nullable'] == false){
+            $default = "";
+        }
+        if($columnDetail['default'] == null && $columnDetail['nullable'] == true){
+            $default = "";
+        }
+        //dd($columnDetail);
+        //$default =  "DEFAULT(".$columnDetail['default'].")";
+        $strQuery = "ALTER TABLE ".$tableName." ADD ".$columnName." ".$dataType." ".$default;
+        //dd($strQuery);
+        $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
         }
@@ -226,36 +236,70 @@ class SqlServer implements DBTargetInterface
 
     public function updateColumn(string $tableName, string $columnName,array $columnDetail): bool {
         $dataType = strtolower($columnDetail['dataType']);
-        
-        if(\strpos('char',$dataType) !== false) {
+        if($dataType == "int" || $dataType == "date" || $dataType == "datetime"){
+
+        }
+        elseif(\strpos($dataType,'char') !== false || \strpos($dataType,'char') == 0) {
             $dataType .= "(".$columnDetail['length'].")";
         }
-        elseif(\strpos('decimal',$dataType) !== false ) {
+        elseif(\strpos($dataType,'decimal') != false ) {
             $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
             $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
         
             $dataType .= "($precision,$scale)";
         }
         
-        $nullable = $columnDetail['nullable'] == null ? 'NOT NULL' : "";
+        $nullable = $columnDetail['nullable'] == false ? ' NOT NULL ' : "";
+        $default = "DEFAULT(".$columnDetail['default'].")";
+        
+        if($columnDetail['default'] == null && $columnDetail['nullable'] == false){
+            $default = "";
+        }
 
-        $default = $columnDetail['default'] == null ? "" : "DEFAULT(".$columnDetail['default'].")";
-
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ALTER COLUMN $columnName $dataType $nullable $default");
+        $strQuery = "ALTER TABLE ".$tableName." ALTER COLUMN ".$columnName." ".$dataType." ".$default;
+        $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
         }
         return false;
     }
 
+    public function setNullable(string $tableName, string $columnName, array $columnDetail): bool {
+        $dataType = strtolower($columnDetail['dataType']);
+        if($dataType == "int" || $dataType == "date" || $dataType == "datetime"){
+
+        }
+        elseif(\strpos($dataType,'char') !== false || \strpos($dataType,'char') == 0) {
+            $dataType .= "(".$columnDetail['length'].")";
+        }
+        elseif(\strpos($dataType,'decimal') != false ) {
+            $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
+            $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
+        
+            $dataType .= "($precision,$scale)";
+        }
+        $nullable = $columnDetail['nullable'] == false ? 'NOT NULL' : "";
+        $strQuery = "ALTER TABLE $tableName ALTER COLUMN $columnName $dataType $nullable";
+        $stmt = $this->conObj->prepare($strQuery);
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
+
+
     public function updateInstance(string $tableName, string $columnName, array $oldValues, string $newColumnName ,array $newValues): bool {
         $columnTemp = $newColumnName;
         $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";
-        foreach($oldValues as $index => $oldValue) {
-            $strQuery .= "WHEN $columnName = $oldValue THEN ".$newValues[$index]." ";
+        if(\array_last($newValues) == false){
+            $newValues = \array_keys($newValues);
         }
-        //$strQuery .= "ELSE ".$newValues[0];
-        $strQuery .= 'END';
+        foreach($oldValues as $index => $oldValue) {
+            $strQuery .= "WHEN $columnName = '$oldValue' THEN '".$newValues[$index]."' ";
+        }
+        $strQuery .= "ELSE '".$newValues[\count($newValues)-1]."'";
+        $strQuery .= ' END';
+        //dd($strQuery);
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
@@ -273,7 +317,9 @@ class SqlServer implements DBTargetInterface
     }
 
     public function addUniqueConstraint(string $tableName, string $columnName) : bool {
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD UNIQUE ($columnName)");
+        $strQuery = "ALTER TABLE $tableName ADD UNIQUE ($columnName)";
+        //dd($strQuery);
+        $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
         }

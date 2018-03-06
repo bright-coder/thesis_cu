@@ -12,11 +12,12 @@
     }
 
     public function random(int $numRows, array $info, bool $isUnique): void {
-        $length = $info['length'];
+        $maxLength = $info['length'];
         $characters ='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         if (!$isUnique) {
             while(true){
+                $length = \rand(1,$maxLength);
                 $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
                     $this->randomData[] = $r;
                 if (sizeof($this->randomData) == $numRows) { break; }
@@ -24,6 +25,7 @@
         }
         else {
             while(true){
+                $length = \rand(1,$maxLength);
                 $r = substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);
                 if(!isset($randomData[$r])){
                     $this->randomData[$r] = false;

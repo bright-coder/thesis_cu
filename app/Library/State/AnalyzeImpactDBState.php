@@ -37,17 +37,18 @@ class AnalyzeImpactDBState implements StateInterface
             return false;
         } else {
             $this->getDbSchema();
-            if ($this->saveDbSchema($changeAnalysis->getProjectId())) {
-                $this->analysis($requestInfo['functionalRequirements'], $requestInfo['changeRequest']);
-            } else {
-                $changeAnalysis->setMessage($this->message);
-                $changeAnalysis->setStatusCode(303);
-                return false;
-            }
+            $this->analysis($requestInfo['functionalRequirements'], $requestInfo['changeRequest']);
+            // if ($this->saveDbSchema($changeAnalysis->getProjectId())) {
+            //     $this->analysis($requestInfo['functionalRequirements'], $requestInfo['changeRequest']);
+            // } else {
+            //     $changeAnalysis->setMessage($this->message);
+            //     $changeAnalysis->setStatusCode(303);
+            //     return false;
+            // }
         }
-
-        $changeAnalysis->setMessage("Connect to Target Database success");
-        $changeAnalysis->setStatusCode(201);
+        
+        $changeAnalysis->setMessage("Analysis DbSchema success");
+        $changeAnalysis->setStatusCode(200);
         return true;
     }
 
@@ -179,12 +180,14 @@ class AnalyzeImpactDBState implements StateInterface
 
         foreach ($changeRequest['inputs'] as $changeInput) {
             $this->impact[$changeInput['name']] = [];
-            $frInput = $this->findInputByName($changeInput['name'], $changeFunctionRequirement);
+            $frInput = $this->findInputByName($changeInput['name'], $changeFunctionRequirement['inputs']);
             if ($changeInput['changeType'] == "edit") {
 
                 $this->impact[$changeInput['name']]['dbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
                 $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisEditing($changeInput, $frInput);
-                $this->updateDbTargetEdit($changeInput, $this->impact[$changeInput['name']]);
+                $this->updateDbTargetEdit($changeInput, $this->impact[$changeInput['name']], $frInput);
+                
+                
 
             } elseif ($changeInput['changeType'] == "add") {
 
@@ -208,9 +211,37 @@ class AnalyzeImpactDBState implements StateInterface
 
     }
 
-    private function updateDbTargetEdit(array $newSchemaInfo, array $impactResult): void
+    private function prepareBefore($newSchemaInfo, $frInput) : array {
+        $schema = [];
+        $schema["dataType"] = $newSchemaInfo["dataType"] == null ? $frInput["dataType"] : $newSchemaInfo["dataType"];
+        $schema['length'] = $newSchemaInfo["length"] == null ? $frInput["length"] : $newSchemaInfo["length"];
+        $schema['precision'] = $newSchemaInfo["precision"] == null ? $frInput["precision"] : $newSchemaInfo["precision"];
+        $schema['scale'] = $newSchemaInfo["scale"] == null ? $frInput["scale"] : $newSchemaInfo["scale"];
+        $schema['default'] = $newSchemaInfo["default"] == null ? $frInput["default"] : $newSchemaInfo["default"];
+        $schema['unique'] = $newSchemaInfo["unique"] == null ? $frInput["unique"] : $newSchemaInfo["unique"];
+        $schema['nullable'] = $newSchemaInfo["nullable"] == null ? $frInput["nullable"] : $newSchemaInfo["nullable"];
+        $schema['min'] = $newSchemaInfo["min"] == null ? $frInput["min"] : $newSchemaInfo["min"];
+        $schema['max'] = $newSchemaInfo["max"] == null ? $frInput["max"] : $newSchemaInfo["max"];
+        $schema['unique'] = $schema['unique'] == null || $schema['unique'] == "N" ? false : true;
+        $schema['nullable'] = $schema['nullable'] == null || $schema['nullable'] == "N" ? false : true;
+        $schema['tableName'] = $newSchemaInfo['tableName'];
+        $schema['columnName'] = $newSchemaInfo['columnName'];
+        // "length" : null,
+        // "precision" : null,
+        // "scale" : null,
+        // "default" : null,
+        // "unique" : null,
+        // "nullable" : "Y",
+        // "min" : null,
+        // "max" : null,
+        // "tableName" : null,
+        // "columnName" : null
+        return $schema;
+    }
+
+    private function updateDbTargetEdit(array $newSchemaInfo, array $impactResult, array $frInput): void
     {
-        $mainDbSchemaImpact = $impactResult['mainDbSchemaImpact'];
+        $mainDbSchemaImpact = $impactResult['dbSchemaImpact'];
         $ckDrops = $this->findCheckConstraintRelated($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName']);
 
         foreach ($ckDrops as $check) {
@@ -223,27 +254,37 @@ class AnalyzeImpactDBState implements StateInterface
             $this->dbTargetConnection->dropConstraint($mainDbSchemaImpact['tableName'], $unique->getName());
         }
 
-        if ($impactResult['instanceImpact']) {
+        if ($impactResult['instanceImpact'] == true) {
+            $schemaInfo = $this->prepareBefore($newSchemaInfo,$frInput);
             $distinctValues = $this->dbTargetConnection->getDistinctValues($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName']);
-            $this->dbTargetConnection->addColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'] . "_temp", $newSchemaInfo);
-            $random = new RandomContext(\strtolower($newSchemaInfo['dataType']));
-            $random = $random->random(\count($distinctValues), $newSchemaInfo, $newSchemaInfo['unique']);
-            $randomData = $random->getRandomData();
+            $this->dbTargetConnection->addColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'] . "_temp", $schemaInfo);
+            $randomDetail = $this->prepareBefore($newSchemaInfo,$frInput);
+
+            $randomContext = new RandomContext(\strtolower($randomDetail['dataType']));
+            $randomContext->random(\count($distinctValues)+1, $randomDetail, $randomDetail['unique']);
+            $randomData = $randomContext->getRandomData();
+            //dd($randomData);
             $this->dbTargetConnection->updateInstance($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $distinctValues, $mainDbSchemaImpact['columnName'] . "_temp", $randomData);
             $this->dbTargetConnection->dropColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName']);
             $this->dbTargetConnection->updateColumnName($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'] . "_temp", $mainDbSchemaImpact['columnName']);
+            $this->dbTargetConnection->setNullable($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'],$schemaInfo);
         } else {
-            $this->dbTargetConnection->updateColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $newSchemaInfo);
+            $detail = $this->prepareBefore($newSchemaInfo,$frInput);
+            $this->dbTargetConnection->updateColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $detail);
+            $this->dbTargetConnection->setNullable($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'],$detail);
         }
-        if ($newSchemaInfo['unique'] == true) {
+        if ( ($newSchemaInfo['unique'] == "Y" || $frInput['unique'] == "Y") && $newSchemaInfo['unique'] != "N" ) {
             //$this->dbTargetConnection->addUniqueConstraint($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
             foreach ($uniqueDrops as $unique) {
                 $columns = $unique->getAllColumns();
                 $this->dbTargetConnection->addUniqueConstraint($mainDbSchemaImpact['tableName'], implode(",", $columns));
             }
         }
-        if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null) {
-            $this->dbTargetConnection->addCheckConstraint($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $newSchemaInfo['min'], $newSchemaInfo['max']);
+        if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null || $frInput['min'] != null || $frInput['max'] != null) {
+            $schemaInfo = $this->prepareBefore($newSchemaInfo,$frInput);
+            $min = $schemaInfo['min'];
+            $max = $schemaInfo['max'];
+            $this->dbTargetConnection->addCheckConstraint($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $min, $max);
         }
 
     }
@@ -253,16 +294,23 @@ class AnalyzeImpactDBState implements StateInterface
         if ($newSchemaInfo['tableName'] != null && $newSchemaInfo['columnName'] != null) {
 
             $this->dbTargetConnection->addColumn($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo);
-            $pkColumn = $this->dbTarget->getTableByName($newSchemaInfo['tableName'])->getPK()->getAllColumns()[0];
+            $pkColumn = $this->dbTarget->getTableByName($newSchemaInfo['tableName'])->getPK()->getColumns();
+            //$pkColumn = $pkColumn[0];
+            $pkColumn = $pkColumn[0];
             $distinctValues = $this->dbTargetConnection->getDistinctValues($newSchemaInfo['tableName'], $pkColumn);
-            $random = new RandomContext(\strtolower($newSchemaInfo['dataType']));
-            $random = $random->random(\count($distinctValues), $newSchemaInfo, $newSchemaInfo['unique']);
-            $randomData = $random->getRandomData();
+            $randomContext = new RandomContext(\strtolower($newSchemaInfo['dataType']));
+            $randomContext->random(\count($distinctValues)+1, $newSchemaInfo, $newSchemaInfo['unique'] == "Y" ? true : false);
+            $randomData = $randomContext->getRandomData();
             $this->dbTargetConnection->updateInstance($newSchemaInfo['tableName'], $pkColumn, $distinctValues, $newSchemaInfo['columnName'], $randomData);
             if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null) {
                 $this->dbTargetConnection->addCheckConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo['min'], $newSchemaInfo['max']);
             }
-            if ($newSchemaInfo['unique'] == true) {
+            
+            if($newSchemaInfo['nullable'] == "N") {
+                $newSchemaInfo['nullable'] = false;
+                $this->dbTargetConnection->setNullable($newSchemaInfo['tableName'], $newSchemaInfo['columnName'],$newSchemaInfo);
+            }
+            if ($newSchemaInfo['unique'] == "Y") {
                 $this->dbTargetConnection->addUniqueConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName']);
             }
 
@@ -320,7 +368,7 @@ class AnalyzeImpactDBState implements StateInterface
     private function findFrByNo(string $no, array $functionalRequirements): array
     {
         foreach ($functionalRequirements as $functionalRequirement) {
-            if ($functionalRequirement['no'] == $changeRequest['functionalRequirementNo']) {
+            if ($functionalRequirement['no'] == $no) {
                 return $functionalRequirement;
                 break;
             }
@@ -363,13 +411,15 @@ class AnalyzeImpactDBState implements StateInterface
             }
         }
         if ($changeInput['unique'] !== null) {
-            if ($this->findInstanceImpactByUnique($changeInput['unique'], $this->isColumnUnique($frInput['tableName'], $frInput['columnName']))) {
+            $changeUnique = $changeInput['unique'] == "N" ? false : true;
+            if ($this->findInstanceImpactByUnique($changeUnique, $this->isColumnUnique($frInput['tableName'], $frInput['columnName']))) {
                 return true;
             }
         }
         if ($changeInput['nullable'] !== null) {
             $dbColumnNullable = $dbColumn->isNullable();
-            if ($this->findInstanceImpactByNullable($changeInput['nullable'], $dbColumnNullable)) {
+            $changeNullable = $changeInput['nullable'] == "N" ? false : true;
+            if ($this->findInstanceImpactByNullable($changeNullable, $dbColumnNullable)) {
                 return true;
             }
         }
@@ -381,10 +431,11 @@ class AnalyzeImpactDBState implements StateInterface
         }
         if ($changeInput['max'] !== null) {
             $dbColumnMax = $this->getMax($frInput['tableName'], $frInput['columnName']);
-            if ($this - findInstanceImpactByMax($changeInput['max'], $dbColumnMax)) {
+            if ($this->findInstanceImpactByMax($changeInput['max'], $dbColumnMax)) {
                 return true;
             }
         }
+        return false;
     }
 
     private function analysisAdding(array $changeInput, array $frInput): bool
@@ -394,13 +445,14 @@ class AnalyzeImpactDBState implements StateInterface
         }
         $tables = $this->dbTarget->getAllTables();
         if (\array_key_exists($changeInput['tableName'], $tables)) {
-            $columns = $tables->getAllColumns();
+            $columns = $tables[$changeInput['tableName']]->getAllColumns();
             if (\array_key_exists($changeInput['columnName'], $columns)) {
-                return true;
+                
+                return false;
             }
-        } else {
-            return false;
         }
+        return true;
+        
     }
 
     private function analysisDeleting(array $changeInput, array $frInput, array $functionalRequirements, string $frChangeNo): bool

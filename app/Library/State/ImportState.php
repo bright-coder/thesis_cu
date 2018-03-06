@@ -26,6 +26,14 @@ class ImportState implements StateInterface
     {
 
         $request = $changeAnalysis->getRequest();
+        if(Project::find(19) != null) {
+            $changeAnalysis->setProjectId((int) $request['projectInfo']['id']);
+            //$changeAnalysis->setChangeRequestId((int) $changeRequest->id);
+            $changeAnalysis->setMessage("HAVE PROJECT ALREADY");
+            $changeAnalysis->setStatusCode(201);
+            $changeAnalysis->setState(new AnalyzeImpactDBState);
+            return true;
+        }
 
         DB::beginTransaction();
         try {
