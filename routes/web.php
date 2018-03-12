@@ -23,3 +23,6 @@ Route::get('showTable','CoreController@index');
 //     Route::post('project', 'ChangeRequestController@create');
 
 // });
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
