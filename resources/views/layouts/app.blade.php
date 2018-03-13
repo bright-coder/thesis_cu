@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+<!--<html lang="{{ app()->getLocale() }}"> -->
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,7 +21,7 @@
   <!-- Google fonts - Poppins -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
   <!-- theme stylesheet-->
-  <link rel="stylesheet" href=" {{ asset('css/bootstrap4-premium/style.default.premium.css') }}" id="theme-stylesheet">
+  <link rel="stylesheet" href=" {{ asset('css/bootstrap4-premium/style.blue.premium.css') }}" id="theme-stylesheet">
   <!-- Custom stylesheet - for your changes-->
   <link rel="stylesheet" href="{{ asset('css/bootstrap4-premium/custom.css') }}">
   <!-- Favicon-->
@@ -31,7 +32,7 @@
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
 </head>
 <body>
-  <div id="page">
+  <div class="page">
     {{--
     <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
       <div class="container">
@@ -195,7 +196,7 @@
         <div class="sidebar-header d-flex align-items-center">
           <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
           <div class="title">
-            <h1 class="h4">Mark Stephen</h1>
+          <h1 class="h4">{{ Auth::user()->name }}</h1>
             <p>Web Designer</p>
           </div>
         </div>
@@ -261,6 +262,7 @@
       </div>
     </div>
   </div>
+  
   <!-- Scripts -->
   <!--<script src="{{ asset('js/app.js') }}"></script> -->
   <!-- Boostrap Preimium 4 -->
@@ -283,5 +285,6 @@
   </script>
   <!-- Main File-->
   <script src="{{ asset('js/bootstrap4-premium/front.js') }}"></script>
+  @yield('customJS')
 </body>
 </html>

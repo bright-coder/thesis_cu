@@ -23,7 +23,7 @@
     <!-- Google fonts - Poppins -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
     <!-- theme stylesheet-->
-    <link rel="stylesheet" href=" {{ asset('css/bootstrap4-premium/style.default.premium.css') }}" id="theme-stylesheet">
+    <link rel="stylesheet" href=" {{ asset('css/bootstrap4-premium/style.blue.premium.css') }}" id="theme-stylesheet">
     <!-- Custom stylesheet - for your changes-->
     <link rel="stylesheet" href="{{ asset('css/bootstrap4-premium/custom.css') }}">
     <!-- Favicon-->

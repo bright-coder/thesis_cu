@@ -26,3 +26,7 @@ Route::get('showTable','CoreController@index');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('project', "ProjectController@index");
+Route::get('project/create', "ProjectController@create");
+Route::post('project', 'ProjectController@store');

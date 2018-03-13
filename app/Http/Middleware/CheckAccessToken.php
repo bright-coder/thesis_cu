@@ -15,9 +15,10 @@ class CheckAccessToken
      */
     public function handle($request, Closure $next)
     {
-        if($request->accessToken !== "As24fkwxkeUopKn91sc") {
-            return redirect('/');
-        }
+
+        // if($request->accessToken !== "As24fkwxkeUopKn91sc") {
+        //     return redirect('/');
+        // }
         return $next($request);
     }
 }
