@@ -197,13 +197,13 @@
           <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
           <div class="title">
           <h1 class="h4">{{ Auth::user()->name }}</h1>
-            <p>Web Designer</p>
+            <p>DB Change Tester</p>
           </div>
         </div>
         <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
         <ul class="list-unstyled">
-          <li class="active"><a href="index.html"> <i class="icon-home"></i>Home </a></li>
-          <li><a href="#tablesDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-grid"></i>Tables </a>
+        <li class="active"><a href="{{ route('home') }}"> <i class="icon-home"></i>Home </a></li>
+          {{--  <li><a href="#tablesDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-grid"></i>Tables </a>
             <ul id="tablesDropdown" class="collapse list-unstyled ">
               <li><a href="tables.html">Bootstrap tables</a></li>
               <li><a href="tables-datatable.html">Datatable</a></li>
@@ -234,15 +234,19 @@
               <li><a href="components-notifications.html">Notifications</a></li>
               <li><a href="components-preloader.html">Preloaders</a></li>
             </ul>
-          </li>
-          <li><a href="login.html"> <i class="icon-interface-windows"></i>Login page </a></li>
-        </ul><span class="heading">Extras</span>
+          </li>  --}}
+        <li><a href="{{ route('project')}} "> <i class="icon-interface-windows"></i>Project </a></li>
+        {{--  <li><a href="{{ route('functionalrequirement')}} "> <i class="icon-interface-windows"></i>Functional Requirement </a></li>
+        <li><a href="{{ route('testcase')}} "> <i class="icon-interface-windows"></i>Test Case </a></li>  --}}
+        <li><a href="{{ route('changerequest')}} "> <i class="icon-padnote"></i>Change Request </a></li>
+        </ul>
+        {{--  <span class="heading">Extras</span>
         <ul class="list-unstyled">
           <li> <a href="#"> <i class="icon-flask"></i>Demo </a></li>
           <li> <a href="#"> <i class="icon-screen"></i>Demo </a></li>
           <li> <a href="#"> <i class="icon-mail"></i>Demo </a></li>
           <li> <a href="#"> <i class="icon-picture"></i>Demo </a></li>
-        </ul>
+        </ul>  --}}
       </nav>
       <div class="content-inner">
         <!-- Page Footer-->

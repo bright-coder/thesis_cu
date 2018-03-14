@@ -1,5 +1,5 @@
 @extends('layouts.authen') 
-@section('content')
+@section('content') {{--
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -51,6 +51,58 @@
                 </div>
             </div>
         </div>
+    </div>
+</div> --}}
+<div class="page login-page">
+    <div class="container d-flex align-items-center">
+        <div class="form-holder has-shadow">
+            <div class="row">
+                <!-- Logo & Information Panel-->
+                <div class="col-lg-6">
+                    <div class="info d-flex align-items-center">
+                        <div class="content">
+                            <div class="logo">
+                                <h1>Impact Analysis</h1>
+                            </div>
+                            <p></p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form Panel    -->
+                <div class="col-lg-6 bg-white">
+                    <div class="form d-flex align-items-center">
+                        <div class="content">
+                            <form id="login-form" method="post" action="{{ route('login') }}">
+                                @csrf
+                                <div class="form-group">
+                                    <input id="email" type="text" name="email" required autofocus class="input-material{{ $errors->has('email') ? ' is-invalid' : '' }}"
+                                        value="{{ old('email') }}">
+                                    <label for="email" class="label-material">E-Mail Address</label> @if ($errors->has('email'))
+                                    <label id="email-error" class="error" for="email">{{ $errors->first('email') }}.</label>                                    @endif
+                                </div>
+                                <div class="form-group">
+                                    <input id="password" type="password" name="password" required="" class="input-material {{ $errors->has('password') ? ' is-invalid' : '' }}"
+                                        required>
+                                    <label for="password" class="label-material">Password</label> @if ($errors->has('password'))
+                                    <label id="password-error" class="error" for="password">{{ $errors->first('password') }}.</label>                                    @endif
+                                </div>
+                                <div class="form-group terms-conditions">
+                                    <input id="remember" type="checkbox" class="checkbox-template" name="remember" {{ old( 'remember') ? 'checked' : '' }}>
+                                    <label for="remember">Remember Me</label>
+                                </div>
+                                <button id="login" type="submit" class="btn btn-primary">Login</button>
+                                <!-- This should be submit button but I replaced it with <a> for demo purposes-->
+                            </form><a href="{{ route('password.request')  }}" class="forgot-pass">Forgot Password?</a><br><small>Do not have an account? </small>
+                            <a href="{{ route('register') }}" class="signup">Signup</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="copyrights text-center">
+        <p>Design by <a href="https://bootstrapious.com/admin-templates" class="external">Bootstrapious</a>
+        </p>
     </div>
 </div>
 @endsection

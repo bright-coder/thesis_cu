@@ -33,10 +33,8 @@
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
 </head>
 <body>
-    <div id="app">
-        <main class="py-4">
+    <div class="page login-page">
             @yield('content')
-        </main>
     </div>
 
     <!-- Scripts -->

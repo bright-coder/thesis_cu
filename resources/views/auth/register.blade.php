@@ -52,6 +52,12 @@
                             </div>
                         </div>
                     </form>
+                    <br>
+                    <div class="form-group row mb-0">
+                        <div class="col-md-6 offset-md-4">
+                            <small>Already have an account? </small><a href=" {{ route('login') }}" class="signup">Login</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
