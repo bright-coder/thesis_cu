@@ -98,7 +98,7 @@
               <!-- Search-->
               <li class="nav-item d-flex align-items-center"><a id="search" href="#"><i class="icon-search"></i></a></li>
               <!-- Notifications-->
-              <li class="nav-item dropdown"> <a id="notifications" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+              {{--  <li class="nav-item dropdown"> <a id="notifications" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                   class="nav-link"><i class="fa fa-bell-o"></i><span class="badge bg-red badge-corner">12</span></a>
                 <ul aria-labelledby="notifications" class="dropdown-menu">
                   <li>
@@ -174,7 +174,7 @@
                   <li><a rel="nofollow" href="#" class="dropdown-item"> <img src="img/flags/16/DE.png" alt="English" class="mr-2">German</a></li>
                   <li><a rel="nofollow" href="#" class="dropdown-item"> <img src="img/flags/16/FR.png" alt="English" class="mr-2">French                                         </a></li>
                 </ul>
-              </li>
+              </li>  --}}
               <!-- Logout    -->
               <li class="nav-item">
                 <a class="nav-link logout" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -194,7 +194,7 @@
       <nav class="side-navbar">
         <!-- Sidebar Header-->
         <div class="sidebar-header d-flex align-items-center">
-          <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
+          <div class="avatar"><img src="{{ asset('img/avatar-1.jpg') }}" alt="..." class="img-fluid rounded-circle"></div>
           <div class="title">
           <h1 class="h4">{{ Auth::user()->name }}</h1>
             <p>DB Change Tester</p>
@@ -202,7 +202,7 @@
         </div>
         <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
         <ul class="list-unstyled">
-        <li class="active"><a href="{{ route('home') }}"> <i class="icon-home"></i>Home </a></li>
+        <li class="{{ (Request::is('/') ? 'active' : '') }}"><a href="{{ route('home') }}"> <i class="icon-home"></i>Home </a></li>
           {{--  <li><a href="#tablesDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-grid"></i>Tables </a>
             <ul id="tablesDropdown" class="collapse list-unstyled ">
               <li><a href="tables.html">Bootstrap tables</a></li>
@@ -235,10 +235,10 @@
               <li><a href="components-preloader.html">Preloaders</a></li>
             </ul>
           </li>  --}}
-        <li><a href="{{ route('project')}} "> <i class="icon-interface-windows"></i>Project </a></li>
+        <li class="{{ (Request::is('project*') ? 'active' : '')  }}"><a href="{{ route('project')}} "> <i class="icon-interface-windows"></i>Project </a></li>
         {{--  <li><a href="{{ route('functionalrequirement')}} "> <i class="icon-interface-windows"></i>Functional Requirement </a></li>
         <li><a href="{{ route('testcase')}} "> <i class="icon-interface-windows"></i>Test Case </a></li>  --}}
-        <li><a href="{{ route('changerequest')}} "> <i class="icon-padnote"></i>Change Request </a></li>
+        <li class="{{ (Request::is('changerequest*') ? 'active' : '')  }}"><a href="{{ route('changerequest')}} "> <i class="icon-padnote"></i>Change Request </a></li>
         </ul>
         {{--  <span class="heading">Extras</span>
         <ul class="list-unstyled">

@@ -125,7 +125,8 @@
                         </div>
                     </div>
                     <hr>
-                    <form id="save">
+                <form id="save" action="{{ route('project') }}" method="POST">
+                            @csrf
                         <div class="form-group row">
                             <div class="col-sm-4 offset-sm-4">
                                 <button type="submit" class="btn btn-secondary">Cancel</button>
@@ -140,5 +141,5 @@
 @endsection
 
 @section('customJS')
-<script src="{{ asset('js/createProject.js') }}"></script>
+   
 @endsection

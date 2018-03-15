@@ -28,10 +28,10 @@ Auth::routes();
 Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('project', "ProjectController@index")->name('project');
-Route::get('project/create', "ProjectController@create");
+Route::get('project/create', "ProjectController@create")->name('projectCreate');
 Route::post('project', 'ProjectController@store');
 
 Route::get('functionalrequirement', "ProjectController@index")->name('functionalrequirement');
 Route::get('testcase', "ProjectController@index")->name('testcase');
 Route::get('changerequest', "ProjectController@index")->name('changerequest');
-Route::get('RTM', "ProjectController@index")->name('RTM');
+Route::get('RTM', "ProjectController@index")->name('rtm');
