@@ -3,9 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\User;
 
-class CheckAccessToken
+class Cors
 {
     /**
      * Handle an incoming request.
@@ -16,12 +15,8 @@ class CheckAccessToken
      */
     public function handle($request, Closure $next)
     {
-        
-        $token = $request->bearerToken();
-        if (User::where('accessToken','=',$token)->first() === null) {
-            return response()->json('Bad token.',401);
-        }
-
-        return $next($request);
+        return $next($request)
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', '*');
     }
 }

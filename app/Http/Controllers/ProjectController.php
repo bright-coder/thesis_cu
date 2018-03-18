@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Validator;
+use Auth;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -19,7 +20,6 @@ class ProjectController extends Controller
 
     public function index()
     {
-
         return view('project.main');
     }
 

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use Validator;
+use App\Project;
 use App\Http\Controllers\Controller;
 use App\Library\State\ChangeAnalysis;
 use Illuminate\Http\Request;
+use App\Http\Requests\ProjectRequest;
 
 class ProjectApiController extends Controller
 {
@@ -13,9 +16,12 @@ class ProjectApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $userId = App\User::select('id')->where('accessToken','=',$request->bearerToken)->first();
+
+        $projects = Project::all('id','name','dbHost','dbName','dbPort','dbType','dbUsername','dbPassword');
+
         return response()->json(['method' => 'get']);
     }
 
@@ -36,29 +42,56 @@ class ProjectApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProjectRequest $request)
     {
-
+        //after validate $request
+        
         $request = $request->json()->all(); // jsonObject to Array;
         /**
          * example { "msg" : "test message" } => ['msg']
          */
+        $db = new App\Library\CustomModel\SqlServer(
+            $request['dbServer'].", ".$request['dbPort'],
+            $request['dbName'],
+            $request['dbUser'],
+            $request['dbPassword']
+        );
+        if(!$db->Connect()){
+            return response()->json("Cannot connect to database.", 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $project = new Project;
+            $project->name = $request['projectName'];
+            $project->dbHostName = $request["dbServer"];
+            $project->dbName = $request["dbName"];
+            $project->dbUsername = $request["dbUser"];
+            $project->dbPassword = $request["dbPassword"];
+            $project->dbPort = $request["dbPort"];
+            $project->dbType = $request["dbType"];
+            $project->save();
+        } catch(Exception $e) {
+            DB::rollBack();
+            return response()->json("Internal Sever Error.", 500);
+        }
+        return response()->json(['msg' =>"Insert project success.",'projectId' => $project->id], 200);
         /**
          *  USE SQL => DELETE FROM 'table' instead of TRUNCATE ;
          */
-        $changeAnalysis = new ChangeAnalysis($request);
+        // $changeAnalysis = new ChangeAnalysis($request);
 
-        $currentStateNo = 1;
-        while ($currentStateNo <= ChangeAnalysis::LAST_STATE_NO) {
-            if (!$changeAnalysis->process()) {
-                break;
-            }
+        // $currentStateNo = 1;
+        // while ($currentStateNo <= ChangeAnalysis::LAST_STATE_NO) {
+        //     if (!$changeAnalysis->process()) {
+        //         break;
+        //     }
 
-            ++$currentStateNo;
-        }
+        //     ++$currentStateNo;
+        // }
 
-        // dd(json_decode($request->getContent(), true));
-        return response()->json(['msg' => $changeAnalysis->getMessage()], $changeAnalysis->getStatusCode());
+        // // dd(json_decode($request->getContent(), true));
+        // return response()->json(['msg' => $changeAnalysis->getMessage()], $changeAnalysis->getStatusCode());
     }
 
     /**
@@ -110,4 +143,6 @@ class ProjectApiController extends Controller
         //
         return response()->json(['method' => "destroy for {$id}"]);
     }
+
+    
 }

@@ -62,11 +62,15 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        do {
+            $acessToken = bin2hex(random_bytes(60));
+        } while (User::where('accessToken','=', $acessToken)->first() !== null);
+
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-            'accessToken' => str_random(20),
+            'accessToken' => $acessToken,
         ]);
     }
 }

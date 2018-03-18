@@ -3,9 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\User;
 
-class CheckAccessToken
+class CheckIsJson
 {
     /**
      * Handle an incoming request.
@@ -16,12 +15,9 @@ class CheckAccessToken
      */
     public function handle($request, Closure $next)
     {
-        
-        $token = $request->bearerToken();
-        if (User::where('accessToken','=',$token)->first() === null) {
-            return response()->json('Bad token.',401);
+        if (!$request->isJson()) {
+            return response()->json('Request must be json.', 400);
         }
-
         return $next($request);
     }
 }

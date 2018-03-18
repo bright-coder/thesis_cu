@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CheckAccessToken;
+use App\Http\Middleware\CheckIsJson;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,6 @@ use App\Http\Middleware\CheckAccessToken;
 //     return $request->user();
 // });
 
-Route::group(['prefix'=>'v1','middleware' => CheckAccessToken::class], function () {
+Route::group(['prefix'=>'v1','middleware' => [CheckIsJson::class, CheckAccessToken::class] ], function () {
     Route::resource('projects', 'Api\ProjectApiController');
 });
