@@ -26,6 +26,8 @@
     <link rel="stylesheet" href=" {{ asset('css/bootstrap4-premium/style.blue.premium.css') }}" id="theme-stylesheet">
     <!-- Custom stylesheet - for your changes-->
     <link rel="stylesheet" href="{{ asset('css/bootstrap4-premium/custom.css') }}">
+    <!-- include Custom CSS -->
+    @yield('customCSS')
     <!-- Favicon-->
     <link rel="shortcut icon" href="img/favicon.ico">
     <!-- Tweaks for older IEs--><!--[if lt IE 9]>

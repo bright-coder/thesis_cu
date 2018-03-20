@@ -16,7 +16,7 @@ class CheckIsJson
     public function handle($request, Closure $next)
     {
         if (!$request->isJson()) {
-            return response()->json('Request must be json.', 400);
+            return response()->json(['msg'=>'Request must be json.'], 400);
         }
         return $next($request);
     }

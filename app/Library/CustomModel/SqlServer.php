@@ -31,7 +31,7 @@ class SqlServer implements DBTargetInterface
     {
         try {
             $this->conObj = new \PDO(
-                "sqlsrv:server={$this->server} ; Database = {$this->database}",
+                "sqlsrv:Server={$this->server};Database={$this->database};LoginTimeout=1",
                 $this->user,
                 $this->pass
             );

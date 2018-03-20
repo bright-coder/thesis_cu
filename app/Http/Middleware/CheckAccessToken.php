@@ -19,7 +19,7 @@ class CheckAccessToken
         
         $token = $request->bearerToken();
         if (User::where('accessToken','=',$token)->first() === null) {
-            return response()->json('Bad token.',401);
+            return response()->json(['msg'=>'Bad token.'],401);
         }
 
         return $next($request);

@@ -26,12 +26,12 @@ class ProjectRequest extends FormRequest
     public function rules()
     {
         return [
-                'pName' => 'required|between:10,255',
+                'projectName' => 'required|between:10,255',
                 'dbName' => 'required|between:1,255',
-                'dbHost' => 'required|between:1,255',
+                'dbServer' => 'required|between:1,255',
                 'dbPort' => 'required|numeric',
-                'dbType' => 'required|numeric|between:1,2',
-                'dbUser' => 'required|between:4,100',
+                'dbType' => 'required',
+                'dbUsername' => 'required|between:4,100',
                 'dbPassword' => 'required|between:4,100'
         ];
     }
@@ -39,7 +39,7 @@ class ProjectRequest extends FormRequest
     public function messages()
     {
         return [
-            'required' => 'This is required.',
+            'required' => 'This field is required.',
             'between' => 'This field must contain :min - :max characters.',
             'numeric' => 'This field must contain number only.'
         ];
@@ -60,6 +60,6 @@ class ProjectRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json($validator->errors(), 400));
+        throw new HttpResponseException(response()->json(['msg' => ['fields' => $validator->errors()] ], 400));
     }
 }
