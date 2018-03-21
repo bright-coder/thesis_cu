@@ -17,18 +17,13 @@
                         <h1 class="">Create a new project</h1>
                     </div>
                     <div class="card-body">
-                        <form id="save">
+                        <form id="create">
                             @csrf
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="projectName">Project Name <i class="fa fa-asterisk" style="color:red"></i></label>
-                                        <input type="text" class="form-control{{ $errors->has('pName') ? ' is-invalid' : '' }}" name="projectName" aria-describedby="pNameHelp" placeholder="Enter Your Project Name">
-                                        @if ($errors->has('projectName'))
-                                            <span class="invalid-feedback">
-                                                <strong>{{ $errors->first('pName') }}</strong>
-                                            </span> 
-                                        @endif
+                                        <input type="text" class="form-control" name="projectName" aria-describedby="pNameHelp" placeholder="Enter Your Project Name">
                                     </div>
                                 </div>
                             </div>
@@ -37,11 +32,11 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="dbName">Database Name <i class="fa fa-asterisk" style="color:red"></i></label>
-                                        <input type="text" class="form-control{{ $errors->has('dbName') ? ' is-invalid' : '' }}" name="dbName" aria-describedby="dbNameHelp" placeholder="Enter Your Database Name">
+                                        <input type="text" class="form-control" name="dbName" aria-describedby="dbNameHelp" placeholder="Enter Your Database Name">
                                     </div>
                                     <div class="form-group">
                                         <label for="dbServer">Database Server <i class="fa fa-asterisk" style="color:red"></i></label>
-                                        <input type="text" class="form-control {{ $errors->has('dbServer') ? ' is-invalid' : '' }}" name="dbServer" aria-describedby="dbHostHelp" placeholder="Enter Your Database Server">
+                                        <input type="text" class="form-control" name="dbServer" aria-describedby="dbHostHelp" placeholder="Enter Your Database Server">
                                     </div>
                                     <div class="form-group">
                                         <label for="dbPort">Database Port <i class="fa fa-asterisk" style="color:red"></i></label>
@@ -74,7 +69,7 @@
                             </div>
                             <div class="line" id="lastLine"></div>
                             <div class="form-group">
-                                    <button id="saveBtn" data-style="zoom-out" type="submit" class="btn btn-primary btn-lg ladda-button"><span class="ladda-label"><i class="fa fa-save"></i> Save</span></button>
+                                    <button id="createBtn" data-style="zoom-out" type="submit" class="btn btn-primary btn-lg ladda-button"><span class="ladda-label"><i class="fa fa-plus"></i> CREATE</span></button>
                             </div>
                         </form>
                     </div>

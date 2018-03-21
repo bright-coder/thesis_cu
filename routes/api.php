@@ -21,4 +21,5 @@ use App\Http\Middleware\CheckIsJson;
 
 Route::group(['prefix'=>'v1','middleware' => [CheckIsJson::class, CheckAccessToken::class] ], function () {
     Route::resource('projects', 'Api\ProjectApiController');
+    Route::resource('projects.databases', 'Api\DatabaseApiController');
 });
