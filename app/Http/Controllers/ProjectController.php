@@ -23,6 +23,10 @@ class ProjectController extends Controller
         return view('project.main');
     }
 
+    public function show($id){
+        return view('project.show');
+    }
+
     /**
      * Show the form to create a new project.
      *

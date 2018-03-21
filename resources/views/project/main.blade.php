@@ -12,8 +12,7 @@
                 <div class="card-header pt-2 pb-2">
                     <a href="{{ route('projectCreate') }}" class="btn btn-primary"><i class="fa fa-plus"></i> New Project</a>
                 </div>
-                <div class="card-body">
-                    <div class="row"><small>Let's create your first project.</small></div>
+                <div class="card-body" id="content">                   
                 </div>
             </div>
         </div>
@@ -22,5 +21,5 @@
 @endsection
 
 @section('customJS')
-{{--  // <script src="{{ asset('js/createProject.js') }}"></script>  --}}
+ <script src="{{ asset('js/mainProject.js') }}"></script>
 @endsection

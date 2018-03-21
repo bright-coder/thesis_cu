@@ -22,13 +22,12 @@ class ProjectApiController extends Controller
     public function index(Request $request)
     {
         $user = User::select('id')->where('accessToken','=',$request->bearerToken())->first();
-        dd($user->id);
         $projects = DB::table('PROJECT')
-        ->select('id as projectId','name as projectName','dbServer','dbName','dbPort','dbType','dbUsername','dbPassword')
+        ->select('id as projectId','name as projectName','dbServer','dbName')
         ->where('userId', '=', $user->id)
         ->get();
     
-        if ( !empty($projects) ) {
+        if ( empty($projects) ) {
             return response()->json(['msg' => 'Not found your project.'], 200);
         }
 
@@ -68,7 +67,7 @@ class ProjectApiController extends Controller
         );
         if(!$db->Connect()){
             
-            return response()->json(['msg'=>"Cannot connect to database."], 400);
+            return response()->json(['msg' => "Cannot connect to database."], 400);
         }
 
         DB::beginTransaction();
@@ -113,10 +112,23 @@ class ProjectApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
         //
-        return response()->json(['method' => "get {$id}"]);
+        $user = User::select('id')->where('accessToken','=',$request->bearerToken())->first();
+        $project = DB::table('PROJECT')
+        ->select('id as projectId','name as projectName','dbServer','dbName','dbPort','dbUsername','dbPassword')
+        ->where([
+            ['userId', '=', $user->id],
+            ['id', '=', $id]
+        ])
+        ->get();
+
+        if ( empty($project) ) {
+            return response()->json(['msg' => 'Not found your project.'], 200);
+        }
+
+        return response()->json($project[0],200);
     }
 
     /**

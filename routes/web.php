@@ -29,6 +29,7 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('project', "ProjectController@index")->name('project');
 Route::get('project/create', "ProjectController@create")->name('projectCreate');
+Route::get('project/{id}', "ProjectController@show")->name('projectShow');
 Route::post('project', 'ProjectController@store');
 
 Route::get('functionalrequirement', "ProjectController@index")->name('functionalrequirement');
