@@ -51,6 +51,7 @@
  
 @section('customCSS')
 <link rel="stylesheet" href="{{ asset('vendor/ladda/ladda-themeless.min.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}">
 @endsection
  
 @section('customJS')
@@ -59,6 +60,10 @@
 <script src="{{ asset('vendor/ladda/spin.min.js') }}"></script>
 <script src="{{ asset('vendor/ladda/ladda.min.js') }}"></script>
 <script src="{{ asset('js/xlsx.full.min.js') }}"></script>
+<script src="{{ asset('vendor/datatables.net/js/jquery.dataTables.js') }}"></script>
+<script src="{{ asset('vendor/datatables.net-bs4/js/dataTables.bootstrap4.js') }}"></script>
+<script src="{{ asset('vendor/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('vendor/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('js/project/show.func.js') }}"></script>
 <script src="{{ asset('js/project/show.js') }}"></script>
 @endsection

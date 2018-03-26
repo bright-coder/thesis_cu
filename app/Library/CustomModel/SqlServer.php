@@ -66,6 +66,14 @@ class SqlServer implements DBTargetInterface
             //$tables = \array_flip($stmt->fetchAll(\PDO::FETCH_COLUMN));
             return ModelOutputFactory::createTable($stmt->fetchAll(\PDO::FETCH_COLUMN));
         }
+        return [];
+    }
+
+    public function getInstanceByTableName(string $tableName): array{
+        $stmt = $this->conObj->prepare("SELECT TOP 100 * FROM {$tableName}");
+        if($stmt->execute()) {
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
     }
 
     public function getDistinctValues(string $tableName, string $columnName): array

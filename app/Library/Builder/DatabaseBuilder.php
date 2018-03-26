@@ -38,7 +38,7 @@ class DatabaseBuilder
         foreach ($tables as $table) {
             $columns = $this->DBConnector->getAllColumnsByTableName($table->getName());
             $tables[$table->getName()]->setColumns($columns);
-
+            $tables[$table->getName()]->setInstance($this->DBConnector->getInstanceByTableName($table->getName()));
             $constraints = $this->DBConnector->getAllConstraintsByTableName($table->getName());
             $tables[$table->getName()]->setPK($constraints['primaryKey']);
             $tables[$table->getName()]->setFK($constraints['foreignKeys']);

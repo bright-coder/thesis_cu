@@ -35,6 +35,10 @@ class Table
      * @var array
      */
     private $checkConstraints;
+    /**
+     * @var array
+     */
+    private $instance;
 
     public function __construct(string $name)
     {
@@ -54,6 +58,16 @@ class Table
     public function addColumn(Column $column): void
     {
         $this->columns[$column->getName()] = $column;
+    }
+
+    public function setInstance(array $instance): void
+    {
+        $this->instance = $instance;
+    }
+
+    public function getInstance(): array
+    {
+        return $this->instance;
     }
 
     public function setColumns(array $columns): void
