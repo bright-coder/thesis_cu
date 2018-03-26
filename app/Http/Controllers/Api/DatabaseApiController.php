@@ -39,9 +39,46 @@ class DatabaseApiController extends Controller
             $databaseBuilder->setUpTablesAndColumns();
         }
         $dbTarget = $databaseBuilder->getDatabase();
-        dd($dbTarget);
+        //dd($dbTarget);
         //$tables = [];
-        return response()->json(['msg' => 'message'],200);
+        $tables = [];
+            foreach ($dbTarget->getAllTables() as $table) {
+
+                foreach($table->getAllColumns() as $column) {
+                    $tables[$table->getName()]['columns'][$column->getName()] = [
+                        'type' => $column->getDataType()->getType(),
+                        'length' => $column->getDataType()->getLength(),
+                        'precision' => $column->getDataType()->getPrecision(),
+                        'scale' => $column->getDataType()->getScale(),
+                        'nullable' => $column->isNullable(),
+                        'default' => $column->getDefault(),
+                    ];
+                }
+                $tables[$table->getName()]['PK'][$table->getPK()->getName()] = [
+                    'columnNames' => $table->getPK()->getColumns()
+                ];
+                foreach ($table->getAllFK() as $fk) {
+                    $tables[$table->getName()]['FKs'][$fk->getName()] = [
+                        'links' => $fk->getColumns(),
+                    ];
+                }
+                foreach($table->getAllUniqueConstraint() as $unique) {
+                    $tables[$table->getName()]['uniques'][$unique->getName()] = [
+                        'columnNames' => $table->getColumns()
+                    ];
+                }
+                foreach($table->getAllCheckConstraint() as $check) {
+                    $tables[$table->getName()]['checks'][$check->getName()] = [
+                        'columnNames' => $check->getColumns(),
+                        'definition' => $check->getDetail()['definition'],
+                        'mins' => $check->getDetail()['min'],
+                        'maxs' => $check->getDetail()['max']
+                    ];
+                }
+
+                //$table[$table->getName()] 
+            }
+        return response()->json($tables,200);
 
     }
 

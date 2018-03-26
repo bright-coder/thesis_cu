@@ -21,5 +21,5 @@
 @endsection
 
 @section('customJS')
- <script src="{{ asset('js/mainProject.js') }}"></script>
+ <script src="{{ asset('js/project/mainProject.js') }}"></script>
 @endsection

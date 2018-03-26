@@ -275,19 +275,19 @@
   <!-- Boostrap Preimium 4 -->
   <!-- JavaScript files-->
   <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-  <script src="{{ asset('vendor/popper.js/umd/popper.min.js') }}">
-  </script>
+  <script src="{{ asset('vendor/popper.js/umd/popper.min.js') }}"></script>
   <script src="{{ asset('vendor/bootstrap/js/bootstrap.min.js') }}"></script>
-  {{--  <script src="{{ asset('vendor/jquery.cookie/jquery.cookie.js') }}"></script>  --}}
+  {{--  <script src="{{ asset('js/vue.js') }}"></script>  --}}
+  <script src="{{ asset('vendor/jquery.cookie/jquery.cookie.js') }}"></script>
   {{--  <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>  --}}
-  {{--  <script src="{{ asset('vendor/jquery-validation/jquery.validate.min.js') }}"></script>  --}}
+  <script src="{{ asset('vendor/jquery-validation/jquery.validate.min.js') }}"></script>
   {{--  <script src="{{ asset('js/bootstrap4-premium/charts-home.js') }}"></script>  --}}
   <!-- Notifications-->
   {{--  <script src="{{ asset('vendor/messenger-hubspot/build/js/messenger.min.js') }}"></script>
   <script src="{{ asset('vendor/messenger-hubspot/build/js/messenger-theme-flat.js') }}"></script> --}}
-  {{--  <script src="{{ asset('js/bootstrap4-premium/home-premium.js') }}"></script>  --}}
+  <script src="{{ asset('js/bootstrap4-premium/home-premium.js') }}"></script>
   <!-- Main File-->
-  {{--  <script src="{{ asset('js/bootstrap4-premium/front.js') }}"></script>  --}}
+  <script src="{{ asset('js/bootstrap4-premium/front.js') }}"></script>
   @yield('customJS')
 </body>
 </html>

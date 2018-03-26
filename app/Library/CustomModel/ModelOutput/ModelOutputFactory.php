@@ -90,11 +90,10 @@ final class ModelOutputFactory
                         'links' =>
                         [
                             [
-                                'primary' => [
-                                    'tableName' => $row['PKTABLE_NAME'],
+                                'from' => [
                                     'columnName' => $row['PKCOLUMN_NAME']
                                 ],
-                                'reference' => [
+                                'to' => [
                                     'tableName' => $row['FKTABLE_NAME'],
                                     'columnName' => $row['FKCOLUMN_NAME']
                                 ]
@@ -104,11 +103,10 @@ final class ModelOutputFactory
 
                 } else {
                     $link = [
-                        'primary' => [
-                            'tableName' => $row['PKTABLE_NAME'],
+                        'from' => [
                             'columnName' => $row['PKCOLUMN_NAME']
                         ],
-                        'reference' => [
+                        'to' => [
                             'tableName' => $row['FKTABLE_NAME'],
                             'columnName' => $row['FKCOLUMN_NAME']
                         ]

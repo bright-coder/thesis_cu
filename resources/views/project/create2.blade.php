@@ -97,5 +97,5 @@
     <script src="{{ asset('js/jquery.serializejson.min.js') }}"></script>
     <script src="{{ asset('vendor/ladda/spin.min.js') }}"></script>
     <script src="{{ asset('vendor/ladda/ladda.min.js') }}"></script>
-    <script src="{{ asset('js/createProject.js') }}"></script> 
+    <script src="{{ asset('js/project/createProject.js') }}"></script> 
 @endsection
