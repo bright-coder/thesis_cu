@@ -57,22 +57,27 @@ class Database{
                     'default' => $column->getDefault(),
                 ];
             }
-            $tables[$table->getName()]['PK'][$table->getPK()->getName()] = [
-                'columnNames' => $table->getPK()->getColumns()
+            $tables[$table->getName()]['constraints'] = [];
+            $tables[$table->getName()]['constraints']['PK'] = [
+                'name' => $table->getPK()->getName(),
+                'columns' => $table->getPK()->getColumns()
             ];
             foreach ($table->getAllFK() as $fk) {
-                $tables[$table->getName()]['FKs'][$fk->getName()] = [
+                $tables[$table->getName()]['constraints']['FKs'][] = [
+                    'name' => $fk->getName(),
                     'links' => $fk->getColumns(),
                 ];
             }
             foreach($table->getAllUniqueConstraint() as $unique) {
-                $tables[$table->getName()]['uniques'][$unique->getName()] = [
-                    'columnNames' => $table->getColumns()
+                $tables[$table->getName()]['constraints']['uniques'][] = [
+                    'name' => $unique->getName(),
+                    'columns' => $unique->getColumns(),
                 ];
             }
             foreach($table->getAllCheckConstraint() as $check) {
-                $tables[$table->getName()]['checks'][$check->getName()] = [
-                    'columnNames' => $check->getColumns(),
+                $tables[$table->getName()]['constraints']['checks'][] = [
+                    'name' => $check->getName(),
+                    'columns' => $check->getColumns(),
                     'definition' => $check->getDetail()['definition'],
                     'mins' => $check->getDetail()['min'],
                     'maxs' => $check->getDetail()['max']

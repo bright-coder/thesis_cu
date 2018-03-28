@@ -91,12 +91,13 @@ final class ModelOutputFactory
                         [
                             [
                                 'from' => [
-                                    'columnName' => $row['PKCOLUMN_NAME']
-                                ],
-                                'to' => [
                                     'tableName' => $row['FKTABLE_NAME'],
                                     'columnName' => $row['FKCOLUMN_NAME']
-                                ]
+                                ],
+                                'to' => [
+                                    'tableName' => $row['PKTABLE_NAME'],
+                                    'columnName' => $row['PKCOLUMN_NAME']
+                                ],
                             ]
                         ]
                     ];
@@ -104,12 +105,13 @@ final class ModelOutputFactory
                 } else {
                     $link = [
                         'from' => [
-                            'columnName' => $row['PKCOLUMN_NAME']
-                        ],
-                        'to' => [
                             'tableName' => $row['FKTABLE_NAME'],
                             'columnName' => $row['FKCOLUMN_NAME']
-                        ]
+                        ],
+                        'to' => [
+                            'tableName' => $row['PKTABLE_NAME'],
+                            'columnName' => $row['PKCOLUMN_NAME']
+                        ],
                     ];
                     array_push($constraints[$row['FK_NAME']]['links'], $link);
 

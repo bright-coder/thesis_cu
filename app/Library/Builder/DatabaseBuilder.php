@@ -35,15 +35,24 @@ class DatabaseBuilder
     public function setUpTablesAndColumns(): void
     {
         $tables = $this->DBConnector->getAllTables();
+        $tableFKs = [];
         foreach ($tables as $table) {
             $columns = $this->DBConnector->getAllColumnsByTableName($table->getName());
             $tables[$table->getName()]->setColumns($columns);
             $tables[$table->getName()]->setInstance($this->DBConnector->getInstanceByTableName($table->getName()));
             $constraints = $this->DBConnector->getAllConstraintsByTableName($table->getName());
             $tables[$table->getName()]->setPK($constraints['primaryKey']);
-            $tables[$table->getName()]->setFK($constraints['foreignKeys']);
+            //$tables[$table->getName()]->setFK($constraints['foreignKeys']);
             $tables[$table->getName()]->setUniqueConstraints($constraints['uniqueConstraints']);
             $tables[$table->getName()]->setCheckConstraints($constraints['checkConstraints']);
+            foreach($constraints['foreignKeys'] as $foreignKeys) {
+                foreach($foreignKeys->getColumns() as $link) {
+                    $tableFKs[$link['from']['tableName']][] = $foreignKeys;
+                }
+            }
+        }
+        foreach ($tableFKs as $tableName => $foreignKeys) {
+            $tables[$tableName]->setFK($foreignKeys);
         }
         $this->database->setTables($tables);
     }

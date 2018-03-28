@@ -17,7 +17,7 @@
     <!-- Bootstrap CSS-->
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
     <!-- Font Awesome CSS-->
-    <link rel="stylesheet" href="{{ asset('vendor/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/font-awesome/css/font-awesome-all.min.css') }}">
     <!-- Fontastic Custom icon font-->
     <link rel="stylesheet" href="{{ asset('css/bootstrap4-premium/fontastic.css') }}">
     <!-- Google fonts - Poppins -->
