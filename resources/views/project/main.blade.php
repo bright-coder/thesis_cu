@@ -8,7 +8,8 @@
 <section class="dashboard-counts no-padding-bottom">
     <div class="container-fluid">
         <div class="bg-white has-shadow">
-            <div class="card">
+            @include('layouts.preload')
+            <div class="card" id="menu" style="display:none">
                 <div class="card-header pt-2 pb-2">
                     <a href="{{ route('projectCreate') }}" class="btn btn-primary"><i class="fa fa-plus"></i> New Project</a>
                 </div>

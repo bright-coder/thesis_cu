@@ -7,14 +7,15 @@
 </header>
 <div class="breadcrumb-holder container-fluid">
     <ul class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('project') }}">project</a></li>
-    <li class="breadcrumb-item active" id="headerBread"></li>
+        <li class="breadcrumb-item"><a href="{{ route('project') }}">project</a></li>
+        <li class="breadcrumb-item active" id="headerBread"></li>
     </ul>
 </div>
 <section class="forms">
     <div class="container-fluid">
         <div class="bg-white has-shadow">
-            <div class="card">
+            @include('layouts.preload')
+            <div class="card" style="display: none;" id="menu">
                 <div class="card-header pt-2 pb-2">
                     <ul class="nav nav-pills card-header-pills" id="pills-tab" role="tablist">
                         <li class="nav-item">
@@ -37,11 +38,11 @@
                 </div>
                 <div class="card-body">
                     <div class="tab-content" id="pills-tabContent">
-                        @include('project.show.project')
-                        @include('project.show.database')
-                        @include('project.show.fr')
-                        @include('project.show.tc')
-                        @include('project.show.rtm')
+    @include('project.show.project')
+    @include('project.show.database')
+    @include('project.show.fr')
+    @include('project.show.tc')
+    @include('project.show.rtm')
                     </div>
                 </div>
             </div>
