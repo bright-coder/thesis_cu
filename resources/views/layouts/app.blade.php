@@ -285,7 +285,7 @@
   <!-- Notifications-->
   {{--  <script src="{{ asset('vendor/messenger-hubspot/build/js/messenger.min.js') }}"></script>
   <script src="{{ asset('vendor/messenger-hubspot/build/js/messenger-theme-flat.js') }}"></script> --}}
-  <script src="{{ asset('js/bootstrap4-premium/home-premium.js') }}"></script>
+  {{-- <script src="{{ asset('js/bootstrap4-premium/home-premium.js') }}"></script> --}}
   <!-- Main File-->
   <script src="{{ asset('js/bootstrap4-premium/front.js') }}"></script>
   @yield('customJS')

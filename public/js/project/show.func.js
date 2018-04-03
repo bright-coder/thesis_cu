@@ -54,12 +54,12 @@ function getDatabase() {
             console.log(response);
             $('#pills-db').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
             $.each(response, function (tableName, tableObj) {
-                $('section.tables > div#table').append(strCard(tableName));
-                $('div#' + tableName + '.card > div.card-body').append(strTable(tableName, tableObj.columns));
-                $('div#' + tableName + '.card > div.card-body').append(strConstraint(tableName, tableObj.constraints));
-                $('div#' + tableName + '.card > div.card-body').append(strInstance(tableName, tableObj.instance));
+                $('#pills-db > section.tables > div#table').append(strCard(tableName));
+                $('#pills-db').find('#' + tableName + '.card > div.card-body').append(strTable(tableName, tableObj.columns));
+                $('#pills-db').find('#' + tableName + '.card > div.card-body').append(strConstraint(tableName, tableObj.constraints));
+                $('#pills-db').find('#' + tableName + '.card > div.card-body').append(strInstance(tableName, tableObj.instance));
                 showColumn(tableName);
-                $('table#' + tableName + '_instance').DataTable();
+                $('#pills-db').find('table#' + tableName + '_instance').DataTable();
             });
         },
         error: function (response) {
@@ -299,42 +299,104 @@ function visible(tableId) {
 }
 
 function readExcel(e) {
-    //var excelFile = e.target.files;
     var excelFile = $(this).prop('files')[0];
-
+    var contentType = $(this).attr('id');
     var reader = new FileReader();
     reader.onload = function (e) {
-        var data = e.target.result;
+        var binary = "";
+        var bytes = new Uint8Array(e.target.result);
+        var length = bytes.byteLength;
+        for (var i = 0; i < length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
 
-        var workbook = XLSX.read(data, {type : 'binary'});
-        var result;
-        $.each(workbook.SheetNames, function(index){
-            var roa = XLSX.utils.sheet_to_json(workbook.Sheets[index]);
-                    if (roa.length > 0) {
-                        result = roa;
-                    }
-
+        var workbook = XLSX.read(binary, { type: 'binary' });
+        var listOfSheet = [];
+        $.each(workbook.Sheets, function (index, sheet) {
+            var arraySheet = sheetToArray(sheet);
+            if (arraySheet.length > 0) {
+                listOfSheet.push(arraySheet);
+            }
         });
-        alert(result[0].Column1);
+
+        if (listOfSheet.length > 0) {
+            switch (contentType) {
+                case 'frFile':
+                    showFrTable(listOfSheet);
+                    break;
+                case 'tcFile':
+                    showTcTable(listOfSheet);
+                case 'rtmFile':
+                    showRtmTable(listOfSheet);
+                default:
+                    break;
+            }
+        }
+
+
     }
     reader.readAsArrayBuffer(excelFile);
-    // readXlsxFile(excelFile, { sheet: 2 }).then((data) => {
-    //     $.each(data, function(index,value){
-    //         console.log(index);
-    //     });
-    //     if (contentType == 'frFile') {
-    //         //XLSX.readFile(excelFile);
-    //         //console.log('frFile');
-    //     }
-    //     else if (contentType == 'tcFile') {
-
-    //     }
-    //     else if (contentType == 'rtmFile') {
-
-    //     }
-    // });
-
 
 }
+
+function showFrTable(frList) {
+    $('#pills-fr').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
+    console.log(frList);
+    $.each(frList, function(index, fr){
+        var no = fr[0][1];
+        var description = fr[1][1];
+        var inputList = [];
+        for(i = 4 ; i < fr.length ; ++i) {
+            
+        }
+        //$('#pills-fr > section.tables > div#table').append(strCard(tableName));
+    });
+    // return '<div class="col-lg-12">' +
+    //     '<div class="card" id="' + tableName + '">' +
+    //     '<div class="card-close">' +
+    //     '<div class="dropdown">' +
+    //     '<button type="button" id="' + tableName + '" class="dropdown-toggle" name="visible"><i class="fa fa-eye-slash"></i></button>' +
+    //     '<button type="button" id="closeCard3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle"><i class="fa fa-ellipsis-v"></i></button>' +
+    //     '<div aria-labelledby="closeCard3" class="dropdown-menu dropdown-menu-right has-shadow">' +
+    //     '<a href="#showColumn" class="dropdown-item" id="' + tableName + '"> <i class="fa fa-columns"></i>Columns</a>' +
+    //     '<a href="#showConstraint" class="dropdown-item" id="' + tableName + '"> <i class="fa fa-cogs"></i>Constriants</a>' +
+    //     '<a href="#showInstance" class="dropdown-item" id="' + tableName + '"> <i class="fa fa-bars"></i>Instance</a>' +
+    //     '</div>' +
+    //     '</div>' +
+    //     '</div>' +
+    //     '<div class="card-header d-flex align-items-center">' +
+    //     '<h3 class="h4">' + tableName + '</h3>' +
+    //     '</div>' +
+    //     '<div class="card-body" id="' + tableName + '">' +
+    //     '</div>' +
+    //     '</div>' +
+    //     '</div>';
+}
+
+function sheetToArray(sheet) {
+    var result = [];
+    var row;
+    var rowNum;
+    var colNum;
+    if (sheet['!ref'] == undefined) {
+        return result;
+    }
+    console.log(sheet);
+    var range = XLSX.utils.decode_range(sheet['!ref']);
+    for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+        row = [];
+        for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
+            var nextCell = sheet[
+                XLSX.utils.encode_cell({ r: rowNum, c: colNum })
+            ];
+            if (typeof nextCell === 'undefined') {
+                row.push(void 0);
+            } else row.push(nextCell.w);
+        }
+        result.push(row);
+    }
+    return result;
+};
+
 
 
