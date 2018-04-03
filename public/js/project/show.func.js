@@ -36,10 +36,10 @@ function getProject() {
 
 function getDatabase() {
     //Ladda.bind( 'button#refreshDb' );
-    var v = Ladda.create(document.querySelector('#refreshDb'));
+    var refreshBtn = Ladda.create(document.querySelector('#refreshDb'));
 
     // Start loading
-    v.start();
+    refreshBtn.start();
 
     $.ajax({
         type: "GET",
@@ -50,20 +50,20 @@ function getDatabase() {
         contentType: 'application/json; charset=utf-8',
         dataType: "json",
         success: function (response) {
-            v.stop();
+            refreshBtn.stop();
             console.log(response);
             $('#pills-db').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
             $.each(response, function (tableName, tableObj) {
                 $('section.tables > div#table').append(strCard(tableName));
-                $('div#'+tableName+'.card > div.card-body').append(strTable(tableName, tableObj.columns));
-                $('div#'+tableName+'.card > div.card-body').append(strConstraint(tableName, tableObj.constraints));
-                $('div#'+tableName+'.card > div.card-body').append(strInstance(tableName, tableObj.instance));
+                $('div#' + tableName + '.card > div.card-body').append(strTable(tableName, tableObj.columns));
+                $('div#' + tableName + '.card > div.card-body').append(strConstraint(tableName, tableObj.constraints));
+                $('div#' + tableName + '.card > div.card-body').append(strInstance(tableName, tableObj.instance));
                 showColumn(tableName);
                 $('table#' + tableName + '_instance').DataTable();
             });
         },
         error: function (response) {
-            lrefreshDb.stop();
+            refreshBtn.stop();
             //var response = response.responseJSON;
             alert("Cannot get this database information please refresh this page.");
         }
@@ -119,7 +119,7 @@ function strColumn(columnObj) {
     var strColumn = '';
     var count = 1;
     $.each(columnObj, function (key, value) {
-        strColumn += '<tr id="'+key+'">' +
+        strColumn += '<tr id="' + key + '">' +
             '<th scope="row">' + key + '</th>' +
             '<td>' + value.type + '</td>' +
             '<td>' + value.length + '</td>' +
@@ -127,7 +127,7 @@ function strColumn(columnObj) {
             '<td>' + value.scale + '</td>' +
             '<td>' + value.default + '</td>' +
             '<td>' + nullableCss(value.nullable) + '</td>' +
-            '<td id="unique">'+uniqueCss(false)+'</td>' +
+            '<td id="unique">' + uniqueCss(false) + '</td>' +
             '</tr>';
         ++count;
     });
@@ -174,22 +174,22 @@ function strInstance(tableName, instances) {
 
 
 function strConstraint(tableName, constraintObj) {
-    var pk = 'PK' in constraintObj ? strPK(tableName,constraintObj.PK) : '';
-    var fks = 'FKs' in constraintObj ? strFKs(tableName,constraintObj.FKs) : '';
-    var uniques = 'uniques' in constraintObj ? strUniques(tableName,constraintObj.uniques) : '';
-    var chks = 'checks' in constraintObj ? strChecks(tableName,constraintObj.checks) : '';
+    var pk = 'PK' in constraintObj ? strPK(tableName, constraintObj.PK) : '';
+    var fks = 'FKs' in constraintObj ? strFKs(tableName, constraintObj.FKs) : '';
+    var uniques = 'uniques' in constraintObj ? strUniques(tableName, constraintObj.uniques) : '';
+    var chks = 'checks' in constraintObj ? strChecks(tableName, constraintObj.checks) : '';
     return '<div class="row" id="' + tableName + '_constraint">' + pk + fks + uniques + chks + '</div>';
 }
 
-function strPK(tableName,pk) {
-    $.each(pk.columns, function (pkIndex, columnName){
-        $('div#'+tableName+'_column > table > tbody > tr#'+columnName+' > th').append(' <span style="color:red">(PK)</span>');
+function strPK(tableName, pk) {
+    $.each(pk.columns, function (pkIndex, columnName) {
+        $('div#' + tableName + '_column > table > tbody > tr#' + columnName + ' > th').append(' <span style="color:red">(PK)</span>');
     });
     return '<div class="col-md-12"><h1>Primary Key</h1><br>' +
         '<strong>Columns : </strong>' + pk.columns + '<hr></div>';
 }
 
-function strFKs(tableName,fks) {
+function strFKs(tableName, fks) {
     var strFks = '';
     $.each(fks, function (fkIndex, fk) {
         $.each(fk.links, function (linkIndex, link) {
@@ -204,7 +204,7 @@ function strFKs(tableName,fks) {
                 '<div class="col-md-2">' + link.to.tableName + '</div>' +
                 '<div class="col-md-2">' + link.to.columnName + '</div>' +
                 '</div>';
-                $('div#'+tableName+'_column > table > tbody > tr#'+link.from.columnName+' > th').append(' <span style="color:blue">(FK)</span>');
+            $('div#' + tableName + '_column > table > tbody > tr#' + link.from.columnName + ' > th').append(' <span style="color:blue">(FK)</span>');
         });
 
     });
@@ -220,7 +220,7 @@ function strFKs(tableName,fks) {
         '<hr></div>';
 }
 
-function strChecks(tableName,chks) {
+function strChecks(tableName, chks) {
     var strChks = '';
     $.each(chks, function (ckIndex, ck) {
         $.each(ck.columns, function (columnIndex, columnName) {
@@ -249,7 +249,7 @@ function strChecks(tableName,chks) {
 
 }
 
-function strUniques(tableName,uniques) {
+function strUniques(tableName, uniques) {
     var strUniques = '';
     $.each(uniques, function (uniqueIndex, unique) {
         $.each(unique.columns, function (columnIndex, columnName) {
@@ -261,7 +261,7 @@ function strUniques(tableName,uniques) {
                 '</div>' +
                 '<div class="col-md-11">' + columnName + '</div>' +
                 '</div>';
-                $('div#'+tableName+'_column > table > tbody > tr#'+columnName+' > td#unique').html(uniqueCss(true));
+            $('div#' + tableName + '_column > table > tbody > tr#' + columnName + ' > td#unique').html(uniqueCss(true));
         });
 
     });
@@ -296,6 +296,45 @@ function showInstance(tableId) {
 function visible(tableId) {
     $('#' + tableId + ".card-body").toggle('slow');
     $('button#' + tableId + '[name=visible]').children('i').toggleClass('fa-eye-slash fa-eye');
+}
+
+function readExcel(e) {
+    //var excelFile = e.target.files;
+    var excelFile = $(this).prop('files')[0];
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        var data = e.target.result;
+
+        var workbook = XLSX.read(data, {type : 'binary'});
+        var result;
+        $.each(workbook.SheetNames, function(index){
+            var roa = XLSX.utils.sheet_to_json(workbook.Sheets[index]);
+                    if (roa.length > 0) {
+                        result = roa;
+                    }
+
+        });
+        alert(result[0].Column1);
+    }
+    reader.readAsArrayBuffer(excelFile);
+    // readXlsxFile(excelFile, { sheet: 2 }).then((data) => {
+    //     $.each(data, function(index,value){
+    //         console.log(index);
+    //     });
+    //     if (contentType == 'frFile') {
+    //         //XLSX.readFile(excelFile);
+    //         //console.log('frFile');
+    //     }
+    //     else if (contentType == 'tcFile') {
+
+    //     }
+    //     else if (contentType == 'rtmFile') {
+
+    //     }
+    // });
+
+
 }
 
 

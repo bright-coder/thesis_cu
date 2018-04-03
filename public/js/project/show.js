@@ -4,21 +4,21 @@ $("#frFile").filestyle({
     text: "Upload",
     btnClass: "btn-primary",
     buttonBefore: true,
-    placeholder: "Functional Requirements (.xls, .xlsx)"
+    placeholder: "Functional Requirements (.xlsx)"
 });
 $("#tcFile").filestyle({ 
     htmlIcon: '<i class="fas fa-file-excel"></i> ',
     text: "Upload",
     btnClass: "btn-primary",
     buttonBefore: true,
-    placeholder: "Test cases (.xls, .xlsx)"
+    placeholder: "Test cases (.xlsx)"
 });
 $("#rtmFile").filestyle({ 
     htmlIcon: '<i class="fas fa-file-excel"></i> ',
     text: "Upload",
     btnClass: "btn-primary",
     buttonBefore: true,
-    placeholder: "Requirement Traceability Matrix (.xls, .xlsx)"
+    placeholder: "Requirement Traceability Matrix (.xlsx)"
 });
 $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
     var target = $(e.target).attr("href") // activated tab
@@ -115,3 +115,9 @@ $(document).on('click','#refreshDb', function (){
 $(window).on('hashchange', function(e){
     history.replaceState ("", document.title, e.originalEvent.oldURL);
 });
+
+// $(document).on('change','input[type=file]', function (){
+//     read($(this).prop('files')[0],$(this).attr('id'));
+// });
+
+$('input[type=file]').change(readExcel);
