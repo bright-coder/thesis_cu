@@ -36,23 +36,23 @@ $(document).ready(function () {
     // ------------------------------------------------------- //
     // Login  form validation
     // ------------------------------------------------------ //
-    $('#login-form').validate({
-        messages: {
-            loginUsername: 'please enter your username',
-            loginPassword: 'please enter your password'
-        }
-    });
+    // $('#login-form').validate({
+    //     messages: {
+    //         loginUsername: 'please enter your username',
+    //         loginPassword: 'please enter your password'
+    //     }
+    // });
 
-    // ------------------------------------------------------- //
-    // Register form validation
-    // ------------------------------------------------------ //
-    $('#register-form').validate({
-        messages: {
-            registerUsername: 'please enter your first name',
-            registerEmail: 'please enter a vaild Email Address',
-            registerPassword: 'please enter your password'
-        }
-    });
+    // // ------------------------------------------------------- //
+    // // Register form validation
+    // // ------------------------------------------------------ //
+    // $('#register-form').validate({
+    //     messages: {
+    //         registerUsername: 'please enter your first name',
+    //         registerEmail: 'please enter a vaild Email Address',
+    //         registerPassword: 'please enter your password'
+    //     }
+    // });
 
     // ------------------------------------------------------- //
     // Sidebar Functionality
@@ -137,30 +137,30 @@ $(document).ready(function () {
     // For demo purposes, can be deleted
     // ------------------------------------------------------ //
 
-    var stylesheet = $('link#theme-stylesheet');
-    $("<link id='new-stylesheet' rel='stylesheet'>").insertAfter(stylesheet);
-    var alternateColour = $('link#new-stylesheet');
+    // var stylesheet = $('link#theme-stylesheet');
+    // $("<link id='new-stylesheet' rel='stylesheet'>").insertAfter(stylesheet);
+    // var alternateColour = $('link#new-stylesheet');
 
-    if ($.cookie("theme_csspath")) {
-        alternateColour.attr("href", $.cookie("theme_csspath"));
-    }
+    // if ($.cookie("theme_csspath")) {
+    //     alternateColour.attr("href", $.cookie("theme_csspath"));
+    // }
 
-    $("#colour").change(function () {
+    // $("#colour").change(function () {
 
-        if ($(this).val() !== '') {
+    //     if ($(this).val() !== '') {
 
-            var theme_csspath = 'css/style.' + $(this).val() + '.css';
+    //         var theme_csspath = 'css/style.' + $(this).val() + '.css';
 
-            alternateColour.attr("href", theme_csspath);
+    //         alternateColour.attr("href", theme_csspath);
 
-            $.cookie("theme_csspath", theme_csspath, {
-                expires: 365,
-                path: document.URL.substr(0, document.URL.lastIndexOf('/'))
-            });
+    //         $.cookie("theme_csspath", theme_csspath, {
+    //             expires: 365,
+    //             path: document.URL.substr(0, document.URL.lastIndexOf('/'))
+    //         });
 
-        }
+    //     }
 
-        return false;
-    });
+    //     return false;
+    // });
 
 });

@@ -1,4 +1,6 @@
 var id = $(location).attr('pathname').split("/")[2];
+var frFromFile = [];
+var data = [[1],2];
 $("#frFile").filestyle({
     htmlIcon: '<i class="fas fa-file-excel"></i> ',
     text: "Upload",
@@ -57,6 +59,10 @@ $("#saveProject").submit(function (event) {
             l.stop();
             $('input').removeClass('is-invalid');
             $('#showMessage').html('<div class="alert alert-success">' + response.msg + '</div>');
+            $('.alert-success').fadeOut(5000);
+            setTimeout(function (){
+                $('.alert-success').remove();
+            }, 2000);
         },
         error: function (response) {
             var response = response.responseJSON;

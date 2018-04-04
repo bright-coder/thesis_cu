@@ -35,10 +35,7 @@ function getProject() {
 }
 
 function getDatabase() {
-    //Ladda.bind( 'button#refreshDb' );
     var refreshBtn = Ladda.create(document.querySelector('#refreshDb'));
-
-    // Start loading
     refreshBtn.start();
 
     $.ajax({
@@ -51,7 +48,6 @@ function getDatabase() {
         dataType: "json",
         success: function (response) {
             refreshBtn.stop();
-            console.log(response);
             $('#pills-db').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
             $.each(response, function (tableName, tableObj) {
                 $('#pills-db > section.tables > div#table').append(strCard(tableName));
@@ -64,7 +60,6 @@ function getDatabase() {
         },
         error: function (response) {
             refreshBtn.stop();
-            //var response = response.responseJSON;
             alert("Cannot get this database information please refresh this page.");
         }
     });
@@ -343,14 +338,35 @@ function showFrTable(frList) {
     $('#pills-fr').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
     console.log(frList);
     $.each(frList, function(index, fr){
-        var no = fr[0][1];
-        var description = fr[1][1];
+        var no = isKeyExist(fr,0,1) ? fr[0][1] : undefined;
+        var description = isKeyExist(fr,1,1) ? fr[1][1] : undefined;
         var inputList = [];
-        for(i = 4 ; i < fr.length ; ++i) {
-            
+        for(var i = 4 ; i < fr.length ; ++i) {
+            inputList.push({
+                name: (0 in fr[i]) ? fr[i][0] : undefined,
+                dataType: (1 in fr[i]) ? fr[i][1] : undefined,
+                length: (2 in fr[i]) ? fr[i][2] : undefined,
+                precision: (3 in fr[i]) ? fr[i][3] : undefined,
+                scale: (4 in fr[i]) ? fr[i][4] : undefined,
+                default: (5 in fr[i]) ? fr[i][5] : undefined,
+                nullable: (6 in fr[i]) ? fr[i][6] : undefined,
+                unique: (7 in fr[i]) ? fr[i][7] : undefined,
+                min: (8 in fr[i]) ? fr[i][8] : undefined,
+                max: (9 in fr[i]) ? fr[i][9] : undefined,
+                column: (10 in fr[i]) ? fr[i][10] : undefined,
+                table: (11 in fr[i]) ? fr[i][11] : undefined,
+            });
         }
+
+        frFromFile.push({
+            no : no,
+            desc : description,
+            inputs : inputList.length > 0 ? inputList : undefined
+        });
         //$('#pills-fr > section.tables > div#table').append(strCard(tableName));
     });
+
+    console.log(frFromFile);
     // return '<div class="col-lg-12">' +
     //     '<div class="card" id="' + tableName + '">' +
     //     '<div class="card-close">' +
@@ -371,6 +387,26 @@ function showFrTable(frList) {
     //     '</div>' +
     //     '</div>' +
     //     '</div>';
+}
+
+function cleanObject(obj){
+    Object.keys(obj).forEach(function(key,value){
+        delete obj[key];
+    });
+    return obj;
+}
+
+function isKeyExist(array,dimen1,dimen2 = undefined){
+    if(dimen1 in array) {
+        if(dimen2 != undefined){
+            if(! Array.isArray(array[dimen1]) ) {
+                return false;
+            }
+            if(dimen2 in array[dimen1]) {
+                return true;
+            } else return false;
+        }
+    } else return false;
 }
 
 function sheetToArray(sheet) {
