@@ -30,3 +30,7 @@
     left: 100%;
     margin-left: 15px;
 }
+
+.modal-lg {
+    max-width: 80% !important;
+}

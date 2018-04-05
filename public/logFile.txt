@@ -1,0 +1,15 @@
+*   Trying ::1...
+* TCP_NODELAY set
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+> GET /api/v1/projects/ HTTP/1.1
+Host: localhost:8000
+Accept: */*
+Authorization: Bearer 6f32cfc3df321e28fb3a4a748d33eccf8552097c2065e81791b86a428b511fbfb7c1d486cf35e0a4120bc90350d609adb4beae890304993cf83fb7f6
+Content-Type: application/json
+Connection: Keep-Alive
+
+* Operation timed out after 5000 milliseconds with 0 bytes received
+* stopped the pause stream!
+* Closing connection 0

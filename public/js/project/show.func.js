@@ -1,4 +1,4 @@
-function getProject() {
+function getProject(id) {
     $('#showMessage').empty();
     $.ajax({
         type: "GET",
@@ -34,13 +34,13 @@ function getProject() {
     });
 }
 
-function getDatabase() {
+function getDatabase(projectId) {
     var refreshBtn = Ladda.create(document.querySelector('#refreshDb'));
     refreshBtn.start();
 
     $.ajax({
         type: "GET",
-        url: "/api/v1/projects/" + id + "/databases",
+        url: "/api/v1/projects/" + projectId + "/databases",
         headers: {
             "Authorization": "Bearer " + $('input[name=accessToken]').val(),
         },
@@ -317,7 +317,7 @@ function readExcel(e) {
         if (listOfSheet.length > 0) {
             switch (contentType) {
                 case 'frFile':
-                    showFrTable(listOfSheet);
+                    readFrFromExcel(listOfSheet);
                     break;
                 case 'tcFile':
                     showTcTable(listOfSheet);
@@ -328,15 +328,99 @@ function readExcel(e) {
             }
         }
 
-
     }
     reader.readAsArrayBuffer(excelFile);
+    $('#pills-fr > section.tables').remove();
+    showFr();
 
 }
 
-function showFrTable(frList) {
+function showFr(){
+    
     $('#pills-fr').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
-    console.log(frList);
+    var htmlFrList = '';
+    $.each(frFromFile, function(index, fr){
+        htmlFrList += '<tr>' +
+        '<td style="vertical-align: middle">'+ fr.no + '</td>' +
+        '<td style="vertical-align: middle">'+ fr.desc + '</td>' +
+        '<td>'+
+        (fr.inputs == undefined ? undefined :
+        '<button type="button" id="'+index+'" name="fr" class="btn btn-link">'+ fr.inputs.length) +'</button>'+
+        '</td>' +
+        '</tr>';
+            
+    });
+    $('#pills-fr > section.tables > div#table').html(
+        '<div class="table-responsive" id="frTable">' +
+        '<table class="table table-striped" id="frTable">' +
+        '<thead>' +
+        '<tr>' +
+        '<th>No.</th>' +
+        '<th>Description</th>' +
+        '<th>Inputs</th>'+
+        '</tr>' +
+        '</thead>' +
+        '<tbody>' +
+        htmlFrList +
+        '</tbody>' +
+        '</table>' +
+        '</div>'
+    );
+    $('#pills-fr').find('table#frTable').DataTable({
+        "order": [[ 1, "asc" ]]
+    });
+
+}
+
+function setHtmlFrInputsModal(id){
+    var fr = frFromFile[id];
+    var modal = $('#myModal');
+    var htmlInput = '';
+    $.each(fr.inputs, function(index,input){
+        htmlInput += '<tr>' +
+        '<td>'+input.name+'</td>'+
+        '<td>'+input.dataType+'</td>'+
+        '<td>'+input.length+'</td>'+
+        '<td>'+input.precision+'</td>'+
+        '<td>'+input.scale+'</td>'+
+        '<td>'+input.default+'</td>'+
+        '<td>'+input.nullable+'</td>'+
+        '<td>'+input.unique+'</td>'+
+        '<td>'+input.min+'</td>'+
+        '<td>'+input.max+'</td>'+
+        '<td>'+input.column+'</td>'+
+        '<td>'+input.table+'</td>'+
+        '</tr>';
+    });
+    modal.find('#modalFrHeader').text(fr.no);
+    modal.find('.modal-body').html(
+        '<div class="table-responsive">' +
+        '<table class="table table-striped">' +
+        '<thead>' +
+        '<tr>' +
+        '<th>Name</th>' +
+        '<th>Data Type</th>' +
+        '<th>Length</th>' +
+        '<th>Precision</th>' +
+        '<th>Scale</th>' +
+        '<th>Default</th>' +
+        '<th>Nullable</th>' +
+        '<th>Unique</th>' +
+        '<th>Min</th>' +
+        '<th>Max</th>' +
+        '<th>Column</th>' +
+        '<th>Table</th>' +
+        '</tr>' +
+        '</thead>' +
+        '<tbody>' +
+            htmlInput+
+        '</tbody>' +
+        '</table>' +
+        '</div>'
+    );
+}
+
+function readFrFromExcel(frList) {
     $.each(frList, function(index, fr){
         var no = isKeyExist(fr,0,1) ? fr[0][1] : undefined;
         var description = isKeyExist(fr,1,1) ? fr[1][1] : undefined;
@@ -363,30 +447,8 @@ function showFrTable(frList) {
             desc : description,
             inputs : inputList.length > 0 ? inputList : undefined
         });
-        //$('#pills-fr > section.tables > div#table').append(strCard(tableName));
     });
 
-    console.log(frFromFile);
-    // return '<div class="col-lg-12">' +
-    //     '<div class="card" id="' + tableName + '">' +
-    //     '<div class="card-close">' +
-    //     '<div class="dropdown">' +
-    //     '<button type="button" id="' + tableName + '" class="dropdown-toggle" name="visible"><i class="fa fa-eye-slash"></i></button>' +
-    //     '<button type="button" id="closeCard3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle"><i class="fa fa-ellipsis-v"></i></button>' +
-    //     '<div aria-labelledby="closeCard3" class="dropdown-menu dropdown-menu-right has-shadow">' +
-    //     '<a href="#showColumn" class="dropdown-item" id="' + tableName + '"> <i class="fa fa-columns"></i>Columns</a>' +
-    //     '<a href="#showConstraint" class="dropdown-item" id="' + tableName + '"> <i class="fa fa-cogs"></i>Constriants</a>' +
-    //     '<a href="#showInstance" class="dropdown-item" id="' + tableName + '"> <i class="fa fa-bars"></i>Instance</a>' +
-    //     '</div>' +
-    //     '</div>' +
-    //     '</div>' +
-    //     '<div class="card-header d-flex align-items-center">' +
-    //     '<h3 class="h4">' + tableName + '</h3>' +
-    //     '</div>' +
-    //     '<div class="card-body" id="' + tableName + '">' +
-    //     '</div>' +
-    //     '</div>' +
-    //     '</div>';
 }
 
 function cleanObject(obj){
@@ -417,7 +479,6 @@ function sheetToArray(sheet) {
     if (sheet['!ref'] == undefined) {
         return result;
     }
-    console.log(sheet);
     var range = XLSX.utils.decode_range(sheet['!ref']);
     for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
         row = [];

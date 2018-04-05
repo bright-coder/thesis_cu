@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Validator;
 use Auth;
 use Illuminate\Http\Request;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
 
 class ProjectController extends Controller
 {
