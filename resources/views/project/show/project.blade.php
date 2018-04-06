@@ -49,7 +49,7 @@
             </div>
         </div>
         <div id="showMessage"></div>
-        <div class="line"></div>
+        <hr>
         <div class="form-group">
             <button id="saveProjectBtn" data-style="zoom-out" type="submit" class="btn btn-primary btn-lg ladda-button"><span class="ladda-label"><i class="fa fa-save"></i> SAVE</span></button>
         </div>

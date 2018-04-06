@@ -1,12 +1,17 @@
-var frFromFile = [];
+var frFromFile;
+var frTable = $('table#frTable').DataTable({
+    "order": [[ 0, "desc" ]]
+});
+
 $(function () {
+
     var id = $(location).attr('pathname').split("/")[2];
     getProject(id);
     getDatabase(id);
     var frFromFile = [];
     $("#frFile").filestyle({
         htmlIcon: '<i class="fas fa-file-excel"></i> ',
-        text: "Upload",
+        text: "Choose File",
         btnClass: "btn-primary",
         buttonBefore: true,
         placeholder: "Functional Requirements (.xlsx)"
@@ -115,12 +120,21 @@ $(function () {
         history.replaceState("", document.title, e.originalEvent.oldURL);
     });
 
-    $(document).on('change', 'input[type=file]', readExcel);
-    //$('input[type=file]').change(readExcel);
+    //$(document).on('change', 'input[type=file]', readExcel);
+    $('input[type=file]').change(function (){
+        var files = $('#frFile').prop('files');
+        if(files.length > 0) {
+            readExcel(files[0],$(this).attr('id'));
+        }
+    });
 
     $(document).on('click', 'button[name=fr]', function () {
         setHtmlFrInputsModal($(this).attr('id'));
         $('#myModal').modal('show');
+    });
+
+    $(document).on('click', 'button#saveFr', function(){
+        
     });
 });
 

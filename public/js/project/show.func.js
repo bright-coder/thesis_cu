@@ -293,9 +293,7 @@ function visible(tableId) {
     $('button#' + tableId + '[name=visible]').children('i').toggleClass('fa-eye-slash fa-eye');
 }
 
-function readExcel(e) {
-    var excelFile = $(this).prop('files')[0];
-    var contentType = $(this).attr('id');
+function readExcel(excelFile, contentType) {
     var reader = new FileReader();
     reader.onload = function (e) {
         var binary = "";
@@ -313,11 +311,14 @@ function readExcel(e) {
                 listOfSheet.push(arraySheet);
             }
         });
-
         if (listOfSheet.length > 0) {
             switch (contentType) {
                 case 'frFile':
                     readFrFromExcel(listOfSheet);
+                    $('#pills-fr > section.tables').show();
+                    $('#pills-fr').find('#showMessage').html('<div class="alert alert-success"> Found ' + frFromFile.length + ' functional requirements. </div>');
+                    showFr();
+                    $('div#saveFr').show();
                     break;
                 case 'tcFile':
                     showTcTable(listOfSheet);
@@ -330,67 +331,50 @@ function readExcel(e) {
 
     }
     reader.readAsArrayBuffer(excelFile);
-    $('#pills-fr > section.tables').remove();
-    showFr();
 
 }
 
-function showFr(){
-    
-    $('#pills-fr').append('<section class="tables"><div class="container-fluid" id="table"></div></section>');
-    var htmlFrList = '';
-    $.each(frFromFile, function(index, fr){
-        htmlFrList += '<tr>' +
-        '<td style="vertical-align: middle">'+ fr.no + '</td>' +
-        '<td style="vertical-align: middle">'+ fr.desc + '</td>' +
-        '<td>'+
-        (fr.inputs == undefined ? undefined :
-        '<button type="button" id="'+index+'" name="fr" class="btn btn-link">'+ fr.inputs.length) +'</button>'+
-        '</td>' +
-        '</tr>';
-            
-    });
-    $('#pills-fr > section.tables > div#table').html(
-        '<div class="table-responsive" id="frTable">' +
-        '<table class="table table-striped" id="frTable">' +
-        '<thead>' +
-        '<tr>' +
-        '<th>No.</th>' +
-        '<th>Description</th>' +
-        '<th>Inputs</th>'+
-        '</tr>' +
-        '</thead>' +
-        '<tbody>' +
-        htmlFrList +
-        '</tbody>' +
-        '</table>' +
-        '</div>'
-    );
-    $('#pills-fr').find('table#frTable').DataTable({
-        "order": [[ 1, "asc" ]]
+function showFr() {
+    frTable.clear().draw();
+    $.each(frFromFile, function (index, fr) {
+        frTable.row.add([
+            strContent(fr.no,true),
+            strContent(fr.desc),
+            (fr.inputs == undefined ? 'undefined' :
+                '<button type="button" id="' + index + '" name="fr" class="btn btn-link">' +
+                fr.inputs.length +
+                '</button>')
+        ]).draw(false);
     });
 
 }
 
-function setHtmlFrInputsModal(id){
+function strContent(data, required = false) {
+    if(required && data == undefined) {
+        return '<span style="color:red">undefined</span>';
+    }
+    else return data+'';
+}
+
+function setHtmlFrInputsModal(id) {
     var fr = frFromFile[id];
     var modal = $('#myModal');
     var htmlInput = '';
-    $.each(fr.inputs, function(index,input){
+    $.each(fr.inputs, function (index, input) {
         htmlInput += '<tr>' +
-        '<td>'+input.name+'</td>'+
-        '<td>'+input.dataType+'</td>'+
-        '<td>'+input.length+'</td>'+
-        '<td>'+input.precision+'</td>'+
-        '<td>'+input.scale+'</td>'+
-        '<td>'+input.default+'</td>'+
-        '<td>'+input.nullable+'</td>'+
-        '<td>'+input.unique+'</td>'+
-        '<td>'+input.min+'</td>'+
-        '<td>'+input.max+'</td>'+
-        '<td>'+input.column+'</td>'+
-        '<td>'+input.table+'</td>'+
-        '</tr>';
+            '<td>' + strContent(input.name,true) + '</td>' +
+            '<td>' + strContent(input.dataType,true) + '</td>' +
+            '<td>' + strContent(input.length, input.dataType.toString().search('char') != -1) + '</td>' +
+            '<td>' + strContent(input.precision, input.dataType.toString().search('float') != -1 || input.dataType.toString().search('decimal') != -1)  + '</td>' +
+            '<td>' + input.scale + '</td>' +
+            '<td>' + input.default + '</td>' +
+            '<td>' + strContent(input.nullable,true) + '</td>' +
+            '<td>' + strContent(input.unique,true) + '</td>' +
+            '<td>' + input.min + '</td>' +
+            '<td>' + input.max + '</td>' +
+            '<td>' + strContent(input.column,true) + '</td>' +
+            '<td>' + strContent(input.table,true) + '</td>' +
+            '</tr>';
     });
     modal.find('#modalFrHeader').text(fr.no);
     modal.find('.modal-body').html(
@@ -398,22 +382,22 @@ function setHtmlFrInputsModal(id){
         '<table class="table table-striped">' +
         '<thead>' +
         '<tr>' +
-        '<th>Name</th>' +
-        '<th>Data Type</th>' +
+        '<th>Name <span style="color:red">*</span></th>' +
+        '<th>Data Type <span style="color:red">*</span></th>' +
         '<th>Length</th>' +
         '<th>Precision</th>' +
         '<th>Scale</th>' +
         '<th>Default</th>' +
-        '<th>Nullable</th>' +
-        '<th>Unique</th>' +
+        '<th>Nullable <span style="color:red">*</span></th>' +
+        '<th>Unique <span style="color:red">*</span></th>' +
         '<th>Min</th>' +
         '<th>Max</th>' +
-        '<th>Column</th>' +
-        '<th>Table</th>' +
+        '<th>Column Name <span style="color:red">*</span></th>' +
+        '<th>Table Name <span style="color:red">*</span></th>' +
         '</tr>' +
         '</thead>' +
         '<tbody>' +
-            htmlInput+
+        htmlInput +
         '</tbody>' +
         '</table>' +
         '</div>'
@@ -421,11 +405,12 @@ function setHtmlFrInputsModal(id){
 }
 
 function readFrFromExcel(frList) {
-    $.each(frList, function(index, fr){
-        var no = isKeyExist(fr,0,1) ? fr[0][1] : undefined;
-        var description = isKeyExist(fr,1,1) ? fr[1][1] : undefined;
+    frFromFile = [];
+    $.each(frList, function (index, fr) {
+        var no = isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
+        var description = isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
         var inputList = [];
-        for(var i = 4 ; i < fr.length ; ++i) {
+        for (var i = 4; i < fr.length; ++i) {
             inputList.push({
                 name: (0 in fr[i]) ? fr[i][0] : undefined,
                 dataType: (1 in fr[i]) ? fr[i][1] : undefined,
@@ -441,30 +426,29 @@ function readFrFromExcel(frList) {
                 table: (11 in fr[i]) ? fr[i][11] : undefined,
             });
         }
-
         frFromFile.push({
-            no : no,
-            desc : description,
-            inputs : inputList.length > 0 ? inputList : undefined
+            no: no,
+            desc: description,
+            inputs: inputList.length > 0 ? inputList : undefined
         });
     });
 
 }
 
-function cleanObject(obj){
-    Object.keys(obj).forEach(function(key,value){
+function cleanObject(obj) {
+    Object.keys(obj).forEach(function (key, value) {
         delete obj[key];
     });
     return obj;
 }
 
-function isKeyExist(array,dimen1,dimen2 = undefined){
-    if(dimen1 in array) {
-        if(dimen2 != undefined){
-            if(! Array.isArray(array[dimen1]) ) {
+function isKeyExist(array, dimen1, dimen2 = undefined) {
+    if (dimen1 in array) {
+        if (dimen2 != undefined) {
+            if (!Array.isArray(array[dimen1])) {
                 return false;
             }
-            if(dimen2 in array[dimen1]) {
+            if (dimen2 in array[dimen1]) {
                 return true;
             } else return false;
         }
