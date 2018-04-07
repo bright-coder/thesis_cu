@@ -10,7 +10,7 @@ use App\User;
 use DB;
 use Illuminate\Http\Request;
 
-class ProjectApiController extends Controller
+class ProjectController extends Controller
 {
     /**
      * Display a listing of the resource.

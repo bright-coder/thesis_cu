@@ -36,9 +36,6 @@ $(function () {
         //     getProject();
 
         // }
-        // if (target === '#pills-db') {
-        //     getDatabase();
-        // }
     });
 
     $('input[name=projectName]').on("change paste keyup", function () {
@@ -122,9 +119,9 @@ $(function () {
 
     //$(document).on('change', 'input[type=file]', readExcel);
     $('input[type=file]').change(function (){
-        var files = $('#frFile').prop('files');
+        var files = $(this).prop('files');
         if(files.length > 0) {
-            readExcel(files[0],$(this).attr('id'));
+            readExcel(files[0], $(this).attr('id'));
         }
     });
 

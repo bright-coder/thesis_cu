@@ -2,44 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\User;
-use App\Library\CustomModel\DBTargetConnection;
-use App\Library\Builder\DatabaseBuilder;
-use DB;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-class DatabaseApiController extends Controller
+class TestCaseController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $projectId)
+    public function index()
     {
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $project = DB::table('PROJECT')
-            ->select('dbServer', 'dbName','dbUsername','dbPassword')
-            ->where('userId', '=', $user->id)
-            ->where('id','=', $projectId)
-            ->get();
-        if (count($project) <= 0) {
-            return response()->json(['msg' => 'Not found your project.'], 200);
-        }
-        
-        $project = $project[0];
-
-        $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer,$project->dbName,$project->dbUsername,$project->dbPassword);
-        if( !$dbCon->Connect()) {
-            return response()->json(['msg' => 'Cannot Connect to Target Database.'], 400);
-        }
-        else {
-            $databaseBuilder = new DatabaseBuilder($dbCon);
-            $databaseBuilder->setUpTablesAndColumns();
-        }
-        return response()->json($databaseBuilder->getDatabase()->toArray(),200);
-
+        //
     }
 
     /**
