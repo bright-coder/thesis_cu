@@ -17,12 +17,12 @@ $.ajax({
                 $('#content').append('<div class="col-md-6 col-lg-3">'+
                 '<div class="card"><img src="https://d19m59y37dris4.cloudfront.net/admin-premium/1-4-0/img/mockup4.jpg" alt="Card image cap" class="card-img-top img-fluid">'+
                   '<div class="card-body">'+
-                    '<h3 class="card-title"><center><a href="/project/'+project.projectId+'" class="card-link">'+project.projectName+'</a></center></h3>'+
+                    '<h3 class="card-title"><center><a href="/project/'+project.id+'" class="card-link">'+project.name+'</a></center></h3>'+
                   '</div>'+
                   '<ul class="list-group list-group-flush">'+
                     '<li class="list-group-item"><i class="fa fa-server"></i>&emsp;'+project.dbServer+'</li>'+
                     '<li class="list-group-item"><i class="fa fa-database"></i>&emsp;'+project.dbName+'</li>'+
-                    '<li class="list-group-item"><center><button class="btn btn-danger" onclick="deleteProject('+project.projectId+')"><i class="fa fa-trash"></i></button></center></li>'+
+                    '<li class="list-group-item"><center><button class="btn btn-danger" onclick="deleteProject('+project.id+')"><i class="fa fa-trash"></i></button></center></li>'+
                   '</ul>'+
                 '</div>'+
               '</div>');

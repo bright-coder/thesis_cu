@@ -11,9 +11,9 @@ function getProject(id) {
         success: function (response) {
             $('#preloadLayout').remove();
             $('#menu').show();
-            $('#header').text(response.projectName);
-            $('#headerBread').text(response.projectName);
-            $('input[name=projectName]').val(response.projectName);
+            $('#header').text(response.name);
+            $('#headerBread').text(response.name);
+            $('input[name=projectName]').val(response.name);
             $('input[name=dbName]').val(response.dbName);
             $('input[name=dbServer]').val(response.dbServer);
             $('input[name=dbPort]').val(response.dbPort);
@@ -26,7 +26,6 @@ function getProject(id) {
             else if (response.dbType == "mysql") {
                 $('#dbTypeMySql').attr('checked', "");
             }
-            //$('#pills-project').show();
         },
         error: function (response) {
             $('#preloadLayout').remove();

@@ -8,6 +8,7 @@ use App\Library\CustomModel\SqlServer;
 use App\Project;
 use App\User;
 use DB;
+use App\Library\GuardProject;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -19,11 +20,8 @@ class ProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $projects = DB::table('PROJECT')
-            ->select('id as projectId', 'name as projectName', 'dbServer', 'dbName')
-            ->where('userId', '=', $user->id)
-            ->get();
+        $guard = new GuardProject($request->bearerToken());
+        $projects = $guard->getAllProject();
         if (count($projects) <= 0) {
             return response()->json(['msg' => 'Not found your project.'], 200);
         }
@@ -111,21 +109,14 @@ class ProjectController extends Controller
      */
     public function show(Request $request, $id)
     {
-        //
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $project = DB::table('PROJECT')
-            ->select('id as projectId', 'name as projectName', 'dbServer', 'dbName', 'dbPort', 'dbType', 'dbUsername', 'dbPassword')
-            ->where([
-                ['userId', '=', $user->id],
-                ['id', '=', $id],
-            ])
-            ->get();
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($id);
 
-        if (count($project) <= 0) {
-            return response()->json(['msg' => 'Not found your project.'], 200);
+        if(!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400); 
         }
 
-        return response()->json($project[0], 200);
+        return response()->json($project, 200);
     }
 
     /**
@@ -149,17 +140,11 @@ class ProjectController extends Controller
      */
     public function update(ProjectRequest $request, $id)
     {
-        //
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $project = DB::table('PROJECT')
-            ->where([
-                ['userId', '=', $user->id],
-                ['id', '=', $id],
-            ])
-            ->get();
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($id);
 
-        if (count($project) <= 0) {
-            return response()->json(['msg' => 'Not found your project.'], 200);
+        if(!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400); 
         }
 
         $db = new SqlServer(
@@ -202,16 +187,11 @@ class ProjectController extends Controller
     public function destroy(Request $request, $id)
     {
         //
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $project = DB::table('PROJECT')
-            ->where([
-                ['userId', '=', $user->id],
-                ['id', '=', $id],
-            ])
-            ->get();
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($id);
 
-        if (count($project) <= 0) {
-            return response()->json(['msg' => 'Not found your project.'], 200);
+        if (!$project) {
+            return response()->json(['msg' => 'Not found your project.'], 401);
         }
 
         DB::beginTransaction();
