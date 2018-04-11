@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\RTMRequest;
 use App\Http\Controllers\Controller;
+use App\Library\GuardProject;
+use App\RequirementTraceabilityMatrix;
+use App\RequirementTraceabilityMatrixRelation;
+use App\FunctionalRequirement;
+use App\TestCase;
 
 class RTMController extends Controller
 {
@@ -33,9 +39,36 @@ class RTMController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(RTMRequest $request, $projectId)
     {
-        //
+        $guard = new Guard($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        $request = $request->json()->all();
+        $requirementTraceabilityMatrix = new RequirementTraceabilityMatrix;
+        $requirementTraceabilityMatrix->projectId = $project->id;
+        //$requirementTraceabilityMatrix->version = $request['requirementTraceabilityMatrix']['version'];
+        $requirementTraceabilityMatrix->save();
+        foreach ($request as $relation) {
+            foreach ($relation['testCaseNos'] as $testCaseNo) {
+                $requirementTraceabilityMatrixRelation = new RequirementTraceabilityMatrixRelation;
+
+                $requirementTraceabilityMatrixRelation->requirementTraceabilityMatrixId = $requirementTraceabilityMatrix->id;
+                $requirementTraceabilityMatrixRelation->functionalRequirementId = FunctionalRequirement::where([
+                    'projectId' => $project->id,
+                    'no' => $relation['functionalRequirementNo'],
+                ])->first()->id;
+                $requirementTraceabilityMatrixRelation->testCaseId = TestCase::where([
+                    'projectId' => $project->id,
+                    'no' => $testCaseNo,
+                ])->first()->id;
+                $requirementTraceabilityMatrixRelation->save();
+            }
+        }
     }
 
     /**

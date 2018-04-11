@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TestCaseRequest;
+use App\Library\GuardProject;
+use DB;
+use Illuminate\Http\Request;
+use TestCase;
+use TestCaseInput;
 
 class TestCaseController extends Controller
 {
@@ -33,9 +38,38 @@ class TestCaseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TestCaseRequest $request, $projectId)
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        $request = $request->json()->all();
+        DB::beginTransaction();
+        try {
+            foreach ($request as $importTc) {
+                $testCase = new TestCase;
+                $testCase->projectId = $project->id;
+                $testCase->no = $importTc['no'];
+                $testCase->type = $importTc['type'];
+                $testCase->save();
+                foreach ($importTc['inputs'] as $importTcInput) {
+                    $testCaseInput = new testCaseInput;
+                    $testCaseInput->testCaseId = $testCase->id;
+                    $testCaseInput->name = $importTcInput['name'];
+                    $testCaseInput->testData = $importTcInput['testData'];
+                    $testCaseInput->save();
+                }
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['msg' => "Internal Sever Error."], 500);
+        }
+        return response()->json(['msg' => "Insert Success."], 200);
     }
 
     /**

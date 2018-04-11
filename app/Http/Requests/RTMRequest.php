@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+
 
 class RTMRequest extends FormRequest
 {
@@ -13,7 +16,7 @@ class RTMRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +27,28 @@ class RTMRequest extends FormRequest
     public function rules()
     {
         return [
+            '*.functionalRequirementNo' => 'required|string',
+            '*.testCaseNos' => 'required|array|size:1',
             //
         ];
     }
+
+    protected function validationData()
+    {
+        return $this->json()->all();
+    }
+
+        /**
+     * Handle a failed validation attempt.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json(['msg' => ['fields' => $validator->errors()] ], 400));
+    }
+    
 }
