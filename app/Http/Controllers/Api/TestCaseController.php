@@ -112,8 +112,34 @@ class TestCaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $projectId, $testCaseId = "all")
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($testCaseId === "all") {
+                $tcs = DB::table('TEST_CASE')->select('id')->where('projectId', '=', $projectId)->get();
+                foreach ($tcs as $tc) {
+                    DB::table('TEST_CASE_INPUT')->where('testCaseId', '=', $tc->id)->delete();
+                    DB::table('TEST_CASE')->where('id', '=', $tc->id)->delete();
+                }
+            }
+            else {
+                DB::table('TEST_CASE_INPUT')->where('testCaseId', '=', $testCaseId)->delete();
+                DB::table('TEST_CASE')->where('id', '=', $testCaseId)->delete();
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+             return response()->json(['msg' => 'Internal Server Error.'],500);
+        }
+        return response()->json(['msg' => 'Delete Test Case success.'],200);
+        
     }
 }

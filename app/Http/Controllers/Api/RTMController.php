@@ -111,8 +111,30 @@ class RTMController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request ,$projectId, $functionalRequirementId = "all")
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($functionalRequirementId === "all") {
+                $rtm = DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->select('id')->where('projectId', '=', $projectId)->first();
+                DB::table('REQUIREMENT_TRACEABILITY_MATRIX_RELATION')->where('requirementTraceabilityMatrixId', '=', $rtm->id)->delete();
+                DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->where('id', '=', $rtm->id)->delete();
+            }
+            else {
+                DB::table('REQUIREMENT_TRACEABILITY_MATRIX_RELATION')->where('functionalRequirementId', '=', $functionalRequirementId)->delete();
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+             return response()->json(['msg' => 'Internal Server Error.'],500);
+        }
+        return response()->json(['msg' => 'Delete Requirement Traceability Matrix.'],200);
     }
 }

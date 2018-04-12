@@ -320,9 +320,13 @@ function readExcel(excelFile, contentType) {
                     $('div#saveFr').show();
                     break;
                 case 'tcFile':
-                    showTcTable(listOfSheet);
+                    readTcFromExcel(listOfSheet);
+                    $('#pills-tc > section.tables').show();
+                    $('#pills-tc').find('#showMessage').html('<div class="alert alert-success"> Found ' + tcFromFile.length + ' functional requirements. </div>');
+                    showTc();
+                    $('div#saveTc').show();
                 case 'rtmFile':
-                    showRtmTable(listOfSheet);
+                //showRtmTable(listOfSheet);
                 default:
                     break;
             }
@@ -333,13 +337,27 @@ function readExcel(excelFile, contentType) {
 
 }
 
+function showTc() {
+    tcTable.clear().draw();
+    $.each(tcFromFile, function (index, tc) {
+        tcTable.row.add([
+            strContent(tc.no, true),
+            strContent(tc.type, true),
+            (tc.inputs == undefined ? strContent(tc.inputs, true) :
+                '<button type="button" id="' + index + '" name="tc" class="btn btn-link">' +
+                tc.inputs.length +
+                '</button>')
+        ]).draw(false);
+    });
+}
+
 function showFr() {
     frTable.clear().draw();
     $.each(frFromFile, function (index, fr) {
         frTable.row.add([
-            strContent(fr.no,true),
+            strContent(fr.no, true),
             strContent(fr.desc),
-            (fr.inputs == undefined ? 'undefined' :
+            (fr.inputs == undefined ? strContent(fr.inputs, true) :
                 '<button type="button" id="' + index + '" name="fr" class="btn btn-link">' +
                 fr.inputs.length +
                 '</button>')
@@ -348,51 +366,72 @@ function showFr() {
 
 }
 
+
+
 function strContent(data, required = false) {
-    if(required && data == undefined) {
+    if (required && data == undefined) {
         return '<span style="color:red">undefined</span>';
     }
-    else return data+'';
+    else return data + '';
 }
 
-function setHtmlFrInputsModal(id) {
-    var fr = frFromFile[id];
+function setHtmlModal(id, contentType) {
+    var htmlHeader, htmlInput, htmlTableHeader;
     var modal = $('#myModal');
-    var htmlInput = '';
-    $.each(fr.inputs, function (index, input) {
-        htmlInput += '<tr>' +
-            '<td>' + strContent(input.name,true) + '</td>' +
-            '<td>' + strContent(input.dataType,true) + '</td>' +
-            '<td>' + strContent(input.length, input.dataType.toString().search('char') != -1) + '</td>' +
-            '<td>' + strContent(input.precision, input.dataType.toString().search('float') != -1 || input.dataType.toString().search('decimal') != -1)  + '</td>' +
-            '<td>' + input.scale + '</td>' +
-            '<td>' + input.default + '</td>' +
-            '<td>' + strContent(input.nullable,true) + '</td>' +
-            '<td>' + strContent(input.unique,true) + '</td>' +
-            '<td>' + input.min + '</td>' +
-            '<td>' + input.max + '</td>' +
-            '<td>' + strContent(input.column,true) + '</td>' +
-            '<td>' + strContent(input.table,true) + '</td>' +
-            '</tr>';
-    });
-    modal.find('#modalFrHeader').text(fr.no);
+    if (contentType == 'fr') {
+        var fr = frFromFile[id];
+        htmlHeader = fr.no;
+        htmlTableHeader = '<th>Name <span style="color:red">*</span></th>' +
+            '<th>Data Type <span style="color:red">*</span></th>' +
+            '<th>Length</th>' +
+            '<th>Precision</th>' +
+            '<th>Scale</th>' +
+            '<th>Default</th>' +
+            '<th>Nullable <span style="color:red">*</span></th>' +
+            '<th>Unique <span style="color:red">*</span></th>' +
+            '<th>Min</th>' +
+            '<th>Max</th>' +
+            '<th>Column Name <span style="color:red">*</span></th>' +
+            '<th>Table Name <span style="color:red">*</span></th>';
+        htmlInput = '';
+        $.each(fr.inputs, function (index, input) {
+            htmlInput += '<tr>' +
+                '<td>' + strContent(input.name, true) + '</td>' +
+                '<td>' + strContent(input.dataType, true) + '</td>' +
+                '<td>' + strContent(input.length, input.dataType.toString().search('char') != -1) + '</td>' +
+                '<td>' + strContent(input.precision, input.dataType.toString().search('float') != -1 || input.dataType.toString().search('decimal') != -1) + '</td>' +
+                '<td>' + input.scale + '</td>' +
+                '<td>' + input.default + '</td>' +
+                '<td>' + strContent(input.nullable, true) + '</td>' +
+                '<td>' + strContent(input.unique, true) + '</td>' +
+                '<td>' + input.min + '</td>' +
+                '<td>' + input.max + '</td>' +
+                '<td>' + strContent(input.column, true) + '</td>' +
+                '<td>' + strContent(input.table, true) + '</td>' +
+                '</tr>';
+        });
+    }
+    else if (contentType == 'tc') {
+        var tc = tcFromFile[id];
+        htmlHeader = tc.no;
+        htmlTableHeader = '<th>Name <span style="color:red">*</span></th>' +
+            '<th>TestData <span style="color:red">*</span></th>';
+        htmlInput = '';
+        $.each(tc.inputs, function (index, input) {
+            htmlInput += '<tr>' +
+                '<td>' + strContent(input.name, true) + '</td>' +
+                '<td>' + strContent(input.testData, true) + '</td>' +
+                '</tr>';
+        });
+    }
+
+    modal.find('#modalHeader').text(htmlHeader);
     modal.find('.modal-body').html(
         '<div class="table-responsive">' +
         '<table class="table table-striped">' +
         '<thead>' +
         '<tr>' +
-        '<th>Name <span style="color:red">*</span></th>' +
-        '<th>Data Type <span style="color:red">*</span></th>' +
-        '<th>Length</th>' +
-        '<th>Precision</th>' +
-        '<th>Scale</th>' +
-        '<th>Default</th>' +
-        '<th>Nullable <span style="color:red">*</span></th>' +
-        '<th>Unique <span style="color:red">*</span></th>' +
-        '<th>Min</th>' +
-        '<th>Max</th>' +
-        '<th>Column Name <span style="color:red">*</span></th>' +
-        '<th>Table Name <span style="color:red">*</span></th>' +
+        htmlTableHeader +
         '</tr>' +
         '</thead>' +
         '<tbody>' +
@@ -401,6 +440,26 @@ function setHtmlFrInputsModal(id) {
         '</table>' +
         '</div>'
     );
+}
+
+function readTcFromExcel(tcList) {
+    tcFromFile = [];
+    $.each(tcList, function (index, tc) {
+        var no = isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
+        var type = isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
+        var inputList = [];
+        for (var i = 4; i < tc.length; ++i) {
+            inputList.push({
+                name: (0 in tc[i]) ? tc[i][0] : undefined,
+                testData: (1 in tc[i]) ? tc[i][1] : undefined,
+            });
+        }
+        tcFromFile.push({
+            no: no,
+            type: type,
+            inputs: inputList.length > 0 ? inputList : undefined
+        });
+    });
 }
 
 function readFrFromExcel(frList) {

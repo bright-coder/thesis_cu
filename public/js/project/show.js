@@ -1,11 +1,17 @@
-var frFromFile;
+var frFromFile,tcFromFile,rtmFromFile;
 var frTable = $('table#frTable').DataTable({
-    "order": [[ 0, "desc" ]]
+    "order": [[ 0, "asc" ]]
 });
+var tcTable = $('table#tcTable').DataTable({
+    "order": [[0, "asc"]]
+});
+var rtmTable = $('table#rtmTable').DataTable({
+    "order": [[0, "asc"]]
+});
+var id = $(location).attr('pathname').split("/")[2];
 
 $(function () {
 
-    var id = $(location).attr('pathname').split("/")[2];
     getProject(id);
     getDatabase(id);
     var frFromFile = [];
@@ -47,7 +53,7 @@ $(function () {
     $("#saveProject").submit(function (event) {
         event.preventDefault();
         var l = Ladda.create(document.querySelector('#saveProjectBtn'));
-        var id = $(location).attr('pathname').split("/")[2];
+        //var id = $(location).attr('pathname').split("/")[2];
         l.start();
         $.ajax({
             type: "PATCH",
@@ -88,6 +94,78 @@ $(function () {
         });
     });
 
+    $(document).on('click', 'button#saveFr', function (){
+        var l = Ladda.create(document.querySelector('#saveFr'));
+        l.start();
+        $.ajax({
+            type: "POST",
+            url: "/api/v1/projects/"+id+"/functionalRequirements",
+            data: JSON.stringify(cleanObject(frFromFile)),
+            headers: {
+                "Authorization": "Bearer " + $('input[name=accessToken]').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(response) {
+                l.stop();
+                $('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
+            },
+            error: function(response) {
+                l.stop();
+                $('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
+            }
+        });
+
+    });
+
+    $(document).on('click', 'button#saveTc', function (){
+        var l = Ladda.create(document.querySelector('#saveTc'));
+        l.start();
+        $.ajax({
+            type: "POST",
+            url: "/api/v1/projects/"+id+"/testCases",
+            data: JSON.stringify(cleanObject(tcFromFile)),
+            headers: {
+                "Authorization": "Bearer " + $('input[name=accessToken]').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(response) {
+                l.stop();
+                $('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
+            },
+            error: function(response) {
+                l.stop();
+                $('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
+            }
+        });
+
+    });
+
+    $(document).on('click', 'button#saveRtm', function (){
+        var l = Ladda.create(document.querySelector('#saveRtm'));
+        l.start();
+        $.ajax({
+            type: "POST",
+            url: "/api/v1/projects/"+id+"/RTM",
+            data: JSON.stringify(rtmFromFile),
+            headers: {
+                "Authorization": "Bearer " + $('input[name=accessToken]').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(response) {
+                l.stop();
+                $('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
+            },
+            error: function(response) {
+                l.stop();
+                $('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
+            }
+        });
+
+    });
+
     $(document).on('click', 'button[name=visible]', function () {
         visible($(this).attr('id'));
     });
@@ -125,8 +203,8 @@ $(function () {
         }
     });
 
-    $(document).on('click', 'button[name=fr]', function () {
-        setHtmlFrInputsModal($(this).attr('id'));
+    $(document).on('click', 'button[name=fr],button[name=tc]', function () {
+        setHtmlModal($(this).attr('id'),$(this).attr('name'));
         $('#myModal').modal('show');
     });
 

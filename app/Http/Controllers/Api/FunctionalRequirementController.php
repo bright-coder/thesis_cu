@@ -122,8 +122,33 @@ class FunctionalRequirementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request ,$projectId, $functionalRequirementId = "all")
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($functionalRequirementId === "all") {
+                $frs = DB::table('FUNCTIONAL_REQUIREMENT')->select('id')->where('projectId', '=', $projectId)->get();
+                foreach ($frs as $fr) {
+                    DB::table('FUNCTIONAL_REQUIREMENTE_INPUT')->where('functionalRequirementId', '=', $fr->id)->delete();
+                    DB::table('FUNCTIONAL_REQUIREMENT')->where('id', '=', $fr->id)->delete();
+                }
+            }
+            else {
+                DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('functionalRequirementId', '=', $functionalRequirementId)->delete();
+                DB::table('FUNCTIONAL_REQUIREMENT')->where('id', '=', $functionalRequirementId)->delete();
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+             return response()->json(['msg' => 'Internal Server Error.'],500);
+        }
+        return response()->json(['msg' => 'Delete Functional Requirement success.'],200);
     }
 }
