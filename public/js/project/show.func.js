@@ -326,7 +326,7 @@ function readExcel(excelFile, contentType) {
                     showTc();
                     $('div#saveTc').show();
                 case 'rtmFile':
-                //showRtmTable(listOfSheet);
+                    readRtmFromExcel(listOfSheet[0]);
                 default:
                     break;
             }
@@ -493,11 +493,49 @@ function readFrFromExcel(frList) {
 
 }
 
+function readRtmFromExcel(rtm) {
+    rtmFromFile = [];
+    for (var i = 1; i < rtm.length; ++i) {
+        var frNo = isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
+        var testCaseNos = rtm[i];
+        rtmFromFile.push({
+            functionalRequirementNo: frNo,
+            testCaseNos: testCaseNos
+        });
+    }
+    console.log(cleanObject(rtmFromFile));
+}
+
 function cleanObject(obj) {
-    Object.keys(obj).forEach(function (key, value) {
-        delete obj[key];
+    Object.keys(obj).forEach(function (key) {
+        if (obj[key] instanceof Array || typeof obj[key] === "object") {
+            obj[key] = cleanObject(obj[key]);
+            if(obj[key] instanceof Array) {
+                obj[key] = filter_array(obj[key]);
+            }
+        }
+        else if (!obj[key]) {
+            delete obj[key];
+        }
     });
     return obj;
+}
+
+function filter_array(array) {
+    var index = -1,
+        arr_length = array ? array.length : 0,
+        resIndex = -1,
+        result = [];
+
+    while (++index < arr_length) {
+        var value = array[index];
+
+        if (value) {
+            result[++resIndex] = value;
+        }
+    }
+
+    return result;
 }
 
 function isKeyExist(array, dimen1, dimen2 = undefined) {
