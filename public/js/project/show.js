@@ -1,12 +1,18 @@
 var frFromFile,tcFromFile,rtmFromFile;
 var frTable = $('table#frTable').DataTable({
-    "order": [[ 0, "asc" ]]
+    "order": [[ 0, "asc" ]],
 });
 var tcTable = $('table#tcTable').DataTable({
     "order": [[0, "asc"]]
 });
 var rtmTable = $('table#rtmTable').DataTable({
-    "order": [[0, "asc"]]
+    "order": [[0, "asc"]],
+    columnDefs: [
+        {
+            targets: [ 0],
+            className: 'blue-low'
+        }
+    ]
 });
 var id = $(location).attr('pathname').split("/")[2];
 

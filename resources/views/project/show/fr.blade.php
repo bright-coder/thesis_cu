@@ -12,8 +12,8 @@
       <div class="table-responsive" id="frTable">
         <table class="table table-striped" id="frTable">
           <thead>
-            <tr>
-              <th>No. <span style="color:red">*</span></th>
+            <tr >
+              <th >No. <span style="color:red">*</span></th>
               <th>Description</th>
               <th>Inputs <span style="color:red">*</span></th>
             </tr>

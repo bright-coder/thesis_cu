@@ -34,3 +34,12 @@
 .modal-lg {
     max-width: 80% !important;
 }
+
+.blue {
+    color: white !important;
+    background: #2b90d9 !important;
+}
+
+.blue-low {
+    background: #d7eeff;
+}

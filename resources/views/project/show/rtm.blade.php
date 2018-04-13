@@ -12,9 +12,8 @@
                 <table class="table table-striped" id="tcTable">
                     <thead>
                         <tr>
-                            <th>No. <span style="color:red">*</span></th>
-                            <th>Type <span style="color:red">*</span></th>
-                            <th>Inputs <span style="color:red">*</span></th>
+                            <th class="blue">Functional Requirement</th>
+                            <th >Test Cases</th>
                         </tr>
                     </thead>
                     <tbody>
