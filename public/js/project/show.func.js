@@ -322,11 +322,17 @@ function readExcel(excelFile, contentType) {
                 case 'tcFile':
                     readTcFromExcel(listOfSheet);
                     $('#pills-tc > section.tables').show();
-                    $('#pills-tc').find('#showMessage').html('<div class="alert alert-success"> Found ' + tcFromFile.length + ' functional requirements. </div>');
+                    $('#pills-tc').find('#showMessage').html('<div class="alert alert-success"> Found ' + tcFromFile.length + ' test cases. </div>');
                     showTc();
                     $('div#saveTc').show();
+                    break;
                 case 'rtmFile':
                     readRtmFromExcel(listOfSheet[0]);
+                    $('#pills-rtm > section.tables').show();
+                    $('#pills-rtm').find('#showMessage').html('<div class="alert alert-success"> Found ' + rtmFromFile.length + ' relations. </div>');
+                    showRtm();
+                    $('div#saveRtm').show();
+                    break;
                 default:
                     break;
             }
@@ -366,7 +372,16 @@ function showFr() {
 
 }
 
-
+function showRtm(){
+    rtmTable.clear().draw();
+    $.each(rtmFromFile, function (index, relation) {
+        rtmTable.row.add([
+            strContent(relation.functionalRequirementNo, true),
+            strContent(relation.testCaseNos instanceof Array ? relation.testCaseNos.join(", ") : relation.testCaseNos)
+        ]).draw(false);
+    });
+    rtmTable.columns.adjust().draw();
+}
 
 function strContent(data, required = false) {
     if (required && data == undefined) {

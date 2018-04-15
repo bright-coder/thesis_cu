@@ -7,12 +7,11 @@ var tcTable = $('table#tcTable').DataTable({
 });
 var rtmTable = $('table#rtmTable').DataTable({
     "order": [[0, "asc"]],
+    autoWidth: false,
     columnDefs: [
-        {
-            targets: [ 0],
-            className: 'blue-low'
-        }
-    ]
+        { className: 'blue-low', width: "30%", targets: 0 },
+        { width: "70%", targets: 1 }
+      ]
 });
 var id = $(location).attr('pathname').split("/")[2];
 
