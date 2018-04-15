@@ -42,3 +42,11 @@
 .blue-low {
     background: #d7eeff;
 }
+
+.bootstrap-select.btn-group .dropdown-toggle .filter-option {
+    overflow: unset !important;
+}
+
+.bs-placeholder {
+    color: white !important;
+}
