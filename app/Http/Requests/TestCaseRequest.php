@@ -29,7 +29,7 @@ class TestCaseRequest extends FormRequest
             '*.no' => 'required|string',
             '*.desc' => 'string',
             '*.type' => 'required|string|in:valid,invalid',
-            '*.inputs' => 'required|array|size:1',
+            '*.inputs' => 'required|array|min:1',
             '*.inputs.*.name' => 'required|string',
             '*.inputs.*.testData' => 'required'
         ];

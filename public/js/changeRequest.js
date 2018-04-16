@@ -1,4 +1,6 @@
-$(function (){
+var frList;
+
+$(function () {
     $.ajax({
         type: "GET",
         url: "/api/v1/projects",
@@ -10,12 +12,12 @@ $(function (){
         success: function (response) {
             $('#preloadLayout').remove();
             $('#menu').show();
-            if('msg' in response) {
+            if ('msg' in response) {
                 //$('#content').append('<small>Let\'s create your first project.</small>');
             }
-            else  {
+            else {
                 response.forEach(project => {
-                    $('#selectProject').append('<option value="'+ project.id +'">'+project.name+"</option>");
+                    $('#selectProject').append('<option value="' + project.id + '">' + project.name + '</option>');
                 });
                 $('#selectProject').selectpicker('refresh');
             }
@@ -28,6 +30,29 @@ $(function (){
     });
 
     $('#selectProject').on('changed.bs.select', function (e) {
-        //alert($(this).val());
-      });
+        $('#content.card-body').show();
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/projects/" + $(this).val() + "/functionalRequirements",
+            headers: {
+                "Authorization": "Bearer " + $('input[name=accessToken]').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+                if (response.length > 0) {
+                    //frList = response;
+                    $('#content.card-body').append('<select id="selectFr" class="selectpicker" data-style="btn-primary" title="Choose your functional requirement."></select>');
+                    $.each(response, function(index,fr) {
+                        $('#selectFr').append('<option value="' + index + '">' + fr.no + '</option>');
+                    });
+                    $('#selectFr').selectpicker({liveSearch: true});
+                }
+            },
+            error: function (response) {
+
+            }
+        });
+    });
 });

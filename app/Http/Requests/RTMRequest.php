@@ -28,7 +28,7 @@ class RTMRequest extends FormRequest
     {
         return [
             '*.functionalRequirementNo' => 'required|string',
-            '*.testCaseNos' => 'required|array|size:1',
+            '*.testCaseNos' => 'required|array|min:1',
             //
         ];
     }

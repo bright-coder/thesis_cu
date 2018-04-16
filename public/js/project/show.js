@@ -19,7 +19,6 @@ $(function () {
 
     getProject(id);
     getDatabase(id);
-    var frFromFile = [];
     $("#frFile").filestyle({
         htmlIcon: '<i class="fas fa-file-excel"></i> ',
         text: "Choose File",
@@ -100,7 +99,7 @@ $(function () {
     });
 
     $(document).on('click', 'button#saveFr', function (){
-        var l = Ladda.create(document.querySelector('#saveFr'));
+        var l = Ladda.create(document.querySelector('button#saveFr'));
         l.start();
         $.ajax({
             type: "POST",
@@ -124,7 +123,7 @@ $(function () {
     });
 
     $(document).on('click', 'button#saveTc', function (){
-        var l = Ladda.create(document.querySelector('#saveTc'));
+        var l = Ladda.create(document.querySelector('button#saveTc'));
         l.start();
         $.ajax({
             type: "POST",
@@ -148,7 +147,7 @@ $(function () {
     });
 
     $(document).on('click', 'button#saveRtm', function (){
-        var l = Ladda.create(document.querySelector('#saveRtm'));
+        var l = Ladda.create(document.querySelector('button#saveRtm'));
         l.start();
         $.ajax({
             type: "POST",

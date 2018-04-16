@@ -29,15 +29,15 @@ class FunctionalRequirementRequest extends FormRequest
         return [
             '*.no' => 'required|string',
             '*.desc' => 'string',
-            '*.inputs' => 'required|array|size:1',
+            '*.inputs' => 'required|array|min:1',
             '*.inputs.*.name' => 'required|string',
             '*.inputs.*.dataType' => 'required|string|in:int,float,decimal,char,varchar,nchar,nvarchar,date,datetime',
             '*.inputs.*.length' => 'required_if:*.inputs.*.dataType,char,varchar,nchar,nvarchar|numeric',
             '*.inputs.*.precision' => 'required_if:*.inputs.*.dataType,float,decimal|numeric',
             '*.inputs.*.unique' => 'required|string|size:1|in:Y,N,y,n',
             '*.inputs.*.nullable' => 'required|string|size:1|in:Y,N,y,n',
-            '*.inputs.*.tableName' => 'required|string|size:1',
-            '*.inputs.*.columnName' => 'required|string|size:1',
+            '*.inputs.*.tableName' => 'required|string|min:4',
+            '*.inputs.*.columnName' => 'required|string|min:4',
         ];
     }
 

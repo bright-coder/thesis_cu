@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FunctionalRequirementRequest;
-use App\Libray\Guard;
+use App\Library\GuardProject;
 use DB;
 use App\FunctionalRequirement;
 use App\FunctionalRequirementInput;
@@ -17,9 +17,26 @@ class FunctionalRequirementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $projectId)
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if(!$project) {
+            return response()->json(['msg' => 'Bad Request'],400);
+        }
+
+        $result = [];
+        $frList = FunctionalRequirement::where('projectId', $project->id)->get();
+        foreach ($frList as $index => $fr) {
+            $result[$index] = $fr;
+            $frInput = FunctionalRequirementInput::where('functionalRequirementId', $fr->id)->get();
+            if($frInput != null) {
+                $result[$index]['inputs'] = $frInput;
+            } 
+        }
+        
+        return response()->json($result,200);
     }
 
     /**
@@ -40,7 +57,7 @@ class FunctionalRequirementController extends Controller
      */
     public function store(FunctionalRequirementRequest $request, $projectId)
     {
-        $guard = new Guard($request->bearerToken());
+        $guard = new GuardProject($request->bearerToken());
         $project = $guard->getProject($projectId);
 
         if(!$project) {
@@ -56,7 +73,7 @@ class FunctionalRequirementController extends Controller
                 $fr->no = $frImport['no'];
                 $fr->description = \array_key_exists('desc', $frImport) ? $frImport['desc'] : null;
                 $fr->save();
-                foreach ($request['inputs'] as $input) {
+                foreach ($frImport['inputs'] as $input) {
                     $frInput = new FunctionalRequirementInput;
                     $frInput->functionalRequirementId = $fr->id;
                     $frInput->name = $input['name'];

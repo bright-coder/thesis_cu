@@ -19,6 +19,7 @@ class ChangeRequestController extends Controller
 
     public function index(){
         return view('changeRequest');
+        
     }
     
 }

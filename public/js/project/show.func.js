@@ -421,8 +421,8 @@ function setHtmlModal(id, contentType) {
                 '<td>' + strContent(input.unique, true) + '</td>' +
                 '<td>' + input.min + '</td>' +
                 '<td>' + input.max + '</td>' +
-                '<td>' + strContent(input.column, true) + '</td>' +
-                '<td>' + strContent(input.table, true) + '</td>' +
+                '<td>' + strContent(input.columnName, true) + '</td>' +
+                '<td>' + strContent(input.tableName, true) + '</td>' +
                 '</tr>';
         });
     }
@@ -495,8 +495,8 @@ function readFrFromExcel(frList) {
                 unique: (7 in fr[i]) ? fr[i][7] : undefined,
                 min: (8 in fr[i]) ? fr[i][8] : undefined,
                 max: (9 in fr[i]) ? fr[i][9] : undefined,
-                column: (10 in fr[i]) ? fr[i][10] : undefined,
-                table: (11 in fr[i]) ? fr[i][11] : undefined,
+                columnName: (10 in fr[i]) ? fr[i][10] : undefined,
+                tableName: (11 in fr[i]) ? fr[i][11] : undefined,
             });
         }
         frFromFile.push({
@@ -505,6 +505,7 @@ function readFrFromExcel(frList) {
             inputs: inputList.length > 0 ? inputList : undefined
         });
     });
+    console.log(frFromFile);
 
 }
 

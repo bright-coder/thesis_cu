@@ -26,7 +26,7 @@ class ProjectRequest extends FormRequest
     public function rules()
     {
         return [
-                'projectName' => 'required|between:10,255',
+                'projectName' => 'required|between:4,255',
                 'dbName' => 'required|between:1,255',
                 'dbServer' => 'required|between:1,255',
                 'dbPort' => 'required|numeric',
