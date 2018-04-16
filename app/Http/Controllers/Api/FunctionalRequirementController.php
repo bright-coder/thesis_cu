@@ -151,15 +151,15 @@ class FunctionalRequirementController extends Controller
         DB::beginTransaction();
         try {
             if ($functionalRequirementId === "all") {
-                $frs = DB::table('FUNCTIONAL_REQUIREMENT')->select('id')->where('projectId', '=', $projectId)->get();
+                $frs = FunctionalRequirement::select('id')->where('projectId', '=', $projectId)->get();
                 foreach ($frs as $fr) {
-                    DB::table('FUNCTIONAL_REQUIREMENTE_INPUT')->where('functionalRequirementId', '=', $fr->id)->delete();
-                    DB::table('FUNCTIONAL_REQUIREMENT')->where('id', '=', $fr->id)->delete();
+                    FunctionalRequirementInput::where('functionalRequirementId', '=', $fr->id)->delete();
+                    FunctionalRequirement::where('id', $fr->id)->delete();
                 }
             }
             else {
-                DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('functionalRequirementId', '=', $functionalRequirementId)->delete();
-                DB::table('FUNCTIONAL_REQUIREMENT')->where('id', '=', $functionalRequirementId)->delete();
+                FunctionalRequirementInput::where('functionalRequirementId', '=', $functionalRequirementId)->delete();
+                FunctionalRequirement::where('id', '=', $functionalRequirementId)->delete();
             }
             DB::commit();
         } catch (Exception $e) {

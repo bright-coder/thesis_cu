@@ -41,7 +41,7 @@ class RTMController extends Controller
      */
     public function store(RTMRequest $request, $projectId)
     {
-        $guard = new Guard($request->bearerToken());
+        $guard = new GuardProject($request->bearerToken());
         $project = $guard->getProject($projectId);
 
         if (!$project) {

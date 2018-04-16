@@ -50,3 +50,7 @@
 .bs-placeholder {
     color: white !important;
 }
+
+.table thead th {
+    vertical-align: middle;
+}
