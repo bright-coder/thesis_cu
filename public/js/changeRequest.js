@@ -82,7 +82,11 @@ $(function () {
         });
         $('#content.card-body').show();
         $('#inputChangeMenu').show();
-        console.log(frList[$(this).val()]);
+    });
+
+    $(document).on('click','button[name=addInput]', function(){
+        setHtmlModal(htmlModalAddInput());
+        $('#myModal').modal('show');
     });
 
 });

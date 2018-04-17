@@ -14,7 +14,7 @@
                     <select id="selectProject" class="selectpicker" data-style="btn-primary" title="Choose your project.">
                       </select>
                             <span id="selectProjectMenu" style="display:none">&nbsp;&nbsp;>&nbsp;&nbsp;
-                                <select id="selectFr" data-liveSearch="true" class="selectpicker" data-style="btn-primary" data-width="fit" title="Choose your functional Requirement.">
+                                <select id="selectFr" data-live-search="true" class="selectpicker" data-style="btn-primary" data-width="fit" title="Choose your functional Requirement.">
                             </select>
                             </span>
                             
@@ -60,6 +60,23 @@
             </div>
         </div>
 </section>
+
+<div id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+    <div role="document" class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 id="modalHeader" class="modal-title"></h1>
+          <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body">
+  
+        </div>
+        <div class="modal-footer">
+          {{-- <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button> --}}
+        </div>
+      </div>
+    </div>
+  </div>
 @endsection
  
 @section('customCSS')
