@@ -17,10 +17,9 @@ function redGreenHtml(data) {
 
 function htmlModal(header = '', type = '') {
     var html = {};
-    $('form#addChangeInput').attr('name',type);
+    $('form#addChangeInput').attr('name', type);
     html.header = header;
     html.body =
-
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">Name</label>' +
         '<div class="col-sm-9">' +
@@ -173,6 +172,33 @@ function hideShowDetailbyDataType(dataType, detail = { length: '', precision: ''
         default:
             break;
     }
+
 }
 
+function preAddChangeList(dataArray,type){
+    var result = dataArray.reduce(function(obj, item) {
+        obj[item.name] = item.value;
+        return obj;
+    }, {});
+    if(!('nullable' in result)) {
+        result.nullable = 'N';
+    }
+    if(!('unique' in result)) {
+        result.unique = 'N';
+    }
+    result.changeType = type;
+    return result;
+}
 
+function htmlBadge(type) {
+    if (type === 'add')
+        return '<span class="badge badge-success">Add</span>';
+    else if (type === 'edit')
+        return '<span class="badge badge-warning">Edit</span>';
+
+    return '<span class="badge badge-danger">Delete</span>';
+}
+
+function IsChange(oldData,newData){
+    return true;
+}

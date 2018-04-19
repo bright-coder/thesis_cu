@@ -30,7 +30,7 @@
                         <br>
                         <h3>Functional Requirement Input List</h3>
                         <hr>
-                        <div class="container-fluid" id="table">
+                        <div class="" id="table">
                             <div class="table-responsive" id="inputFrTable">
                                 <table class="table table-striped" id="inputFrTable">
                                     <thead>
@@ -61,13 +61,11 @@
         </div>
 
         <div class="bg-white has-shadow">
-            <div class="card" id="changeList">
-                <div class="card-header">
-                    ChangeList
-                </div>
+            <div class="card" id="changeList" style="display:none">
+                <div class="card-header"><h3>ChangeList</h3></div>
                 <div class="card-body" id="content">
                     <div id="inputChangeMenu">
-                        <div class="container-fluid" id="table">
+                        <div class="" id="table">
                             <div class="table-responsive" id="changeListTable">
                                 <table class="table table-striped" id="changeListTable">
                                     <thead>
@@ -94,6 +92,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="card-footer">
+                    <button id="sendChangeRequest" class="btn btn-primary">Submit Change Request</button>
+                </div>
             </div>
         </div>
 </section>
@@ -117,7 +118,7 @@
     </div>
 </div>
 @endsection
- 
+
 @section('customCSS')
 <link rel="stylesheet" href="{{ asset('vendor/bootstrap-select/css/bootstrap-select.min.css')}}">
 @endsection
