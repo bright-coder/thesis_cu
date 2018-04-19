@@ -14,30 +14,60 @@ function redGreenHtml(data) {
     return data;
 }
 
-function setModalHtml(type, input = null) {
+function setModalHtml(type, input = null, indexFr) {
+    formAddChangeInput.attr('name',type);
     if(type == 'add') {
-        modalAddChangeInput.find('.modal-title').html('Add new input');
-        modalAddChangeInput.find('.modal-body').load('/vendor/html-layout/change-request/modal-body.html');
+        modalAddChangeInput.find('.modal-title').html('<span class="badge badge-success">Add</span> <span class="badge badge-light">new input</span>');
+        modalAddChangeInput.find('.modal-body').load('/vendor/html-layout/change-request/modal-body.html', function(){
+            modalAddChangeInput.find('.selectpicker').selectpicker();
+        });
         modalAddChangeInput.find('.modal-footer').load('/vendor/html-layout/change-request/modal-footer.html #addEdit');
         modalAddChangeInput.find('.selectpicker').selectpicker();
     }
     else if(type == 'edit') {
-        modalAddChangeInput.find('.modal-title').html('Edit '+ input.name + 'input');
-        modalAddChangeInput.find('.modal-body').load('/vendor/html-layout/change-request/modal-body.html');
-        modalAddChangeInput.find('.modal-footer').load('/vendor/html-layout/change-request/modal-footer.html #addEdit');
-        modalAddChangeInput.find('.selectpicker').selectpicker();
-        hideShowDetailbyDataType();
+        modalAddChangeInput.find('.modal-title').html('<span class="badge badge-warning">Edit</span> <span class="badge badge-light">'+input.name+'</span>');
+        modalAddChangeInput.find('.modal-body').load('/vendor/html-layout/change-request/modal-body.html', function (){
+            $('#inputName').replaceWith(input.name);
+            modalAddChangeInput.find('.selectpicker').selectpicker();
+            modalAddChangeInput.find('.selectpicker').selectpicker('val', input.dataType);
+            if (typeof input.nullable === 'string') {
+                if (input.nullable.toUpperCase() === 'Y') {
+                    $('#inputNullable').attr('checked', 'checked');
+                }
+            }
+            if (typeof input.unique === 'string') {
+                if (input.unique.toUpperCase() === 'Y') {
+                    $('#inputUnique').attr('checked', 'checked');
+                }
+            }
+            $('#inputColumnName').replaceWith(input.columnName);
+            $('#inputTableName').replaceWith(input.tableName);
+            var detail = { 
+                length: cleanContent(input.length), 
+                precision: cleanContent(input.precision), 
+                scale: cleanContent(input.scale), 
+                min: cleanContent(input.min), 
+                max: cleanContent(input.max) 
+            };
+            hideShowDetailbyDataType(input.dataType, detail);
+        });
+        modalAddChangeInput.find('.modal-footer').load('/vendor/html-layout/change-request/modal-footer.html #addEdit', function(){
+            $('#submitChangeInput').attr('name', indexFr);
+        });
     }
     else {
-        modalAddChangeInput.find('.modal-title').html('Delete '+ input.name + 'input');
-        modalAddChangeInput.find('.modal-footer').load('/vendor/html-layout/change-request/modal-footer.html #delete');
+        modalAddChangeInput.find('.modal-title').html('<span class="badge badge-danger">Delete</span> <span class="badge badge-light">'+input.name+'</span>');
+        modalAddChangeInput.find('.modal-body').html('');
+        modalAddChangeInput.find('.modal-footer').load('/vendor/html-layout/change-request/modal-footer.html #delete', function(){
+            $('#submitChangeInput').attr('name', indexFr);
+        });
     }
 }
 
 function setLengthHtml(length = '') {
     $('div#dataTypeDetail').html(
         '<div class="form-group row">' +
-        '<label class="col-sm-3 form-control-label">Length</label>' +
+        '<label class="col-sm-3 form-control-label">Length <span style="color:red">*</span></label>' +
         '<div class="col-sm-6">' +
         '<input id="inputLength" type="number" name="length" placeholder="input Length" value="' + length + '" class="form-control form-control-success" required>' +
         '</div>' +
@@ -47,7 +77,7 @@ function setLengthHtml(length = '') {
 function setPrecisionHtml(precision = '', scale = '') {
     $('div#dataTypeDetail').html(
         '<div class="form-group row">' +
-        '<label class="col-sm-3 form-control-label">Precision</label>' +
+        '<label class="col-sm-3 form-control-label">Precision <span style="color:red">*</span></label>' +
         '<div class="col-sm-6">' +
         '<input id="inputPrecision" type="number" value="' + precision + '" name="precision" placeholder="precision value." class="form-control form-control-success" required>' +
         '</div>' +
@@ -58,7 +88,7 @@ function setPrecisionHtml(precision = '', scale = '') {
 
 function setScaleHtml(scale = '') {
     return '<div class="form-group row">' +
-        '<label class="col-sm-3 form-control-label">Scale</label>' +
+        '<label class="col-sm-3 form-control-label">Scale <span style="color:red">*</span></label>' +
         '<div class="col-sm-6">' +
         '<input id="inputScale" type="number" name="scale" value="' + scale + '" placeholder="scale value." class="form-control form-control-success" required>' +
         '</div>'
@@ -77,13 +107,6 @@ function setMinmaxHtml(min = '', max = '') {
         '<input id="inputMax" type="text" value="' + max + '" name="max" placeholder="max value." step="any" class="form-control form-control-success">' +
         '</div>' +
         '</div>');
-}
-
-function setHtmlModal(data) {
-    $('#modalHeader').html(data.header);
-    $('div.modal-body').html(data.body);
-    $('div.modal-body').find('.selectpicker').selectpicker();
-    $('div.modal-footer').html(data.footer);
 }
 
 function hideShowDetailbyDataType(dataType, detail = { length: '', precision: '', scale: '', min: '', max: '' }) {

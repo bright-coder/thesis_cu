@@ -65,12 +65,12 @@ $(function () {
     });
 
     $('#selectFr').on('changed.bs.select', function (e) {
-        var tbody = $('table#inputFrTable > tbody');
+        var tbody = frTableBody.find('tbody');
         $('#descText').html('<small>' + frList[$(this).val()].description + '</small>');
         tbody.html('');
         changeRequest.inputList = [];
         changeRequest.functionalRequirementId = $(this).val();
-        $('table#changeListTable > tbody').html('');
+        changeTableBody.find('tbody').html('');
         $('#changeList').hide();
         $.each(frList[$(this).val()].inputs, function (index, input) {
             var row = '<tr>';
@@ -100,59 +100,24 @@ $(function () {
     });
 
     $(document).on('click', 'button[name=addInput]', function () {
-        setHtmlModal(htmlModal('Add new input', 'add'));
-        $('#myModal').modal('show');
+        setModalHtml('add');
+        modalAddChangeInput.modal('show');
     });
 
     $(document).on('click', 'button[name=editInput]', function () {
         var input = frList[$('#selectFr').val()].inputs[$(this).attr('id')];
-        setHtmlModal(htmlModal('Edit ' + input.name, 'edit'));
-        $('#inputName').replaceWith(input.name);
-        $('div.modal-body').find('.selectpicker').selectpicker('val', input.dataType);
-        var detail = {
-            length: cleanContent(input.length),
-            precision: cleanContent(input.precision),
-            scale: cleanContent(input.scale),
-            min: cleanContent(input.min),
-            max: cleanContent(input.max)
-        }
-        hideShowDetailbyDataType($('#inputDataType').val(), detail);
-        $('#inputDefault').val(cleanContent(input.default));
-        if (typeof input.nullable === 'string') {
-            if (input.nullable.toUpperCase() === 'Y') {
-                $('#inputNullable').attr('checked', 'checked');
-            }
-        }
-        if (typeof input.unique === 'string') {
-            if (input.unique.toUpperCase() === 'Y') {
-                $('#inputUnique').attr('checked', 'checked');
-            }
-        }
-        $('#inputColumnName').replaceWith(input.columnName);
-        $('#inputTableName').replaceWith(input.tableName);
-        $('#submitChangeInput').attr('name', $(this).attr('id'));
-        $('#myModal').modal('show');
+        setModalHtml('edit',input, $(this).attr('id'));
+        modalAddChangeInput.modal('show');
     });
 
     $(document).on('click', 'button[name=deleteInput]', function () {
         var input = frList[$('#selectFr').val()].inputs[$(this).attr('id')];
-        var html = {};
-        html.header = 'Delete Input ' + input.name;
-        html.body = '';
-        html.footer = '<div class="row">' +
-            '<div class="col-sm-12">' +
-            '<input type="submit" value="Yes" class="btn btn-primary" id="submitChangeInput">' +
-            '<button class="btn btn-danger" id="noBtn">No</button>'
-        '</div>' +
-            '</div>';
-        setHtmlModal(html);
-        $('form#addChangeInput').attr('name', 'delete');
-        $('#submitChangeInput').attr('name', $(this).attr('id'));
-        $('#myModal').modal('show');
+        setModalHtml('delete',input, $(this).attr('id'));
+        modalAddChangeInput.modal('show');
     });
 
     $(document).on('click', '#noBtn', function (e) {
-        $('#myModal').modal('hide');
+        modalAddChangeInput.modal('hide');
     });
 
     $('#addChangeInput').submit(function (event) {
@@ -171,13 +136,18 @@ $(function () {
                     data.columnName = input.columnName;
                     data.tableName = input.tableName;
                     changeRequest.inputList.push(data);
+                    $('button#'+$('#submitChangeInput').attr('name')+'[name=editInput]').remove();
+                    $('button#'+$('#submitChangeInput').attr('name')+'[name=deleteInput]').remove();
                 }
                 break;
             case 'delete':
-                var data = Object.assign({changeType : $(this).attr('name') }, frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')]);
-                
-                //console.log(frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')]);
+                var data = Object.assign(
+                    {changeType : $(this).attr('name') }, 
+                    frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')]
+                );
                 changeRequest.inputList.push(data);
+                $('button#'+$('#submitChangeInput').attr('name')+'[name=editInput]').remove();
+                $('button#'+$('#submitChangeInput').attr('name')+'[name=deleteInput]').remove();
                 break;
             default:
                 break;
@@ -186,7 +156,8 @@ $(function () {
         var last = changeRequest.inputList.length - 1;
         if (last > -1) {
             var input = changeRequest.inputList[last];
-            var tbody = $('table#changeListTable > tbody');
+            var tbody = changeTableBody.find('tbody');
+            //var tbody = $('table#changeListTable > tbody');
             tbody.append('<tr>' +
                 '<td>' + cleanContent(input.name) + '</td>' +
                 '<td>' + cleanContent(input.dataType) + '</td>' +
@@ -202,8 +173,9 @@ $(function () {
                 '<td>' + cleanContent(input.tableName) + '</td>' +
                 '<td>' + htmlBadge(input.changeType) + '</td>' + +
                 '</tr>');
-            $('#myModal').modal('hide');
+            modalAddChangeInput.modal('hide');
             $('#changeList').show();
+            console.log(changeRequest.inputList);
         }
 
 
