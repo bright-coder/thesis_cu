@@ -1,7 +1,9 @@
 var frList;
 var changeRequest = { inputList: [] };
-var frTableBody = $('table#inputFrTable > tbody');
-var changeTableBody = $('table#changeListTable > tbody');
+var frTableBody = $('table#inputFrTable');
+var changeTableBody = $('table#changeListTable');
+var formAddChangeInput = $('form#addChangeInput');
+var modalAddChangeInput = $('#myModal');
 $(function () {
     $.ajax({
         type: "GET",
@@ -15,7 +17,7 @@ $(function () {
             $('#preloadLayout').remove();
             $('#menu').show();
             if ('msg' in response) {
-                //$('#content').append('<small>Let\'s create your first project.</small>');
+                //
             }
             else {
                 response.forEach(project => {
@@ -25,7 +27,6 @@ $(function () {
             }
         },
         error: function (response) {
-            //var response = response.responseJSON;
             $('#preloadLayout').remove();
             alert("Cannot get project list please refresh this page.");
         }

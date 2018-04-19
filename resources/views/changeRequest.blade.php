@@ -103,7 +103,7 @@
     <div role="document" class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 id="modalHeader" class="modal-title"></h1>
+                <h1 class="modal-title"></h1>
                 <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
             </div>
             <form id="addChangeInput" class="form-horizontal">
