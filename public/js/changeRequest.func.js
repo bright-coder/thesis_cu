@@ -15,18 +15,19 @@ function redGreenHtml(data) {
 }
 
 
-function htmlModal(header = '') {
+function htmlModal(header = '', type = '') {
     var html = {};
+    $('form#addChangeInput').attr('name',type);
     html.header = header;
     html.body =
-        '<form id="addChangeInput" class="form-horizontal" name="">' +
+
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">Name</label>' +
         '<div class="col-sm-9">' +
         '<input id="inputName" value="" type="text" name="name" placeholder="input name." class="form-control form-control-success" required>' +
         '</div>' +
         '</div>' +
-        '<div class="col-sm-9 offset-sm-3"><hr></div>'+
+        '<div class="col-sm-9 offset-sm-3"><hr></div>' +
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">DataType</label>' +
         '<div class="col-sm-9">' +
@@ -45,12 +46,12 @@ function htmlModal(header = '') {
         '</div>' +
         '<div id="dataTypeDetail">' +
         '</div>' +
-        '<div class="col-sm-9 offset-sm-3"><hr></div>'+
+        '<div class="col-sm-9 offset-sm-3"><hr></div>' +
         '<div id="constraintDetail">' +
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">Default</label>' +
         '<div class="col-sm-9">' +
-        '<input id="inputDefault" type="text" name="default" placeholder="Default value." class="form-control form-control-success" required>' +
+        '<input id="inputDefault" type="text" name="default" placeholder="Default value." class="form-control form-control-success">' +
         '</div>' +
         '</div>' +
         '<div class="form-group row">' +
@@ -68,8 +69,8 @@ function htmlModal(header = '') {
         '</div>' +
         '</div>' +
         '<div id="minMax" style="">' +
-        '</div>'+
-        '<div class="col-sm-9 offset-sm-3"><hr></div>'+
+        '</div>' +
+        '<div class="col-sm-9 offset-sm-3"><hr></div>' +
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">Column Name</label>' +
         '<div class="col-sm-9">' +
@@ -81,60 +82,59 @@ function htmlModal(header = '') {
         '<div class="col-sm-9">' +
         '<input id="inputTableName" value="" type="text" name="tableName" placeholder="table name." class="form-control form-control-success" required>' +
         '</div>' +
-        '</div>' +
-        '</form>';
+        '</div>';
     html.footer =
         '<div class="row">' +
         '<div class="col-sm-9">' +
-        '<input type="submit" value="Done" class="btn btn-primary">' +
+        '<input type="submit" class="btn btn-primary" value="Done" id="submitChangeInput">' +
         '</div>' +
         '</div>';
     return html;
 }
 
-function setLengthHtml(length = ''){
-    $('div.modal-body > form > div#dataTypeDetail').html(
+function setLengthHtml(length = '') {
+    $('div#dataTypeDetail').html(
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">Length</label>' +
         '<div class="col-sm-6">' +
-        '<input id="inputLength" type="number" name="length" placeholder="input Length" value="'+length+'" class="form-control form-control-success" required>' +
+        '<input id="inputLength" type="number" name="length" placeholder="input Length" value="' + length + '" class="form-control form-control-success" required>' +
         '</div>' +
         '</div>');
 }
 
-function setPrecisionHtml(precision = '' , scale = ''){
-    $('div.modal-body > form > div#dataTypeDetail').html(
+function setPrecisionHtml(precision = '', scale = '') {
+    $('div#dataTypeDetail').html(
         '<div class="form-group row">' +
         '<label class="col-sm-3 form-control-label">Precision</label>' +
         '<div class="col-sm-6">' +
-        '<input id="inputPrecision" type="number" value="'+precision+'" name="precision" placeholder="precision value." class="form-control form-control-success" required>' +
+        '<input id="inputPrecision" type="number" value="' + precision + '" name="precision" placeholder="precision value." class="form-control form-control-success" required>' +
         '</div>' +
         '</div>' +
         scale +
         '</div>');
 }
 
-function setScaleHtml(scale = ''){
+function setScaleHtml(scale = '') {
     return '<div class="form-group row">' +
-    '<label class="col-sm-3 form-control-label">Scale</label>' +
-    '<div class="col-sm-6">' +
-    '<input id="inputScale" type="number" name="scale" value="'+scale+'" placeholder="scale value." class="form-control form-control-success" required>' +
-    '</div>'
+        '<label class="col-sm-3 form-control-label">Scale</label>' +
+        '<div class="col-sm-6">' +
+        '<input id="inputScale" type="number" name="scale" value="' + scale + '" placeholder="scale value." class="form-control form-control-success" required>' +
+        '</div>'
 }
 
-function setMinmaxHtml(min = '', max = ''){
-    $('div.modal-body > form > div#minMax').html('<div class="form-group row">' +
-    '<label class="col-sm-3 form-control-label">Min</label>' +
-    '<div class="col-sm-6">' +
-    '<input id="inputMin" type="text" value="'+min+'" name="min" placeholder="min value." step="any" class="form-control form-control-success" required>' +
-    '</div>' +
-    '</div>' +
-    '<div class="form-group row">' +
-    '<label class="col-sm-3 form-control-label">Max</label>' +
-    '<div class="col-sm-6">' +
-    '<input id="inputMax" type="text" value="'+max+'" name="max" placeholder="max value." step="any" class="form-control form-control-success" required>' +
-    '</div>' +
-    '</div>');
+function setMinmaxHtml(min = '', max = '') {
+    $('div#minMax').html('<div class="form-group row">' +
+        '<label class="col-sm-3 form-control-label">Min</label>' +
+        '<div class="col-sm-6">' +
+        '<input id="inputMin" type="text" value="' + min + '" name="min" placeholder="min value." step="any" class="form-control form-control-success">' +
+        '</div>' +
+        '</div>' +
+        '<div class="form-group row">' +
+        '<label class="col-sm-3 form-control-label">Max</label>' +
+        '<div class="col-sm-6">' +
+        '<input id="inputMax" type="text" value="' + max + '" name="max" placeholder="max value." step="any" class="form-control form-control-success">' +
+        '</div>' +
+        '</div>');
 }
 
 function setHtmlModal(data) {
@@ -144,33 +144,35 @@ function setHtmlModal(data) {
     $('div.modal-footer').html(data.footer);
 }
 
-function hideShowDetailbyDataType(dataType, detail = {length: '', precision: '', scale: '', min: '', max: ''}){
+function hideShowDetailbyDataType(dataType, detail = { length: '', precision: '', scale: '', min: '', max: '' }) {
     switch (dataType) {
         case 'char':
         case 'varchar':
         case 'nvarchar':
         case 'nchar':
             setLengthHtml(detail.length);
-            $('div.modal-body > form > div#minMax').html('');
+            $('div#minMax').html('');
             break;
         case 'float':
             setPrecisionHtml();
-            $('div.modal-body > form > div#minMax').html(setMinmaxHtml(detail.min,detail.max));
+            $('div#minMax').html(setMinmaxHtml(detail.min, detail.max));
             break;
         case 'decimal':
-            setPrecisionHtml(detail.precision,setScaleHtml(detail.scale));
-            $('div.modal-body > form > div#minMax').html(setMinmaxHtml(detail.min,detail.max));
+            setPrecisionHtml(detail.precision, setScaleHtml(detail.scale));
+            $('div#minMax').html(setMinmaxHtml(detail.min, detail.max));
             break;
         case 'int':
-            $('div.modal-body > form > div#dataTypeDetail').html('');
-            $('div.modal-body > form > div#minMax').html(setMinmaxHtml(detail.min,detail.max));
+            $('div#dataTypeDetail').html('');
+            $('div#minMax').html(setMinmaxHtml(detail.min, detail.max));
             break;
         case 'date':
         case 'datetime':
-            $('div.modal-body > form > div#dataTypeDetail').html('');
-            $('div.modal-body > form > div#minMax').html('');
+            $('div#dataTypeDetail').html('');
+            $('div#minMax').html('');
             break;
         default:
             break;
     }
 }
+
+

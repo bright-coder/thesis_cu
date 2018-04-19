@@ -61,30 +61,15 @@
         </div>
 
         <div class="bg-white has-shadow">
-            <div class="card" id="changeList" style="display:none">
+            <div class="card" id="changeList">
                 <div class="card-header">
-                    <select id="selectProject" class="selectpicker" data-style="btn-primary" title="Choose your project.">
-                    </select>
-                    <span id="selectProjectMenu" style="display:none">&nbsp;&nbsp;>&nbsp;&nbsp;
-                                <select id="selectFr" data-live-search="true" class="selectpicker" data-style="btn-primary" data-width="fit" title="Choose your functional Requirement.">
-                                </select>
-                            </span>
-
-
+                    ChangeList
                 </div>
-                <div class="card-body" id="content" style="display: none">
-                    <div id="inputChangeMenu" style="display: none">
-                        <h3>Description</h3>
-                        <hr>
-                        <span id="descText"></span>
-                        <br>
-                        <br>
-                        <br>
-                        <h3>Functional Requirement Input List</h3>
-                        <hr>
+                <div class="card-body" id="content">
+                    <div id="inputChangeMenu">
                         <div class="container-fluid" id="table">
-                            <div class="table-responsive" id="inputFrTable">
-                                <table class="table table-striped" id="inputFrTable">
+                            <div class="table-responsive" id="changeListTable">
+                                <table class="table table-striped" id="changeListTable">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -99,7 +84,7 @@
                                             <th>Max</th>
                                             <th>Column Name</th>
                                             <th>Table Name</th>
-                                            <th><button name="addInput" class="btn btn-success">Add new input</button></th>
+                                            <th>Change Type</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -120,12 +105,14 @@
                 <h1 id="modalHeader" class="modal-title"></h1>
                 <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
             </div>
+            <form id="addChangeInput" class="form-horizontal">
             <div class="modal-body">
 
             </div>
             <div class="modal-footer">
                 {{-- <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button> --}}
             </div>
+            </form>
         </div>
     </div>
 </div>
