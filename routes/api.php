@@ -25,4 +25,5 @@ Route::group(['prefix'=>'v1','middleware' => [CheckIsJson::class, CheckAccessTok
     Route::resource('projects.functionalRequirements', 'Api\FunctionalRequirementController');
     Route::resource('projects.testCases', 'Api\TestCaseController');
     Route::resource('projects.RTM', 'Api\RTMController');
+    Route::resource('projects.changeRequests', 'Api\ChangeRequestController');
 });

@@ -190,5 +190,26 @@ $(function () {
         changeRequest.inputList[frInputIndex] = undefined;
     });
 
+    $(document).on('click', '#sendChangeRequest', function (){
+        var l = Ladda.create(document.querySelector('#sendChangeRequest'));
+        l.start();
+        $.ajax({
+            url: '/api/v1/projects/'+changeRequest.projectId+'/changeRequests',
+            type: 'POST',
+            headers: {
+                "Authorization": "Bearer " + $('input[name=accessToken]').val(),
+            },
+            data : JSON.stringify(cleanObject(changeRequest)),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(response){
+                l.stop();
+            },
+            error: function(response){
+                l.stop();
+            }
+        });
+    });
+
 
 });
