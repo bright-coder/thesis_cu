@@ -168,3 +168,18 @@ function htmlBadge(type) {
 function IsChange(oldData,newData){
     return true;
 }
+
+function cleanObject(obj) {
+    Object.keys(obj).forEach(function (key) {
+        if (obj[key] instanceof Array || typeof obj[key] === "object") {
+            obj[key] = cleanObject(obj[key]);
+            if(obj[key] instanceof Array) {
+                obj[key] = filter_array(obj[key]);
+            }
+        }
+        else if (!obj[key]) {
+            delete obj[key];
+        }
+    });
+    return obj;
+}
