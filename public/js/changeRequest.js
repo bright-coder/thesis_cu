@@ -172,10 +172,9 @@ $(function () {
                 '</tr>');
             modalAddChangeInput.modal('hide');
             $('#changeList').show();
-            console.log(changeRequest.inputList);
+            //console.log($(this).attr('name'));
             if($(this).attr('name') == 'edit' || $(this).attr('name') == 'delete') {
-                $('button#'+$('#submitChangeInput').attr('name')+'[name=editInput]').remove();
-                $('button#'+$('#submitChangeInput').attr('name')+'[name=deleteInput]').remove();
+                frTableBody.find('tbody > tr > td#'+$('#submitChangeInput').attr('name')).html('');
             }
         }
 
@@ -186,8 +185,11 @@ $(function () {
         changeInputIndex = $(this).attr('id');
         frInputIndex = $(this).attr('name');
         changeTableBody.find('tbody > tr#'+changeInputIndex).remove();
-        frTableBody.find('tbody > td#'+frInputIndex).append('<button class="btn btn-warning" id="' + index + '" name="editInput">Edit</button><button class="btn btn-danger" id="' + index + '" name="deleteInput">Delete</button>');
+        frTableBody.find('tbody > tr > td#'+frInputIndex).append('<button class="btn btn-warning" id="' + frInputIndex + '" name="editInput">Edit</button><button class="btn btn-danger" id="' + frInputIndex + '" name="deleteInput">Delete</button>');
         changeRequest.inputList[frInputIndex] = undefined;
+        if (changeTableBody.find('tr').length < 2 ) {
+            $('#changeList').hide();
+        }
     });
 
     $(document).on('click', '#sendChangeRequest', function (){

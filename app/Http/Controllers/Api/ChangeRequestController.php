@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Requests\ChangeRequestRequest;
 use App\ChangeRequest;
 use App\ChangeRequestInput;
+use App\Http\Controllers\Controller;
+use App\Library\GuardFunctionalRequirement;
 use App\Library\GuardProject;
+use App\Requests\ChangeRequestRequest;
 use DB;
+use Illuminate\Http\Request;
 
 class ChangeRequestController extends Controller
 {
@@ -40,14 +41,28 @@ class ChangeRequestController extends Controller
      */
     public function store(ChangeRequestRequest $request, $projectId)
     {
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectId);
+
+        if (!$project) {
+            return response()->json(['msg' => 'forbidden'], 400);
+        }
+        
         $request = $request->json()->all();
+
+        $guard = new GuardFunctionalRequirement($projectId);
+        $functionalRequirement = $guard->getAllFunctionalRequirement($request['functionalRequirementId']);
+        if (!$functionalRequirement) {
+            return response()->json(['msg' => 'forbidden'], 400);
+        }
+
         DB::beginTransaction();
         try {
             $changeRequest = new ChangeRequest;
             $changeRequest->changeFunctionalRequirementId = $request['functionalRequirementId'];
-            $changeRequest->statuts = 'start';
+            $changeRequest->statuts = 'imported';
             $changeRequest->save();
-            foreach($request['inputs'] as $input) {
+            foreach ($request['inputs'] as $input) {
                 $changeRequestInput = new ChangeRequestInput;
                 $changeRequestInput->changeRequestId = $changeRequest->id;
                 $changeRequestInput->changeType = $input['changeType'];
@@ -65,7 +80,7 @@ class ChangeRequestController extends Controller
                         break;
                     case 'decimal':
                         $changeRequestInput->precision = $input['precision'];
-                        if(\array_key_exists('scale',$input)) {
+                        if (\array_key_exists('scale', $input)) {
                             $changeRequestInput->scale = $input['scale'];
                         }
                         break;
@@ -74,36 +89,34 @@ class ChangeRequestController extends Controller
                         break;
                 }
 
-                if(\array_key_exists('default',$input)) {
+                if (\array_key_exists('default', $input)) {
                     $changeRequestInput->default = $input['default'];
-                }
-                else {
+                } else {
                     $changeRequestInput->default = null;
                 }
 
                 $changeRequestInput->nullable = $input['nullable'];
                 $changeRequestInput->unique = $input['unique'];
 
-                if(\array_key_exists('min',$input)) {
+                if (\array_key_exists('min', $input)) {
                     $changeRequestInput->min = $input['min'];
                 }
-                if(\array_key_exists('max',$input)) {
+                if (\array_key_exists('max', $input)) {
                     $changeRequestInput->max = $input['max'];
                 }
-                
+
                 $changeRequestInput->tableName = $input['tableName'];
                 $changeRequestInput->columnName = $input['columnName'];
 
                 $changeRequestInput->save();
             }
             DB::commit();
-        }
-        catch(Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            return resonse()->json(['msg' => 'Internal Server Error.'],500);
+            return resonse()->json(['msg' => 'Internal Server Error.'], 500);
         }
-        
-        
+
+
 
     }
 

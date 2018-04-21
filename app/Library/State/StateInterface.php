@@ -2,12 +2,11 @@
 
 namespace App\Library\State;
 
-use App\Library\State\ChangeAnalysis;
+use App\Library\ChangeAnalysis;
 
 interface StateInterface
 {
 
-    public function process(ChangeAnalysis $changeAnalysis): bool;
-
+    public function analyze(ChangeAnalysis $changeAnalysis);
 
 }

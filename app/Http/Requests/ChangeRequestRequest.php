@@ -26,16 +26,17 @@ class ChangeRequestRequest extends FormRequest
     public function rules()
     {
         return [
-            'functionRequirementId' => 'required|number',
+            'functionRequirementId' => 'required|string',
             'inputs' => 'required|array|min:1',
-            'inputs.*.name' => 'required|string',
-            'inputs.*.dataType' => 'required|string|in:int,float,decimal,char,varchar,nchar,nvarchar,date,datetime',
-            'inputs.*.length' => 'required_if:*.inputs.*.dataType,char,varchar,nchar,nvarchar|numeric',
-            'inputs.*.precision' => 'required_if:*.inputs.*.dataType,float,decimal|numeric',
-            'inputs.*.unique' => 'required|string|size:1|in:Y,N,y,n',
-            'inputs.*.nullable' => 'required|string|size:1|in:Y,N,y,n',
-            'inputs.*.tableName' => 'required|string|min:4',
-            'inputs.*.columnName' => 'required|string|min:4',
+            'inputs.*.changeType' => 'required|string|in:add,edit,delete',
+            'inputs.*.name' => 'required_if:inputs.*.changeType,add|string',
+            'inputs.*.dataType' => 'required_if:inputs.*.changeType,add,edit|string|in:int,float,decimal,char,varchar,nchar,nvarchar,date,datetime',
+            'inputs.*.length' => 'required_if:inputs.*.dataType,char,varchar,nchar,nvarchar|numeric',
+            'inputs.*.precision' => 'required_if:inputs.*.dataType,float,decimal|numeric',
+            'inputs.*.unique' => 'required_if:inputs.*.changeType,add,edit|string|size:1|in:Y,N,y,n',
+            'inputs.*.nullable' => 'required_if:inputs.*.changeType,add,edit|string|size:1|in:Y,N,y,n',
+            'inputs.*.tableName' => 'required_if:inputs.*.changeType,add,edit|string|min:4',
+            'inputs.*.columnName' => 'required_if:inputs.*.changeType,add,edit|string|min:4',
 
         ];
     }

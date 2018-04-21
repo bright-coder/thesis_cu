@@ -7,10 +7,11 @@ use App\DatabaseSchemaColumn;
 use App\DatabaseSchemaConstraint;
 use App\DatabaseSchemaTable;
 use App\Library\Builder\DatabaseBuilder;
+use App\Library\ChangeAnalysis;
 use App\Library\CustomModel\DBTargetConnection;
 use App\Library\Random\RandomContext;
-use App\Library\State\ChangeAnalysis;
 use App\Library\State\StateInterface;
+use App\Project;
 use DB;
 
 class AnalyzeImpactDBState implements StateInterface
@@ -20,37 +21,55 @@ class AnalyzeImpactDBState implements StateInterface
     private $message = null;
     private $impact;
 
-    public function process(ChangeAnalysis $changeAnalysis): bool
+    public function analyze(ChangeAnalysis $changeAnalysis)
     {
-        $requestInfo = $changeAnalysis->getRequest();
-        $connectDbInfo = $requestInfo['connectDbInfo'];
-        $this->dbTargetConnection = DBTargetConnection::getInstance(
-            $connectDbInfo["type"],
-            $connectDbInfo["hostName"],
-            $connectDbInfo["dbName"],
-            $connectDbInfo["username"],
-            $connectDbInfo["password"]
-        );
-        if (!$this->dbTargetConnection->connect()) {
-            $changeAnalysis->setMessage("Cannot Connect to Target Database");
-            $changeAnalysis->setStatusCode(303);
-            return false;
-        } else {
+        if ($this->connectTargetDB($changeAnalysis->getProjectId())) {
             $this->getDbSchema();
-            $this->analysis($requestInfo['functionalRequirements'], $requestInfo['changeRequest']);
-            // if ($this->saveDbSchema($changeAnalysis->getProjectId())) {
-            //     $this->analysis($requestInfo['functionalRequirements'], $requestInfo['changeRequest']);
-            // } else {
-            //     $changeAnalysis->setMessage($this->message);
-            //     $changeAnalysis->setStatusCode(303);
-            //     return false;
-            // }
+
+            foreach ($changeAnalysis->getChangeRequestInput() as $changeRequestInput) {
+                switch ($changeRequestInput->changeType) {
+                    
+                    case 'add':
+                        # code...
+                        break;
+                    case 'edit':
+                        # code...
+                        break;
+                    case 'delete':
+                        # code...
+                        break;
+                    default:
+                        # code...
+                        break;
+
+                }
+            }
+
+        } else {
+
         }
-        
-        $changeAnalysis->setMessage("Analysis DbSchema success");
-        $changeAnalysis->setStatusCode(200);
+
+    }
+
+    private function connectTargetDB(string $projectId): bool
+    {
+        $project = Project::where('id', $projectId)->first();
+        $this->dbTargetConnection = DBTargetConnection::getInstance(
+            $project->dbType,
+            $project->dbServer,
+            $project->dbName,
+            $project->dbUsername,
+            $project->dbPassword
+        );
+
+        if (!$this->dbTargetConnection->connect()) {
+            return false;
+        }
+
         return true;
     }
+
+    
 
     private function getDbSchema(): void
     {
@@ -185,8 +204,6 @@ class AnalyzeImpactDBState implements StateInterface
                 $this->impact[$changeInput['name']]['dbSchemaImpact'] = ['tableName' => $frInput['tableName'], 'columnName' => $frInput['columnName']];
                 $this->impact[$changeInput['name']]['instanceImpact'] = $this->analysisEditing($changeInput, $frInput);
                 $this->updateDbTargetEdit($changeInput, $this->impact[$changeInput['name']], $frInput);
-                
-                
 
             } elseif ($changeInput['changeType'] == "add") {
 
@@ -210,7 +227,8 @@ class AnalyzeImpactDBState implements StateInterface
 
     }
 
-    private function prepareBefore($newSchemaInfo, $frInput) : array {
+    private function prepareBefore($newSchemaInfo, $frInput): array
+    {
         $schema = [];
         $schema["dataType"] = $newSchemaInfo["dataType"] == null ? $frInput["dataType"] : $newSchemaInfo["dataType"];
         $schema['length'] = $newSchemaInfo["length"] == null ? $frInput["length"] : $newSchemaInfo["length"];
@@ -227,32 +245,34 @@ class AnalyzeImpactDBState implements StateInterface
         $schema['columnName'] = $newSchemaInfo['columnName'];
         return $schema;
     }
-    
-    private function dropConstraints(string $constraintType, string $tableName, string $columnName ): void {
+
+    private function dropConstraints(string $constraintType, string $tableName, string $columnName): void
+    {
         $constraints = [];
-        if($constraintType == "CHECK"){
+        if ($constraintType == "CHECK") {
             $constraints = $this->findCheckConstraintRelated($tableName, $columnName);
-        } elseif ($constraintType == "UNIQUE"){
+        } elseif ($constraintType == "UNIQUE") {
             $constraints = $this->findUniqueConstraintRelated($tableName, $columnName);
-        } elseif ($constraintType == "PRIMARY KEY"){
+        } elseif ($constraintType == "PRIMARY KEY") {
             $constraints[] = $this->dbTarget->getTableByName($tableName)->getPK()->getName();
-        } elseif ($constraintType == "FOREIGN KEY"){
-            $constraints = $this->dbTarget->findForeignKeyRelated($tableName,$columnName);
+        } elseif ($constraintType == "FOREIGN KEY") {
+            $constraints = $this->dbTarget->findForeignKeyRelated($tableName, $columnName);
         }
 
-        foreach($constraint as $constraintName) {
-            $this->dbTargetConnection->dropConstraint($tableName,$constraintName);
+        foreach ($constraint as $constraintName) {
+            $this->dbTargetConnection->dropConstraint($tableName, $constraintName);
         }
 
     }
 
-    private function findForeignKeyRelated(string $tableName, string $columnName): bool {
+    private function findForeignKeyRelated(string $tableName, string $columnName): bool
+    {
         $fks = $this->dbTarget->getTableByName($tableName)->getAllFK();
         $relatedFks = [];
         foreach ($fks as $fk) {
             $columns = $fk->getColumns();
-            foreach($columns as $column){
-                if($column['primary']['columnName'] == $columnName) {
+            foreach ($columns as $column) {
+                if ($column['primary']['columnName'] == $columnName) {
                     $relatedFks[] = $fk;
                 }
             }
@@ -262,31 +282,31 @@ class AnalyzeImpactDBState implements StateInterface
 
     private function updateDbTargetEdit(array $newSchemaInfo, array $impactResult, array $frInput): void
     {
-        
+
         $mainDbSchemaImpact = $impactResult['dbSchemaImpact'];
         $tableName = $mainDbSchemaImpact['tableName'];
         $columnName = $mainDbSchemaImpact['columnName'];
 
         if ($impactResult['instanceImpact'] == true) {
-            $schemaInfo = $this->prepareBefore($newSchemaInfo,$frInput);
+            $schemaInfo = $this->prepareBefore($newSchemaInfo, $frInput);
             $distinctValues = $this->dbTargetConnection->getDistinctValues($tableName, $columnName);
             $this->dbTargetConnection->addColumn($tableName, $columnName . "_temp", $schemaInfo);
-            $randomDetail = $this->prepareBefore($newSchemaInfo,$frInput);
+            $randomDetail = $this->prepareBefore($newSchemaInfo, $frInput);
 
             $randomContext = new RandomContext(\strtolower($randomDetail['dataType']));
-            $randomContext->random(\count($distinctValues)+1, $randomDetail, $randomDetail['unique']);
+            $randomContext->random(\count($distinctValues) + 1, $randomDetail, $randomDetail['unique']);
             $randomData = $randomContext->getRandomData();
             //dd($randomData);
             $this->dbTargetConnection->updateInstance($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $distinctValues, $mainDbSchemaImpact['columnName'] . "_temp", $randomData);
             $this->dbTargetConnection->dropColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName']);
             $this->dbTargetConnection->updateColumnName($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'] . "_temp", $mainDbSchemaImpact['columnName']);
-            $this->dbTargetConnection->setNullable($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'],$schemaInfo);
+            $this->dbTargetConnection->setNullable($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $schemaInfo);
         } else {
-            $detail = $this->prepareBefore($newSchemaInfo,$frInput);
+            $detail = $this->prepareBefore($newSchemaInfo, $frInput);
             $this->dbTargetConnection->updateColumn($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $detail);
-            $this->dbTargetConnection->setNullable($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'],$detail);
+            $this->dbTargetConnection->setNullable($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $detail);
         }
-        if ( ($newSchemaInfo['unique'] == "Y" || $frInput['unique'] == "Y") && $newSchemaInfo['unique'] != "N" ) {
+        if (($newSchemaInfo['unique'] == "Y" || $frInput['unique'] == "Y") && $newSchemaInfo['unique'] != "N") {
             //$this->dbTargetConnection->addUniqueConstraint($mainDbSchemaImpact['tableName'],$mainDbSchemaImpact['columnName']);
             foreach ($uniqueDrops as $unique) {
                 $columns = $unique->getAllColumns();
@@ -294,15 +314,13 @@ class AnalyzeImpactDBState implements StateInterface
             }
         }
         if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null || $frInput['min'] != null || $frInput['max'] != null) {
-            $schemaInfo = $this->prepareBefore($newSchemaInfo,$frInput);
+            $schemaInfo = $this->prepareBefore($newSchemaInfo, $frInput);
             $min = $schemaInfo['min'];
             $max = $schemaInfo['max'];
             $this->dbTargetConnection->addCheckConstraint($mainDbSchemaImpact['tableName'], $mainDbSchemaImpact['columnName'], $min, $max);
         }
 
     }
-
-    public function
 
     private function updateDbTargetAdding(array $newSchemaInfo): void
     {
@@ -314,16 +332,16 @@ class AnalyzeImpactDBState implements StateInterface
             $pkColumn = $pkColumn[0];
             $distinctValues = $this->dbTargetConnection->getDistinctValues($newSchemaInfo['tableName'], $pkColumn);
             $randomContext = new RandomContext(\strtolower($newSchemaInfo['dataType']));
-            $randomContext->random(\count($distinctValues)+1, $newSchemaInfo, $newSchemaInfo['unique'] == "Y" ? true : false);
+            $randomContext->random(\count($distinctValues) + 1, $newSchemaInfo, $newSchemaInfo['unique'] == "Y" ? true : false);
             $randomData = $randomContext->getRandomData();
             $this->dbTargetConnection->updateInstance($newSchemaInfo['tableName'], $pkColumn, $distinctValues, $newSchemaInfo['columnName'], $randomData);
             if ($newSchemaInfo['min'] != null || $newSchemaInfo['max'] != null) {
                 $this->dbTargetConnection->addCheckConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo['min'], $newSchemaInfo['max']);
             }
-            
-            if($newSchemaInfo['nullable'] == "N") {
+
+            if ($newSchemaInfo['nullable'] == "N") {
                 $newSchemaInfo['nullable'] = false;
-                $this->dbTargetConnection->setNullable($newSchemaInfo['tableName'], $newSchemaInfo['columnName'],$newSchemaInfo);
+                $this->dbTargetConnection->setNullable($newSchemaInfo['tableName'], $newSchemaInfo['columnName'], $newSchemaInfo);
             }
             if ($newSchemaInfo['unique'] == "Y") {
                 $this->dbTargetConnection->addUniqueConstraint($newSchemaInfo['tableName'], $newSchemaInfo['columnName']);
@@ -462,12 +480,12 @@ class AnalyzeImpactDBState implements StateInterface
         if (\array_key_exists($changeInput['tableName'], $tables)) {
             $columns = $tables[$changeInput['tableName']]->getAllColumns();
             if (\array_key_exists($changeInput['columnName'], $columns)) {
-                
+
                 return false;
             }
         }
         return true;
-        
+
     }
 
     private function analysisDeleting(array $changeInput, array $frInput, array $functionalRequirements, string $frChangeNo): bool
