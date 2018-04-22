@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+use App\Rules\UnqiueProjectNameRule;
+
 class ProjectRequest extends FormRequest
 {
     /**
@@ -26,6 +28,7 @@ class ProjectRequest extends FormRequest
     public function rules()
     {
         return [
+                //'projectName' => ['required','between:4,255', new UnqiueProjectNameRule($this->bearerToken())],
                 'projectName' => 'required|between:4,255',
                 'dbName' => 'required|between:1,255',
                 'dbServer' => 'required|between:1,255',

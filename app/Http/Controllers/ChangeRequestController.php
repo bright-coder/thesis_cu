@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User;
 
 class ChangeRequestController extends Controller
 {
@@ -17,9 +16,9 @@ class ChangeRequestController extends Controller
         $this->middleware('auth');
     }
 
-    public function index(){
-        return view('changeRequest');
-        
+    public function index()
+    {
+        return view('changeRequest');    
     }
     
 }

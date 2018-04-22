@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FunctionalRequirementRequest;
 use App\Library\GuardProject;
 use DB;
-use App\FunctionalRequirement;
-use App\FunctionalRequirementInput;
+use App\Model\FunctionalRequirement;
+use App\Model\FunctionalRequirementInput;
 
 class FunctionalRequirementController extends Controller
 {

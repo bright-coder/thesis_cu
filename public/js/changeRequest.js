@@ -17,7 +17,7 @@ $(function () {
             $('#preloadLayout').remove();
             $('#menu').show();
             if ('msg' in response) {
-                //
+
             }
             else {
                 response.forEach(project => {
@@ -86,7 +86,7 @@ $(function () {
                 '<td>' + cleanContent(input.max) + '</td>' +
                 '<td>' + cleanContent(input.columnName) + '</td>' +
                 '<td>' + cleanContent(input.tableName) + '</td>' +
-                '<td id="'+ index +'"><button class="btn btn-warning" id="' + index + '" name="editInput">Edit</button><button class="btn btn-danger" id="' + index + '" name="deleteInput">Delete</button></td>' +
+                '<td id="' + index + '"><button class="btn btn-warning" id="' + index + '" name="editInput">Edit</button><button class="btn btn-danger" id="' + index + '" name="deleteInput">Delete</button></td>' +
                 '</tr>';
             tbody.append(row);
         });
@@ -106,13 +106,13 @@ $(function () {
 
     $(document).on('click', 'button[name=editInput]', function () {
         var input = frList[$('#selectFr').val()].inputs[$(this).attr('id')];
-        setModalHtml('edit',input, $(this).attr('id'));
+        setModalHtml('edit', input, $(this).attr('id'));
         modalAddChangeInput.modal('show');
     });
 
     $(document).on('click', 'button[name=deleteInput]', function () {
         var input = frList[$('#selectFr').val()].inputs[$(this).attr('id')];
-        setModalHtml('delete',input, $(this).attr('id'));
+        setModalHtml('delete', input, $(this).attr('id'));
         modalAddChangeInput.modal('show');
     });
 
@@ -140,7 +140,7 @@ $(function () {
                 break;
             case 'delete':
                 var data = Object.assign(
-                    {changeType : $(this).attr('name') }, 
+                    { changeType: $(this).attr('name') },
                     frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')]
                 );
                 changeRequest.inputList.push(data);
@@ -154,7 +154,7 @@ $(function () {
             var input = changeRequest.inputList[last];
             var tbody = changeTableBody.find('tbody');
             //var tbody = $('table#changeListTable > tbody');
-            tbody.append('<tr id="'+last+'">' +
+            tbody.append('<tr id="' + last + '">' +
                 '<td>' + cleanContent(input.name) + '</td>' +
                 '<td>' + cleanContent(input.dataType) + '</td>' +
                 '<td>' + cleanContent(input.length) + '</td>' +
@@ -168,13 +168,13 @@ $(function () {
                 '<td>' + cleanContent(input.columnName) + '</td>' +
                 '<td>' + cleanContent(input.tableName) + '</td>' +
                 '<td>' + htmlBadge(input.changeType) + '</td>' +
-                '<td><button class="btn btn-danger deleteChangeInput" name="'+$('#submitChangeInput').attr('name')+'" id="'+last+'">-</button></td>' +
+                '<td><button class="btn btn-danger deleteChangeInput" name="' + $('#submitChangeInput').attr('name') + '" id="' + last + '">-</button></td>' +
                 '</tr>');
             modalAddChangeInput.modal('hide');
             $('#changeList').show();
             //console.log($(this).attr('name'));
-            if($(this).attr('name') == 'edit' || $(this).attr('name') == 'delete') {
-                frTableBody.find('tbody > tr > td#'+$('#submitChangeInput').attr('name')).html('');
+            if ($(this).attr('name') == 'edit' || $(this).attr('name') == 'delete') {
+                frTableBody.find('tbody > tr > td#' + $('#submitChangeInput').attr('name')).html('');
             }
         }
 
@@ -184,30 +184,30 @@ $(function () {
     $(document).on('click', '.deleteChangeInput', function (e) {
         changeInputIndex = $(this).attr('id');
         frInputIndex = $(this).attr('name');
-        changeTableBody.find('tbody > tr#'+changeInputIndex).remove();
-        frTableBody.find('tbody > tr > td#'+frInputIndex).append('<button class="btn btn-warning" id="' + frInputIndex + '" name="editInput">Edit</button><button class="btn btn-danger" id="' + frInputIndex + '" name="deleteInput">Delete</button>');
+        changeTableBody.find('tbody > tr#' + changeInputIndex).remove();
+        frTableBody.find('tbody > tr > td#' + frInputIndex).append('<button class="btn btn-warning" id="' + frInputIndex + '" name="editInput">Edit</button><button class="btn btn-danger" id="' + frInputIndex + '" name="deleteInput">Delete</button>');
         changeRequest.inputList[frInputIndex] = undefined;
-        if (changeTableBody.find('tr').length < 2 ) {
+        if (changeTableBody.find('tr').length < 2) {
             $('#changeList').hide();
         }
     });
 
-    $(document).on('click', '#sendChangeRequest', function (){
+    $(document).on('click', '#sendChangeRequest', function () {
         var l = Ladda.create(document.querySelector('#sendChangeRequest'));
         l.start();
         $.ajax({
-            url: '/api/v1/projects/'+changeRequest.projectId+'/changeRequests',
+            url: '/api/v1/projects/' + changeRequest.projectId + '/changeRequests',
             type: 'POST',
             headers: {
                 "Authorization": "Bearer " + $('input[name=accessToken]').val(),
             },
-            data : JSON.stringify(cleanObject(changeRequest)),
+            data: JSON.stringify(cleanObject(changeRequest)),
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            success: function(response){
+            success: function (response) {
                 l.stop();
             },
-            error: function(response){
+            error: function (response) {
                 l.stop();
             }
         });

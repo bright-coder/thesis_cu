@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests\RTMRequest;
 use App\Http\Controllers\Controller;
 use App\Library\GuardProject;
-use App\RequirementTraceabilityMatrix;
-use App\RequirementTraceabilityMatrixRelation;
-use App\FunctionalRequirement;
-use App\TestCase;
+use App\Model\RequirementTraceabilityMatrix;
+use App\Model\RequirementTraceabilityMatrixRelation;
+use App\Model\FunctionalRequirement;
+use App\Model\TestCase;
 
 class RTMController extends Controller
 {

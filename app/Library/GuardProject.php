@@ -2,7 +2,7 @@
 
 namespace App\Library;
 
-use App\User;
+use App\Model\User;
 use DB;
 
 class GuardProject {

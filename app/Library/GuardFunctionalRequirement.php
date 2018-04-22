@@ -2,8 +2,8 @@
 
 namespace App\Library;
 
-use App\User;
-use App\FunctionalRequirement;
+use App\Model\User;
+use App\Model\FunctionalRequirement;
 
 class GuardFunctionalRequirement {
     

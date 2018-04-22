@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use App\Library\CustomModel\SqlServer;
-use App\Project;
-use App\User;
+use App\Model\Project;
+use App\Model\User;
 use DB;
 use App\Library\GuardProject;
 use Illuminate\Http\Request;
@@ -150,6 +150,7 @@ class ProjectController extends Controller
 
         $db = new SqlServer(
             $request['dbServer'],
+            $request['dbPort'],
             $request['dbName'],
             $request['dbUsername'],
             $request['dbPassword']

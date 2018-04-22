@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,5 +11,6 @@ class Project extends Model
     //protected $primaryKey = "id";
     
     //public $incrementing = "false";
+    public $timestamps = false;
 
 }

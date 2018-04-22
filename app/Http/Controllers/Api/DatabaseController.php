@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Model\User;
+use App\Model\Project;
 use App\Library\CustomModel\DBTargetConnection;
 use App\Library\Builder\DatabaseBuilder;
 use DB;
@@ -19,16 +20,14 @@ class DatabaseController extends Controller
     public function index(Request $request, $projectId)
     {
         $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $project = DB::table('PROJECT')
-            ->select('dbServer', 'dbPort' , 'dbName','dbUsername','dbPassword')
+        $project = Project::select('dbServer', 'dbPort' , 'dbName','dbUsername','dbPassword')
             ->where('userId', '=', $user->id)
             ->where('id','=', $projectId)
-            ->get();
-        if (count($project) <= 0) {
+            ->first();
+        if (!$project) {
             return response()->json(['msg' => 'Not found your project.'], 200);
         }
-        
-        $project = $project[0];
+
 
         $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer,$project->dbPort,$project->dbName,$project->dbUsername,$project->dbPassword);
         if( !$dbCon->Connect()) {

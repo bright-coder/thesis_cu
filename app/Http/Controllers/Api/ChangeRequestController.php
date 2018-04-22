@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\ChangeRequest;
-use App\ChangeRequestInput;
+use App\Model\ChangeRequest;
+use App\Model\ChangeRequestInput;
 use App\Http\Controllers\Controller;
 use App\Library\GuardFunctionalRequirement;
 use App\Library\GuardProject;
@@ -20,7 +20,6 @@ class ChangeRequestController extends Controller
      */
     public function index()
     {
-        //
     }
 
     /**
@@ -115,9 +114,6 @@ class ChangeRequestController extends Controller
             DB::rollBack();
             return resonse()->json(['msg' => 'Internal Server Error.'], 500);
         }
-
-
-
     }
 
     /**

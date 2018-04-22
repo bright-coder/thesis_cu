@@ -1,13 +1,13 @@
 <?php
 
-namespace App;
+namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FunctionalRequirementInput extends Model
+class FunctionalRequirement extends Model
 {
     //
-    protected $table = "FUNCTIONAL_REQUIREMENT_INPUT";
+    protected $table = "FUNCTIONAL_REQUIREMENT";
     //protected $primaryKey = "id";
 
     public $timestamps = false;

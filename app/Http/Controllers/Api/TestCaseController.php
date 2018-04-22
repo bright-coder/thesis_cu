@@ -7,8 +7,8 @@ use App\Http\Requests\TestCaseRequest;
 use App\Library\GuardProject;
 use DB;
 use Illuminate\Http\Request;
-use TestCase;
-use TestCaseInput;
+use App\Model\TestCase;
+use App\Model\TestCaseInput;
 
 class TestCaseController extends Controller
 {
