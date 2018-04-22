@@ -14,14 +14,16 @@ class SqlServer implements DBTargetInterface
 
     private $conObj = null;
     private $server;
+    private $port;
     private $database;
     private $user;
     private $pass;
 
-    public function __construct(string $server, string $database, string $user, string $pass)
+    public function __construct(string $server, string $port, string $database, string $user, string $pass)
     {
 
         $this->server = $server;
+        $this->port = $port;
         $this->database = $database;
         $this->user = $user;
         $this->pass = $pass;
@@ -31,7 +33,7 @@ class SqlServer implements DBTargetInterface
     {
         try {
             $this->conObj = new \PDO(
-                "sqlsrv:Server={$this->server};Database={$this->database};LoginTimeout=1",
+                "dblib:host={$this->server}:{$this->port};dbname={$this->database};LoginTimeout=1",
                 $this->user,
                 $this->pass
             );

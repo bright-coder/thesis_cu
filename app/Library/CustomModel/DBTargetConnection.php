@@ -14,15 +14,15 @@ class DBTargetConnection
      */
     private static $connector = null;
 
-    public static function getInstance(string $dbType, string $server, string $database, string $user, string $pass): DBTargetInterface
+    public static function getInstance(string $dbType, string $server, string $port,string $database, string $user, string $pass): DBTargetInterface
     {
 
         if (DBTargetConnection::$connector === null) {
 
             if ($dbType == "sqlsrv") {
-                DBTargetConnection::$connector = new SqlServer($server, $database, $user, $pass);
+                DBTargetConnection::$connector = new SqlServer($server, $port,$database, $user, $pass);
             } else {
-                DBTargetConnection::$connector = new Mysql($server, $database, $user, $pass);
+                DBTargetConnection::$connector = new Mysql($server, $port,$database, $user, $pass);
             }
 
         }

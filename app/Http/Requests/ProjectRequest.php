@@ -31,7 +31,7 @@ class ProjectRequest extends FormRequest
                 'dbServer' => 'required|between:1,255',
                 'dbPort' => 'required|numeric',
                 'dbType' => 'required',
-                'dbUsername' => 'required|between:4,100',
+                'dbUsername' => 'required|between:2,100',
                 'dbPassword' => 'required|between:4,100'
         ];
     }

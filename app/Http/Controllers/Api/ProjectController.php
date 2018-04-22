@@ -56,6 +56,7 @@ class ProjectController extends Controller
          */
         $db = new SqlServer(
             $request['dbServer'],
+            $request['dbPort'],
             $request['dbName'],
             $request['dbUsername'],
             $request['dbPassword']

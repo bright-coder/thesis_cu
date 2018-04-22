@@ -20,7 +20,7 @@ class DatabaseController extends Controller
     {
         $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
         $project = DB::table('PROJECT')
-            ->select('dbServer', 'dbName','dbUsername','dbPassword')
+            ->select('dbServer', 'dbPort' , 'dbName','dbUsername','dbPassword')
             ->where('userId', '=', $user->id)
             ->where('id','=', $projectId)
             ->get();
@@ -30,7 +30,7 @@ class DatabaseController extends Controller
         
         $project = $project[0];
 
-        $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer,$project->dbName,$project->dbUsername,$project->dbPassword);
+        $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer,$project->dbPort,$project->dbName,$project->dbUsername,$project->dbPassword);
         if( !$dbCon->Connect()) {
             return response()->json(['msg' => 'Cannot Connect to Target Database.'], 400);
         }
