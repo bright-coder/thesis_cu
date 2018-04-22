@@ -11,7 +11,9 @@ use App\Library\ChangeAnalysis;
 use App\Library\CustomModel\DBTargetConnection;
 use App\Library\Random\RandomContext;
 use App\Library\State\StateInterface;
-use App\Project;
+use App\Model\Project;
+use App\Model\FunctionalRequirement;
+use App\Model\ChangeRequestInput;
 use DB;
 
 class AnalyzeImpactDBState implements StateInterface
@@ -30,13 +32,13 @@ class AnalyzeImpactDBState implements StateInterface
                 switch ($changeRequestInput->changeType) {
                     
                     case 'add':
-                        # code...
+                        $this->analyzeAdd($changeRequestInput);
                         break;
                     case 'edit':
-                        # code...
+                        $this->analyzeEdit($changeRequestInput);
                         break;
                     case 'delete':
-                        # code...
+                        $this->analyzeDelete($changeRequestInput);
                         break;
                     default:
                         # code...
@@ -51,12 +53,25 @@ class AnalyzeImpactDBState implements StateInterface
 
     }
 
+    private function analyzeAdd(ChangeRequestInput $changeRequestInput) {
+        
+    }
+
+    private function analyzeEdit(ChangeRequestInput $changeRequestInput) {
+
+    }
+
+    private function analyzeDelete(ChangeRequestInput $changeRequestInput) {
+
+    }
+
     private function connectTargetDB(string $projectId): bool
     {
         $project = Project::where('id', $projectId)->first();
         $this->dbTargetConnection = DBTargetConnection::getInstance(
             $project->dbType,
             $project->dbServer,
+            $project->dbPort,
             $project->dbName,
             $project->dbUsername,
             $project->dbPassword
