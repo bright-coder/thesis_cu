@@ -15,14 +15,14 @@ class ChangeAnalysis
 
     private $projectId;
     private $changeRequest;
-    private $changeRequestInput;
+    private $changeRequestInputList;
     
     private $state;
 
-    public function __construct(string $projectId, ChangeRequest $changeRequest,ChangeRequestInput $changeRequestInput) {
+    public function __construct(string $projectId, ChangeRequest $changeRequest, array $changeRequestInputList) {
         $this->projectId = $projectId;
         $this->changeRequest = $changeRequest;
-        $this->changeRequest = $changeRequestInput;
+        $this->changeRequestInputList = $changeRequestInputList;
 
     }
 
@@ -38,8 +38,8 @@ class ChangeAnalysis
         return $this->changeRequest;
     }
 
-    public function getChangeRequestInput() : ChangeRequestInput {
-        return $this->changeRequestInput;
+    public function getAllChangeRequestInput() : array {
+        return $this->changeRequestInputList;
     }
 
     public function getProjectId() : string {

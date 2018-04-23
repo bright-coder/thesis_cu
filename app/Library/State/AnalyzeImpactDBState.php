@@ -20,48 +20,44 @@ class AnalyzeImpactDBState implements StateInterface
 {
     private $dbTargetConnection = null;
     private $dbTarget = null;
-    private $message = null;
-    private $impact;
+    private $impacts = null;
+
+    public function __construct() {
+        $this->impacts = array();
+    }
 
     public function analyze(ChangeAnalysis $changeAnalysis)
     {
         if ($this->connectTargetDB($changeAnalysis->getProjectId())) {
             $this->getDbSchema();
 
-            foreach ($changeAnalysis->getChangeRequestInput() as $changeRequestInput) {
+            foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
+                $analyzer;
                 switch ($changeRequestInput->changeType) {
-                    
+                
                     case 'add':
-                        $this->analyzeAdd($changeRequestInput);
+                        $analyzer = new AnalyzeDBAdd($this->dbTarget ,$changeRequestInput);
                         break;
                     case 'edit':
-                        $this->analyzeEdit($changeRequestInput);
+                        $analyzer = new AnalyzeDBEdit($this->dbTarget ,$changeRequestInput);
                         break;
                     case 'delete':
-                        $this->analyzeDelete($changeRequestInput);
+                        $analyzer = new AnalyzeDBDelete($this->dbTarget ,$changeRequestInput);
                         break;
                     default:
                         # code...
                         break;
 
                 }
+
+                if($analyzer->analyze()) {
+                    $analyzer->modify($this->dbTargetConnection);
+                }
             }
 
         } else {
 
         }
-
-    }
-
-    private function analyzeAdd(ChangeRequestInput $changeRequestInput) {
-        
-    }
-
-    private function analyzeEdit(ChangeRequestInput $changeRequestInput) {
-
-    }
-
-    private function analyzeDelete(ChangeRequestInput $changeRequestInput) {
 
     }
 

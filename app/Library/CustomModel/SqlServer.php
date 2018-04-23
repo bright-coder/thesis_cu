@@ -5,6 +5,7 @@ namespace App\Library\CustomModel;
 use App\Library\CustomModel\DBTargetInterface;
 use App\Library\CustomModel\ModelOutput\ModelOutputFactory;
 use App\Library\Constraint\PrimaryKey;
+use App\Model\ChangeRequestInput;
 
 class SqlServer implements DBTargetInterface
 {
@@ -78,12 +79,21 @@ class SqlServer implements DBTargetInterface
         }
     }
 
-    public function getDistinctValues(string $tableName, string $columnName): array
+    public function getnumRows(string $tableName): int
     {
-        $stmt = $this->conObj->prepare("SELECT DISTINCT {$columnName} as distinctValues FROM {$tableName}");
+        $stmt = $this->conObj->prepare("SELECT count(*) as numRows FROM {$tableName}");
+        if ($stmt->execute()) {
+            return $stmt->fetchColumn();
+        }
+    }
+
+    public function getDistinctValues(string $tableName, array $columnName): array
+    {
+        $strSqlColumnName = implode(",",$columnName);
+        $stmt = $this->conObj->prepare("SELECT DISTINCT {$strSqlColumnName} FROM {$tableName}");
         if ($stmt->execute()) {
             //return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
-            return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
         //return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
@@ -210,38 +220,50 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    public function addColumn(string $tableName, string $columnName,array $columnDetail): bool {
-        $dataType = strtolower($columnDetail['dataType']);
-        if($dataType == "int" || $dataType == "date" || $dataType == "datetime"){
+    public function addColumn(ChangeRequestInput $changeRequestInput): bool {
+        $strSqlDataType = $this->getStrSqlDataType($changeRequestInput->dataType,
+            [
+                'length' => $changeRequestInput->length,
+                'precision' => $changeRequestInput->precision,
+                'scale' => $changeRequestInput->scale
+            ]
+        );
 
-        }
-        elseif(\strpos($dataType,'char') !== false || \strpos($dataType,'char') == 0) {
-            $dataType .= "(".$columnDetail['length'].")";
-        }
-        elseif(\strpos($dataType,'decimal') != false ) {
-            $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
-            $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
+        $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($changeRequestInput->nullable, 'N') == 0 ? false : true);
         
-            $dataType .= "($precision,$scale)";
-        }
+        $strSqlDefault = "DEFAULT(".$changeRequestInput->default.")";
         
-        $default = "DEFAULT(".$columnDetail['default'].")";
-        
-        if($columnDetail['default'] == null && $columnDetail['nullable'] == false){
-            $default = "";
+        if($changeRequestInput->default == null &&  \strcasecmp($changeRequestInput->nullable, 'N') == 0){
+            $strSqlDefault = "0";
         }
-        if($columnDetail['default'] == null && $columnDetail['nullable'] == true){
-            $default = "";
+        if($changeRequestInput->default == null && \strcasecmp($changeRequestInput->nullable, 'N') == 0){
+            $strSqlDefault = "0";
         }
-        //dd($columnDetail);
-        //$default =  "DEFAULT(".$columnDetail['default'].")";
-        $strQuery = "ALTER TABLE ".$tableName." ADD ".$columnName." ".$dataType." ".$default;
-        //dd($strQuery);
+
+        $strQuery = "ALTER TABLE ".$changeRequestInput->tableName." ADD ".$changeRequestInput->columnName." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
+
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
         }
         return false;
+    }
+
+    private function getStrSqlNullable(bool $isNullable): string{
+        return !$isNullable ? 'NOT NULL' : '';
+    }
+
+    private function getStrSqlDataType(string $dataType, array $info = ['length' => null , 'precision' => null , 'scale' => null]): string {
+        $dataType = strtolower($dataType);
+        if(\strpos($dataType, 'char') !== false || \strpos($dataType,'char') == 0) {
+            $dataType .= "(".$info['length'].")";
+        }
+        elseif(\strpos($dataType,'decimal') != false ) {
+            $precision = $dataType['precision'] == null ? 38 : $dataType['precision'];
+            $scale = $dataType['scale'] == null ? 0 : $dataType['scale'] ;
+            $dataType .= "($precision,$scale)";
+        }
+        return $dataType;
     }
 
     public function updateColumn(string $tableName, string $columnName,array $columnDetail): bool {
@@ -297,18 +319,23 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    public function updateInstance(string $tableName, string $columnName, array $oldValues, string $newColumnName ,array $newValues): bool {
+    public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, string $default): bool {
         $columnTemp = $newColumnName;
         $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";
-        if(\array_last($newValues) == false){
-            $newValues = \array_keys($newValues);
+        // if(\array_last($newValues) == false){
+        //     $newValues = \array_keys($newValues);
+        // }
+        foreach($refValues as $index => $refValue) {
+            $whenCondition = [];
+            foreach($refValue as $columnName => $value) {
+                $whenCondition[] = "$columnName = '$oldValue'";
+            }
+            $strWhenCondition = \implode(" AND ", $whenCondition);
+            $strQuery .= "WHEN $strWhenCondition THEN '".$newData[$index]."' ";
         }
-        foreach($oldValues as $index => $oldValue) {
-            $strQuery .= "WHEN $columnName = '$oldValue' THEN '".$newValues[$index]."' ";
-        }
-        $strQuery .= "ELSE '".$newValues[\count($newValues)-1]."'";
+        $strQuery .= "ELSE '".$default."'";
         $strQuery .= ' END';
-        //dd($strQuery);
+
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;

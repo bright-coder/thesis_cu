@@ -82,7 +82,10 @@ class Table
 
     public function getColumnByName(string $name)
     {
-        return $this->columns[$name];
+        if(\array_key_exists($name,$this->columns)) {
+            return $this->columns[$name];
+        }
+        return null;
     }
 
     public function setPK(PrimaryKey $pk): void

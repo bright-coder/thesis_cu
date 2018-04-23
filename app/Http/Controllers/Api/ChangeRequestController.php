@@ -61,6 +61,7 @@ class ChangeRequestController extends Controller
             $changeRequest->changeFunctionalRequirementId = $request['functionalRequirementId'];
             $changeRequest->statuts = 'imported';
             $changeRequest->save();
+            $changeRequestInputList = [];
             foreach ($request['inputs'] as $input) {
                 $changeRequestInput = new ChangeRequestInput;
                 $changeRequestInput->changeRequestId = $changeRequest->id;
@@ -108,12 +109,15 @@ class ChangeRequestController extends Controller
                 $changeRequestInput->columnName = $input['columnName'];
 
                 $changeRequestInput->save();
+                $changeRequestInputList[] = $changeRequest;
             }
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             return resonse()->json(['msg' => 'Internal Server Error.'], 500);
         }
+
+        
     }
 
     /**

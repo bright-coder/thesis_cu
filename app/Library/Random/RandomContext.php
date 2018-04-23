@@ -12,43 +12,37 @@ class RandomContext {
      *
      * @var RandomInterface
      */
-    private $randomType = NULL;
 
-    public function __construct(string $dataType) {
-        
+    public static function getRandomData(int $numRows = 0, string $dataType, array $info = ['precision' => 0, 'scale' => 0 , 'length' => 0, 'min' => 0, 'max' => 0], bool $isUnique = false): array {
+        $randomType;
         switch ($dataType) {
             case DataType::CHAR :
             case DataType::VARCHAR :
-                $this->randomType = new RandomString();
+                $randomType = new RandomString();
                 break;
             case DataType::NCHAR :
             case DataType::NVARCHAR :
-                $this->randomType = new RandomNString();
+                $randomType = new RandomNString();
                 break;
             case DataType::FLOAT :
-                $this->randomType = new RandomFloat();
+                $randomType = new RandomFloat();
                 break;
             case DataType::DECIMAL :
-                $this->randomType = new RandomDecimal();
+                $randomType = new RandomDecimal();
                 break;
             case DataType::DATE :
-                $this->randomType = new RandomDate();
+                $randomType = new RandomDate();
                 break;
             case DataType::DATETIME :
-                $this->randomType = new RandomDateTime();
+                $randomType = new RandomDateTime();
                 break;
             default:
-                $this->randomType = new RandomInteger();
+                $randomType = new RandomInteger();
                 break;
         }
-    }
-
-    public function random(int $numRows = 0, array $info = ['precision' => 0, 'scale' => 0 , 'length' => 0, 'min' => 0, 'max' => 0], bool $isUnique = false): void {
-        $this->randomType->random($numRows,$info,$isUnique);
-    }
-
-    public function getRandomData(): array {
-        return $this->randomType->getRandomData();
+        
+        $randomType->random($numRows,$info,$isUnique);
+        return $randomType->getRandomData();
     }
 
 }
