@@ -79,7 +79,7 @@ class SqlServer implements DBTargetInterface
         }
     }
 
-    public function getnumRows(string $tableName): int
+    public function getNumRows(string $tableName): int
     {
         $stmt = $this->conObj->prepare("SELECT count(*) as numRows FROM {$tableName}");
         if ($stmt->execute()) {

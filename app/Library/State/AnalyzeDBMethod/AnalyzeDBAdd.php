@@ -48,9 +48,8 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
                     break;
             }
 
-        
-        // instance generate
-        
+
+        // generate instance     
         $numRows = $dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
         $randomData  = RandomContext::getRandomData($numRows, $this->changeRequestInput->dataType,
             [
