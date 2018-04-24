@@ -13,7 +13,7 @@ interface DBTargetInterface
     public function getDBServer(): string;
     public function getDBName(): string;
     public function getAllTables(): array;
-    public function getDistinctValues(string $tableName, string $columnName): array;
+    public function getDistinctValues(string $tableName, array $columnName): array;
     public function getAllColumnsByTableName(string $tableName): array;
     public function getAllConstraintsByTableName(string $tableName): array;
     public function getPKConstraint(string $tableName): PrimaryKey;
@@ -30,6 +30,6 @@ interface DBTargetInterface
     public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool;
     public function setNullable(string $tableName, string $columnName, array $columnDetail): bool;
     public function getInstanceByTableName(string $tableName): array;
-    public function getNumRows(string $tableName, string $columnName): int;
+    public function getNumRows(string $tableName): int;
 
 }

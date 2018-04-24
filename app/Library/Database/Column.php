@@ -2,8 +2,8 @@
 
 namespace App\Library\Database;
 
-use App\Library\DataType\DataTypeInterface;
-use App\Library\DataType\DataTypeFactory;
+use App\Library\Datatype\DataTypeInterface;
+use App\Library\Datatype\DataTypeFactory;
 
 class Column
 {

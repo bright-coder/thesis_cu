@@ -20,6 +20,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
 
         // if not have column in table
         if(!$table->getColumnbyName($changeRequestInput->columnName)) {
+            $this->instanceImpact = true;
             return true;
         }
         return false;
@@ -48,7 +49,6 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
                     break;
             }
 
-
         // generate instance     
         $numRows = $dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
         $randomData  = RandomContext::getRandomData($numRows, $this->changeRequestInput->dataType,
@@ -76,6 +76,5 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
         );
         
     }
-
 
 }

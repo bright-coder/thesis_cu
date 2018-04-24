@@ -20,12 +20,23 @@ abstract class AbstractAnalyzeDBMethod
      * @var Database
      */
     private $database = null;
+
+    /**
+     * Undocumented variable
+     *
+     * @var boolean
+     */
+    private $instanceImpact = false;
     
     private function isUnique() : boo
     {
         \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true ;
     }
+
+    public function isInstanceImpact() : bool { return $this->instanceImpact; }
     
     abstract public function analyze(): bool;
     abstract public function modify(DBTargetConnection $dbTargetConnection): bool;
+    
+    
 }
