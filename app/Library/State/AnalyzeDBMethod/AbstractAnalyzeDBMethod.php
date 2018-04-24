@@ -28,11 +28,19 @@ abstract class AbstractAnalyzeDBMethod
      */
     private $instanceImpact = false;
     
+    /**
+     * Undocumented variable
+     *
+     * @var boolean
+     */
+    private $schemaImpact = false;
+    
     private function isUnique() : boo
     {
         \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true ;
     }
 
+    public function isSchemaImpact(): bool { return $this->schemaImpact; }
     public function isInstanceImpact() : bool { return $this->instanceImpact; }
     
     abstract public function analyze(): bool;

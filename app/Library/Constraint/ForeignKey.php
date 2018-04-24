@@ -28,6 +28,22 @@ class ForeignKey implements Constraint
 
     public function getColumns(): array
     {
+        /**
+         * 
+         *           -links: array:1 [
+         *   0 => array:2 [
+         *      "from" => array:2 [
+         *       "tableName" => "APPOINTMENT"
+         *       "columnName" => "mdId"
+         *     ]
+         *     "to" => array:2 [
+         *       "tableName" => "DOCTOR"
+         *       "columnName" => "mdId"
+         *     ]
+         *   ]
+         * ]
+         * 
+         */
         return $this->links;
     }
 

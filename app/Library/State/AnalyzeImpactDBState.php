@@ -9,8 +9,13 @@ use App\DatabaseSchemaTable;
 use App\Library\Builder\DatabaseBuilder;
 use App\Library\ChangeAnalysis;
 use App\Library\CustomModel\DBTargetConnection;
+use App\Library\CustomModel\DBTargetInterface;
 use App\Library\Random\RandomContext;
 use App\Library\State\StateInterface;
+use App\Library\State\AnalyzeDBMethod\AnalyzeDBAdd;
+use App\Library\State\AnalyzeDBMethod\AnalyzeDBEdit;
+use App\Library\State\AnalyzeDBMethod\AnalyzeDBDelete;
+
 use App\Model\Project;
 use App\Model\FunctionalRequirement;
 use App\Model\ChangeRequestInput;
@@ -18,6 +23,11 @@ use DB;
 
 class AnalyzeImpactDBState implements StateInterface
 {
+    /**
+     * Undocumented variable
+     *
+     * @var DBTargetInterface
+     */
     private $dbTargetConnection = null;
     private $dbTarget = null;
     private $impacts = null;
@@ -50,7 +60,8 @@ class AnalyzeImpactDBState implements StateInterface
 
                 }
 
-                if($analyzer->analyze()) {
+                $analyzer->analyze();
+                if($analyzer->isSchemaImpact() || $analyzer->isInstanceImpact()) {
                     $analyzer->modify($this->dbTargetConnection);
                 }
             }

@@ -27,11 +27,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     public function analyze() : bool
     {
-
+        
         $table = $this->database->getTableByName($this->changeRequestInput->tableName);
         $column = $table->getColumnbyName($this->changeRequestInput->columnName);
 
         $dataTypeRef = $column->getDataType()->dataType();
+
 
         if($this->changeRequestInput->dataType != null) {
             if($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $column->getDataType()->dataType()) )
@@ -52,6 +53,21 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 return true;
 
         return false;
+    }
+
+    private function findRelated() {
+
+        $table = $this->database->getTableByName($this->changeRequestInput->tableName);
+        $column = $table->getColumnbyName($this->changeRequestInput->columnName);
+        
+        if(!$this->isFK($table->getName(),$column->getName())) {
+
+        }
+        else {
+            
+        }
+        
+
     }
 
     private function isDBColumnUnique(string $tableName, string $columnName): bool
@@ -103,7 +119,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     public function modify(DBTargetConnection $dbTargetConnection): bool
     {
-        $dbTargetConnection->addColumn($changeRequestInput);
+        //$dbTargetConnection->addColumn($changeRequestInput);
     }
 
     private function findFunctionalRequirementById(string $id) : FunctionalRequirement
@@ -255,9 +271,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $table = $this->database->getTableByName($tableName);
         $fks = $table->getAllFK();
         foreach($fks as $fk) {
-            \in_array($columnName, $fk->getColumns());
+            foreach ($fk->getColumns() as $link) {
+                if($link['from']['columnName'] == $columnName) {
+                    return true;
+                }
+            }
         }
-
         return false;
     }
     
