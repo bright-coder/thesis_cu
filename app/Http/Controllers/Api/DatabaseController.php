@@ -37,7 +37,7 @@ class DatabaseController extends Controller
             $databaseBuilder = new DatabaseBuilder($dbCon);
             $databaseBuilder->setUpTablesAndColumns();
         }
-        //dd($databaseBuilder->getDatabase());
+        dd($databaseBuilder->getDatabase());
         return response()->json($databaseBuilder->getDatabase()->toArray(),200);
 
     }

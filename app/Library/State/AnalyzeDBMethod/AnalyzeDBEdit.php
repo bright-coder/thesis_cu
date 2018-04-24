@@ -55,19 +55,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return false;
     }
 
-    private function findRelated() {
+    private function findImpactAnother() {
 
         $table = $this->database->getTableByName($this->changeRequestInput->tableName);
         $column = $table->getColumnbyName($this->changeRequestInput->columnName);
+        //if()
         
-        if(!$this->isFK($table->getName(),$column->getName())) {
-
-        }
-        else {
-            
-        }
-        
-
     }
 
     private function isDBColumnUnique(string $tableName, string $columnName): bool

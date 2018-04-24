@@ -2,6 +2,8 @@
 
 namespace App\Library\Database;
 
+use App\Library\Node;
+
 class Database{
     /**
     * @var string
@@ -16,6 +18,9 @@ class Database{
     */
     private $tables;
     
+    private $fkPaths = [];
+
+    private $hashFks = [];
     /**
     * @param string $server
     * @param string $name
@@ -41,6 +46,55 @@ class Database{
 
     public function getColumnByTableAndColumnName(string $tableName, string $columnName) {
         return $this->getTableByName($tableName)->getColumnByName($columnName);
+    }
+
+    public function createFkPaths() : void {
+        $hashMap = [];
+        $headers = [];
+        $tables = $this->getAllTables();
+        foreach ($tables as $table) {
+            $fks = $table->getAllFK();
+            foreach( $fks as $fk) {
+                foreach ( $fk->getColumns() as $link) {
+
+                    if(!\array_key_exists($link['from']['tableName'],$hashMap)) {
+                        $hashMap[$link['from']['tableName']] = [];
+                    }
+                    if(!\array_key_exists($link['from']['columnName'],$hashMap[$link['from']['tableName']])) {
+                        $hashMap[$link['from']['tableName']][$link['from']['columnName']] = new Node(
+                            $link['from']['tableName'],
+                            $link['from']['columnName'],
+                            $fk->getName()
+                        );
+                    }
+
+                    if(\array_key_exists($link['from']['tableName'],$headers)) {
+                        if(\array_key_exists($link['from']['columnName'],$headers[$link['from']['tableName']])) {
+                            $headers[$link['from']['tableName']][$link['from']['columnName']] = false;
+                        }
+                    }
+
+                    if(!\array_key_exists($link['to']['tableName'],$hashMap)) {
+                        $hashMap[$link['to']['tableName']] = [];
+                        $headers[$link['to']['tableName']] = [];
+                    }
+
+                    if(!\array_key_exists($link['to']['columnName'],$hashMap[$link['to']['tableName']])) {
+                        $hashMap[$link['to']['tableName']][$link['to']['columnName']] = new Node(
+                            $link['to']['tableName'],
+                            $link['to']['columnName'],
+                            $fk->getName()
+                        );
+                        $headers[$link['to']['tableName']][$link['to']['columnName']] = true;
+                    }
+
+                    $hashMap[$link['from']['tableName']][$link['from']['columnName']]->setPrevious($hashMap[$link['to']['tableName']][$link['to']['columnName']]);
+                    $hashMap[$link['to']['tableName']][$link['to']['columnName']]->addLink($hashMap[$link['from']['tableName']][$link['from']['columnName']]);
+
+                }
+            }
+        }
+        $this->hashFks = $hashMap;
     }
 
     public function toArray(): array {

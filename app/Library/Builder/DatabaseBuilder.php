@@ -55,6 +55,7 @@ class DatabaseBuilder
             $tables[$tableName]->setFK($foreignKeys);
         }
         $this->database->setTables($tables);
+        $this->database->createFkPaths();
     }
 
 }
