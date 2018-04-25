@@ -72,8 +72,12 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
-    public function getInstanceByTableName(string $tableName): array{
-        $stmt = $this->conObj->prepare("SELECT TOP 100 * FROM {$tableName}");
+    public function getInstanceByTableName(string $tableName, string $condition = ''): array{
+        $strQuery = "SELECT TOP 100 * FROM {$tableName}";
+        if($condition != '') {
+            $strQuery .= " WHERE {$condition}";
+        }
+        $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()) {
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
@@ -353,7 +357,8 @@ class SqlServer implements DBTargetInterface
     }
 
     public function addUniqueConstraint(string $tableName, string $columnName) : bool {
-        $strQuery = "ALTER TABLE $tableName ADD UNIQUE ($columnName)";
+        $uniqueName = "{$tableName}_{$columnName}_UNIQUE";
+        $strQuery = "ALTER TABLE $tableName ADD CONSTRAINT $uniqueName UNIQUE ($columnName)";
         //dd($strQuery);
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){

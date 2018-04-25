@@ -17,9 +17,12 @@ class Database{
     * @var array
     */
     private $tables;
-    
-    private $fkPaths = [];
 
+    /**
+     * Undocumented variable
+     *
+     * @var array
+     */
     private $hashFks = [];
     /**
     * @param string $server
@@ -50,7 +53,6 @@ class Database{
 
     public function createFkPaths() : void {
         $hashMap = [];
-        $headers = [];
         $tables = $this->getAllTables();
         foreach ($tables as $table) {
             $fks = $table->getAllFK();
@@ -68,15 +70,8 @@ class Database{
                         );
                     }
 
-                    if(\array_key_exists($link['from']['tableName'],$headers)) {
-                        if(\array_key_exists($link['from']['columnName'],$headers[$link['from']['tableName']])) {
-                            $headers[$link['from']['tableName']][$link['from']['columnName']] = false;
-                        }
-                    }
-
                     if(!\array_key_exists($link['to']['tableName'],$hashMap)) {
                         $hashMap[$link['to']['tableName']] = [];
-                        $headers[$link['to']['tableName']] = [];
                     }
 
                     if(!\array_key_exists($link['to']['columnName'],$hashMap[$link['to']['tableName']])) {
@@ -85,7 +80,7 @@ class Database{
                             $link['to']['columnName'],
                             $fk->getName()
                         );
-                        $headers[$link['to']['tableName']][$link['to']['columnName']] = true;
+
                     }
 
                     $hashMap[$link['from']['tableName']][$link['from']['columnName']]->setPrevious($hashMap[$link['to']['tableName']][$link['to']['columnName']]);
@@ -95,6 +90,18 @@ class Database{
             }
         }
         $this->hashFks = $hashMap;
+    }
+
+    public function isLinked(string $tableName, string $columnName): bool {
+        if(\array_key_exists($tableName,$this->hashFks))
+            if(\array_key_exists($this->$columnName, $this->hashFks[$tableName]))
+                return true;
+        
+        return false;
+    }
+
+    public function getHashFks() : array {
+        return $this->hashFks;
     }
 
     public function toArray(): array {

@@ -111,12 +111,14 @@ $(function () {
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             success: function(response) {
+                $('#pills-fr').find('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
                 l.stop();
-                $('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
+                
             },
             error: function(response) {
+                $('#pills-fr').find('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
                 l.stop();
-                $('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
+                
             }
         });
 
@@ -136,11 +138,11 @@ $(function () {
             dataType: 'json',
             success: function(response) {
                 l.stop();
-                $('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
+                $('#pills-tc').find('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
             },
             error: function(response) {
                 l.stop();
-                $('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
+                $('#pills-tc').find('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
             }
         });
 
@@ -160,11 +162,11 @@ $(function () {
             dataType: 'json',
             success: function(response) {
                 l.stop();
-                $('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
+                $('#pills-rtm').find('#showMessage').html('<div class="alert alert-success">Save Successfully.</div>');
             },
             error: function(response) {
                 l.stop();
-                $('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
+                $('#pills-rtm').find('#showMessage').html('<div class="alert alert-danger">Error please try again.</div>');
             }
         });
 

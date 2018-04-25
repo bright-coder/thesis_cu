@@ -4,13 +4,15 @@ namespace App\Library\State\AnalyzeDBMethod;
 use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
-use App\Library\CustomModel\DBTargetConnection;
+use App\Library\CustomModel\DBTargetInterface;
 
 class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
     
-    public function construct(Database $database, ChangeRequestInput $changeRequestInput) {
+    public function construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
+    {
         $this->database = $database;
-        $this->$changeRequestInput = $changeRequestInput;
+        $this->changeRequestInput = $changeRequestInput;
+        $this->dbTargetConnection = $dbTargetConnection;
     }
 
     public function analyze(Database $database, ChangeRequestInput $changeRequestInput): bool {
@@ -25,7 +27,7 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
         return false;
     }
 
-    private function modify(DBTargetConnection $dbTargetConnection): bool {
+    private function modify(DBTargetInterface $dbTargetConnection): bool {
         $dbTargetConnection->addColumn($changeRequestInput);
     }
 

@@ -10,6 +10,7 @@ use App\Library\GuardProject;
 use App\Requests\ChangeRequestRequest;
 use DB;
 use Illuminate\Http\Request;
+use App\Library\ChangeAnalysis;
 
 class ChangeRequestController extends Controller
 {
@@ -54,6 +55,14 @@ class ChangeRequestController extends Controller
         if (!$functionalRequirement) {
             return response()->json(['msg' => 'forbidden'], 400);
         }
+
+        // Debug Mode Only
+        $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $id)->get();
+        foreach ($crs as $cr) {
+            DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
+            DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
+        }
+        //
 
         DB::beginTransaction();
         try {
@@ -117,6 +126,7 @@ class ChangeRequestController extends Controller
             return resonse()->json(['msg' => 'Internal Server Error.'], 500);
         }
 
+        $changeAnalysis = new ChangeAnalysis($projectId,$changeRequest,$changeRequestInputList);
         
     }
 

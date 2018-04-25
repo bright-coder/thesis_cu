@@ -4,7 +4,7 @@ namespace App\Library\State\AnalyzeDBMethod;
 
 use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
-use App\Library\CustomModel\DBTargetConnection;
+use App\Library\CustomModel\DBTargetInterface;
 
 abstract class AbstractAnalyzeDBMethod
 {
@@ -34,6 +34,18 @@ abstract class AbstractAnalyzeDBMethod
      * @var boolean
      */
     private $schemaImpact = false;
+
+    /**
+     * Undocumented variable
+     *
+     * @var DBTargetInterface
+     */
+    private $dbTargetConnection = null;
+
+    /**
+     * @var array
+     */
+    private $instanceImpactResult = [];
     
     private function isUnique() : boo
     {

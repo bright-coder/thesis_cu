@@ -141,16 +141,67 @@ function hideShowDetailbyDataType(dataType, detail = { length: '', precision: ''
 
 }
 
-function preAddChangeList(dataArray,type){
+function preAddChangeList(dataArray,type , input = null){
     var result = dataArray.reduce(function(obj, item) {
         obj[item.name] = item.value;
         return obj;
     }, {});
-    if(!('nullable' in result)) {
-        result.nullable = 'N';
+    if(type == 'add') {
+        if(!('nullable' in result)) {
+            result.nullable = 'N';
+        }
+        if(!('unique' in result)) {
+            result.unique = 'N';
+        }
     }
-    if(!('unique' in result)) {
-        result.unique = 'N';
+    else if(type == 'edit') {
+        if(result.dataType == input.dataType) {
+            delete result.dataType;
+        }
+        if('length' in result){
+            if(result.length == input.length) {
+                delete result.length;
+            }
+        }
+        if('precision' in result){
+            if(result.precision == input.precision) {
+                delete result.precision;
+            }
+        }
+        if('scale' in result){
+            if(result.scale == input.scale) {
+                delete result.scale;
+            }
+        }
+        if('default' in result){
+            if(result.default == input.default || result.default == '') {
+                delete result.default;
+            }
+        }
+        if('min' in result){
+            if(result.min == input.min) {
+                delete result.min;
+            }
+        }
+        if('max' in result){
+            if(result.max == input.max) {
+                delete result.max;
+            }
+        }
+        if('nullable' in result){
+            if(result.nullable == input.nullable) {
+                delete result.nullable;
+            }
+        }
+        if('unique' in result){
+            if(result.unique == input.unique) {
+                delete result.unique;
+            }
+        }
+        result.frId = input.id;
+    }
+    else if(type == 'delete') {
+        result = { frId: input.id };
     }
     result.changeType = type;
     return result;
@@ -163,10 +214,6 @@ function htmlBadge(type) {
         return '<span class="badge badge-warning">Edit</span>';
 
     return '<span class="badge badge-danger">Delete</span>';
-}
-
-function IsChange(oldData,newData){
-    return true;
 }
 
 function cleanObject(obj) {

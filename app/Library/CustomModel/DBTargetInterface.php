@@ -29,7 +29,7 @@ interface DBTargetInterface
     public function addUniqueConstraint(string $tableName, string $columnName) : bool;
     public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool;
     public function setNullable(string $tableName, string $columnName, array $columnDetail): bool;
-    public function getInstanceByTableName(string $tableName): array;
+    public function getInstanceByTableName(string $tableName, string $condition = ''): array;
     public function getNumRows(string $tableName): int;
 
 }

@@ -6,7 +6,9 @@ use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetConnection;
+use App\Library\CustomModel\DBTargetInterface;
 use App\Model\FunctionalRequirement;
+use App\Library\Node;
 
 class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 {
@@ -18,49 +20,84 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
      */
     private $functionalRequirement = null;
 
-    public function construct(Database $database, ChangeRequestInput $changeRequestInput, string $frId)
+    public function construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection, string $frId)
     {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
+        $this->dbTargetConnection = $dbTargetConnection;
         $this->functionalRequirment = $this->findFunctionalRequirementById($frId);
     }
 
     public function analyze() : bool
     {
+        $this->schemaImpact = true;
+        $this->InstanceImpact = true;
         
         $table = $this->database->getTableByName($this->changeRequestInput->tableName);
         $column = $table->getColumnbyName($this->changeRequestInput->columnName);
 
         $dataTypeRef = $column->getDataType()->dataType();
 
+        if ($this->database->isLinked($table->getName(), $column->getName())) {
 
-        if($this->changeRequestInput->dataType != null) {
-            if($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $column->getDataType()->dataType()) )
-                return true;
-            $dataTypeRef = $this->changeRequestInput->dataType;
-            
+            // Node of Primary Column
+            $primaryColumn = $this->findPrimaryColumn($table->getName(), $column->getName());
         }
 
-        if($this->findInstanceImpactByDataTypeDetail($dataTypeRef) )
+
+        if ($this->changeRequestInput->dataType != null) {
+            if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $column->getDataType()->dataType())) {
+                return true;
+            }
+            $dataTypeRef = $this->changeRequestInput->dataType;
+        }
+
+        if ($this->findInstanceImpactByDataTypeDetail($dataTypeRef)) {
             return true;
+        }
         
-        if($this->changeRequestInput->nullable != null)
-            if($this->findInstanceImpactByNullable(\strtoupper($this->changeRequestInput->nullable) == 'N' ? false : true, $column->isNullable()) )
+        if ($this->changeRequestInput->nullable != null) {
+            if ($this->findInstanceImpactByNullable(\strtoupper($this->changeRequestInput->nullable) == 'N' ? false : true, $column->isNullable())) {
                 return true;
+            }
+        }
         
-        if($this->chageRequestInput->unqiue != null)
-            if($this->findInstanceImpactByUnique($this->isUnique, $this->isDBColumnUnique($table->getName(), $column->getName())) )
+        if ($this->chageRequestInput->unqiue != null) {
+            if ($this->findInstanceImpactByUnique($this->isUnique, $this->isDBColumnUnique($table->getName(), $column->getName()))) {
                 return true;
+            }
+        }
 
         return false;
     }
 
-    private function findImpactAnother() {
+    private function findImpactAnotherTable(Node $primaryColumn) : array
+    {
+        $travel = $primaryColumn;
+        $listImpact = [
+            ['tableName' => $node->getTableName(), 'columnName' => $node->getColumnName]
+        ];
+        while (count($travel->getLinks()) > 0) {
+            foreach ($travel->getLinks() as $node) {
+                $listImpact = ['tableName' => $node->getTableName(), 'columnName' => $node->getColumnName];
+                if (count($node->getLinks()) > 0) {
+                    $listImpact[] = $this->findImpactAnotherTable($node->getTableName(), $node->getColumName());
+                }
+            }
+        }
+        return $listImpact;
+    }
 
-        $table = $this->database->getTableByName($this->changeRequestInput->tableName);
-        $column = $table->getColumnbyName($this->changeRequestInput->columnName);
-        //if()
-        
+    // return [tableName][columnName];
+    private function findPrimaryColumn(string $tableName, string $columnName) : Node
+    {
+        $node = $this->database->getHashFks()[$tableName][$columnName];
+        $travel = $node;
+        while ($travel->getPrevious() != null) {
+            $travel = $travel->getPrevious();
+        }
+
+        return $travel;
     }
 
     private function isDBColumnUnique(string $tableName, string $columnName): bool
@@ -76,35 +113,61 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return false;
     }
 
-    private function findInstanceImpactByDataTypeDetail(string $dataType) : bool {
+    private function findInstanceImpactByDataTypeDetail(string $dataType) : bool
+    {
         $table = $this->database->getTableByName($this->changeRequestInput->tableName);
         $column = $table->getColumnbyName($this->changeRequestInput->columnName);
 
-        if($this->isStringType($dataType )) {
-            if($this->changeRequestInput->length != null) {
-                if($this->findInstanceImpactByLength($this->changeRequestInput->length, $column->getDataType()->getLength()) )
-                    return true;
-            }
-        }
-        elseif($this->isNumericType($dataType )) {
-            if($this->changeRequestInput->min != null && $this->changeRequestInput->min != '') {
-                if($this->findInstanceImpactByMin($this->changeRequestInput->min, $this->getMin($table->getName(),$column->getName())) )
-                    return true;
-            }
-            if($this->changeRequestInput->max != null && $this->changeRequestInput->max != '') {
-                if($this->findInstanceImpactByMax($this->changeRequestInput->max, $this->getMax($table->getName(),$column->getName())) )
-                    return true;
-            }
-        }
-        elseif($this->isFloatType($dataType) ) {
-            if($this->changeRequestInput->precision != null) {
-                if($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $column->getDataType()->getPrecision()) )
-                    return true;
-            }
-            if(\strtolower($dataType) == 'decimal' )
-                if($this->changeRequestInput->scale != null)
-                    if($this->findInstanceImpactByScale($this->changeRequestInput->scale, $column->getDataType()->getScale()) )
+        if ($this->isStringType($dataType)) {
+            if ($this->changeRequestInput->length != null) {
+                if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $column->getDataType()->getLength())) {
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
+                    if (count($instance) > 0) {
+                        $this->instanceImpactResult[] = $instance;
                         return true;
+                    }
+                }
+            }
+        } elseif ($this->isNumericType($dataType)) {
+            if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '') {
+                if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $this->getMin($table->getName(), $column->getName()))) {
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} < {$this->changeRequestInput->min}");
+                    if (count($instance) > 0) {
+                        $this->instanceImpactResult[] = $instance;
+                        return true;
+                    }
+                }
+            }
+            if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '') {
+                if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $this->getMax($table->getName(), $column->getName()))) {
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} > {$this->changeRequestInput->max}");
+                    if (count($instance) > 0) {
+                        $this->instanceImpactResult[] = $instance;
+                        return true;
+                    }
+                }
+            }
+        } elseif ($this->isFloatType($dataType)) {
+            if ($this->changeRequestInput->precision != null) {
+                if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $column->getDataType()->getPrecision())) {
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
+                    if (count($instance) > 0) {
+                        $this->instanceImpactResult[] = $instance;
+                        return true;
+                    }
+                }
+            }
+            if (\strtolower($dataType) == 'decimal') {
+                if ($this->changeRequestInput->scale != null) {
+                    if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $column->getDataType()->getScale())) {
+                        $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
+                        if (count($instance) > 0) {
+                            $this->instanceImpactResult[] = $instance;
+                            return true;
+                        }
+                    }
+                }
+            }
         }
 
         return false;
@@ -122,7 +185,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     private function findInstanceImpactByDataType(string $changeDataType, string $dbColumnDataType): bool
     {
-
         $char = ['varchar', 'char'];
         $unicodeChar = ['nvarchar', 'nchar'];
         if (array_search($changeDataType, $char) && array_search($dbColumnDataType, $char)) {
@@ -136,7 +198,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         return true;
-
     }
 
     private function findInstanceImpactByLength(int $changeLength, int $dbColumnLength): bool
@@ -214,7 +275,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return ($changeMax < $columnMax) ? true : false;
     }
 
-    private function isStringType(string $dataType) : bool {
+    private function isStringType(string $dataType) : bool
+    {
         switch (\strtolower($dataType)) {
             case 'char':
             case 'varchar':
@@ -225,11 +287,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             default:
                 return false;
         }
-
     }
 
-    private function isNumericType(string $dataType) : bool {
-        switch (\strtolower($dataType) ) {
+    private function isNumericType(string $dataType) : bool
+    {
+        switch (\strtolower($dataType)) {
             case 'int':
             case 'float':
             case 'decimal':
@@ -238,10 +300,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             default:
                 return false;
         }
-
     }
 
-    private function isFloatType(string $dataType) : bool {
+    private function isFloatType(string $dataType) : bool
+    {
         switch (\strtolower($dataType)) {
             case 'float':
             case 'decimal':
@@ -263,14 +325,13 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     {
         $table = $this->database->getTableByName($tableName);
         $fks = $table->getAllFK();
-        foreach($fks as $fk) {
+        foreach ($fks as $fk) {
             foreach ($fk->getColumns() as $link) {
-                if($link['from']['columnName'] == $columnName) {
+                if ($link['from']['columnName'] == $columnName) {
                     return true;
                 }
             }
         }
         return false;
     }
-    
 }

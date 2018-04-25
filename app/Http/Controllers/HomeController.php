@@ -23,17 +23,13 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // $users = $this->api->get('projects');
-        // dd($users);
-        // $node = new Node();
-        // $node2 = new Node();
-        // $node->addLink($node2);
-
-        // $node3 = new Node();
-        // $node4 = new Node();
-        // $node2->addLink($node3);
-        // $node3->addLink($node4);
-        // dd($node);
+        // $test = [
+        //     ['col1' => "test", 'col2' => "test2"],
+        //     ['col1' => "test", 'col2' => "test2"]
+        // ];
+        // $test = array_unique($test, SORT_REGULAR);
+        // dd($test);
         return view('main');
     }
+
 }

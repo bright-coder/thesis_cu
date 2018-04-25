@@ -129,20 +129,22 @@ $(function () {
                 changeRequest.inputList.push(data);
                 break;
             case 'edit':
-                var data = preAddChangeList($(this).serializeArray(), $(this).attr('name'));
                 var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
-                if (IsChange(data, input)) {
-                    data.name = input.name;
-                    data.columnName = input.columnName;
-                    data.tableName = input.tableName;
-                    changeRequest.inputList.push(data);
-                }
+                var data = preAddChangeList($(this).serializeArray(), $(this).attr('name'), input);
+                console.log(data);
+                //var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
+                // var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
+                // if (isChange(data, input)) {
+                //     data.name = input.name;
+                //     data.columnName = input.columnName;
+                //     data.tableName = input.tableName;
+                //     changeRequest.inputList.push(data);
+                // }
+                changeRequest.inputList.push(data);
                 break;
             case 'delete':
-                var data = Object.assign(
-                    { changeType: $(this).attr('name') },
-                    frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')]
-                );
+                var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
+                var data = preAddChangeList($(this).serializeArray(), $(this).attr('name'), input);
                 changeRequest.inputList.push(data);
                 break;
             default:
@@ -151,7 +153,13 @@ $(function () {
 
         var last = changeRequest.inputList.length - 1;
         if (last > -1) {
-            var input = changeRequest.inputList[last];
+            if($(this).attr('name') == 'delete' || $(this).attr('name') == 'edit') {
+               var Frinput = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
+            }
+            else {
+                var input = changeRequest.inputList[last];
+            }
+            //var input = changeRequest.inputList[last];
             var tbody = changeTableBody.find('tbody');
             //var tbody = $('table#changeListTable > tbody');
             tbody.append('<tr id="' + last + '">' +
@@ -167,7 +175,7 @@ $(function () {
                 '<td>' + cleanContent(input.max) + '</td>' +
                 '<td>' + cleanContent(input.columnName) + '</td>' +
                 '<td>' + cleanContent(input.tableName) + '</td>' +
-                '<td>' + htmlBadge(input.changeType) + '</td>' +
+                '<td>' + htmlBadge(changeRequest.inputList[last].changeType) + '</td>' +
                 '<td><button class="btn btn-danger deleteChangeInput" name="' + $('#submitChangeInput').attr('name') + '" id="' + last + '">-</button></td>' +
                 '</tr>');
             modalAddChangeInput.modal('hide');

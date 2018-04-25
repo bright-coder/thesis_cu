@@ -46,13 +46,13 @@ class AnalyzeImpactDBState implements StateInterface
                 switch ($changeRequestInput->changeType) {
                 
                     case 'add':
-                        $analyzer = new AnalyzeDBAdd($this->dbTarget ,$changeRequestInput);
+                        $analyzer = new AnalyzeDBAdd($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
                     case 'edit':
-                        $analyzer = new AnalyzeDBEdit($this->dbTarget ,$changeRequestInput, $changeAnalysis->getChangeRequest()->changeFunctionalRequirementId);
+                        $analyzer = new AnalyzeDBEdit($this->dbTarget, $changeRequestInput, $this->dbTargetConnection, $changeAnalysis->getChangeRequest()->changeFunctionalRequirementId);
                         break;
                     case 'delete':
-                        $analyzer = new AnalyzeDBDelete($this->dbTarget ,$changeRequestInput);
+                        $analyzer = new AnalyzeDBDelete($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
                     default:
                         # code...
@@ -62,7 +62,7 @@ class AnalyzeImpactDBState implements StateInterface
 
                 $analyzer->analyze();
                 if($analyzer->isSchemaImpact() || $analyzer->isInstanceImpact()) {
-                    $analyzer->modify($this->dbTargetConnection);
+                    //$analyzer->modify($this->dbTargetConnection);
                 }
             }
 
