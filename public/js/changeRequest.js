@@ -122,6 +122,7 @@ $(function () {
 
     $('#addChangeInput').submit(function (event) {
         event.preventDefault();
+        
 
         switch ($(this).attr('name')) {
             case 'add':
@@ -131,7 +132,7 @@ $(function () {
             case 'edit':
                 var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
                 var data = preAddChangeList($(this).serializeArray(), $(this).attr('name'), input);
-                console.log(data);
+                //console.log(data);
                 //var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
                 // var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
                 // if (isChange(data, input)) {
@@ -140,7 +141,10 @@ $(function () {
                 //     data.tableName = input.tableName;
                 //     changeRequest.inputList.push(data);
                 // }
-                changeRequest.inputList.push(data);
+                console.log(Object.keys(data).length > 2);
+                if(Object.keys(data).length > 2){
+                    changeRequest.inputList.push(data);
+                }
                 break;
             case 'delete':
                 var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
@@ -149,21 +153,33 @@ $(function () {
                 break;
             default:
                 break;
+
         }
 
         var last = changeRequest.inputList.length - 1;
-        if (last > -1) {
+        if (last > -1 && changeRequest.inputList[last] != undefined) {
+            var name;
+            var columnName;
+            var tableName;
             if($(this).attr('name') == 'delete' || $(this).attr('name') == 'edit') {
-               var Frinput = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
+               var input = frList[changeRequest.functionalRequirementId].inputs[$('#submitChangeInput').attr('name')];
+               name = input.name;
+               columnName = input.columnName;
+               tableName = input.tableName;
+               input = changeRequest.inputList[last];
             }
             else {
                 var input = changeRequest.inputList[last];
+                name = input.name;
+                columnName = input.columnName;
+                tableName = input.tableName;
+                
             }
-            //var input = changeRequest.inputList[last];
+            
+            console.log(input);
             var tbody = changeTableBody.find('tbody');
-            //var tbody = $('table#changeListTable > tbody');
             tbody.append('<tr id="' + last + '">' +
-                '<td>' + cleanContent(input.name) + '</td>' +
+                '<td>' + cleanContent(name) + '</td>' +
                 '<td>' + cleanContent(input.dataType) + '</td>' +
                 '<td>' + cleanContent(input.length) + '</td>' +
                 '<td>' + cleanContent(input.precision) + '</td>' +
@@ -173,8 +189,8 @@ $(function () {
                 '<td>' + redGreenHtml(cleanContent(input.unique)) + '</td>' +
                 '<td>' + cleanContent(input.min) + '</td>' +
                 '<td>' + cleanContent(input.max) + '</td>' +
-                '<td>' + cleanContent(input.columnName) + '</td>' +
-                '<td>' + cleanContent(input.tableName) + '</td>' +
+                '<td>' + cleanContent(columnName) + '</td>' +
+                '<td>' + cleanContent(tableName) + '</td>' +
                 '<td>' + htmlBadge(changeRequest.inputList[last].changeType) + '</td>' +
                 '<td><button class="btn btn-danger deleteChangeInput" name="' + $('#submitChangeInput').attr('name') + '" id="' + last + '">-</button></td>' +
                 '</tr>');
@@ -201,22 +217,31 @@ $(function () {
     });
 
     $(document).on('click', '#sendChangeRequest', function () {
-        var l = Ladda.create(document.querySelector('#sendChangeRequest'));
-        l.start();
+        //var l = Ladda.create(document.querySelector('#sendChangeRequest'));
+        //l.start();
+        //dd(changeRequest);
+        console.log(changeRequest);
+        var sendObject = Object.assign({}, changeRequest);
+        sendObject.functionalRequirementId = frList[changeRequest.functionalRequirementId].id;
+        sendObject.inputs = sendObject.inputList;
+        delete sendObject.inputList;
+
+        //changeRequest.functionalRequirementId = frList[changeRequest.functionalRequirementId].id;
+        //changeRequest.inputs = changeRequest.inputList;
         $.ajax({
             url: '/api/v1/projects/' + changeRequest.projectId + '/changeRequests',
             type: 'POST',
             headers: {
                 "Authorization": "Bearer " + $('input[name=accessToken]').val(),
             },
-            data: JSON.stringify(cleanObject(changeRequest)),
+            data: JSON.stringify(cleanObject(sendObject)),
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             success: function (response) {
-                l.stop();
+               // l.stop();
             },
             error: function (response) {
-                l.stop();
+                //l.stop();
             }
         });
     });

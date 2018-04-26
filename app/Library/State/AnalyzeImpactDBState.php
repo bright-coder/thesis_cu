@@ -30,7 +30,6 @@ class AnalyzeImpactDBState implements StateInterface
      */
     private $dbTargetConnection = null;
     private $dbTarget = null;
-    private $impacts = null;
 
     public function __construct() {
         $this->impacts = array();
@@ -42,9 +41,9 @@ class AnalyzeImpactDBState implements StateInterface
             $this->getDbSchema();
 
             foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
-                $analyzer;
+                //$analyzer;
+
                 switch ($changeRequestInput->changeType) {
-                
                     case 'add':
                         $analyzer = new AnalyzeDBAdd($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
@@ -60,10 +59,20 @@ class AnalyzeImpactDBState implements StateInterface
 
                 }
 
-                $analyzer->analyze();
-                if($analyzer->isSchemaImpact() || $analyzer->isInstanceImpact()) {
-                    //$analyzer->modify($this->dbTargetConnection);
-                }
+                 $analyzer->analyze();
+                 $changeAnalysis->addDBImpactResult(
+                    $changeRequestInput->id,
+                    $analyzer->getSchemaImpactResult(), 
+                    $analyzer->getInstanceImpactResult()
+                );
+                 //dd($analyzer->getImpactResult());
+                // if($analyzer->isSchemaImpact() || $analyzer->isInstanceImpact()) {
+                //     $changeAnalysis->addInstanceImpact($changeRequestInput->id ,$analyzer->getInstanceImpactResult());
+                //     $changeAnalysis->addSchemaImpact($changeRequestInput->id ,$analyzer->getSchemaImpactResult());
+                //     //dd($analyzer->getImpactResult());
+                //     //$analyzer->modify($this->dbTargetConnection);
+                    
+                // }
             }
 
         } else {

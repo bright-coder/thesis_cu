@@ -94,7 +94,7 @@ class Database{
 
     public function isLinked(string $tableName, string $columnName): bool {
         if(\array_key_exists($tableName,$this->hashFks))
-            if(\array_key_exists($this->$columnName, $this->hashFks[$tableName]))
+            if(\array_key_exists($columnName, $this->hashFks[$tableName]))
                 return true;
         
         return false;

@@ -7,8 +7,8 @@ use App\Library\State\AnalyzeImpactDBState;
 use App\Library\State\AnalyzeImpactFRState;
 use App\Library\State\AnalyzeImpactTCState;
 use App\Library\State\AnalyzeImpactRTMState;
-use App\ChangeRequest;
-use App\ChangeRequestInput;
+use App\Model\ChangeRequest;
+use App\Model\ChangeRequestInput;
 
 class ChangeAnalysis
 {
@@ -19,11 +19,25 @@ class ChangeAnalysis
     
     private $state;
 
+
+    private $dbImpactResult = [];
+
     public function __construct(string $projectId, ChangeRequest $changeRequest, array $changeRequestInputList) {
         $this->projectId = $projectId;
         $this->changeRequest = $changeRequest;
         $this->changeRequestInputList = $changeRequestInputList;
 
+    }
+
+    public function addDBImpactResult(string $changeRequestInputId , array $schemaImpactResult, array $instanceImpactResult) : void {
+        $this->dbImpactResult[$changeRequestInputId] = [
+            'schema' => $schemaImpactResult,
+            'instance' => $instanceImpactResult
+        ];
+    }
+
+    public function addInstanceImpact(string $changeRequestInputId , array $impactResult) : void {
+        $this->instanceImpactResult[$changeRequestInputId] = $impactResult;
     }
 
     public function isConsistent() : bool {
@@ -43,10 +57,10 @@ class ChangeAnalysis
     }
 
     public function getProjectId() : string {
-        return $projectId;
+        return $this->projectId;
     }
 
-    public function analyze() {
+    public function analyze(): void {
 
         if($this->changeRequest->status == 'imported')
         {

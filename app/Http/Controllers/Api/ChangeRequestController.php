@@ -7,7 +7,7 @@ use App\Model\ChangeRequestInput;
 use App\Http\Controllers\Controller;
 use App\Library\GuardFunctionalRequirement;
 use App\Library\GuardProject;
-use App\Requests\ChangeRequestRequest;
+use App\Http\Requests\ChangeRequestRequest;
 use DB;
 use Illuminate\Http\Request;
 use App\Library\ChangeAnalysis;
@@ -57,7 +57,7 @@ class ChangeRequestController extends Controller
         }
 
         // Debug Mode Only
-        $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $id)->get();
+        $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $projectId)->get();
         foreach ($crs as $cr) {
             DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
             DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
@@ -67,58 +67,91 @@ class ChangeRequestController extends Controller
         DB::beginTransaction();
         try {
             $changeRequest = new ChangeRequest;
+            $changeRequest->projectId = $projectId;
             $changeRequest->changeFunctionalRequirementId = $request['functionalRequirementId'];
-            $changeRequest->statuts = 'imported';
+            $changeRequest->status = 'imported';
             $changeRequest->save();
             $changeRequestInputList = [];
             foreach ($request['inputs'] as $input) {
                 $changeRequestInput = new ChangeRequestInput;
                 $changeRequestInput->changeRequestId = $changeRequest->id;
                 $changeRequestInput->changeType = $input['changeType'];
-                $changeRequestInput->name = $input['name'];
-                $changeRequestInput->dataType = $input['dataType'];
-                switch ($input['dataType']) {
-                    case 'char':
-                    case 'varchar':
-                    case 'nchar':
-                    case 'nvarchar':
+                
+                if ($changeRequestInput->changeType == 'add') {
+                    $changeRequestInput->name = $input['name'];
+                    $changeRequestInput->dataType = $input['dataType'];
+                    switch ($changeRequestInput->dataType) {
+                        case 'char':
+                        case 'varchar':
+                        case 'nchar':
+                        case 'nvarchar':
+                            $changeRequestInput->length = $input['length'];
+                            break;
+                        case 'float':
+                            $changeRequestInput->precision = $input['precision'];
+                            break;
+                        case 'decimal':
+                            $changeRequestInput->precision = $input['precision'];
+                            if (\array_key_exists('scale', $input)) {
+                                $changeRequestInput->scale = $input['scale'];
+                            }
+                            break;
+                        default:
+                            # code...
+                            break;
+                    }
+                    if (\array_key_exists('default', $input)) {
+                        $changeRequestInput->default = $input['default'];
+                    } else {
+                        $changeRequestInput->default = null;
+                    }
+    
+                    $changeRequestInput->nullable = $input['nullable'];
+                    $changeRequestInput->unique = $input['unique'];
+    
+                    if (\array_key_exists('min', $input)) {
+                        $changeRequestInput->min = $input['min'];
+                    }
+                    if (\array_key_exists('max', $input)) {
+                        $changeRequestInput->max = $input['max'];
+                    }
+    
+                    $changeRequestInput->tableName = $input['tableName'];
+                    $changeRequestInput->columnName = $input['columnName'];
+
+                } elseif ($changeRequestInput->changeType == 'edit') {
+                    if(\array_key_exists('dataType', $input)) {
+                        $changeRequestInput->dataType = $input['dataType'];
+                    }
+                    if(\array_key_exists('length', $input)) {
                         $changeRequestInput->length = $input['length'];
-                        break;
-                    case 'float':
+                    }
+                    if(\array_key_exists('precision', $input)) {
                         $changeRequestInput->precision = $input['precision'];
-                        break;
-                    case 'decimal':
-                        $changeRequestInput->precision = $input['precision'];
-                        if (\array_key_exists('scale', $input)) {
-                            $changeRequestInput->scale = $input['scale'];
-                        }
-                        break;
-                    default:
-                        # code...
-                        break;
+                    }
+                    if(\array_key_exists('scale', $input)) {
+                        $changeRequestInput->scale = $input['scale'];
+                    }
+                    if(\array_key_exists('unique', $input)) {
+                        $changeRequestInput->unique = $input['unique'];
+                    }
+                    if(\array_key_exists('nullable', $input)) {
+                        $changeRequestInput->nullable = $input['nullable'];
+                    }
+                    if(\array_key_exists('min', $input)) {
+                        $changeRequestInput->min = $input['min'];
+                    }
+                    if(\array_key_exists('max', $input)) {
+                        $changeRequestInput->max = $input['max'];
+                    }
+                    $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
                 }
-
-                if (\array_key_exists('default', $input)) {
-                    $changeRequestInput->default = $input['default'];
-                } else {
-                    $changeRequestInput->default = null;
+                elseif ($changeRequestInput->changeType == 'delete') {
+                    $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
                 }
-
-                $changeRequestInput->nullable = $input['nullable'];
-                $changeRequestInput->unique = $input['unique'];
-
-                if (\array_key_exists('min', $input)) {
-                    $changeRequestInput->min = $input['min'];
-                }
-                if (\array_key_exists('max', $input)) {
-                    $changeRequestInput->max = $input['max'];
-                }
-
-                $changeRequestInput->tableName = $input['tableName'];
-                $changeRequestInput->columnName = $input['columnName'];
 
                 $changeRequestInput->save();
-                $changeRequestInputList[] = $changeRequest;
+                $changeRequestInputList[] = $changeRequestInput;
             }
             DB::commit();
         } catch (Exception $e) {
@@ -126,8 +159,9 @@ class ChangeRequestController extends Controller
             return resonse()->json(['msg' => 'Internal Server Error.'], 500);
         }
 
-        $changeAnalysis = new ChangeAnalysis($projectId,$changeRequest,$changeRequestInputList);
-        
+        $changeAnalysis = new ChangeAnalysis($projectId, $changeRequest, $changeRequestInputList);
+        $changeAnalysis->analyze();
+        dd($changeAnalysis);
     }
 
     /**

@@ -13,39 +13,40 @@ abstract class AbstractAnalyzeDBMethod
      *
      * @var ChangeRequestInput
      */
-    private $changeRequestInput = null ;
+    protected $changeRequestInput = null ;
     /**
      * Undocumented variable
      *
      * @var Database
      */
-    private $database = null;
+    protected $database = null;
 
     /**
      * Undocumented variable
      *
      * @var boolean
      */
-    private $instanceImpact = false;
+    protected $instanceImpact = false;
     
     /**
      * Undocumented variable
      *
      * @var boolean
      */
-    private $schemaImpact = false;
+    protected $schemaImpact = false;
 
     /**
      * Undocumented variable
      *
      * @var DBTargetInterface
      */
-    private $dbTargetConnection = null;
+    protected $dbTargetConnection = null;
 
     /**
      * @var array
      */
-    private $instanceImpactResult = [];
+    protected $instanceImpactResult = [];
+    protected $schemaImpactResult = [];
     
     private function isUnique() : boo
     {
@@ -53,10 +54,21 @@ abstract class AbstractAnalyzeDBMethod
     }
 
     public function isSchemaImpact(): bool { return $this->schemaImpact; }
-    public function isInstanceImpact() : bool { return $this->instanceImpact; }
+    public function isInstanceImpact() : bool {
+        return count($this->instanceImpactResult) > 0; 
+    }
+
+    public function getInstanceImpactResult(): array {
+        $this->instanceImpactResult = array_unique($this->instanceImpactResult, SORT_REGULAR); 
+        return $this->instanceImpactResult;
+    }
     
+    public function getSchemaImpactResult(): array {
+        return $this->schemaImpactResult;
+    }
+
     abstract public function analyze(): bool;
-    abstract public function modify(DBTargetConnection $dbTargetConnection): bool;
+    abstract public function modify(): bool;
     
     
 }

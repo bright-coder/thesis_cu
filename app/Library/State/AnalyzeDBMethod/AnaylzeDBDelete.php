@@ -8,7 +8,7 @@ use App\Library\CustomModel\DBTargetInterface;
 
 class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
     
-    public function construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
+    public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;

@@ -9,5 +9,4 @@ interface Constraint{
     public function getColumns(): array;
     public function getDetail(): array;
 
-
 }

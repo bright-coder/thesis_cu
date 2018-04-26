@@ -323,6 +323,23 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
+    public function getDuplicateInstance(string $tableName, array $columnName): array{
+            $strOn = [];
+            foreach($columnName as $column) {
+                $strOn[] = "y.".$column."=dt.".$column;
+            }
+            $strQuery = "SELECT y.* FROM {$tableName} y INNER JOIN (".
+                "SELECT ".\implode(", ",$columnName)." COUNT(*) AS CountNumber".
+                " FROM {$tableName} GROUP BY ".\implode(", ",$columnName)." HAVING COUNT(*) > 1 ORDER BY ".\implode(", ",$columnName)." ) dt".
+                " ON ".\implode(" AND ",$strOn);
+
+        $stmt = $this->conObj->prepare($strQuery);
+        if($stmt->execute()) {
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
+        return [];
+    }
+
     public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, string $default): bool {
         $columnTemp = $newColumnName;
         $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";

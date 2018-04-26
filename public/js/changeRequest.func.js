@@ -198,10 +198,10 @@ function preAddChangeList(dataArray,type , input = null){
                 delete result.unique;
             }
         }
-        result.frId = input.id;
+        result.functionalRequirementInputId = input.id;
     }
     else if(type == 'delete') {
-        result = { frId: input.id };
+        result = { functionalRequirementInputId: input.id };
     }
     result.changeType = type;
     return result;
@@ -229,4 +229,21 @@ function cleanObject(obj) {
         }
     });
     return obj;
+}
+
+function filter_array(array) {
+    var index = -1,
+        arr_length = array ? array.length : 0,
+        resIndex = -1,
+        result = [];
+
+    while (++index < arr_length) {
+        var value = array[index];
+
+        if (value) {
+            result[++resIndex] = value;
+        }
+    }
+
+    return result;
 }
