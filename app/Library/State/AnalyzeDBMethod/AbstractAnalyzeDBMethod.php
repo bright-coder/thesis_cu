@@ -47,11 +47,6 @@ abstract class AbstractAnalyzeDBMethod
      */
     protected $instanceImpactResult = [];
     protected $schemaImpactResult = [];
-    
-    private function isUnique() : boo
-    {
-        \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true ;
-    }
 
     public function isSchemaImpact(): bool { return $this->schemaImpact; }
     public function isInstanceImpact() : bool {
