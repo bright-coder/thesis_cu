@@ -59,7 +59,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
                 'length' => $this->changeRequestInput->length,
                 'precision' => $this->changeRequestInput->precision,
                 'scale' => $this->changeRequestInput->scale,
-                'min' => $this->changeRequestInput->scale,
+                'min' => $this->changeRequestInput->min,
                 'max' => $this->changeRequestInput->max
             ], 
             $this->isUnique()

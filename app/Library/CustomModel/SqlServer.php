@@ -395,16 +395,31 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    public function disableConstraint(string $tableName, string $columnName, string $constraintName = "ALL") : bool {   
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName NOCHECK CONSTRAINT $constraitnName");
+    // public function disableConstraint(string $tableName, string $columnName, string $constraintName = "ALL") : bool {   
+    //     $stmt = $this->conObj->prepare("ALTER TABLE $tableName NOCHECK CONSTRAINT $constraitnName");
+    //     if($stmt->execute()){
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
+    // public function enableConstraint(string $tableName, string $columnName, string $constraintName = "ALL") : bool {
+    //     $stmt = $this->conObj->prepare("ALTER TABLE $tableName CHECK CONSTRAINT $constraintName");
+    //     if($stmt->execute()){
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
+    public function disableConstraint(string $tableName = '?'): bool {
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName NOCHECK CONSTRAINT ALL");
         if($stmt->execute()){
             return true;
         }
         return false;
     }
-
-    public function enableConstraint(string $tableName, string $columnName, string $constraintName = "ALL") : bool {
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName CHECK CONSTRAINT $constraintName");
+    public function enableConstraint(string $tableName = '?'): bool {
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName CHECK CONSTRAINT ALL");
         if($stmt->execute()){
             return true;
         }
