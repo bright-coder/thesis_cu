@@ -23,7 +23,7 @@ interface DBTargetInterface
     public function dropConstraint(string $tableName, string $constraint) : bool;
     public function dropColumn(string $tableName, string $columnName): bool;
     public function addColumn(ChangeRequestInput $changeRequestInput): bool;
-    public function updateColumn(string $tableName, string $columnName,array $columnDetail): bool;
+    public function updateColumn(array $columnDetail): bool;
     public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, string $default): bool;
     public function updateColumnName(string $tableName, string $oldColumnName, string $newColumnName) : bool;
     public function addUniqueConstraint(string $tableName, string $columnName) : bool;

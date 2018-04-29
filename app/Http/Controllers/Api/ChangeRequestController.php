@@ -101,19 +101,32 @@ class ChangeRequestController extends Controller
                             break;
                     }
                     if (\array_key_exists('default', $input)) {
-                        $changeRequestInput->default = $input['default'];
-                    } else {
-                        $changeRequestInput->default = null;
+                        if($input['default'] == null){
+                            $changeRequestInput->default = "#NULL";
+                        }
+                        else {
+                            $changeRequestInput->default = $input['default'];
+                        }
                     }
     
                     $changeRequestInput->nullable = $input['nullable'];
                     $changeRequestInput->unique = $input['unique'];
     
                     if (\array_key_exists('min', $input)) {
-                        $changeRequestInput->min = $input['min'];
+                        if($input['min'] == null) {
+                            $changeRequestInput->default = "#NULL";
+                        }
+                        else {
+                            $changeRequestInput->min = $input['min'];
+                        }
                     }
                     if (\array_key_exists('max', $input)) {
-                        $changeRequestInput->max = $input['max'];
+                        if($input['max'] == null) {
+                            $changeRequestInput->max = "#NULL";
+                        }
+                        else {
+                            $changeRequestInput->max = $input['max'];
+                        }
                     }
     
                     $changeRequestInput->tableName = $input['tableName'];

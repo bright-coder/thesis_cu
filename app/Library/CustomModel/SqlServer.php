@@ -237,9 +237,6 @@ class SqlServer implements DBTargetInterface
         
         $strSqlDefault = "DEFAULT(".$changeRequestInput->default.")";
         
-        if($changeRequestInput->default == null &&  \strcasecmp($changeRequestInput->nullable, 'N') == 0){
-            $strSqlDefault = "0";
-        }
         if($changeRequestInput->default == null && \strcasecmp($changeRequestInput->nullable, 'N') == 0){
             $strSqlDefault = "0";
         }
@@ -254,7 +251,7 @@ class SqlServer implements DBTargetInterface
     }
 
     private function getStrSqlNullable(bool $isNullable): string{
-        return !$isNullable ? 'NOT NULL' : '';
+        return !$isNullable ? 'NOT NULL' : 'NULL';
     }
 
     private function getStrSqlDataType(string $dataType, array $info = ['length' => null , 'precision' => null , 'scale' => null]): string {
@@ -270,29 +267,42 @@ class SqlServer implements DBTargetInterface
         return $dataType;
     }
 
-    public function updateColumn(string $tableName, string $columnName,array $columnDetail): bool {
-        $dataType = strtolower($columnDetail['dataType']);
-        if($dataType == "int" || $dataType == "date" || $dataType == "datetime"){
+    public function updateColumn(array $columnDetail): bool {
+        $dataTypeDetail = [
+            'length' => \array_key_exists('length',$columnDetail['newSchema']) ? 
+                $columnDetail['newSchema']['length'] : $columnDetail['oldSchema']['length'],
+            'precision' => \array_key_exists('precision',$columnDetail['newSchema']) ? 
+                $columnDetail['newSchema']['precision'] : $columnDetail['oldSchema']['precision'],
+            'scale' => \array_key_exists('scale',$columnDetail['newSchema']) ? 
+                $columnDetail['newSchema']['scale'] : $columnDetail['oldSchema']['scale'],
+        ];
 
-        }
-        elseif(\strpos($dataType,'char') !== false || \strpos($dataType,'char') == 0) {
-            $dataType .= "(".$columnDetail['length'].")";
-        }
-        elseif(\strpos($dataType,'decimal') != false ) {
-            $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
-            $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
+        $dataType = $this->getStrSqlDataType(
+            \array_key_exist('dataType', $columnDetail['newSchema']) ? 
+                $columnDetail['newSchema']['dataType'] : $columnDetail['oldSchema']['dataType'],
+            $dataTypeDetail);
         
-            $dataType .= "($precision,$scale)";
-        }
-        
-        $nullable = $columnDetail['nullable'] == false ? ' NOT NULL ' : "";
-        $default = "DEFAULT(".$columnDetail['default'].")";
-        
-        if($columnDetail['default'] == null && $columnDetail['nullable'] == false){
-            $default = "";
+        $nullable = $this->getStrSqlNullable(
+            \array_key_exist('nullable', $columnDetail['newSchema']) ?
+                $columnDetail['newSchema']['nullable'] : $columnDetail['oldSchema']['nullable']
+        );
+
+        $default = "DEFAULT(".$columnDetail['oldSchema']['default'].")";
+
+        if($columnDetail['oldSchema']['default'] === null) {
+            $default = '';
         }
 
-        $strQuery = "ALTER TABLE ".$tableName." ALTER COLUMN ".$columnName." ".$dataType." ".$default;
+        if(\array_key_exists('default', $columnDetail['newSchema'])) {
+            if($columnDetail['newSchema']['default'] == '#NULL'){
+                $default = '';
+            }
+            else {
+                $default = "DEFAULT(".$columnDetail['newSchema']['default'].")";
+            }
+        }
+
+        $strQuery = "ALTER TABLE ".$tableName." ALTER COLUMN ".$columnName." ".$dataType." ".$nullable." ".$default;
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
