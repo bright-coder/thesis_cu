@@ -5,12 +5,11 @@ namespace App\Library\State\AnalyzeDBMethod;
 use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
-use App\Library\CustomModel\DBTargetConnection;
 use App\Library\CustomModel\DBTargetInterface;
 use App\Model\FunctionalRequirement;
 use App\Model\FunctionalRequirementInput;
 use App\Library\Node;
-use App\Library\Constraint\Constraint;
+use App\Library\Datatype\DataType;
 
 class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 {
@@ -132,9 +131,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'scale' => $column->getDataType()->getScale(),
             'default' => $column->getDefault(),
             'nullalble' => $column->isNullable(),
-            'unique' => $this->isColumnUnique($table->getName(), $column->getName()),
-            'min' => $this->getMin($table->getName(), $column->getName()),
-            'max' => $this->getMax($table->getName(), $column->getName())
+            'unique' => $table->isUnique($column->getName()),
+            'min' => $table->getMin($column->getName()),
+            'max' => $table->getMax($column->getName())
         ];
 
         $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
@@ -161,7 +160,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $dataTypeRef = $this->changeRequestInput->dataType;
         }
 
-        if ($this->isStringType($dataTypeRef)) {
+        if (DataType::isStringType($dataTypeRef)) {
             if ($this->changeRequestInput->length != null) {
                 if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $column->getDataType()->getLength())) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
@@ -171,7 +170,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 }
                 $refSchema['length'] = $this->changeRequestInput->length;
             }
-        } elseif ($this->isNumericType($dataTypeRef)) {
+        } elseif (DataType::isNumericType($dataTypeRef)) {
             if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL') {
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} < {$this->changeRequestInput->min}");
@@ -196,7 +195,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             if ($this->changeRequestInput->max == '#NULL') {
                 $refSchema['max'] = null;
             }
-        } elseif ($this->isFloatType($dataTypeRef)) {
+        } elseif (DataType::isFloatType($dataTypeRef)) {
             if ($this->changeRequestInput->precision != null) {
                 if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
@@ -313,7 +312,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $dataTypeRef = $scResult['newSchema']['dataType'];
             }
 
-            if ($this->isNumericType($dataTypeRef)) {
+            if (DataType::isNumericType($dataTypeRef)) {
                 $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['column']);
                 if (count($checkConstraintList) > 0) {
                     foreach ($checkConstraintList as $checkConstraint) {
@@ -333,7 +332,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['column'], $min, $max);
             } else {
                 if (\array_key_exists('dataType', $scResult['newSchema'])) {
-                    if (! $this->isNumericType($scResult['newSchema']['dataType'])) {
+                    if (! DataType::isNumericType($scResult['newSchema']['dataType'])) {
                         $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['column']);
                         if (count($checkConstraintList) > 0) {
                             foreach ($checkConstraintList as $checkConstraint) {

@@ -16,11 +16,12 @@ final class DataType {
 
     public static function isStringType(string $dataType) : bool
     {
+        
         switch (\strtolower($dataType)) {
-            case 'char':
-            case 'varchar':
-            case 'nchar':
-            case 'nvarchar':
+            case DataType::CHAR :
+            case DataType::NCHAR :
+            case DataType::VARCHAR :
+            case DataType::NVARCHAR :
                 return true;
         
             default:
@@ -31,9 +32,9 @@ final class DataType {
     public static function isNumericType(string $dataType) : bool
     {
         switch (\strtolower($dataType)) {
-            case 'int':
-            case 'float':
-            case 'decimal':
+            case DataType::INTEGER :
+            case DataType::FLOAT :
+            case DataType::DECIMAL :
                 return true;
 
             default:
@@ -44,8 +45,8 @@ final class DataType {
     public static function isFloatType(string $dataType) : bool
     {
         switch (\strtolower($dataType)) {
-            case 'float':
-            case 'decimal':
+            case DataType::FLOAT :
+            case DataType::DECIMAL :
                 return true;
             
             default:
