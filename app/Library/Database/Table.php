@@ -118,6 +118,81 @@ class Table
         return $this->fks;
     }
 
+    public function getFKByColumnName(string $columnName): ForeignKey
+    {
+        $fks = $this->getAllFK();
+        foreach ($fks as $fk) {
+            foreach ($fk->getColumns() as $link) {
+                if ($link['from']['columnName'] == $columnName) {
+                    return $fk;
+                }
+            }
+        }
+    }
+
+    public function isPK(string $columnName): bool
+    {
+        return \in_array($columnName, $this->pk->getColumns());
+    }
+
+    public function isFK(string $columnName): bool
+    {
+        $fks = $table->getAllFK();
+        foreach ($fks as $fk) {
+            foreach ($fk->getColumns() as $link) {
+                if ($link['from']['columnName'] == $columnName) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function isUnique(string $columnName): bool
+    {
+        $uniqueConstraints = $this->getAllUniqueConstraint();
+        foreach ($uniqueConstraints as $uniqueConstraint) {
+            foreach ($uniqueConstraint->getColumns() as $column) {
+                if ($column == $columnName) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function getMin(string $columnName)
+    {
+        $checkConstraints = $this->getAllCheckConstraint();
+        foreach ($checkConstraints as $checkConstraint) {
+            foreach ($checkConstraint->getColumns() as $column) {
+                if ($column == $columnName) {
+                    $minAllColumn = $checkConstraint->getDetail()['min'];
+                    if (\array_key_exists($columnName, $minAllColumn)) {
+                        return $minAllColumn[$columnName];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public function getMax(string $columnName)
+    {
+        $checkConstraints = $this->getAllCheckConstraint();
+        foreach ($checkConstraints as $checkConstraint) {
+            foreach ($checkConstraint->getColumns() as $column) {
+                if ($column == $columnName) {
+                    $maxAllColumn = $checkConstraint->getDetail()['max'];
+                    if (\array_key_exists($columnName, $maxAllColumn)) {
+                        return $maxAllColumn[$columnName];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public function setUniqueConstraints(array $uniqueConstraints): void
     {
         $this->uniqueConstraints = $uniqueConstraints;

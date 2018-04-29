@@ -132,7 +132,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'scale' => $column->getDataType()->getScale(),
             'default' => $column->getDefault(),
             'nullalble' => $column->isNullable(),
-            'unique' => $this->isDBColumnUnique($table->getName(), $column->getName()),
+            'unique' => $this->isColumnUnique($table->getName(), $column->getName()),
             'min' => $this->getMin($table->getName(), $column->getName()),
             'max' => $this->getMax($table->getName(), $column->getName())
         ];
@@ -353,69 +353,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return FunctionalRequirement::where('id', $id)->first();
     }
 
-    private function isChangeRequestInputUnique() : bool
-    {
-        return \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true ;
-    }
-
-    private function isChangeRequestInputNullable() : bool
-    {
-        return \strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true ;
-    }
-
-    private function getPK(string $tableName): Constraint
-    {
-        $table = $this->database->getTableByName($tableName);
-        return $table->getPK();
-    }
-
-    private function getFK(string $tableName, string $columnName): Constraint
-    {
-        $table = $this->database->getTableByName($tableName);
-        $fks = $table->getAllFK();
-        foreach ($fks as $fk) {
-            foreach ($fk->getColumns() as $link) {
-                if ($link['from']['columnName'] == $columnName) {
-                    return $fk;
-                }
-            }
-        }
-    }
-
-    private function isDBColumnUnique(string $tableName, string $columnName): bool
-    {
-        $uniqueConstraints = $this->database->getTableByName($tableName)->getAllUniqueConstraint();
-        foreach ($uniqueConstraints as $uniqueConstraint) {
-            foreach ($uniqueConstraint->getColumns() as $column) {
-                if ($column == $columnName) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private function isPK(string $tableName, string $columnName): bool
-    {
-        $table = $this->database->getTableByName($tableName);
-        $pk = $table->getPK();
-        return \in_array($columnName, $pk->getColumns());
-    }
-
-    private function isFK(string $tableName, string $columnName): bool
-    {
-        $table = $this->database->getTableByName($tableName);
-        $fks = $table->getAllFK();
-        foreach ($fks as $fk) {
-            foreach ($fk->getColumns() as $link) {
-                if ($link['from']['columnName'] == $columnName) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private function findInstanceImpactByDataType(string $changeDataType, string $dbColumnDataType): bool
     {
         $char = ['varchar', 'char'];
@@ -467,38 +404,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return ($changeMin > $columnMin) ? true : false;
     }
 
-    private function getMin(string $tableName, string $columnName)
-    {
-        $checkConstraints = $this->database->getTableByName($tableName)->getAllCheckConstraint();
-        foreach ($checkConstraints as $checkConstraint) {
-            foreach ($checkConstraint->getColumns() as $column) {
-                if ($column == $columnName) {
-                    $minAllColumn = $checkConstraint->getDetail()['min'];
-                    if (\array_key_exists($columnName, $minAllColumn)) {
-                        return $minAllColumn[$columnName];
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private function getMax(string $tableName, string $columnName)
-    {
-        $checkConstraints = $this->database->getTableByName($tableName)->getAllCheckConstraint();
-        foreach ($checkConstraints as $checkConstraint) {
-            foreach ($checkConstraint->getColumns() as $column) {
-                if ($column == $columnName) {
-                    $minAllColumn = $checkConstraint->getDetail()['max'];
-                    if (\array_key_exists($columnName, $minAllColumn)) {
-                        return $minAllColumn[$columnName];
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     private function findInstanceImpactByMax($changeMax, $columnMax): bool
     {
         if ($columnMax == null) {
@@ -506,45 +411,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         return ($changeMax < $columnMax) ? true : false;
-    }
-
-    private function isStringType(string $dataType) : bool
-    {
-        switch (\strtolower($dataType)) {
-            case 'char':
-            case 'varchar':
-            case 'nchar':
-            case 'nvarchar':
-                return true;
-        
-            default:
-                return false;
-        }
-    }
-
-    private function isNumericType(string $dataType) : bool
-    {
-        switch (\strtolower($dataType)) {
-            case 'int':
-            case 'float':
-            case 'decimal':
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    private function isFloatType(string $dataType) : bool
-    {
-        switch (\strtolower($dataType)) {
-            case 'float':
-            case 'decimal':
-                return true;
-            
-            default:
-                return false;
-        }
     }
 
     private function findUniqueConstraintRelated(string $tableName, string $columnName): array

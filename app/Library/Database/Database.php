@@ -3,6 +3,7 @@
 namespace App\Library\Database;
 
 use App\Library\Node;
+use App\Library\Constraint\Constraint;
 
 class Database{
     /**

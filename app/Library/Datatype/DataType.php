@@ -14,4 +14,43 @@ final class DataType {
     const DATE = 'date';
     const DATETIME = 'datetime';
 
+    public static function isStringType(string $dataType) : bool
+    {
+        switch (\strtolower($dataType)) {
+            case 'char':
+            case 'varchar':
+            case 'nchar':
+            case 'nvarchar':
+                return true;
+        
+            default:
+                return false;
+        }
+    }
+
+    public static function isNumericType(string $dataType) : bool
+    {
+        switch (\strtolower($dataType)) {
+            case 'int':
+            case 'float':
+            case 'decimal':
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public static function isFloatType(string $dataType) : bool
+    {
+        switch (\strtolower($dataType)) {
+            case 'float':
+            case 'decimal':
+                return true;
+            
+            default:
+                return false;
+        }
+    }
+
 }
