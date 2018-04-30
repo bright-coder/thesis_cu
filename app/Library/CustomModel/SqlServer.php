@@ -278,12 +278,12 @@ class SqlServer implements DBTargetInterface
         ];
 
         $dataType = $this->getStrSqlDataType(
-            \array_key_exist('dataType', $columnDetail['newSchema']) ? 
+            \array_key_exists('dataType', $columnDetail['newSchema']) ? 
                 $columnDetail['newSchema']['dataType'] : $columnDetail['oldSchema']['dataType'],
             $dataTypeDetail);
         
         $nullable = $this->getStrSqlNullable(
-            \array_key_exist('nullable', $columnDetail['newSchema']) ?
+            \array_key_exists('nullable', $columnDetail['newSchema']) ?
                 $columnDetail['newSchema']['nullable'] : $columnDetail['oldSchema']['nullable']
         );
 
@@ -302,7 +302,7 @@ class SqlServer implements DBTargetInterface
             }
         }
 
-        $strQuery = "ALTER TABLE ".$tableName." ALTER COLUMN ".$columnName." ".$dataType." ".$nullable." ".$default;
+        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$dataType." ".$nullable." ".$default;
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
@@ -350,15 +350,17 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
-    public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, string $default): bool {
+    public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, $default): bool {
         $columnTemp = $newColumnName;
         $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";
         // if(\array_last($newValues) == false){
         //     $newValues = \array_keys($newValues);
         // }
+        dd($refValues);
         foreach($refValues as $index => $refValue) {
             $whenCondition = [];
-            foreach($refValue as $columnName => $value) {
+            foreach($refValue as $columnName => $oldValue) {
+                dd($oldValue);
                 $whenCondition[] = "$columnName = '$oldValue'";
             }
             $strWhenCondition = \implode(" AND ", $whenCondition);
@@ -422,15 +424,15 @@ class SqlServer implements DBTargetInterface
     // }
 
     public function disableConstraint(string $tableName = '?'): bool {
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName NOCHECK CONSTRAINT ALL");
-        if($stmt->execute()){
+        $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE $tableName NOCHECK CONSTRAINT all\"");
+        if($stmt !== false){
             return true;
         }
         return false;
     }
     public function enableConstraint(string $tableName = '?'): bool {
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName CHECK CONSTRAINT ALL");
-        if($stmt->execute()){
+        $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE $tableName CHECK CONSTRAINT all\"");
+        if($stmt !== false){
             return true;
         }
         return false;

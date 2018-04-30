@@ -179,14 +179,20 @@ function preAddChangeList(dataArray,type , input = null){
             }
         }
         if('min' in result){
-            if(result.min == input.min) {
+            if(result.min == input.min || result.min == '') {
                 delete result.min;
             }
         }
         if('max' in result){
-            if(result.max == input.max) {
+            if(result.max == input.max || result.max == '') {
                 delete result.max;
             }
+        }
+        if(!('nullable' in result)) {
+            result.nullable = 'N';
+        }
+        if(!('unique' in result)) {
+            result.unique = 'N';
         }
         if('nullable' in result){
             if(result.nullable == input.nullable) {

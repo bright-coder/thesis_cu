@@ -60,19 +60,13 @@ class AnalyzeImpactDBState implements StateInterface
                 }
 
                  $analyzer->analyze();
+                 //$analyzer->modify();
                  $changeAnalysis->addDBImpactResult(
                     $changeRequestInput->id,
                     $analyzer->getSchemaImpactResult(), 
                     $analyzer->getInstanceImpactResult()
                 );
-                 //dd($analyzer->getImpactResult());
-                // if($analyzer->isSchemaImpact() || $analyzer->isInstanceImpact()) {
-                //     $changeAnalysis->addInstanceImpact($changeRequestInput->id ,$analyzer->getInstanceImpactResult());
-                //     $changeAnalysis->addSchemaImpact($changeRequestInput->id ,$analyzer->getSchemaImpactResult());
-                //     //dd($analyzer->getImpactResult());
-                //     //$analyzer->modify($this->dbTargetConnection);
-                    
-                // }
+                //$analyzer->modify();
             }
 
         } else {

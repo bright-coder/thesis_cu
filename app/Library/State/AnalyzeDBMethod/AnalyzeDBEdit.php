@@ -10,6 +10,7 @@ use App\Model\FunctionalRequirement;
 use App\Model\FunctionalRequirementInput;
 use App\Library\Node;
 use App\Library\Datatype\DataType;
+use App\Library\Random\RandomContext;
 
 class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 {
@@ -101,18 +102,21 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $instance[] = $this->findInstanceImpactByMax($this->changeRequest->max, $primaryColumnMax);
             }
         }
-
-
-        if ($this->changeRequestInput->dataType != null) {
-            if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $column->getDataType()->getType())) {
-                $this->instanceImpactResult[] = $this->dbTargetConnection->getInstanceByTableName($this->functinoalRequirementInput->tableName);
-                return false;
-            }
-            
-            $dataTypeRef = $this->changeRequestInput->dataType;
+        else {
+            $this->findImpactNormalColumn();
         }
 
-        $this->findInstanceImpactByDataTypeDetail($dataTypeRef);
+
+        // if ($this->changeRequestInput->dataType != null) {
+        //     if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $column->getDataType()->getType())) {
+        //         $this->instanceImpactResult[] = $this->dbTargetConnection->getInstanceByTableName($this->functinoalRequirementInput->tableName);
+        //         return false;
+        //     }
+            
+        //     $dataTypeRef = $this->changeRequestInput->dataType;
+        // }
+
+        // $this->findInstanceImpactByDataTypeDetail($dataTypeRef);
         
 
         return false;
@@ -120,8 +124,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     private function findImpactNormalColumn()
     {
-        $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
-        $column = $table->getColumnByName($this->functionRequirementInput->ColumnName);
+        
+        $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
+        //dd($table);
+        $column = $table->getColumnByName($this->functinoalRequirementInput->columnName);
         
         //set refSchema to oldSchema
         $refSchema = [
@@ -130,7 +136,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'precision' => $column->getDataType()->getPrecision(),
             'scale' => $column->getDataType()->getScale(),
             'default' => $column->getDefault(),
-            'nullalble' => $column->isNullable(),
+            'nullable' => $column->isNullable(),
             'unique' => $table->isUnique($column->getName()),
             'min' => $table->getMin($column->getName()),
             'max' => $table->getMax($column->getName())
@@ -144,7 +150,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'tableName' => $table->getName(),
             'columnName' => $column->getName(),
             'oldSchema' => $refSchema,
-            'newSchema' => count($newSchema > 0) ? $newSchema : null
+            'newSchema' => count($newSchema) > 0 ? $newSchema : null
         ];
 
         $dataTypeRef = $refSchema['dataType'];
@@ -153,7 +159,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
                 $instance = $this->dbTargetConnection->getInstanceByTableName($this->functinoalRequirementInput->tableName);
-                $this->instanceImpactResult[] = $instance;
+                $this->instanceImpactResult[0] = $instance;
                 //return false;
             }
             $refSchema['dataType'] = $this->changeRequestInput->dataType;
@@ -162,10 +168,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
         if (DataType::isStringType($dataTypeRef)) {
             if ($this->changeRequestInput->length != null) {
-                if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $column->getDataType()->getLength())) {
+                if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
                     if (count($instance) > 0) {
-                        array_push($this->instanceImpactResult[0], $instance);
+                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
                 $refSchema['length'] = $this->changeRequestInput->length;
@@ -175,7 +181,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} < {$this->changeRequestInput->min}");
                     if (count($instance) > 0) {
-                        array_push($this->instanceImpactResult[0], $instance);
+                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
             }
@@ -183,7 +189,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} > {$this->changeRequestInput->max}");
                     if (count($instance) > 0) {
-                        array_push($this->instanceImpactResult[0], $instance);
+                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
             }
@@ -200,7 +206,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
                     if (count($instance) > 0) {
-                        array_push($this->instanceImpactResult[0], $instance);
+                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
                 $refSchema['precision'] = $this->changeRequestInput->precision;
@@ -210,7 +216,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
                         $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
                         if (count($instance) > 0) {
-                            array_push($this->instanceImpactResult[0], $instance);
+                            $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                         }
                     }
                 }
@@ -227,20 +233,20 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         if ($this->changeRequestInput->nullable != null) {
-            if ($this->findInstanceImpactByNullable($newColumnSchema['nullable'], $refSchema['nullable'])) {
+            if ($this->findInstanceImpactByNullable(\strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true, $refSchema['nullable'])) {
                 $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} IS NULL");
-                if (count($instane) > 0) {
-                    array_push($this->instanceImpactResult[0], $instance);
+                if (count($instance) > 0) {
+                    $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                 }
             }
             $refSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true;
         }
         
         if ($this->changeRequestInput->unqiue != null) {
-            if ($this->findInstanceImpactByUnique($newColumnSchema['unique'], $refSchema['unique'])) {
+            if ($this->findInstanceImpactByUnique(\strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true, $refSchema['unique'])) {
                 $instance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), $column->getName());
                 if (count($instance) > 0) {
-                    array_push($this->instanceImpactResult[0], $instance);
+                    $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                 }
             }
             $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true;
@@ -263,14 +269,15 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         );
 
             $this->instanceImpactResult[0] = array_unique($this->instanceImpactResult[0], SORT_REGULAR);
-
+            
             if (count($randomData) >= count($this->instanceImpactResult[0])) {
                 $randomData = \array_splice($randomData, 0, count($this->instanceImpactResult[0]));
             }
             $this->instanceImpactResult[0] = [
-            'oldInstance' =>  $this->instanceImpactResult[0],
-            'newInstance' => $randomData
-        ];
+                'oldInstance' =>  $this->instanceImpactResult[0],
+                'newInstance' => $randomData
+            ];
+            dd($this->instanceImpactResult[0]);
         //$pkColumns = $this->database->getTableByName($this->changeRequestInput->tableName)->getPK()->getColumns();
         } else {
             $this->instanceImpactResult[0] = null;
@@ -284,13 +291,31 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $this->dbTargetConnection->disableConstraint();
             $this->dbTargetConnection->updateColumn($scResult);
 
+            $default = $scResult['oldSchema']['default'];
+            if(\array_key_exists('default', $scResult['newSchema'])) {
+                $default = $scResult['newSchema']['default'];
+                if($default == '#NULL') {
+                    $default = null;
+                }
+            }
+
+            $nullable = $scResult['oldSchema']['nullable'];
+            if(\array_key_exists('nullable', $scResult['newSchema'])) {
+                $nullable = $scResult['newSchema']['nullable'];
+            }
+
+            if($default === null && $nullable === false) {
+                $default = '';
+            }
+            
+
             if ($this->instanceImpactResult[$index] != null) {
                 $this->dbTargetConnection->updateInstance(
                     $scResult['tableName'],
-                    $scResult['column'],
+                    $scResult['columnName'],
                     $this->instanceImpactResult[$index]['oldInstance'],
                     $this->instanceImpactResult[$index]['newInstance'],
-                    $refSchema['nullable'] === false && $refSchema['default'] === null ? '' : $refSchema['default']
+                    $default
                 );
             }
 
@@ -344,12 +369,19 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
         }
 
+        $this->dbTargetConnection->enableConstraint();
+
         return true;
     }
 
     private function findFunctionalRequirementById(string $id) : FunctionalRequirement
     {
         return FunctionalRequirement::where('id', $id)->first();
+    }
+
+    private function findFunctionalRequirementInputById(string $id) : FunctionalRequirementInput
+    {
+        return FunctionalRequirementInput::where('id', $id)->first();
     }
 
     private function findInstanceImpactByDataType(string $changeDataType, string $dbColumnDataType): bool
