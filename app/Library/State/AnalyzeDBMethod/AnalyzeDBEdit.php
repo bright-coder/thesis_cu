@@ -40,91 +40,100 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     public function analyze() : bool
     {
         $this->schemaImpact = true;
-        //dd($this->functionalRequirement);
-        $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
-        $column = $table->getColumnbyName($this->functinoalRequirementInput->columnName);
-
-        // $this->schemaImpactResult[] = ['tableName' => $this->functinoalRequirementInput->tableName,
-        // 'columnName' => $this->functinoalRequirementInput->columnName];
-
-        $dataTypeRef = $column->getDataType()->getType();
-
-        if ($this->database->isLinked($table->getName(), $column->getName())) {
-
-            // If this column is not Primary column ;
-            if ($this->isFK($table->getName(), $column->getName())) {
-                if ($this->changeRequestInput->unique != null) {
-                    if ($this->isUnique()) {
-                        $duplicateInstance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), [$column->getName()]);
-                        if (count($duplicateInstance > 0)) {
-                            // cannot modify impact; Referential Integrity;
-                        }
-                    }
-                }
-                if ($this->changeRequestInput->nullable != null) {
-                    if (! $this->isNullable()) {
-                        $nullInstance =  $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} IS NULL");
-                        if (count($nullInstance) > 0) {
-                            // cannot modify impact; Referential Integrity;
-                        }
-                    }
-                }
-                if ($this->changeRequestInput->default != null) {
-                    //
-                }
-            }
-
-
-            // use Primary Column to find impacted
-            // This Impact will affected many table;
-            $primaryColumnNode = $this->findPrimaryColumnNode($table->getName(), $column->getName());
-            $primaryTable = $this->database->getTableByName($primaryColumnNode->getTableName());
-            $primaryColumn = $primaryTable->getColumnByName($primaryColumnNode->getColumnName());
-            $instance = array();
-            $dataTypeRef = $primaryColumn->getDataType()->getType();
-            if ($this->changeRequestInput->dataType != null) {
-                if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $dataTypeRef)) {
-                    $instance[] = $this->dbTargetConnection->getInstanceByTableName($primaryTable->getName());
-                }
-
-                $dataTypeRef = $this->changeRequestInput->dataType;
-            }
-
-            //$instance = ;
-
-            if ($this->changeRequest->min != null) {
-                $primaryColumnMin = $this->getMin($primaryTable->getName(), $primaryColumn->getName());
-                $instance[] = $this->findInstanceImpactByMin($this->changeRequest->min, $primaryColumnMin);
-            }
-
-            if ($this->changeRequest->max != null) {
-                $primaryColumnMax = $this->getMax($primaryTable->getName(), $primaryColumn->getName());
-                $instance[] = $this->findInstanceImpactByMax($this->changeRequest->max, $primaryColumnMax);
-            }
-        }
-        else {
-            $this->findImpactNormalColumn();
-        }
-
-
-        // if ($this->changeRequestInput->dataType != null) {
-        //     if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $column->getDataType()->getType())) {
-        //         $this->instanceImpactResult[] = $this->dbTargetConnection->getInstanceByTableName($this->functinoalRequirementInput->tableName);
-        //         return false;
-        //     }
-            
-        //     $dataTypeRef = $this->changeRequestInput->dataType;
-        // }
-
-        // $this->findInstanceImpactByDataTypeDetail($dataTypeRef);
         
 
+        if ($this->database->isLinked($this->functinoalRequirementInput->tableName, $this->functinoalRequirementInput->columnName)) {
+            $this->findImpactLinkedColumn();
+        } else {
+            $this->findImpactNormalColumn();
+        }
         return false;
     }
 
-    private function findImpactNormalColumn()
+    private function findImpactLinkedColumn(): void
     {
-        
+        $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
+        $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
+
+        // If this column is not Primary column ;
+        if ($table->isFK($column->getName())) {
+            
+            if ($this->changeRequestInput->unique != null) {
+                if (\strcasecmp($this->changeRequestInput->unique, 'N') == 0) {
+                    $duplicateInstance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), [$column->getName()]);
+                    if (count($duplicateInstance > 0)) {
+                        // cannot modify impact; Referential Integrity;
+
+                        return;
+                    }
+                }
+            }
+            if ($this->changeRequestInput->nullable != null) {
+                if (\strcasecmp($this->changeRequestInput->nullable, 'N') == 0) {
+                    $nullInstance =  $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} IS NULL");
+                    if (count($nullInstance) > 0) {
+                        // cannot modify impact; Referential Integrity;
+                        
+                        return;
+                    }
+                }
+            }
+
+            $refSchema = [
+                'dataType' => $column->getDataType()->getType(),
+                'length' => $column->getDataType()->getLength(),
+                'precision' => $column->getDataType()->getPrecision(),
+                'scale' => $column->getDataType()->getScale(),
+                'default' => $column->getDefault(),
+                'nullable' => $column->isNullable(),
+                'unique' => $table->isUnique($column->getName()),
+                'min' => $table->getMin($column->getName()),
+                'max' => $table->getMax($column->getName())
+            ];
+
+            $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
+                return $val !== null;
+            });
+    
+            $this->schemaImpactResult[0] = [
+                'tableName' => $table->getName(),
+                'columnName' => $column->getName(),
+                'oldSchema' => $refSchema,
+                'newSchema' => count($newSchema) > 0 ? $newSchema : null
+            ];
+            
+        }
+
+        // use Primary Column to find impacted
+        // This Impact will affected many table;
+        $primaryColumnNode = $this->findPrimaryColumnNode($table->getName(), $column->getName());
+        $primaryTable = $this->database->getTableByName($primaryColumnNode->getTableName());
+        $primaryColumn = $primaryTable->getColumnByName($primaryColumnNode->getColumnName());
+
+        $dataTypeRef = $primaryColumn->getDataType()->getType();
+        if ($this->changeRequestInput->dataType != null) {
+            if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $dataTypeRef)) {
+                $instance[] = $this->dbTargetConnection->getInstanceByTableName($primaryTable->getName());
+            }
+
+            $dataTypeRef = $this->changeRequestInput->dataType;
+        }
+
+        //$instance = ;
+
+        if ($this->changeRequest->min != null) {
+            $primaryColumnMin = $this->getMin($primaryTable->getName(), $primaryColumn->getName());
+            $instance[] = $this->findInstanceImpactByMin($this->changeRequest->min, $primaryColumnMin);
+        }
+
+        if ($this->changeRequest->max != null) {
+            $primaryColumnMax = $this->getMax($primaryTable->getName(), $primaryColumn->getName());
+            $instance[] = $this->findInstanceImpactByMax($this->changeRequest->max, $primaryColumnMax);
+        }
+    }
+
+    private function findImpactNormalColumn(): void
+    {
         $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
         //dd($table);
         $column = $table->getColumnByName($this->functinoalRequirementInput->columnName);
@@ -292,19 +301,19 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $this->dbTargetConnection->updateColumn($scResult);
 
             $default = $scResult['oldSchema']['default'];
-            if(\array_key_exists('default', $scResult['newSchema'])) {
+            if (\array_key_exists('default', $scResult['newSchema'])) {
                 $default = $scResult['newSchema']['default'];
-                if($default == '#NULL') {
+                if ($default == '#NULL') {
                     $default = null;
                 }
             }
 
             $nullable = $scResult['oldSchema']['nullable'];
-            if(\array_key_exists('nullable', $scResult['newSchema'])) {
+            if (\array_key_exists('nullable', $scResult['newSchema'])) {
                 $nullable = $scResult['newSchema']['nullable'];
             }
 
-            if($default === null && $nullable === false) {
+            if ($default === null && $nullable === false) {
                 $default = '';
             }
             

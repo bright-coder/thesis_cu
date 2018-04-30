@@ -356,11 +356,11 @@ class SqlServer implements DBTargetInterface
         // if(\array_last($newValues) == false){
         //     $newValues = \array_keys($newValues);
         // }
-        dd($refValues);
+        
         foreach($refValues as $index => $refValue) {
             $whenCondition = [];
             foreach($refValue as $columnName => $oldValue) {
-                dd($oldValue);
+                
                 $whenCondition[] = "$columnName = '$oldValue'";
             }
             $strWhenCondition = \implode(" AND ", $whenCondition);
