@@ -459,6 +459,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             // });
 
             $newSchema = $this->schemaImpactResult[0]['newSchema'];
+            unset($newSchema['min']);
+            unset($newSchema['max']);
 
             if ($node->getTableName() == $this->functionalRequirementInput->tableName &&
                 $node->getColumnName() == $this->functionalRequirementInput->columnName) {
