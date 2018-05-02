@@ -690,36 +690,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return ($changeMax < $columnMax) ? true : false;
     }
 
-    private function findUniqueConstraintRelated(string $tableName, string $columnName): array
-    {
-        $uniqueConstraints = $this->database->getTableByName($tableName)->getAllUniqueConstraint();
-        $arrayUniqueRelated = [];
-        foreach ($uniqueConstraints as $uniqueConstraint) {
-            foreach ($uniqueConstraint->getColumns() as $column) {
-                if ($column == $columnName) {
-                    $arrayUniqueRelated[] = $uniqueConstraint;
-                    break;
-                }
-            }
-        }
-        return $arrayUniqueRelated;
-    }
-
-    private function findCheckConstraintRelated(string $tableName, string $columnName): array
-    {
-        $checkConstraints = $this->database->getTableByName($tableName)->getAllCheckConstraint();
-        $arrayCheckRelated = [];
-        foreach ($checkConstraints as $checkConstraint) {
-            foreach ($checkConstraint->getColumns() as $column) {
-                if ($column == $columnName) {
-                    $arrayCheckRelated[] = $checkConstraint;
-                    break;
-                }
-            }
-        }
-        return $arrayCheckRelated;
-    }
-
     private function findPrimaryColumnNode(string $tableName, string $columnName) : Node
     {
         $hashFKs =  $this->database->getHashFks();

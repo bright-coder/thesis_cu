@@ -3,8 +3,14 @@
 namespace App\Library\State\AnalyzeDBMethod;
 use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
+use App\Model\ChangeRequest;
+use App\Model\Project;
+use App\Model\FunctionRequirementInput;
+use App\Model\FunctionalRequirement;
+
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
+
 
 class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
     
@@ -21,10 +27,34 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
 
-        if($this->database->isLinked($table->getName(),$column->getName()) ) {
+        $changeRequest = ChangeRequest::select('projectId')->where('id',$this->changeRequestInput->changeRequestId)->first();
+        $functionalRequirements = FunctionalRequirement::select('id')->where('projectId', $changeRequest->projectId)->get();
 
+        $foundOther = false;
+        foreach ($functionalRequirements as $fr) {
+            if($this->changeRequestInput->functionRequirementInputId != $fr->id) {
+                $frInputs = functionalRequirementInput::where([
+                ['functionalRequirementId',$fr->id],
+                ['tableName',$table->getName()],
+                ['columnName',$column->getName()]
+                ])->get();
+
+                if($frInputs) {
+                    $foundOther = true;
+                    break;
+                }
+            }
         }
-        else {
+
+        if($foundOther) { return false; }
+
+        if($this->database->isLinked($table->getName(), $column->getName()) ) {
+            if($table->isPK($column->getName())){
+                return false;
+            }
+        
+        }
+
             $this->schemaImpactResult[0] = 
             [
                 'tableName' => $table->getName(),
@@ -36,15 +66,36 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
                 'oldInstance' => $this->dbTargetConnection->getInstanceByTableName($table->getName()),
                 'newInstance' => null
             ];
-        }
         
-
-
-        return false;
+        return true;
     }
 
     private function modify(DBTargetInterface $dbTargetConnection): bool {
         //$dbTargetConnection->addColumn($changeRequestInput);
+        if($this->schemaImpactResult) {
+            $this->dbTargetConnection->disableConstraint();
+
+            $table = $this->database->getTableByName($this->schemaImpactResult[0]['tableName']);
+            if($table->isFK($this->schemaImpactResult[0]['columnName'])) {
+                $fkName = $table->getFKByColumnName($this->schemaImpactResult[0]['columnName']);
+                $dbTargetConnection->dropConstraint($this->schemaImpactResult[0]['tableName'], $fkName->getName());
+            }
+            
+            $relatedUniques = $this->findUniqueConstraintRelated($this->schemaImpactResult[0]['tableName'],$this->schemaImpactResult[0]['columnName']);
+            foreach ($relatedUniques as $unique) {
+                $this->dbTargetConnection->dropConstraint($this->schemaImpactResult[0]['tableName'],$unique->getName());
+            }
+
+            $relatedChecks = $this->findCheckConstraintRelated($this->schemaImpactResult[0]['tableName'],$this->schemaImpactResult[0]['columnName']);
+            foreach ($relatedChecks as $check) {
+                $this->dbTargetConnection->dropConstraint($this->schemaImpactResult[0]['tableName'],$check->getName());
+            }
+
+            $this->dbTargetConnection->dropColumn($this->schemaImpactResult[0]['tableName'],$this->schemaImpactResult[0]['columnName']);
+
+            $this->dbTargetConnection->enableConstraint();
+            
+        }
     }
 
 }

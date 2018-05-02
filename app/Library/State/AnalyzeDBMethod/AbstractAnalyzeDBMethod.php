@@ -72,6 +72,36 @@ abstract class AbstractAnalyzeDBMethod
         return FunctionalRequirementInput::where('id', $id)->first();
     }
 
+    protected function findUniqueConstraintRelated(string $tableName, string $columnName): array
+    {
+        $uniqueConstraints = $this->database->getTableByName($tableName)->getAllUniqueConstraint();
+        $arrayUniqueRelated = [];
+        foreach ($uniqueConstraints as $uniqueConstraint) {
+            foreach ($uniqueConstraint->getColumns() as $column) {
+                if ($column == $columnName) {
+                    $arrayUniqueRelated[] = $uniqueConstraint;
+                    break;
+                }
+            }
+        }
+        return $arrayUniqueRelated;
+    }
+
+    protected function findCheckConstraintRelated(string $tableName, string $columnName): array
+    {
+        $checkConstraints = $this->database->getTableByName($tableName)->getAllCheckConstraint();
+        $arrayCheckRelated = [];
+        foreach ($checkConstraints as $checkConstraint) {
+            foreach ($checkConstraint->getColumns() as $column) {
+                if ($column == $columnName) {
+                    $arrayCheckRelated[] = $checkConstraint;
+                    break;
+                }
+            }
+        }
+        return $arrayCheckRelated;
+    }
+
     abstract public function analyze(): bool;
     abstract public function modify(): bool;
     
