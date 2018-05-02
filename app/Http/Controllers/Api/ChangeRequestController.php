@@ -78,9 +78,12 @@ class ChangeRequestController extends Controller
                 $changeRequestInput->changeType = $input['changeType'];
                 
                 if ($changeRequestInput->changeType == 'add') {
-                    $changeRequestInput->name = $input['name'];
-                    $changeRequestInput->dataType = $input['dataType'];
-                    switch ($changeRequestInput->dataType) {
+                    if (\array_key_exists('functionalRequirementInputId', $input)) {
+                        $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
+                    } else {
+                        $changeRequestInput->name = $input['name'];
+                        $changeRequestInput->dataType = $input['dataType'];
+                        switch ($changeRequestInput->dataType) {
                         case 'char':
                         case 'varchar':
                         case 'nchar':
@@ -100,66 +103,62 @@ class ChangeRequestController extends Controller
                             # code...
                             break;
                     }
-                    if (\array_key_exists('default', $input)) {
-                        if($input['default'] == null){
-                            $changeRequestInput->default = "#NULL";
+                        if (\array_key_exists('default', $input)) {
+                            if ($input['default'] == null) {
+                                $changeRequestInput->default = "#NULL";
+                            } else {
+                                $changeRequestInput->default = $input['default'];
+                            }
                         }
-                        else {
-                            $changeRequestInput->default = $input['default'];
-                        }
-                    }
     
-                    $changeRequestInput->nullable = $input['nullable'];
-                    $changeRequestInput->unique = $input['unique'];
+                        $changeRequestInput->nullable = $input['nullable'];
+                        $changeRequestInput->unique = $input['unique'];
     
-                    if (\array_key_exists('min', $input)) {
-                        if($input['min'] == null) {
-                            $changeRequestInput->default = "#NULL";
+                        if (\array_key_exists('min', $input)) {
+                            if ($input['min'] == null) {
+                                $changeRequestInput->default = "#NULL";
+                            } else {
+                                $changeRequestInput->min = $input['min'];
+                            }
                         }
-                        else {
-                            $changeRequestInput->min = $input['min'];
+                        if (\array_key_exists('max', $input)) {
+                            if ($input['max'] == null) {
+                                $changeRequestInput->max = "#NULL";
+                            } else {
+                                $changeRequestInput->max = $input['max'];
+                            }
                         }
-                    }
-                    if (\array_key_exists('max', $input)) {
-                        if($input['max'] == null) {
-                            $changeRequestInput->max = "#NULL";
-                        }
-                        else {
-                            $changeRequestInput->max = $input['max'];
-                        }
-                    }
     
-                    $changeRequestInput->tableName = $input['tableName'];
-                    $changeRequestInput->columnName = $input['columnName'];
-
+                        $changeRequestInput->tableName = $input['tableName'];
+                        $changeRequestInput->columnName = $input['columnName'];
+                    }
                 } elseif ($changeRequestInput->changeType == 'edit') {
-                    if(\array_key_exists('dataType', $input)) {
+                    if (\array_key_exists('dataType', $input)) {
                         $changeRequestInput->dataType = $input['dataType'];
                     }
-                    if(\array_key_exists('length', $input)) {
+                    if (\array_key_exists('length', $input)) {
                         $changeRequestInput->length = $input['length'];
                     }
-                    if(\array_key_exists('precision', $input)) {
+                    if (\array_key_exists('precision', $input)) {
                         $changeRequestInput->precision = $input['precision'];
                     }
-                    if(\array_key_exists('scale', $input)) {
+                    if (\array_key_exists('scale', $input)) {
                         $changeRequestInput->scale = $input['scale'];
                     }
-                    if(\array_key_exists('unique', $input)) {
+                    if (\array_key_exists('unique', $input)) {
                         $changeRequestInput->unique = $input['unique'];
                     }
-                    if(\array_key_exists('nullable', $input)) {
+                    if (\array_key_exists('nullable', $input)) {
                         $changeRequestInput->nullable = $input['nullable'];
                     }
-                    if(\array_key_exists('min', $input)) {
+                    if (\array_key_exists('min', $input)) {
                         $changeRequestInput->min = $input['min'];
                     }
-                    if(\array_key_exists('max', $input)) {
+                    if (\array_key_exists('max', $input)) {
                         $changeRequestInput->max = $input['max'];
                     }
                     $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
-                }
-                elseif ($changeRequestInput->changeType == 'delete') {
+                } elseif ($changeRequestInput->changeType == 'delete') {
                     $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
                 }
 

@@ -48,7 +48,7 @@ class AnalyzeImpactDBState implements StateInterface
                         $analyzer = new AnalyzeDBAdd($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
                     case 'edit':
-                        $analyzer = new AnalyzeDBEdit($this->dbTarget, $changeRequestInput, $this->dbTargetConnection, $changeAnalysis->getChangeRequest()->changeFunctionalRequirementId);
+                        $analyzer = new AnalyzeDBEdit($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
                     case 'delete':
                         $analyzer = new AnalyzeDBDelete($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);

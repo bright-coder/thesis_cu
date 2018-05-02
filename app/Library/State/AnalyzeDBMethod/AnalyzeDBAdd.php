@@ -1,45 +1,99 @@
 <?php
 
 namespace App\Library\State\AnalyzeDBMethod;
+
 use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
 use App\Library\Random\RandomContext;
 
-class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
-
+class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
+{
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
-
-    }
-
-    public function analyze(): bool {
-        
-        $table = $database->getTableByName($changeRequestInput->tableName);
-
-        // if not have column in table
-        if(!$table->getColumnbyName($changeRequestInput->columnName)) {
-            $this->instanceImpact = true;
-            return true;
+        if ($changeRequestInput->functionalRequirementInputId !== null) {
+            $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
         }
-        return false;
     }
 
-    public function modify(DBTargetInterface $dbTargetConnection): bool {
-        $dbTargetConnection->addColumn($changeRequestInput);
+    public function analyze(): bool
+    {
         
-        if($this->isUnique()) 
-            $dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName,$this->changeRequestInput->columnName);
+        if ($this->functionalRequirementInput === null) {
+
+            $table = $database->getTableByName($this->changeRequestInput->tableName);
+
+            // if not have column in table
+            if (!$table->getColumnbyName($this->changeRequestInput->columnName)) {
+                
+                $this->instanceImpact = true;
+                
+                $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
+                    return $val !== null;
+                });
+
+                unset($newSchema['id']);
+                unset($newSchema['changeRequestId']);
+                unset($newSchema['functionalRequirmenInputId']);
+                unset($newSchema['tableName']);
+                unset($newSchema['columnName']);
+                
+                $this->schemaImpactResult[0] = [
+                    'tableName' => $this->changeRequestInput->tableName,
+                    'columnName' => $this->changeRequestInput->columnName,
+                    'oldSchema' => null,
+                    'newSchema' => $newSchema
+                ];
+
+
+                $numRows = $dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
+                $randomData  = RandomContext::getRandomData(
+                    $numRows,
+                    $this->changeRequestInput->dataType,
+                    [
+                        'length' => $this->changeRequestInput->length,
+                        'precision' => $this->changeRequestInput->precision,
+                        'scale' => $this->changeRequestInput->scale,
+                        'min' => $this->changeRequestInput->min,
+                        'max' => $this->changeRequestInput->max
+                    ],
+                    strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true
+                );
+                
+                $this->instanceImpactResult[0] = [
+                    'oldInstance' => $this->dbTargetConnection->getInstanceByTableName($this->changeRequestInput->tableName),
+                    'newInstance' => $randomData
+                ];
+
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public function modify(DBTargetInterface $dbTargetConnection): bool
+    {   
+
+        if(count($this->schemaImpactResult) == 0) {
+            return false;
+        }
+
+        $this->dbTargetConnection->disableConstraint();
+        $this->dbTargetConnection->addColumn($changeRequestInput);
         
-        if($this->changeRequestInput->min != null || $this->changeRequestInput->max != null)
+        if (strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true) {
+            $dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);
+        }
+        
+        if ($this->changeRequestInput->min != null || $this->changeRequestInput->max != null) {
             switch ($this->changeRequestInput->dataType) {
                 case 'int':
                 case 'float':
-                case 'decimal' :
+                case 'decimal':
                     $dbTargetConnection->addCheckConstraint(
                         $this->changeRequestInput->tableName,
                         $this->changeRequestInput->columnName,
@@ -51,33 +105,20 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod {
                     # code...
                     break;
             }
+        }
 
-        // generate instance     
-        $numRows = $dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
-        $randomData  = RandomContext::getRandomData($numRows, $this->changeRequestInput->dataType,
-            [
-                'length' => $this->changeRequestInput->length,
-                'precision' => $this->changeRequestInput->precision,
-                'scale' => $this->changeRequestInput->scale,
-                'min' => $this->changeRequestInput->min,
-                'max' => $this->changeRequestInput->max
-            ], 
-            $this->isUnique()
-        );
+        $default = $this->changeRequestInput->default == '#NULL' ? null : $this->changeRequestInput->default;
 
-        $pkColumns = $this->database->getTableByName($this->changeRequestInput->tableName)->getPK()->getColumns();
-
-        // [ [pkCol1 => value , pkCol2 => value] , [pkCol1 => value , pkCol2 => value]  ]
-        $oldValues = $dbTargetConnection->getDistinctValues($this->changeRequestInput->tableName, $pkColumns);
+        if(\strcasecmp($this->changeRequestInput->nullable,'N') == 0 ) {
+            $default = '0';
+        }
 
         $dbTargetConnection->updateInstance(
             $this->changeRequestInput->tableName,
             $this->changeRequestInput->columnName,
-            $oldValues,
-            $randomData,
-            $this->changeRequestInput->default
+            $this->instanceImpactResult[0]['oldInstance'],
+            $this->instanceImpactResult[0]['newInstance'],
+            $default
         );
-        
     }
-
 }

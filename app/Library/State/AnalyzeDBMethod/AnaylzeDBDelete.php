@@ -13,22 +13,38 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
+        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionRequirementInputId);
     }
 
-    public function analyze(Database $database, ChangeRequestInput $changeRequestInput): bool {
-        $this->changeRequestInput = $changeRequestInput;
+    public function analyze(): bool {
 
-        $table = $database->getTableByName($changeRequestInput->tableName);
+        $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
+        $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
 
-        // if not have column in table
-        if(!$table->getColumnbyName($changeRequestInput->columnName)) {
-            return true;
+        if($this->database->isLinked($table->getName(),$column->getName()) ) {
+
         }
+        else {
+            $this->schemaImpactResult[0] = 
+            [
+                'tableName' => $table->getName(),
+                'columnName' => $column->getName(),
+                'oldSchema' => null,
+                'newSchema' => null
+            ];
+            $this->instanceImpactResult[0] = [
+                'oldInstance' => $this->dbTargetConnection->getInstanceByTableName($table->getName()),
+                'newInstance' => null
+            ];
+        }
+        
+
+
         return false;
     }
 
     private function modify(DBTargetInterface $dbTargetConnection): bool {
-        $dbTargetConnection->addColumn($changeRequestInput);
+        //$dbTargetConnection->addColumn($changeRequestInput);
     }
 
 }

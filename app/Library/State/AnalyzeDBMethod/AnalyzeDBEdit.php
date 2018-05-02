@@ -34,12 +34,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
      */
     private $primaryColumnNode = null;
 
-    public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection, string $frId)
+    public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
-        $this->functionalRequirement = $this->findFunctionalRequirementById($frId);
+        //$this->functionalRequirement = $this->findFunctionalRequirementById($frId);
         $this->functinoalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
     }
 
@@ -132,6 +132,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
             return $val !== null;
         });
+        unset($newSchema['id']);
+        unset($newSchema['changeRequestId']);
+        unset($newSchema['functionalRequirmenInputId']);
+        unset($newSchema['tableName']);
+        unset($newSchema['columnName']);
 
         $this->schemaImpactResult[0] = [
             'tableName' => $table->getName(),
@@ -623,16 +628,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->dbTargetConnection->enableConstraint();
 
         return true;
-    }
-
-    private function findFunctionalRequirementById(string $id) : FunctionalRequirement
-    {
-        return FunctionalRequirement::where('id', $id)->first();
-    }
-
-    private function findFunctionalRequirementInputById(string $id) : FunctionalRequirementInput
-    {
-        return FunctionalRequirementInput::where('id', $id)->first();
     }
 
     private function findInstanceImpactByDataType(string $changeDataType, string $dbColumnDataType): bool

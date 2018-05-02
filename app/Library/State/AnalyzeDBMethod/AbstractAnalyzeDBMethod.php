@@ -48,6 +48,11 @@ abstract class AbstractAnalyzeDBMethod
     protected $instanceImpactResult = [];
     protected $schemaImpactResult = [];
 
+    /**
+    * @var FunctionalRequirementInput;
+    */
+    protected $functionalRequirementInput = null;
+
     public function isSchemaImpact(): bool { return $this->schemaImpact; }
     public function isInstanceImpact() : bool {
         return count($this->instanceImpactResult) > 0; 
@@ -60,6 +65,11 @@ abstract class AbstractAnalyzeDBMethod
     
     public function getSchemaImpactResult(): array {
         return $this->schemaImpactResult;
+    }
+
+    protected function findFunctionalRequirementInputById(string $id) : FunctionalRequirementInput
+    {
+        return FunctionalRequirementInput::where('id', $id)->first();
     }
 
     abstract public function analyze(): bool;
