@@ -70,7 +70,7 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
         return true;
     }
 
-    private function modify(DBTargetInterface $dbTargetConnection): bool {
+    private function modify(): bool {
         //$dbTargetConnection->addColumn($changeRequestInput);
         if($this->schemaImpactResult) {
             $this->dbTargetConnection->disableConstraint();
