@@ -19,17 +19,7 @@ class CoreController extends Controller
     public function index()
     {
 
-        
-        $dbCon = DBTargetConnection::getInstance('sqlsrv','DESKTOP-NRK0H8C','Company','thesis','1234');
-        if( !$dbCon->Connect()) {
-            $msg = "Cannot Connect to Target Database";
-        }
-        else {
-            $databaseBuilder = new DatabaseBuilder($dbCon);
-            $databaseBuilder->setUpTablesAndColumns();
-        }
-        $dbTarget = $databaseBuilder->getDatabase();
 
-        return view('test', ['constraintInTable' => $databaseBuilder->getDatabase()]);
+        return view('test', ['constraintInTable' => '555']);
     }
 }
