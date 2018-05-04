@@ -24,20 +24,6 @@ abstract class AbstractAnalyzeDBMethod
     /**
      * Undocumented variable
      *
-     * @var boolean
-     */
-    protected $instanceImpact = false;
-    
-    /**
-     * Undocumented variable
-     *
-     * @var boolean
-     */
-    protected $schemaImpact = false;
-
-    /**
-     * Undocumented variable
-     *
      * @var DBTargetInterface
      */
     protected $dbTargetConnection = null;

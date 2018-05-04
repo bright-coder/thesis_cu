@@ -69,7 +69,6 @@ class ChangeRequestController extends Controller
             $changeRequest = new ChangeRequest;
             $changeRequest->projectId = $projectId;
             $changeRequest->changeFunctionalRequirementId = $request['functionalRequirementId'];
-            $changeRequest->status = 'imported';
             $changeRequest->save();
             $changeRequestInputList = [];
             foreach ($request['inputs'] as $input) {
@@ -161,7 +160,7 @@ class ChangeRequestController extends Controller
                 } elseif ($changeRequestInput->changeType == 'delete') {
                     $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
                 }
-
+                $changeRequestInput->status = 'imported';
                 $changeRequestInput->save();
                 $changeRequestInputList[] = $changeRequestInput;
             }

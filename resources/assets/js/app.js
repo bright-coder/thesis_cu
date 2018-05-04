@@ -17,11 +17,16 @@ require('./bootstrap');
 
 import Vue from 'vue'
 import Example from './components/Example.vue'
+import Test from './components/Test.vue'
 //Vue.component('example', require('./components/Example.vue'));
+//Vue.component('FormV', Form);
 
 console.log(Vue.version)
 
 const app = new Vue({
     el: '#app',
-    render: h => h(Example)
+    components: {
+        Example,Test
+    },
+ 
 })

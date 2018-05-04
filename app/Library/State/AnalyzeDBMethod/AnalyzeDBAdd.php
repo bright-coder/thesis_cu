@@ -30,7 +30,6 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
             // if not have column in table
             if (!$table->getColumnbyName($this->changeRequestInput->columnName)) {
                 
-                $this->instanceImpact = true;
                 
                 $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
                     return $val !== null;

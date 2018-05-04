@@ -7,7 +7,9 @@
     <p>กฤษฎา</p>
         <button class="btn btn-primary">Hello Btn</button>
             <div id="app">
-                {{-- <example></example> --}}
+                <Example></Example>
+                <Test></Test>
+                @{{Test.txt}}
             </div>
         <script src="{{ asset('js/app.js') }}"></script>
     </body>
