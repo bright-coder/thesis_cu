@@ -22,7 +22,7 @@ class AnalyzeImpactFRState implements StateInterface
 
     public function analyze(ChangeRequestInput $changeRequestInput): array
     {
-        $schemaImpactResult = DB::table('SCHEMA_IMPACT')::
+        $schemaImpactResult = DB::table('SCHEMA__IMPACT')::
             where('changeRequestInputId', $changeRequestInput)->get();
         
         $frImpactResult = [];
