@@ -6,5 +6,5 @@ use App\Library\State\StateInterface;
 
 class AnalyzeImpactTCState implements StateInterface
 {
-
+    
 }
