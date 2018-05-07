@@ -2,10 +2,10 @@
 
 namespace App\Library\State;
 
-use App\ConstraintColumn;
-use App\DatabaseSchemaColumn;
-use App\DatabaseSchemaConstraint;
-use App\DatabaseSchemaTable;
+// use App\ConstraintColumn;
+// use App\DatabaseSchemaColumn;
+// use App\DatabaseSchemaConstraint;
+// use App\DatabaseSchemaTable;
 use App\Library\Builder\DatabaseBuilder;
 use App\Library\CustomModel\DBTargetConnection;
 use App\Library\CustomModel\DBTargetInterface;
@@ -19,6 +19,7 @@ use App\Model\Project;
 use App\Model\FunctionalRequirement;
 use App\Model\ChangeRequest;
 use App\Model\ChangeRequestInput;
+use App\Library\ChangeAnalysis;
 use DB;
 
 class AnalyzeImpactDBState implements StateInterface
@@ -40,12 +41,12 @@ class AnalyzeImpactDBState implements StateInterface
         return 'AnalyzeImpactDBState';
     }
 
-    public function analyze(ChangeRequestInput $changeRequestInput) : array
+    public function analyze(ChangeAnalysis $changeAnalysis) : array
     {   
-        $projectId = ChangeRequest::select('projectId')->where('id',$changeRequestInput->changeRequestId)->first()->projectId;
+        $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
-            $this->getDbSchema();
-
+            foreach($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
+                $this->getDbSchema();
                 switch ($changeRequestInput->changeType) {
                     case 'add':
                         $analyzer = new AnalyzeDBAdd($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
@@ -64,14 +65,19 @@ class AnalyzeImpactDBState implements StateInterface
 
                 $analyzer->analyze();
                 //$analyzer->modify();
-                return [
-                    'schema' => $analyzer->getSchemaImpactResult(),
-                    'instance' => $analyzer->getInstanceImpactResult()
-                ];
-            
+                $changeAnalysis->addDBImpactResult(
+                    $changeRequestInput->id,
+                    $analyzer->getSchemaImpactResult(),
+                    $analyzer->getInstanceImpactResult()
+                );
+                
+            }
+            $changeAnalysis->setState(new AnalyzeImpactFRState);
+            $changeAnalysis->analyze();
         } else {
         
         }
+
     }
 
     private function connectTargetDB(string $projectId): bool

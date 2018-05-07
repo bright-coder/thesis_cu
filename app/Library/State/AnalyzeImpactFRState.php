@@ -6,129 +6,175 @@ use App\Library\State\StateInterface;
 use App\Library\State\AnalyzeImpactTCState;
 use App\Model\ChangeRequestInput;
 use App\Model\ChangeRequest;
+use App\Model\FunctionalRequirement;
 use App\Model\FunctionalRequirementInput;
+use App\Library\ChangeAnalysis;
 
 class AnalyzeImpactFRState implements StateInterface
 {
-    public function nextState()
-    {
-        return new AnalyzeImpactTCState();
-    }
+    private $frImpactResult = [];
 
-    public function getStateName(): String
+    public function getStateName(): string
     {
         return 'AnalyzeImpactFRState';
     }
 
-    public function analyze(ChangeRequestInput $changeRequestInput): array
+    private function addFrImpactResult(string $frId, string $changeType, array $frInput) : void
     {
-        $schemaImpactResult = DB::table('SCHEMA__IMPACT')::
-            where('changeRequestInputId', $changeRequestInput)->get();
-        
-        $frImpactResult = [];
-        
-        $changeType = $changeRequestInput->changeType;
-        if ($changeType == 'add') {
-            $frInput = new FunctionalRequirementInput;
-            $frId = ChangeRequest::select('changeFunctionalRequirementId')
-            ->where('id', $changeRequestInput->changeRequestId)->first()
-            ->changeFunctionalRequirementId;
-
-            if ($schemaImpactResult) {
-                $frInput->functionalRequirementId = $frId;
-                $frInput->name = $changeRequestInput->name;
-                $frInput->tableName = $schemaImpactResult[0]->tableName;
-                $frInput->columnName = $schemaImpactResult[0]->columnName;
-                $frInput->length = $schemaImpactResult[0]->length;
-                $frInput->precision = $schemaImpactResult[0]->precision;
-                $frInput->scale = $schemaImpactResult[0]->scale;
-                $frInput->default = $schemaImpactResult[0]->default;
-                $frInput->nullable = $schemaImpactResult[0]->nullable;
-                $frInput->unique = $schemaImpactResult[0]->unique;
-                $frInput->max = $schemaImpactResult[0]->max;
-                $frInput->min = $schemaImpactResult[0]->min;
-                $frInput->activeFlag = 'Y';
-                $frInput->save();
-            } else {
-                $frInput->functionalRequirementId = $frId;
-                $frInput->name = $changeRequestInput->name;
-                $frInput->tableName = $changeRequestInput->tableName;
-                $frInput->columnName = $changeRequestInput->columnName;
-                $frInput->length = $changeRequestInput->length;
-                $frInput->precision = $changeRequestInput->precision;
-                $frInput->scale = $changeRequestInput->scale;
-                $frInput->default = $changeRequestInput->default;
-                $frInput->nullable = $changeRequestInput->nullable;
-                $frInput->unique = $changeRequestInput->unique;
-                $frInput->max = $changeRequestInput->max;
-                $frInput->min = $changeRequestInput->min;
-                $frInput->activeFlag = 'Y';
-                $frInput->save();
-            }
-            $frInputImpactResult[] = [
-                'oldFunctionalRequirementInputId' => null,
-                'newFunctionalRequirementInputId' => $frInput->id
+        $frInput['changeType'] = $changeType;
+        $frNo = FunctionalRequirement::where('id', $frId)->first()->no;
+        if (\array_key_exists($frId, $this->frImpactResult)) {
+            $this->frImpactResult[$frId]['inputList'][] = $frInput;
+        } else {
+            $this->frImpactResult[$frId] = [
+                'id' => $frId,
+                'no' => $frNo,
+                'inputList' => [
+                    $frInput
+                ],
             ];
+        }
+    }
 
-        } elseif ($changeType == 'edit') {
-            if ($schemaImpactResult) {
-                foreach ($schemaImpactResult as $schema) {
-                    $oldFrInputs = FunctionalRequriementInput::where([
-                        ['tableName' => $schema['tableName']],
-                        ['columnName' => $schema['columnName']],
-                        ['activeFlag' => 'Y']
-                    ])->get();
-                    foreach ($oldFrInputs as $oldFrInput) {
-                        $oldFrInput->activeFlag = 'N';
-                        $oldFrInput->save();
-                        $frInput = new FunctionalRequirementInput;
-                        $frInput->functionalRequirementId = $oldFrInput->functionalRequirementId;
-                        $frInput->tableName = $oldFrInput->tableName;
-                        $frInput->columnName = $oldFrInput->columnName;
-                        $frInput->length = $schema['newLength'];
-                        $frInput->precision = $schema['newprecision'];
-                        $frInput->scale = $schema['newScale'];
-                        $frInput->default = $schema['newDefault'];
-                        $frInput->nullable = $schema['newNullable'];
-                        $frInput->unique = $schema['newUnique'];
-                        $frInput->min = $schema['newMin'];
-                        $frInput->max = $schema['newMax'];
-                        $frInput->activeFlag = 'Y';
-                        $frInput->save();
-                        
-                        $frInputImpactResult[] = [
-                            'oldFunctionalRequirementInputId' => $oldFrInput->id,
-                            'newFunctionalRequirementInputId' => $frInput->id
-                        ];
+    private function getFunctionalRequirementInput(string $projectId, string $tableName, string $columnName) : array
+    {
+        $frIdList = FunctionalRequirement::select('id')->where('projectId', $projectId)->get();
+        
+        $arrayFrId = [];
+        foreach ($frIdList as $frId) {
+            $arrayFrId[] = $frId;
+        }
+        return FunctionalRequirementInput::where([
+            ['columnName', $columnName],
+            ['tableName', $tableName],
+            ['activeFlag', 'Y']
+            ])
+            ->whereIN('functionalRequirementId', $arrayFrId)
+            ->get();
+    }
 
-                    }
-                }
-            }
-        } elseif ($changeType == 'delete') {
-            if ($schemaImpactResult) {
-                foreach ($schemaImpactResult as $schema) {
-                    $oldFrInputs = FunctionalRequriementInput::where([
-                        ['tableName' => $schema['tableName']],
-                        ['columnName' => $schema['columnName']],
-                        ['activeFlag' => 'Y']
-                    ])->get();
-                    foreach ($oldFrInputs as $oldFrInput) {
-                        $oldFrInput->activeFlag = 'N';
-                        $oldFrInput->save();
-                    }
-                }
-            } else {
-                $oldFrInput = FunctionalRequriementInput::find($changeRequestInput->functionalRequirementInputId);
-                $oldFrInput->activeFlag = "N";
-                $oldFrInput->save();
-
-                $frInputImpactResult[] = [
-                    'oldFunctionalRequirementInputId' => $oldFrInput->id,
-                    'newFunctionalRequirementInputId' => null
+    public function analyze(ChangeAnalysis $changeAnalysis): void
+    {
+        foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
+            if ($changeRequestInput->changeType == 'add') {
+                // add New input
+                $frInput = [
+                    'new' => null,
+                    'old' => null,
                 ];
+                if ($changeRequestInput->functionalRequirementInputId != null) {
+                    $frInput['new'] = FunctionalRequirementInput::where('id', $changeRequestInput->functionalRequirementInputId)
+                    ->first()->toArray();
+                }
+                // add already exist input int database
+                else {
+                    $frInput['new'] = $changeRequestInput->toArray();
+                }
+                $this->addFrImpactResult(
+                    $changeAnalysis->getChangeFunctionalRequirementId(),
+                    'add',
+                    $frInput
+                );
+            } elseif ($changeRequestInput->changeType == 'edit') {
+                $schemaImpactResult = $changeAnalysis->getDBImpactResult()[$changeRequestInput->id]['schema'];
+
+                foreach ($schemaImpactResult as $schema) {
+                    $frInputList = $this->getFunctionalRequirementInput(
+                        $changeAnalysis->getProjectId(),
+                        $schema['tableName'],
+                        $schema['columnName']
+                    );
+                    
+                    foreach ($frInputList as $oldFrInput) {
+                        $frInput =[
+                            'new' => $schema['newSchema'],
+                            'old' => $oldFrInput->toArray()
+                        ];
+                        $this->addFrImpactResult(
+                            $oldFrInput->functionalRequirementId,
+                            'edit',
+                            $frInput
+                        );
+                    }
+                }
+            } elseif ($changeRequestInput->changeType == 'delete') {
+                $schemaImpactResult = $changeAnalysis->getDBImpactResult()[$changeRequestInput->id]['schema'];
+
+                foreach ($schemaImpactResult as $schema) {
+                    $frInputList = $this->getFunctionalRequirementInput(
+                        $changeAnalysis->getProjectId(),
+                        $schema['tableName'],
+                        $schema['columnName']
+                    );
+                    
+                    foreach ($frInputList as $oldFrInput) {
+                        $frInput =[
+                            'new' => null,
+                            'old' => $oldFrInput->toArray()
+                        ];
+                        $this->addFrImpactResult(
+                            $oldFrInput->functionalRequirementId,
+                            'delete',
+                            $frInput
+                        );
+                    }
+                }
             }
         }
-        return $frInputImpactResult;
+       // $this->modify();
+        $changeAnalysis->setFRImpactResult($this->frImpactResult);
+        $changeAnalysis->setState(new AnalyzeImpactTCState);
+        $changeAnalysis->analyze();
     }
-    
+
+    private function modify(): void
+    {
+        foreach($this->frImpactResult as $frImpact) {
+            foreach ($frImpact['inputList'] as $frInput) {
+                if($frInput['changeType'] == 'add') {
+                    $frNew = new FunctionalRequirementInput;
+                    $frNew->functionalRequirementId = $frImpact['id'];
+                    $frNew->name = $frInput['new']['name'];
+                    $frNew->dataType = $frInput['new']['dataType'];
+                    $frNew->length = $frInput['new']['length'];
+                    $frNew->precision = $frInput['new']['precision'];
+                    $frNew->scale = $frInput['new']['scale'];
+                    $frNew->default = $frInput['new']['default'];
+                    $frNew->nullable = $frInput['new']['nullable'];
+                    $frNew->unique = $frInput['new']['unique'];
+                    $frNew->tableName = $frInput['new']['tableName'];
+                    $frNew->columnName = $frInput['new']['columnName'];
+                    $frNew->activeFlag = 'Y';
+                    $frNew->save();
+                }
+                elseif($frInput['changeType'] == 'edit') {
+                    $oldFrInput = FunctionalRequirementInput::find($frInput['old']['id']);
+                    $oldFrInput->activeFlag = 'N';
+                    $oldFrInput->save();
+
+                    $frNew = new FunctionalRequirementInput;
+                    $frNew->functionalRequirementId = $frImpact['id'];
+                    $frNew->name = $frInput['old']['name'];
+                    $frNew->dataType = \array_key_exists('dataType',$frInput['new']) ? $frInput['new']['dataType'] : $frInput['old']['dataType'];
+                    $frNew->length =  \array_key_exists('length',$frInput['new']) ? $frInput['new']['length'] : $frInput['old']['length'];
+                    $frNew->precision = \array_key_exists('precision',$frInput['new']) ? $frInput['new']['precision'] : $frInput['old']['precision'];
+                    $frNew->scale = \array_key_exists('scale',$frInput['new']) ? $frInput['new']['scale'] : $frInput['old']['scale'];
+                    $frNew->default = \array_key_exists('default',$frInput['new']) ? $frInput['new']['default'] : $frInput['old']['default'];
+                    $frNew->nullable = \array_key_exists('nullable',$frInput['new']) ? $frInput['new']['nullable'] : $frInput['old']['nullable'];
+                    $frNew->unique = \array_key_exists('unique',$frInput['new']) ? $frInput['new']['unique'] : $frInput['old']['unique'];
+                    $frNew->tableName = $frInput['old']['tableName'];
+                    $frNew->columnName = $frInput['old']['columnName'];
+                    $frNew->activeFlag = 'Y';
+                    $frNew->save();
+                }
+                elseif($frInput['changeType'] == 'delete') {
+                    $oldFrInput = FunctionalRequirementInput::find($frInput['old']['id']);
+                    $oldFrInput->activeFlag = 'N';
+                    $oldFrInput->save();
+                }   
+            }
+        }
+
+    }
+
 }

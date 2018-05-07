@@ -21,11 +21,18 @@ class ChangeAnalysis
     private $tcImpactResult = [];
     private $rtmImpactResult = [];
 
+    private $state;
+
     public function __construct(string $projectId, ChangeRequest $changeRequest, array $changeRequestInputList)
     {
         $this->projectId = $projectId;
         $this->changeRequest = $changeRequest;
         $this->changeRequestInputList = $changeRequestInputList;
+    }
+
+    public function getChangeFunctionalRequirementId(): string
+    {
+        return $this->changeRequest->changeFunctionalRequirementId;
     }
 
     public function addDBImpactResult(string $changeRequestInputId, array $schemaImpactResult, array $instanceImpactResult) : void
@@ -36,9 +43,39 @@ class ChangeAnalysis
         ];
     }
 
-    public function addFRImpactResult(string $changeRequestInputId, array $schemaImpactResult) : void
+    public function setTcImpactResult(array $tcImpactResult): void
     {
+        $this->tcImpactResult = $tcImpactResult;
     }
+
+    public function getTcImpactResult(): array 
+    {
+        return $this->tcImpactResult;
+    }
+
+    public function getDBImpactResult(): array {
+        return $this->dbImpactResult;
+    }
+
+    public function setFRImpactResult(array $frImpactResult) : void
+    {
+        $this->frImpactResult = $frImpactResult;
+    }
+
+    public function getFrImpactResult(): array {
+        return $this->frImpactResult;
+    }
+
+    public function setRtmImpactResult(array $rtmImpactResult): void
+    {
+        $this->rtmImpactResult = $rtmImpactResult;
+    }
+
+    public function getRtmImpactResult(): arrat
+    {
+        return $this->rtmImpactResult;
+    }
+
 
     public function addInstanceImpact(string $changeRequestInputId, array $impactResult) : void
     {
@@ -64,53 +101,35 @@ class ChangeAnalysis
         return $this->projectId;
     }
 
-    public function analyze(): void
+    public function setState(StateInterface $state): void
     {
-        foreach ($this->changeRequestInputList as $changeRequestInput) {
-            if ($changeRequestInput->status == 'imported') {
-                $state = new AnalyzeImpactDBState();
-            } elseif ($changeRequestInput->status == 'dbAnalyzed') {
-                $state = new AnalyzeImpactFRState();
-            } elseif ($changeRequestInput->status == 'frAnalyzed') {
-                $state = new AnalyzeImpactTCstate();
-            } elseif ($changeRequestInput->status == 'tcAnalyzed') {
-                $state = new AnalyzeImpactRTMstate();
-            } else {
-                continue;
-            }
-            
-            do {
-                $result = $state->analyze($changeRequestInput);
-                $this->setResult($changeRequestInput->id, $result, $state->getStateName());
-                $state = $state->nextState();
-            } while ($state->nextState() !== null);
-        }
+        $this->state = $state;
     }
 
-    public function setResult(ChangeRequestInput $changeRequestInput, array $result, string $fromState): void
+    public function analyze(): void
     {
-        switch ($fromState) {
-            case 'AnalyzeImpactDBState':
-                //ChangeRequest::
-                $this->dbImpactResult[$changeRequestInput->id] = $result;
-                $changeRequestInput->status = 'dbAnalyzed';
-                break;
-            case 'AnalyzeImpactFRState':
-                $this->frImpactResult[$changeRequestInput->id] = $result;
-                $changeRequestInput->status = 'frAnalyzed';
-                break;
-            case 'AnalyzeImpactTCstate':
-                $this->tcImpactResult[$changeRequestInput->id] = $result;
-                $changeRequestInput->status = 'tcAnalyzed';
-                break;
-            case 'AnalyzeImpactRTMstate':
-                $this->rtmImpactResult[$changeRequestInput->id] = $result;
-                $changeRequestInput->status = 'rtmAnalyzed';
-                break;
-            default:
-                # code...
-                break;
-        }
-        $changeRequestInput->save();
+        $this->state->analyze($this);
+
+
+        // foreach ($this->changeRequestInputList as $changeRequestInput) {
+        //     if ($changeRequestInput->status == 'imported') {
+        //         $state = new AnalyzeImpactDBState();
+        //     } elseif ($changeRequestInput->status == 'dbAnalyzed') {
+        //         $state = new AnalyzeImpactFRState();
+        //     } elseif ($changeRequestInput->status == 'frAnalyzed') {
+        //         $state = new AnalyzeImpactTCstate();
+        //     } elseif ($changeRequestInput->status == 'tcAnalyzed') {
+        //         $state = new AnalyzeImpactRTMstate();
+        //     } else {
+        //         continue;
+        //     }
+            
+        //     do {
+        //         $result = $state->analyze($changeRequestInput);
+        //         $this->setResult($changeRequestInput->id, $result, $state->getStateName());
+        //         $state = $state->nextState();
+        //     } while ($state->nextState() !== null);
+        // }
     }
+
 }

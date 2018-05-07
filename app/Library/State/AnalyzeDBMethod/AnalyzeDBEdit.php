@@ -100,12 +100,13 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 return $val !== null;
             });
     
-            $this->schemaImpactResult[0] = [
-                'tableName' => $table->getName(),
-                'columnName' => $column->getName(),
-                'oldSchema' => $refSchema,
-                'newSchema' => count($newSchema) > 0 ? $newSchema : null
-            ];
+            // $this->schemaImpactResult[0] = [
+            //     'tableName' => $table->getName(),
+            //     'columnName' => $column->getName(),
+            //     'changeType' => $this->changeRequestInput->changeType,
+            //     'oldSchema' => $refSchema,
+            //     'newSchema' => count($newSchema) > 0 ? $newSchema : null
+            // ];
         }
 
         // use Primary Column to find impacted
@@ -141,6 +142,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->schemaImpactResult[0] = [
             'tableName' => $table->getName(),
             'columnName' => $column->getName(),
+            'changeType' => $this->changeRequestInput->changeType,
             'oldSchema' => $refSchema,
             'newSchema' => count($newSchema) > 0 ? $newSchema : null
         ];
@@ -501,6 +503,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $this->schemaImpactResult[] = [
                 'tableName' => $table->getName(),
                 'columnName' => $column->getName(),
+                'changeType' => $this->changeRequestInput->changeType,
                 'oldSchema' => $refSchema,
                 'newSchema' => count($newSchema) > 0 ? $newSchema : null
             ];
