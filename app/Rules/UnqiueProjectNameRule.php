@@ -8,17 +8,18 @@ use App\Model\User;
 
 class UnqiueProjectNameRule implements Rule
 {
-    private $userId = null;
-    private $method = null;
+    
+    private $bearToken;
+    private $method;
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct(string $method, string $accessToken)
+    public function __construct(string $method,string $bearToken)
     {
+        $this->bearToken = $bearToken;
         $this->method = $method;
-        $this->userId = User::select('id')->where('accessToken', $accessToken)->first()->id;
     }
 
     /**
@@ -30,14 +31,15 @@ class UnqiueProjectNameRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if($this->method == '')
-        if (Project::where([
-            ['userId','=', $this->userId],
-            ['name', '=' ,$value]
-        ])->first()) {
-            return false;
+        if(strcasecmp($this->method, 'post') == 0 ) {
+            $userId = Project::where('accessToken', $this->bearToken)->first()->id;
+            if (Project::where([
+                ['userId', $userId],
+                ['name', $value]
+            ])->first()) {
+                return false;
+            }
         }
-        
         
         return true;
     }

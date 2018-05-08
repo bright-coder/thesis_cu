@@ -5,6 +5,7 @@ namespace App\Library\State\AnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
+use App\Model\FunctionalRequirementInput;
 
 abstract class AbstractAnalyzeDBMethod
 {
@@ -45,7 +46,7 @@ abstract class AbstractAnalyzeDBMethod
     }
 
     public function getInstanceImpactResult(): array {
-        $this->instanceImpactResult = array_unique($this->instanceImpactResult, SORT_REGULAR); 
+        //$this->instanceImpactResult = array_unique($this->instanceImpactResult, SORT_REGULAR); 
         return $this->instanceImpactResult;
     }
     

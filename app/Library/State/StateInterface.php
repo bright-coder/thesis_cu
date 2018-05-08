@@ -2,13 +2,12 @@
 
 namespace App\Library\State;
 
-use App\Model\ChangeRequestInput;
+use App\Library\ChangeAnalysis;
 
 interface StateInterface
 {
 
-    public function analyze(ChangeRequestInput $changeRequestInput): array;
+    public function analyze(ChangeAnalysis $changeAnalysis): array;
     public function getStateName(): string;
-    public function nextState();
 
 }

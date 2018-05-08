@@ -45,6 +45,7 @@ class AnalyzeImpactDBState implements StateInterface
     {   
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
+            
             foreach($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
                 $this->getDbSchema();
                 switch ($changeRequestInput->changeType) {
@@ -63,8 +64,10 @@ class AnalyzeImpactDBState implements StateInterface
 
                 }
 
-                $analyzer->analyze();
+            
+                $analyzer->analyze();    
                 //$analyzer->modify();
+                
                 $changeAnalysis->addDBImpactResult(
                     $changeRequestInput->id,
                     $analyzer->getSchemaImpactResult(),
@@ -72,6 +75,7 @@ class AnalyzeImpactDBState implements StateInterface
                 );
                 
             }
+            dd($changeAnalysis->getDBImpactResult());
             $changeAnalysis->setState(new AnalyzeImpactFRState);
             $changeAnalysis->analyze();
         } else {
@@ -216,7 +220,4 @@ class AnalyzeImpactDBState implements StateInterface
         return true;
     }
 
-    public function nextState() {
-        return new AnalyzeImpactFRState();
-    }
 }

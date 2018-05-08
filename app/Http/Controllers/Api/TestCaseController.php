@@ -9,6 +9,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Model\TestCase;
 use App\Model\TestCaseInput;
+use App\Model\Project;
 
 class TestCaseController extends Controller
 {
@@ -38,10 +39,10 @@ class TestCaseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(TestCaseRequest $request, $projectId)
+    public function store(TestCaseRequest $request, $projectName)
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($projectId);
+        $project = $guard->getProject($projectName);
 
         if (!$project) {
             return response()->json(['msg' => 'Bad Request'], 400);
@@ -50,11 +51,13 @@ class TestCaseController extends Controller
         $request = $request->json()->all();
         DB::beginTransaction();
         try {
+            $prefix = Project::find($project->id)->prefix;
             foreach ($request as $importTc) {
                 $testCase = new TestCase;
                 $testCase->projectId = $project->id;
-                $testCase->no = $importTc['no'];
+                $testCase->no = "{$prefix}-TC-{$importTc['no']}";
                 $testCase->type = $importTc['type'];
+                $testCase->activeFlag = 'Y';
                 $testCase->save();
                 foreach ($importTc['inputs'] as $importTcInput) {
                     $testCaseInput = new testCaseInput;
@@ -112,10 +115,10 @@ class TestCaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $projectId, $testCaseId = "all")
+    public function destroy(Request $request, $projectName, $testCaseNo = "all")
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($projectId);
+        $project = $guard->getProject($projectName);
 
         if (!$project) {
             return response()->json(['msg' => 'Bad Request'], 400);
@@ -123,16 +126,20 @@ class TestCaseController extends Controller
 
         DB::beginTransaction();
         try {
-            if ($testCaseId === "all") {
-                $tcs = DB::table('TEST_CASE')->select('id')->where('projectId', '=', $projectId)->get();
+            if ($testCaseNo === "all") {
+                $tcs = TestCase::select('id')->where('projectId', $project->id)->get();
                 foreach ($tcs as $tc) {
-                    DB::table('TEST_CASE_INPUT')->where('testCaseId', '=', $tc->id)->delete();
-                    DB::table('TEST_CASE')->where('id', '=', $tc->id)->delete();
+                    TestCaseInput::where('testCaseId', $tc->id)->delete();
+                    TestCase::where('id', $tc->id)->delete();
                 }
             }
             else {
-                DB::table('TEST_CASE_INPUT')->where('testCaseId', '=', $testCaseId)->delete();
-                DB::table('TEST_CASE')->where('id', '=', $testCaseId)->delete();
+                $testCaseId = TestCase::where([
+                    ['no', $testCaseNo],
+                    ['projectId', $project->id]
+                ])->first()->id;
+                TestCaseInput::where('testCaseId', $testCaseId)->delete();
+                TestCase::where('id', $testCaseId)->delete();
             }
             DB::commit();
         } catch (Exception $e) {

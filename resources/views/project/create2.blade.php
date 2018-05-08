@@ -26,6 +26,12 @@
                                         <input type="text" class="form-control" name="projectName" aria-describedby="pNameHelp" placeholder="Enter Your Project Name">
                                     </div>
                                 </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="prefix">Prefix<i class="fa fa-asterisk" style="color:red"></i></label>
+                                        <input type="text" class="form-control" name="prefix" aria-describedby="prfixHelp" placeholder="Enter Your Prefix e.g. PR , HS">
+                                    </div>
+                                </div>
                             </div>
                             <div class="line"></div>
                             <div class="row">

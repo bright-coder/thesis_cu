@@ -49,7 +49,7 @@ class ProjectController extends Controller
     public function store(ProjectRequest $request)
     {
         //after validate $request
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
+        $user = User::select('id')->where('accessToken', $request->bearerToken())->first();
         $request = $request->json()->all(); // jsonObject to Array;
         /**
          * example { "msg" : "test message" } => ['msg']
@@ -77,6 +77,7 @@ class ProjectController extends Controller
             $project->dbPassword = $request["dbPassword"];
             $project->dbPort = $request["dbPort"];
             $project->dbType = $request["dbType"];
+            $project->prefix = $request['prefix'];
             $project->save();
             DB::commit();
         } catch (Exception $e) {
@@ -84,34 +85,19 @@ class ProjectController extends Controller
             return response()->json(['msg' => "Internal Sever Error."], 500);
         }
         return response()->json(['msg' => "Insert project success.", 'projectId' => $project->id], 200);
-        /**
-         *  USE SQL => DELETE FROM 'table' instead of TRUNCATE ;
-         */
-        // $changeAnalysis = new ChangeAnalysis($request);
 
-        // $currentStateNo = 1;
-        // while ($currentStateNo <= ChangeAnalysis::LAST_STATE_NO) {
-        //     if (!$changeAnalysis->process()) {
-        //         break;
-        //     }
-
-        //     ++$currentStateNo;
-        // }
-
-        // // dd(json_decode($request->getContent(), true));
-        // return response()->json(['msg' => $changeAnalysis->getMessage()], $changeAnalysis->getStatusCode());
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  string  $name
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, $name)
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($id);
+        $project = $guard->getProject($name);
 
         if(!$project) {
             return response()->json(['msg' => 'Bad Request'], 400); 
@@ -136,13 +122,13 @@ class ProjectController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  string  $name
      * @return \Illuminate\Http\Response
      */
-    public function update(ProjectRequest $request, $id)
+    public function update(ProjectRequest $request, $name)
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($id);
+        $project = $guard->getProject($name);
 
         if(!$project) {
             return response()->json(['msg' => 'Bad Request'], 400); 
@@ -162,14 +148,16 @@ class ProjectController extends Controller
 
         DB::beginTransaction();
         try {
-            $project = Project::find($id);
-            $project->name = $request['projectName'];
+
+            //$project = Project::where($project-)
+            //$project->name = $request['projectName'];
             $project->dbServer = $request["dbServer"];
             $project->dbName = $request["dbName"];
             $project->dbUsername = $request["dbUsername"];
             $project->dbPassword = $request["dbPassword"];
             $project->dbPort = $request["dbPort"];
             $project->dbType = $request["dbType"];
+            $project->prefix = $request["prefix"];
             $project->save();
             DB::commit();
         } catch (Exception $e) {
@@ -183,14 +171,14 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  string  $name
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $name)
     {
         //
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($id);
+        $project = $guard->getProject($name);
 
         if (!$project) {
             return response()->json(['msg' => 'Not found your project.'], 401);
@@ -198,31 +186,33 @@ class ProjectController extends Controller
 
         DB::beginTransaction();
         try {
-            $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $id)->get();
-            $frs = DB::table('FUNCTIONAL_REQUIREMENT')->select('id')->where('projectId', '=', $id)->get();
-            $tcs = DB::table('TEST_CASE')->select('id')->where('projectId', '=', $id)->get();
-            $rtm = DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->select('id')->where('projectId', '=', $id)->get();
-            $tables = DB::table('DATABASE_SCHEMA_TABLE')->select('id')->where('projectId', '=', $id)->get();
+            $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', $project->id)->get();
+            $frs = DB::table('FUNCTIONAL_REQUIREMENT')->select('id')->where('projectId',  $project->id)->get();
+            $tcs = DB::table('TEST_CASE')->select('id')->where('projectId', '=', $project->id)->get();
+            $rtm = DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->select('id')->where('projectId', $project->id)->get();
+            $tables = DB::table('DATABASE_SCHEMA_TABLE')->select('id')->where('projectId', $project->id)->get();
             foreach ($tables as $table) {
-                DB::table('DATABASE_SCHEMA_CONSTRAINT')->where('tableId', '=', $table->id)->delete();
-                DB::table('DATABASE_SCHEMA_COLUMN')->where('tableId', '=', $table->id)->delete();
-                DB::table('DATABASE_SCHEMA_TABLE')->where('id', '=', $table->id)->delete();
+                DB::table('DATABASE_SCHEMA_CONSTRAINT')->where('tableId', $table->id)->delete();
+                DB::table('DATABASE_SCHEMA_COLUMN')->where('tableId', $table->id)->delete();
+                DB::table('DATABASE_SCHEMA_TABLE')->where('id', $table->id)->delete();
             }
             foreach ($rtm as $rtmK) {
-                DB::table('REQUIREMENT_TRACEABILITY_MATRIX_RELATION')->where('requirementTraceabilityMatrixId', '=', $rtmK->id)->delete();
-                DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->where('id', '=', $rtmK->id)->delete();
+                DB::table('REQUIREMENT_TRACEABILITY_MATRIX_RELATION')->where('requirementTraceabilityMatrixId', $rtmK->id)->delete();
+                DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->where('id', $rtmK->id)->delete();
             }
             foreach ($tcs as $tc) {
-                DB::table('TEST_CASE_INPUT')->where('testCaseId', '=', $tc->id)->delete();
-                DB::table('TEST_CASE')->where('id', '=', $tc->id)->delete();
+                DB::table('TEST_CASE_INPUT')->where('testCaseId', $tc->id)->delete();
+                DB::table('TEST_CASE')->where('id', $tc->id)->delete();
             }
-            foreach ($frs as $fr) {
-                DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('functionalRequriementId', '=', $fr->id)->delete();
-                DB::table('FUNCTIONAL_REQUIREMENT')->where('id', '=', $fr->id)->delete();
-            }
+
             foreach ($crs as $cr) {
-                DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
-                DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
+                DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', $cr->id)->delete();
+                DB::table('CHANGE_REQUEST')->where('id', $cr->id)->delete();
+            }
+
+            foreach ($frs as $fr) {
+                DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('functionalRequirementId', $fr->id)->delete();
+                DB::table('FUNCTIONAL_REQUIREMENT')->where('id', $fr->id)->delete();
             }
 
             DB::table('PROJECT')->where('id', '=', $id)->delete();

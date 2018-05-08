@@ -23,7 +23,7 @@ class ProjectController extends Controller
         return view('project.main');
     }
 
-    public function show($id){
+    public function show($name){
         return view('project.show');
     }
 

@@ -8,6 +8,7 @@ use App\Model\Project;
 use App\Library\CustomModel\DBTargetConnection;
 use App\Library\Builder\DatabaseBuilder;
 use DB;
+use App\Library\GuardProject;
 use Illuminate\Http\Request;
 
 class DatabaseController extends Controller
@@ -17,13 +18,11 @@ class DatabaseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $projectId)
+    public function index(Request $request, $projectName)
     {
-        $user = User::select('id')->where('accessToken', '=', $request->bearerToken())->first();
-        $project = Project::select('dbServer', 'dbPort' , 'dbName','dbUsername','dbPassword')
-            ->where('userId', '=', $user->id)
-            ->where('id','=', $projectId)
-            ->first();
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectName);
+
         if (!$project) {
             return response()->json(['msg' => 'Not found your project.'], 200);
         }

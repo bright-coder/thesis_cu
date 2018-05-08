@@ -10,12 +10,22 @@ use App\Model\TestCase;
 use App\Model\TestCaseInput;
 use App\Model\RequirementTraceabilityMatrix;
 use App\Model\RequirementTraceabilityMatrixRelation;
+use App\Model\Project;
 use DB;
 use App\Library\ChangeAnalysis;
+use App\Library\CustomModel\DBTargetConnection;
+use App\Library\CustomModel\DBTargetInterface;
 
 class AnalyzeImpactTCState implements StateInterface
 {
     private $tcImpactResult = [];
+
+        /**
+     * Undocumented variable
+     *
+     * @var DBTargetInterface
+     */
+    private $dbTargetConnection = null;
 
     public function getStateName(): String
     {
@@ -49,6 +59,7 @@ class AnalyzeImpactTCState implements StateInterface
                     $tcNew->projectId = $changeAnalysis->projectId;
                     $tcNew->no = "#####";
                     $tcNew->type = $oldTc->type;
+                    $tcNew->activeFlag = 'Y';
                     $tcNew->save();
 
                     $tcInputChangeList = [];
@@ -57,17 +68,19 @@ class AnalyzeImpactTCState implements StateInterface
                             $oldValue = $this->findOldValue($oldTc->id, $frInput['old']['name']);
                             $newValue = $this->findNewValue(
                                 $oldValue,
-                                $$frInput['old']['tableName'],
+                                $frInput['old']['tableName'],
                                 $frInput['old']['columnName'],
                                 $changeAnalysis->getDBImpactResult()
 
                             );
-                            $tcInputChangeList[] = [
+                            if($newValue !== null) {
+                                $tcInputChangeList[] = [
                                 'inputName' => $frInput['old']['name'],
                                 'old' => $oldValue,
                                 'new' => $newValue,
 
-                            ];
+                                ];
+                            }
                         }
                     }
                     $this->addTcImpactResult($frImpact['id'], $tcNew->id, 'add', $oldTc->id, $tcInputChangeList);
@@ -80,17 +93,20 @@ class AnalyzeImpactTCState implements StateInterface
                             $oldValue = $this->findOldValue($oldTc->id, $frInput['old']['name']);
                             $newValue = $this->findNewValue(
                                 $oldValue,
-                                $$frInput['old']['tableName'],
+                                $frInput['old']['tableName'],
                                 $frInput['old']['columnName'],
                                 $changeAnalysis->getDBImpactResult()
 
                             );
-                            $tcInputChangeList[] = [
+                            if($newValue !== null) {
+                                $tcInputChangeList[] = [
                                 'inputName' => $frInput['old']['name'],
                                 'old' => $oldValue,
                                 'new' => $newValue,
 
-                            ];
+                                ];
+                            }
+                            
                         }
                     }
                     $this->addTcImpactResult($frImpact['id'], $oldTc->id, 'edit', null, $tcInputChangeList);
@@ -122,8 +138,31 @@ class AnalyzeImpactTCState implements StateInterface
                         }
                     }
                 }
+                else {
+                    return null;
+                }
             }
         }
+        return null;
+    }
+
+    private function connectTargetDB(string $projectId): bool
+    {
+        $project = Project::where('id', $projectId)->first();
+        $this->dbTargetConnection = DBTargetConnection::getInstance(
+            $project->dbType,
+            $project->dbServer,
+            $project->dbPort,
+            $project->dbName,
+            $project->dbUsername,
+            $project->dbPassword
+        );
+
+        if (!$this->dbTargetConnection->connect()) {
+            return false;
+        }
+
+        return true;
     }
 
     private function modify(array $frImpactResult): void
@@ -152,10 +191,19 @@ class AnalyzeImpactTCState implements StateInterface
                     if ($frImpact['id'] == $tcImpact['functionalRequirementId']) {
                         foreach ($frImpact['inputList'] as $frInput) {
                             if ($frInput['changeType'] == 'add') {
+                                if($this->connectTargetDB()) {
+                                    $instaceList = $this->dbTargetConnection->getInstanceByTableName($frInput['tableName']);
+                                    $numRows = count($instanceList);
+                                    $pickId = rand(1, $numRows) -1 ;
+                                    $pickInstance = $instaceList[$pickId][$frInput['columnName']];
+                                }
+                                else {
+                                    $pickInstance = '#ERROR';
+                                }
                                 $tcInputNew = new TestCaseInput;
                                 $tcInputNew->testCaseId = $tcImpact->id;
                                 $tcInputNew->name = $frInput['new']['name'];
-                                $tcInputNew->data = $tcOldInput->data;
+                                $tcInputNew->data = $pickInstance;
                                 $tcInputNew->save();
                             }
                             elseif($frInput['changeType'] == 'delete') {

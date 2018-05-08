@@ -27,7 +27,7 @@ class FunctionalRequirementRequest extends FormRequest
     public function rules()
     {
         return [
-            '*.no' => 'required|string',
+            '*.no' => 'required|number',
             '*.desc' => 'string',
             '*.inputs' => 'required|array|min:1',
             '*.inputs.*.name' => 'required|string',

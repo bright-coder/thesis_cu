@@ -9,6 +9,7 @@ use App\Library\GuardProject;
 use DB;
 use App\Model\FunctionalRequirement;
 use App\Model\FunctionalRequirementInput;
+use App\Model\Project;
 
 class FunctionalRequirementController extends Controller
 {
@@ -17,10 +18,10 @@ class FunctionalRequirementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $projectId)
+    public function index(Request $request, $projectName)
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($projectId);
+        $project = $guard->getProject($projectName);
 
         if(!$project) {
             return response()->json(['msg' => 'Bad Request'],400);
@@ -30,7 +31,10 @@ class FunctionalRequirementController extends Controller
         $frList = FunctionalRequirement::where('projectId', $project->id)->get();
         foreach ($frList as $index => $fr) {
             $result[$index] = $fr;
-            $frInput = FunctionalRequirementInput::where('functionalRequirementId', $fr->id)->get();
+            $frInput = FunctionalRequirementInput::where([
+                ['functionalRequirementId', $fr->id],
+                ['activeFlag', 'Y']
+                ])->get();
             if($frInput != null) {
                 $result[$index]['inputs'] = $frInput;
             } 
@@ -55,10 +59,10 @@ class FunctionalRequirementController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(FunctionalRequirementRequest $request, $projectId)
+    public function store(FunctionalRequirementRequest $request, $projectName)
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($projectId);
+        $project = $guard->getProject($projectName);
 
         if(!$project) {
             return response()->json(['msg' => 'Bad Request'],400);
@@ -67,10 +71,11 @@ class FunctionalRequirementController extends Controller
         $request = $request->json()->all();
         DB::beginTransaction();
         try {
+            $prefix = Project::find($project->id)->prefix;
             foreach ($request as $frImport) {
                 $fr = new FunctionalRequirement;
                 $fr->projectId = $project->id;
-                $fr->no = $frImport['no'];
+                $fr->no = "{$prefix}-FR-{$frImport['no']}";
                 $fr->description = \array_key_exists('desc', $frImport) ? $frImport['desc'] : null;
                 $fr->save();
                 foreach ($frImport['inputs'] as $input) {
@@ -87,6 +92,7 @@ class FunctionalRequirementController extends Controller
                     $frInput->max = \array_key_exists('max', $input) ? $input['max'] : null;
                     $frInput->tableName = $input['tableName'];
                     $frInput->columnName = $input['columnName'];
+                    $frInput->activeFlag = 'Y';
                     $frInput->save();
                 }
             }
@@ -139,10 +145,10 @@ class FunctionalRequirementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request ,$projectId, $functionalRequirementId = "all")
+    public function destroy(Request $request ,$projectName, $functionalRequirementNo = "all")
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($projectId);
+        $project = $guard->getProject($projectName);
 
         if (!$project) {
             return response()->json(['msg' => 'Bad Request'], 400);
@@ -150,16 +156,20 @@ class FunctionalRequirementController extends Controller
 
         DB::beginTransaction();
         try {
-            if ($functionalRequirementId === "all") {
-                $frs = FunctionalRequirement::select('id')->where('projectId', '=', $projectId)->get();
+            if ($functionalRequirementNo === "all") {
+                $frs = FunctionalRequirement::select('id')->where('projectId', $project->id)->get();
                 foreach ($frs as $fr) {
-                    FunctionalRequirementInput::where('functionalRequirementId', '=', $fr->id)->delete();
+                    FunctionalRequirementInput::where(['functionalRequirementId', $fr->id])->delete();
                     FunctionalRequirement::where('id', $fr->id)->delete();
                 }
             }
             else {
-                FunctionalRequirementInput::where('functionalRequirementId', '=', $functionalRequirementId)->delete();
-                FunctionalRequirement::where('id', '=', $functionalRequirementId)->delete();
+                $functionalRequirementId = FunctionalRequirement::where([
+                    ['no', $functionalRequirementNo],
+                    ['projectId', $project->id]
+                ])->first()->id;
+                FunctionalRequirementInput::where('functionalRequirementId', $functionalRequirementId)->delete();
+                FunctionalRequirement::where('id', $functionalRequirementId)->delete();
             }
             DB::commit();
         } catch (Exception $e) {

@@ -23,11 +23,13 @@ class ChangeAnalysis
 
     private $state;
 
+
     public function __construct(string $projectId, ChangeRequest $changeRequest, array $changeRequestInputList)
     {
         $this->projectId = $projectId;
         $this->changeRequest = $changeRequest;
         $this->changeRequestInputList = $changeRequestInputList;
+        $this->state = new AnalyzeImpactDBState;
     }
 
     public function getChangeFunctionalRequirementId(): string

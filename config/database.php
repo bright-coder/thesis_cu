@@ -80,7 +80,7 @@ return [
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'host' => 'localhost',
-            'port' => '1401',
+            'port' => '1433',
             'database' => 'systemDB',
             'username' => 'SA',
             'password' => 'brightSL683!',

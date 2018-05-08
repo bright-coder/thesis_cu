@@ -26,7 +26,7 @@ class TestCaseRequest extends FormRequest
     public function rules()
     {
         return [
-            '*.no' => 'required|string',
+            '*.no' => 'required|number',
             '*.desc' => 'string',
             '*.type' => 'required|string|in:valid,invalid',
             '*.inputs' => 'required|array|min:1',

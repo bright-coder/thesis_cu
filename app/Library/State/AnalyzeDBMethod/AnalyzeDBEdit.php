@@ -21,12 +21,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
      * @var FunctionalRequirement;
      */
     private $functionalRequirement = null;
-    /**
-     * Undocumented function
-     *
-     * @var FunctionalRequirementInput;
-     */
-    private $functionalRequirementInput = null;
+
     /**
      * Undocumented variable
      *
@@ -287,9 +282,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     private function findImpactNormalColumn(): void
     {
         $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
-        //dd($table);
+ 
         $column = $table->getColumnByName($this->functinoalRequirementInput->columnName);
-        
+        //dd($this->functinoalRequirementInput->columnName);
         //set refSchema to oldSchema
         $refSchema = [
             'dataType' => $column->getDataType()->getType(),
@@ -313,6 +308,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'oldSchema' => $refSchema,
             'newSchema' => count($newSchema) > 0 ? $newSchema : null
         ];
+        //dd($this->schemaImpactResult[0]);
 
         $dataTypeRef = $refSchema['dataType'];
 
@@ -438,7 +434,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'oldInstance' =>  $this->instanceImpactResult[0],
                 'newInstance' => $randomData
             ];
-            dd($this->instanceImpactResult[0]);
+            //dd($this->instanceImpactResult[0]);
         //$pkColumns = $this->database->getTableByName($this->changeRequestInput->tableName)->getPK()->getColumns();
         } else {
             $this->instanceImpactResult[0] = null;
@@ -544,13 +540,34 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     }
 
     public function modify(): bool
-    {
+    {   
+        
         //$dbTargetConnection->addColumn($changeRequestInput);
         foreach ($this->schemaImpactResult as $index => $scResult) {
             $this->dbTargetConnection->disableConstraint();
-            $this->dbTargetConnection->updateColumn($scResult);
+            $columnDetail = [
+                'length' => \array_key_exists('length',$scResult['newSchema']) ? 
+                $scResult['newSchema']['length'] : $scResult['oldSchema']['length'],
+            'precision' => \array_key_exists('precision',$scResult['newSchema']) ? 
+                $columnDetail['newSchema']['precision'] : $scResult['oldSchema']['precision'],
+            'scale' => \array_key_exists('scale',$scResult['newSchema']) ? 
+                $scResult['newSchema']['scale'] : $scResult['oldSchema']['scale'],
+                'dataType' => \array_key_exists('dataType', $scResult['newSchema']) ? 
+                $scResult['newSchema']['dataType'] : $scResult['oldSchema']['dataType'],
+                'nullable' => \array_key_exists('nullable', $scResult['newSchema']) ?
+                $scResult['newSchema']['nullable'] : $scResult['oldSchema']['nullable'],
+                'tableName' => $scResult['tableName'],
+                'columnName' => $scResult['columnName']."_#temp",
+                'default' => \array_key_exists('default', $scResult['newSchema']) ? $scResult['newSchema']['default'] : $scResult['oldSchema']['default']
+            ];
+            //dd($columnDetail);
+            //$default = \array_key_exists('default', $scResult['newSchema']) ? $scResult['newSchema']['default'] : $scResult['oldSchema']['default'];
+            
+            $this->dbTargetConnection->addColumn($columnDetail);
+            
 
-            $default = $scResult['oldSchema']['default'];
+            $default = $scResult['oldSchema']['default'] == '(NULL)' ? null : $scResult['oldSchema']['default'] ;
+            
             if (\array_key_exists('default', $scResult['newSchema'])) {
                 $default = $scResult['newSchema']['default'];
                 if ($default == '#NULL') {
@@ -571,12 +588,14 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             if ($this->instanceImpactResult[$index] != null) {
                 $this->dbTargetConnection->updateInstance(
                     $scResult['tableName'],
-                    $scResult['columnName'],
+                    $scResult['columnName']."_#temp",
                     $this->instanceImpactResult[$index]['oldInstance'],
                     $this->instanceImpactResult[$index]['newInstance'],
-                    $default
+                    $scResult['columnName']
                 );
             }
+            $this->dbTargetConnection->dropColumn($scResult['tableName'], $scResult['columnName']);
+            $this->dbTargetConnection->updateColumnName($scResult['tableName'],$scResult['columnName']."_#temp", $scResult['columnName']);
 
             if (\array_key_exists('unique', $scResult['newSchema'])) {
                 if ($scResult['newSchema']['unique'] === false) {

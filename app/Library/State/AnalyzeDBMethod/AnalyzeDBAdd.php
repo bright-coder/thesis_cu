@@ -74,7 +74,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
         }
     }
 
-    public function modify(DBTargetInterface $dbTargetConnection): bool
+    public function modify(): bool
     {   
 
         if(count($this->schemaImpactResult) == 0) {
@@ -82,7 +82,9 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
         }
 
         $this->dbTargetConnection->disableConstraint();
-        $this->dbTargetConnection->addColumn($changeRequestInput);
+        $this->dbTargetConnection->addColumn($this->changeRequestInput->toArray());
+
+
         
         if (strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true) {
             $dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);

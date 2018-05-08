@@ -31,10 +31,13 @@ class SqlServer implements DBTargetInterface
     }
 
     public function connect(): bool
-    {
+    {   
+        // "dblib:host={$this->server}:{$this->port};dbname={$this->database};LoginTimeout=1"
+        // sqlsrv:server={$this->server} ; Database={$this->database};LoginTimeout=1"
+
         try {
             $this->conObj = new \PDO(
-                "dblib:host={$this->server}:{$this->port};dbname={$this->database};LoginTimeout=1",
+                "sqlsrv:Server={$this->server}, {$this->port};Database={$this->database};LoginTimeout=1",
                 $this->user,
                 $this->pass
             );
@@ -224,24 +227,27 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    public function addColumn(ChangeRequestInput $changeRequestInput): bool {
-        $strSqlDataType = $this->getStrSqlDataType($changeRequestInput->dataType,
+    public function addColumn(array $columnDetail): bool {
+        $strSqlDataType = $this->getStrSqlDataType($columnDetail['dataType'],
             [
-                'length' => $changeRequestInput->length,
-                'precision' => $changeRequestInput->precision,
-                'scale' => $changeRequestInput->scale
+                'length' => $columnDetail['length'],
+                'precision' => $columnDetail['precision'],
+                'scale' => $columnDetail['scale']
             ]
         );
 
-        $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($changeRequestInput->nullable, 'N') == 0 ? false : true);
+        $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
         
-        $strSqlDefault = "DEFAULT(".$changeRequestInput->default.")";
+        $strSqlDefault = "DEFAULT(".$columnDetail['default'].")";
+        if($columnDetail['default'] == null) {
+            $strSqlDefault = '';
+        }
         
-        if($changeRequestInput->default == null && \strcasecmp($changeRequestInput->nullable, 'N') == 0){
+        if($columnDetail['default'] == '#NULL' && \strcasecmp($columnDetail['nullable'], 'N') == 0){
             $strSqlDefault = "0";
         }
 
-        $strQuery = "ALTER TABLE ".$changeRequestInput->tableName." ADD ".$changeRequestInput->columnName." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
+        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ADD ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
 
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
@@ -266,7 +272,7 @@ class SqlServer implements DBTargetInterface
         }
         return $dataType;
     }
-
+    
     public function updateColumn(array $columnDetail): bool {
         $dataTypeDetail = [
             'length' => \array_key_exists('length',$columnDetail['newSchema']) ? 
@@ -364,11 +370,19 @@ class SqlServer implements DBTargetInterface
                 $whenCondition[] = "$columnName = '$oldValue'";
             }
             $strWhenCondition = \implode(" AND ", $whenCondition);
-            $strQuery .= "WHEN $strWhenCondition THEN '".$newData[$index]."' ";
+            $strQuery .= "WHEN $strWhenCondition THEN '{$newData[$index]}' ";
         }
-        $strQuery .= "ELSE '".$default."'";
+        if($default == NULL) {
+            
+            $strQuery .= "ELSE NULL";
+        }
+        else {
+            
+            $strQuery .= "ELSE $default";
+        }
         $strQuery .= ' END';
-
+        
+        //dd($strQuery);
         $stmt = $this->conObj->prepare($strQuery);
         if($stmt->execute()){
             return true;
@@ -407,31 +421,15 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    // public function disableConstraint(string $tableName, string $columnName, string $constraintName = "ALL") : bool {   
-    //     $stmt = $this->conObj->prepare("ALTER TABLE $tableName NOCHECK CONSTRAINT $constraitnName");
-    //     if($stmt->execute()){
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    // public function enableConstraint(string $tableName, string $columnName, string $constraintName = "ALL") : bool {
-    //     $stmt = $this->conObj->prepare("ALTER TABLE $tableName CHECK CONSTRAINT $constraintName");
-    //     if($stmt->execute()){
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    public function disableConstraint(string $tableName = '?'): bool {
-        $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE $tableName NOCHECK CONSTRAINT all\"");
+    public function disableConstraint(string $tableName): bool {
+        $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} NOCHECK CONSTRAINT all\"");
         if($stmt !== false){
             return true;
         }
         return false;
     }
     public function enableConstraint(string $tableName = '?'): bool {
-        $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE $tableName CHECK CONSTRAINT all\"");
+        $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} CHECK CONSTRAINT all\"");
         if($stmt !== false){
             return true;
         }

@@ -39,10 +39,10 @@ class ChangeRequestController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ChangeRequestRequest $request, $projectId)
+    public function store(ChangeRequestRequest $request, $projectName)
     {
         $guard = new GuardProject($request->bearerToken());
-        $project = $guard->getProject($projectId);
+        $project = $guard->getProject($projectName);
 
         if (!$project) {
             return response()->json(['msg' => 'forbidden'], 400);
@@ -50,14 +50,14 @@ class ChangeRequestController extends Controller
         
         $request = $request->json()->all();
 
-        $guard = new GuardFunctionalRequirement($projectId);
+        $guard = new GuardFunctionalRequirement($project->id);
         $functionalRequirement = $guard->getAllFunctionalRequirement($request['functionalRequirementId']);
         if (!$functionalRequirement) {
             return response()->json(['msg' => 'forbidden'], 400);
         }
 
         // Debug Mode Only
-        $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $projectId)->get();
+        $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $project->id)->get();
         foreach ($crs as $cr) {
             DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
             DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
@@ -67,7 +67,7 @@ class ChangeRequestController extends Controller
         DB::beginTransaction();
         try {
             $changeRequest = new ChangeRequest;
-            $changeRequest->projectId = $projectId;
+            $changeRequest->projectId = $project->id;
             $changeRequest->changeFunctionalRequirementId = $request['functionalRequirementId'];
             $changeRequest->save();
             $changeRequestInputList = [];
@@ -170,9 +170,9 @@ class ChangeRequestController extends Controller
             return resonse()->json(['msg' => 'Internal Server Error.'], 500);
         }
 
-        $changeAnalysis = new ChangeAnalysis($projectId, $changeRequest, $changeRequestInputList);
+        $changeAnalysis = new ChangeAnalysis($project->id, $changeRequest, $changeRequestInputList);
         $changeAnalysis->analyze();
-        dd($changeAnalysis);
+        //dd($changeAnalysis);
     }
 
     /**

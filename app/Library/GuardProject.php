@@ -3,6 +3,7 @@
 namespace App\Library;
 
 use App\Model\User;
+use App\Model\Project;
 use DB;
 
 class GuardProject {
@@ -13,14 +14,13 @@ class GuardProject {
     }
     
     public function getAllProject() {
-        return DB::table('PROJECT')->where('userId', '=', $this->userId)->get();
+        return Project::where('userId', '=', $this->userId)->get();
     }
 
-    public function getProject(string $projectId) {
-        return DB::table('PROJECT')
-            ->where([
+    public function getProject(string $projectName) {
+        return Project::where([
                 ['userId', '=', $this->userId],
-                ['id', '=', $projectId]
+                ['name', '=', $projectName]
             ])->first();
     }
 
