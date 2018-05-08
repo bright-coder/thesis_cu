@@ -29,7 +29,7 @@ class HomeController extends Controller
         // ];
         // $test = array_unique($test, SORT_REGULAR);
         // dd($test);
-        return view('main');
+        return view('home');
     }
 
 }
