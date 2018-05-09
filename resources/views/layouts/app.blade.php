@@ -24,7 +24,7 @@
 <body>
     <div id="app">
         @auth
-        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="{{ route('home') }}"><i class="fas fa-home"></i></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
@@ -32,12 +32,12 @@
           
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown {{ (Request::is('project*') ? 'active' : '')  }}">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Project
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <a class="dropdown-item active" href="{{ route('projectCreate')}}">New project</a>
+                  <a class="dropdown-item" href="{{ route('projectCreate')}}">New project</a>
                     <a class="dropdown-item" href="#">Another action</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Something else here</a>
@@ -48,7 +48,7 @@
                       Functional Requirement
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item active" href="#">Action</a>
+                      <a class="dropdown-item" href="#">Action</a>
                       <a class="dropdown-item" href="#">Another action</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="#">Something else here</a>
@@ -59,7 +59,7 @@
                       Test Case
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item active" href="#">Action</a>
+                      <a class="dropdown-item" href="#">Action</a>
                       <a class="dropdown-item" href="#">Another action</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="#">Something else here</a>
@@ -107,5 +107,6 @@
  
         </main>
     </div>
+    @yield('customJS')
 </body>
 </html>
