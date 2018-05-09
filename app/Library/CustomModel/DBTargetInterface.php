@@ -32,7 +32,7 @@ interface DBTargetInterface
     public function getInstanceByTableName(string $tableName, string $condition = ''): array;
     public function getDuplicateInstance(string $tableName, array $columnName): array;
     public function getNumRows(string $tableName): int;
-    public function disableConstraint(string $tableName = '#ALL'): bool;
-    public function enableConstraint(string $tableName = '#ALL'): bool;
+    public function disableConstraint(string $tableName): bool;
+    public function enableConstraint(string $tableName): bool;
 
 }

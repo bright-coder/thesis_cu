@@ -34,7 +34,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        return view('project.create2');
+        return view('project.create');
     }
 
     /**

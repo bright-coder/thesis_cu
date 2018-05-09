@@ -32,7 +32,7 @@ class UnqiueProjectNameRule implements Rule
     public function passes($attribute, $value)
     {
         if(strcasecmp($this->method, 'post') == 0 ) {
-            $userId = Project::where('accessToken', $this->bearToken)->first()->id;
+            $userId = User::where('accessToken', $this->bearToken)->first()->id;
             if (Project::where([
                 ['userId', $userId],
                 ['name', $value]
@@ -51,6 +51,6 @@ class UnqiueProjectNameRule implements Rule
      */
     public function message()
     {
-        return ':attribute already exist.';
+        return 'This project name already exist.';
     }
 }

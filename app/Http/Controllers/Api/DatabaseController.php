@@ -27,17 +27,15 @@ class DatabaseController extends Controller
             return response()->json(['msg' => 'Not found your project.'], 200);
         }
 
-        $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer,$project->dbPort,$project->dbName,$project->dbUsername,$project->dbPassword);
-        if( !$dbCon->Connect()) {
+        $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer, $project->dbPort, $project->dbName, $project->dbUsername, $project->dbPassword);
+        if (!$dbCon->Connect()) {
             return response()->json(['msg' => 'Cannot Connect to Target Database.'], 400);
-        }
-        else {
+        } else {
             $databaseBuilder = new DatabaseBuilder($dbCon);
             $databaseBuilder->setUpTablesAndColumns();
         }
 
-        return response()->json($databaseBuilder->getDatabase()->toArray(),200);
-
+        return response()->json($databaseBuilder->getDatabase()->toArray(), 200);
     }
 
     /**

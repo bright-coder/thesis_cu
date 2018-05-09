@@ -31,11 +31,11 @@ class ProjectRequest extends FormRequest
         return [
                 
                 //'projectName' => ['required','between:4,255', new UnqiueProjectNameRule($this->bearerToken())],
-                'projectName' => ['required|between:4,100|alpha_dash', new UnqiueProjectNameRule($this->method(), $this->bearerToken())],
+                'projectName' => ['required','between:4,100','alpha_dash', new UnqiueProjectNameRule($this->method(), $this->bearerToken())],
                 'dbName' => 'required|between:1,255',
                 'dbServer' => 'required|between:1,255',
                 'dbPort' => 'required|numeric',
-                'dbType' => 'required',
+                'dbType' => 'required|in:sqlsrv',
                 'dbUsername' => 'required|between:2,100',
                 'dbPassword' => 'required|between:4,100',
                 'prefix' => 'required|between:2,10'
