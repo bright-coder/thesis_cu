@@ -23,7 +23,7 @@ class ProjectController extends Controller
         $guard = new GuardProject($request->bearerToken());
         $projects = $guard->getAllProject();
         if (count($projects) <= 0) {
-            return response()->json(['msg' => 'Not found your project.'], 200);
+            return response()->json(['msg' => 'Not found your project.'], 204);
         }
 
         return response()->json($projects, 200);
@@ -96,9 +96,10 @@ class ProjectController extends Controller
      */
     public function show(Request $request, $name)
     {
+        
         $guard = new GuardProject($request->bearerToken());
         $project = $guard->getProject($name);
-
+        
         if(!$project) {
             return response()->json(['msg' => 'Bad Request'], 400); 
         }

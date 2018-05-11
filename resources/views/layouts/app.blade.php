@@ -37,10 +37,8 @@
                     Project
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <a class="dropdown-item" href="{{ route('projectCreate')}}">New project</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Something else here</a>
+                  <a class="dropdown-item" href="{{ route('projectCreate') }}"><i class="fas fa-plus"></i> New project</a>
+                  <a class="dropdown-item" href="{{ route('project') }}"><i class="fas fa-list-ol"></i> My project</a>
                   </div>
                 </li>
                 <li class="nav-item dropdown">

@@ -24,7 +24,7 @@ class ProjectController extends Controller
     }
 
     public function show($name){
-        return view('project.show');
+        return view('project.show', ['projectNameInit' => $name]);
     }
 
     /**

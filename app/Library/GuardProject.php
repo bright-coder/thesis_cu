@@ -20,7 +20,7 @@ class GuardProject {
     public function getProject(string $projectName) {
         return Project::where([
                 ['userId', '=', $this->userId],
-                ['name', '=', $projectName]
+                ['name', $projectName]
             ])->first();
     }
 
