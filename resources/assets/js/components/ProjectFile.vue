@@ -1,51 +1,50 @@
 <template>
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-header">
-                <h4>
-                    <i class="fas fa-list-ul"></i>&nbsp;&nbsp;{{ this.projectName }}</h4>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header">
+        <h4>
+          <i class="fas fa-list-ul"></i>&nbsp;&nbsp;{{ this.projectName }}</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="customFile" ref="file" @change="this.readFileName">
+              <label class="custom-file-label" for="customFile">{{ this.filename }}</label>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="customFile" ref="file" @change="this.readFileName">
-                            <label class="custom-file-label" for="customFile">{{ this.filename }}</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary" @click="this.readFile">Read file</button>
-                    </div>
-                </div>
-                
-                <div class="row" v-if="this.frs.length > 0">
-                    <div class="col-md-12"><hr></div>
-                    <div class="col-md-12">
-                        <table class="table">
-                            <thead>
-                                
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-primary" @click="this.readFile">Read file</button>
+          </div>
         </div>
+
+        <div class="row" v-if="this.content.length > 0">
+          <div class="col-md-12"><hr></div>
+          <div class="col-md-12">
+            <functional-requirement-table v-if="this.contentType == 'fr'" v-bind:frs="this.content"></functional-requirement-table>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 <script>
 import XLSX from "xlsx";
+import FunctionalRequirementTable from "./FunctionalRequirementTable.vue";
 export default {
-  name: "project-functional-requirement",
-  props: ["accessToken", "projectName"],
+  name: "project-file",
+  props: ["accessToken", "projectName", "contentType"],
   data() {
     return {
       content: [],
-      filename: "Choose file .xlsx",
-
+      filename: "Choose file .xlsx"
     };
   },
+  components: {
+    FunctionalRequirementTable
+  },
   methods: {
-    getFrs() {},
+    getContent() {},
     readFileName() {
       if (this.$refs.file.files.length > 0) {
         this.$data.filename = this.$refs.file.files[0].name;
@@ -55,6 +54,7 @@ export default {
       if (this.$refs.file.files.length > 0) {
         var reader = new FileReader();
         var vm = this;
+        vm.content = [];
         reader.onload = function(e) {
           var binary = "";
           var bytes = new Uint8Array(e.target.result);
@@ -72,14 +72,20 @@ export default {
           });
 
           if (listOfSheet.length > 0) {
-            vm.readFrFromExcel(listOfSheet);
+            if (vm.contentType == "fr") {
+              vm.readFrFromExcel(listOfSheet);
+            } else if (vm.contentType == "tc") {
+              vm.readTcFromExcel(listOfSheet);
+            } else if (vm.contentType == "rtm") {
+              vm.readRtmFromExcel(listOfSheet);
+            }
           }
         };
         reader.readAsArrayBuffer(this.$refs.file.files[0]);
       }
     },
     readFrFromExcel(frList) {
-      var vm = this;
+      var vm = this
       $.each(frList, function(index, fr) {
         var no = vm.isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
         var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
@@ -100,13 +106,43 @@ export default {
             tableName: 11 in fr[i] ? fr[i][11] : ""
           });
         }
-        vm.frs.push({
+        vm.content.push({
           no: no,
           desc: description,
           inputs: inputList.length > 0 ? inputList : undefined
         });
       });
-      console.log(this.frs);
+
+    },
+    readTcFromExcel(tcList) {
+      var vm = this
+      $.each(tcList, function(index, tc) {
+        var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
+        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
+        var inputList = [];
+        for (var i = 4; i < tc.length; ++i) {
+          inputList.push({
+            name: 0 in tc[i] ? tc[i][0] : undefined,
+            testData: 1 in tc[i] ? tc[i][1] : undefined
+          });
+        }
+        vm.content.push({
+          no: no,
+          type: type,
+          inputs: inputList.length > 0 ? inputList : undefined
+        });
+      });
+    },
+    readRtmFromExcel(rtm) {
+      for (var i = 1; i < rtm.length; ++i) {
+        var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
+        var testCaseNos = rtm[i];
+        this.content.push({
+          functionalRequirementNo: frNo,
+          testCaseNos: testCaseNos
+        });
+      }
+      console.log(cleanObject(rtmFromFile));
     },
     sheetToArray(sheet) {
       var result = [];
@@ -145,7 +181,7 @@ export default {
   },
 
   created() {
-    this.getFrs();
+    this.getContent()
   }
 };
 </script>

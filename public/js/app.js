@@ -51576,8 +51576,8 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFunctionalRequirement_vue__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFunctionalRequirement_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ProjectFunctionalRequirement_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__);
 //
 //
 //
@@ -51625,236 +51625,31 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
 
   components: {
-    ProjectForm: __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default.a, ProjectFunctionalRequirement: __WEBPACK_IMPORTED_MODULE_1__ProjectFunctionalRequirement_vue___default.a
+    ProjectForm: __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default.a,
+    ProjectFile: __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default.a
   },
   methods: {
     showBasic: function showBasic() {
-      this.menu = 'basic';
+      this.menu = "basic";
     },
     showDB: function showDB() {
-      this.menu = 'database';
+      this.menu = "database";
     },
     showFR: function showFR() {
-      this.menu = 'fr';
+      this.menu = "fr";
     },
     showTC: function showTC() {
-      this.menu = 'tc';
+      this.menu = "tc";
     },
     showRTM: function showRTM() {
-      this.menu = 'rtm';
+      this.menu = "rtm";
     }
   }
 });
 
 /***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(52)
-/* template */
-var __vue_template__ = __webpack_require__(60)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/ProjectFunctionalRequirement.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-21709e44", Component.options)
-  } else {
-    hotAPI.reload("data-v-21709e44", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 52 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_xlsx__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "project-functional-requirement",
-  props: ["accessToken", "projectName"],
-  data: function data() {
-    return {
-      content: [],
-      filename: "Choose file .xlsx"
-
-    };
-  },
-
-  methods: {
-    getFrs: function getFrs() {},
-    readFileName: function readFileName() {
-      if (this.$refs.file.files.length > 0) {
-        this.$data.filename = this.$refs.file.files[0].name;
-      }
-    },
-    readFile: function readFile() {
-      if (this.$refs.file.files.length > 0) {
-        var reader = new FileReader();
-        var vm = this;
-        reader.onload = function (e) {
-          var binary = "";
-          var bytes = new Uint8Array(e.target.result);
-          var length = bytes.byteLength;
-          for (var i = 0; i < length; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
-          var workbook = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.read(binary, { type: "binary" });
-          var listOfSheet = [];
-          $.each(workbook.Sheets, function (index, sheet) {
-            var arraySheet = vm.sheetToArray(sheet);
-            if (arraySheet.length > 0) {
-              listOfSheet.push(arraySheet);
-            }
-          });
-
-          if (listOfSheet.length > 0) {
-            vm.readFrFromExcel(listOfSheet);
-          }
-        };
-        reader.readAsArrayBuffer(this.$refs.file.files[0]);
-      }
-    },
-    readFrFromExcel: function readFrFromExcel(frList) {
-      var vm = this;
-      $.each(frList, function (index, fr) {
-        var no = vm.isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
-        var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
-        var inputList = [];
-        for (var i = 4; i < fr.length; ++i) {
-          inputList.push({
-            name: 0 in fr[i] ? fr[i][0] : "",
-            dataType: 1 in fr[i] ? fr[i][1] : "",
-            length: 2 in fr[i] ? fr[i][2] : "",
-            precision: 3 in fr[i] ? fr[i][3] : "",
-            scale: 4 in fr[i] ? fr[i][4] : "",
-            default: 5 in fr[i] ? fr[i][5] : "",
-            nullable: 6 in fr[i] ? fr[i][6] : "",
-            unique: 7 in fr[i] ? fr[i][7] : "",
-            min: 8 in fr[i] ? fr[i][8] : "",
-            max: 9 in fr[i] ? fr[i][9] : "",
-            columnName: 10 in fr[i] ? fr[i][10] : "",
-            tableName: 11 in fr[i] ? fr[i][11] : ""
-          });
-        }
-        vm.frs.push({
-          no: no,
-          desc: description,
-          inputs: inputList.length > 0 ? inputList : undefined
-        });
-      });
-      console.log(this.frs);
-    },
-    sheetToArray: function sheetToArray(sheet) {
-      var result = [];
-      var row;
-      var rowNum;
-      var colNum;
-      if (sheet["!ref"] == undefined) {
-        return result;
-      }
-      var range = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.decode_range(sheet["!ref"]);
-      for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
-        row = [];
-        for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
-          var nextCell = sheet[__WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.encode_cell({ r: rowNum, c: colNum })];
-          if (typeof nextCell === "undefined") {
-            row.push(void 0);
-          } else row.push(nextCell.w);
-        }
-        result.push(row);
-      }
-      return result;
-    },
-    isKeyExist: function isKeyExist(array, dimen1) {
-      var dimen2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-
-      if (dimen1 in array) {
-        if (dimen2 != undefined) {
-          if (!Array.isArray(array[dimen1])) {
-            return false;
-          }
-          if (dimen2 in array[dimen1]) {
-            return true;
-          } else return false;
-        }
-      } else return false;
-    }
-  },
-
-  created: function created() {
-    this.getFrs();
-  }
-});
-
-/***/ }),
+/* 51 */,
+/* 52 */,
 /* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -81233,90 +81028,7 @@ module.exports = ZStream;
 /* (ignored) */
 
 /***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container-fluid" }, [
-    _c("div", { staticClass: "card" }, [
-      _c("div", { staticClass: "card-header" }, [
-        _c("h4", [
-          _c("i", { staticClass: "fas fa-list-ul" }),
-          _vm._v("  " + _vm._s(this.projectName))
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "card-body" }, [
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-md-4" }, [
-            _c("div", { staticClass: "custom-file" }, [
-              _c("input", {
-                ref: "file",
-                staticClass: "custom-file-input",
-                attrs: { type: "file", id: "customFile" },
-                on: { change: this.readFileName }
-              }),
-              _vm._v(" "),
-              _c(
-                "label",
-                {
-                  staticClass: "custom-file-label",
-                  attrs: { for: "customFile" }
-                },
-                [_vm._v(_vm._s(this.filename))]
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-4" }, [
-            _c(
-              "button",
-              { staticClass: "btn btn-primary", on: { click: this.readFile } },
-              [_vm._v("Read file")]
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        this.frs.length > 0
-          ? _c("div", { staticClass: "row" }, [
-              _vm._m(0),
-              _vm._v(" "),
-              _vm._m(1)
-            ])
-          : _vm._e()
-      ])
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-12" }, [_c("hr")])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-12" }, [
-      _c("table", { staticClass: "table" }, [_c("thead")])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-21709e44", module.exports)
-  }
-}
-
-/***/ }),
+/* 60 */,
 /* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -81421,10 +81133,31 @@ var render = function() {
             : _vm._e(),
           _vm._v(" "),
           _vm.menu == "fr"
-            ? _c("project-functional-requirement", {
+            ? _c("project-file", {
                 attrs: {
                   "access-token": _vm.accessToken,
-                  "project-name": _vm.projectNameInit
+                  "project-name": _vm.projectNameInit,
+                  contentType: _vm.menu
+                }
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.menu == "tc"
+            ? _c("project-file", {
+                attrs: {
+                  "access-token": _vm.accessToken,
+                  "project-name": _vm.projectNameInit,
+                  contentType: _vm.menu
+                }
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.menu == "rtm"
+            ? _c("project-file", {
+                attrs: {
+                  "access-token": _vm.accessToken,
+                  "project-name": _vm.projectNameInit,
+                  contentType: _vm.menu
                 }
               })
             : _vm._e()
@@ -81458,6 +81191,696 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(68)
+/* template */
+var __vue_template__ = __webpack_require__(69)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/FunctionalRequirementTable.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3b1db1e5", Component.options)
+  } else {
+    hotAPI.reload("data-v-3b1db1e5", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 68 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "functional-requirement-table",
+  props: ["frs"],
+  data: function data() {
+    return {
+      startIndex: 0,
+      pages: 1,
+      active: 1,
+      perPage: 2
+    };
+  },
+  created: function created() {
+    if (this.frs.length % 2 == 0) {
+      this.pages = parseInt(this.frs.length / this.perPage);
+    } else {
+      this.pages = parseInt(this.frs.length / this.perPage) + 1;
+    }
+  },
+
+  methods: {
+    go: function go(page) {
+      this.startIndex = (page - 1) * 2;
+      this.active = page;
+    },
+    previous: function previous() {
+      if (this.active > 1) {
+        --this.active;
+        this.startIndex -= this.perPage;
+      }
+    },
+    next: function next() {
+      if (this.active < this.pages) {
+        ++this.active;
+        this.startIndex += this.perPage;
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "groot" },
+    [
+      _vm._l(_vm.frs, function(fr, index) {
+        return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
+          ? _c("div", { key: index }, [
+              _c("div", { staticClass: "card" }, [
+                _c(
+                  "div",
+                  { staticClass: "card-header bg-primary text-white" },
+                  [
+                    _vm._v(
+                      "\n                No. " +
+                        _vm._s(fr.no) +
+                        "\n            "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "card-body" }, [
+                  _c("p", [_vm._v(" " + _vm._s(fr.desc) + " ")]),
+                  _vm._v(" "),
+                  _c("hr"),
+                  _vm._v(" "),
+                  _c("table", { staticClass: "table table-hover" }, [
+                    _vm._m(0, true),
+                    _vm._v(" "),
+                    _c(
+                      "tbody",
+                      _vm._l(fr.inputs, function(input, indexInput) {
+                        return _c("tr", { key: indexInput }, [
+                          _c("td", [_vm._v(_vm._s(indexInput + 1))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.name) + " ")]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.dataType))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.length) + " ")]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.precision))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.scale))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.default))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.nullable))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.unique))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.min))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.max))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.tableName))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.columnName))])
+                        ])
+                      })
+                    )
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("br")
+            ])
+          : _vm._e()
+      }),
+      _vm._v(" "),
+      this.frs.length > this.perPage
+        ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
+            _c(
+              "ul",
+              { staticClass: "pagination" },
+              [
+                _c(
+                  "li",
+                  {
+                    staticClass: "page-item",
+                    class: { disabled: _vm.active == 1 }
+                  },
+                  [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "page-link",
+                        attrs: { tabindex: "-1" },
+                        on: { click: _vm.previous }
+                      },
+                      [_vm._v("Previous")]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _vm._l(_vm.pages, function(page) {
+                  return _c(
+                    "li",
+                    {
+                      key: page,
+                      staticClass: "page-item",
+                      class: { active: _vm.active == page }
+                    },
+                    [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "page-link",
+                          on: {
+                            click: function($event) {
+                              _vm.go(page)
+                            }
+                          }
+                        },
+                        [_vm._v(_vm._s(page))]
+                      )
+                    ]
+                  )
+                }),
+                _vm._v(" "),
+                _c(
+                  "li",
+                  {
+                    staticClass: "page-item",
+                    class: { disabled: _vm.active == _vm.pages }
+                  },
+                  [
+                    _c(
+                      "button",
+                      { staticClass: "page-link", on: { click: _vm.next } },
+                      [_vm._v("Next")]
+                    )
+                  ]
+                )
+              ],
+              2
+            )
+          ])
+        : _vm._e()
+    ],
+    2
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Table name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Column name")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-3b1db1e5", module.exports)
+  }
+}
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(71)
+/* template */
+var __vue_template__ = __webpack_require__(72)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ProjectFile.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-494ad14e", Component.options)
+  } else {
+    hotAPI.reload("data-v-494ad14e", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 71 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_xlsx__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "project-file",
+  props: ["accessToken", "projectName", "contentType"],
+  data: function data() {
+    return {
+      content: [],
+      filename: "Choose file .xlsx"
+    };
+  },
+
+  components: {
+    FunctionalRequirementTable: __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default.a
+  },
+  methods: {
+    getContent: function getContent() {},
+    readFileName: function readFileName() {
+      if (this.$refs.file.files.length > 0) {
+        this.$data.filename = this.$refs.file.files[0].name;
+      }
+    },
+    readFile: function readFile() {
+      if (this.$refs.file.files.length > 0) {
+        var reader = new FileReader();
+        var vm = this;
+        vm.content = [];
+        reader.onload = function (e) {
+          var binary = "";
+          var bytes = new Uint8Array(e.target.result);
+          var length = bytes.byteLength;
+          for (var i = 0; i < length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          var workbook = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.read(binary, { type: "binary" });
+          var listOfSheet = [];
+          $.each(workbook.Sheets, function (index, sheet) {
+            var arraySheet = vm.sheetToArray(sheet);
+            if (arraySheet.length > 0) {
+              listOfSheet.push(arraySheet);
+            }
+          });
+
+          if (listOfSheet.length > 0) {
+            if (vm.contentType == "fr") {
+              vm.readFrFromExcel(listOfSheet);
+            } else if (vm.contentType == "tc") {
+              vm.readTcFromExcel(listOfSheet);
+            } else if (vm.contentType == "rtm") {
+              vm.readRtmFromExcel(listOfSheet);
+            }
+          }
+        };
+        reader.readAsArrayBuffer(this.$refs.file.files[0]);
+      }
+    },
+    readFrFromExcel: function readFrFromExcel(frList) {
+      var vm = this;
+      $.each(frList, function (index, fr) {
+        var no = vm.isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
+        var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
+        var inputList = [];
+        for (var i = 4; i < fr.length; ++i) {
+          inputList.push({
+            name: 0 in fr[i] ? fr[i][0] : "",
+            dataType: 1 in fr[i] ? fr[i][1] : "",
+            length: 2 in fr[i] ? fr[i][2] : "",
+            precision: 3 in fr[i] ? fr[i][3] : "",
+            scale: 4 in fr[i] ? fr[i][4] : "",
+            default: 5 in fr[i] ? fr[i][5] : "",
+            nullable: 6 in fr[i] ? fr[i][6] : "",
+            unique: 7 in fr[i] ? fr[i][7] : "",
+            min: 8 in fr[i] ? fr[i][8] : "",
+            max: 9 in fr[i] ? fr[i][9] : "",
+            columnName: 10 in fr[i] ? fr[i][10] : "",
+            tableName: 11 in fr[i] ? fr[i][11] : ""
+          });
+        }
+        vm.content.push({
+          no: no,
+          desc: description,
+          inputs: inputList.length > 0 ? inputList : undefined
+        });
+      });
+    },
+    readTcFromExcel: function readTcFromExcel(tcList) {
+      var vm = this;
+      $.each(tcList, function (index, tc) {
+        var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
+        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
+        var inputList = [];
+        for (var i = 4; i < tc.length; ++i) {
+          inputList.push({
+            name: 0 in tc[i] ? tc[i][0] : undefined,
+            testData: 1 in tc[i] ? tc[i][1] : undefined
+          });
+        }
+        vm.content.push({
+          no: no,
+          type: type,
+          inputs: inputList.length > 0 ? inputList : undefined
+        });
+      });
+    },
+    readRtmFromExcel: function readRtmFromExcel(rtm) {
+      for (var i = 1; i < rtm.length; ++i) {
+        var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
+        var testCaseNos = rtm[i];
+        this.content.push({
+          functionalRequirementNo: frNo,
+          testCaseNos: testCaseNos
+        });
+      }
+      console.log(cleanObject(rtmFromFile));
+    },
+    sheetToArray: function sheetToArray(sheet) {
+      var result = [];
+      var row;
+      var rowNum;
+      var colNum;
+      if (sheet["!ref"] == undefined) {
+        return result;
+      }
+      var range = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.decode_range(sheet["!ref"]);
+      for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+        row = [];
+        for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
+          var nextCell = sheet[__WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.encode_cell({ r: rowNum, c: colNum })];
+          if (typeof nextCell === "undefined") {
+            row.push(void 0);
+          } else row.push(nextCell.w);
+        }
+        result.push(row);
+      }
+      return result;
+    },
+    isKeyExist: function isKeyExist(array, dimen1) {
+      var dimen2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+      if (dimen1 in array) {
+        if (dimen2 != undefined) {
+          if (!Array.isArray(array[dimen1])) {
+            return false;
+          }
+          if (dimen2 in array[dimen1]) {
+            return true;
+          } else return false;
+        }
+      } else return false;
+    }
+  },
+
+  created: function created() {
+    this.getContent();
+  }
+});
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container-fluid" }, [
+    _c("div", { staticClass: "card" }, [
+      _c("div", { staticClass: "card-header" }, [
+        _c("h4", [
+          _c("i", { staticClass: "fas fa-list-ul" }),
+          _vm._v("  " + _vm._s(this.projectName))
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "card-body" }, [
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-md-4" }, [
+            _c("div", { staticClass: "custom-file" }, [
+              _c("input", {
+                ref: "file",
+                staticClass: "custom-file-input",
+                attrs: { type: "file", id: "customFile" },
+                on: { change: this.readFileName }
+              }),
+              _vm._v(" "),
+              _c(
+                "label",
+                {
+                  staticClass: "custom-file-label",
+                  attrs: { for: "customFile" }
+                },
+                [_vm._v(_vm._s(this.filename))]
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-4" }, [
+            _c(
+              "button",
+              { staticClass: "btn btn-primary", on: { click: this.readFile } },
+              [_vm._v("Read file")]
+            )
+          ])
+        ]),
+        _vm._v(" "),
+        this.content.length > 0
+          ? _c("div", { staticClass: "row" }, [
+              _vm._m(0),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "col-md-12" },
+                [
+                  this.contentType == "fr"
+                    ? _c("functional-requirement-table", {
+                        attrs: { frs: this.content }
+                      })
+                    : _vm._e()
+                ],
+                1
+              )
+            ])
+          : _vm._e()
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-md-12" }, [_c("hr")])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-494ad14e", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);
