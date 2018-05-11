@@ -3,7 +3,7 @@
   <div class="card">
     <div class="card-header" v-bind:class="[requestType == 'create' ? 'bg-success text-white' : '']">
       
-      <h2>{{ requestType == 'update' ? this.projectName : 'Create a new project' }}</h2>
+      <h4>{{ requestType == 'update' ? this.projectName : 'Create a new project' }}</h4>
     </div>
     <div class="card-body">
         <form v-on:submit.prevent="sendRequest">
@@ -135,7 +135,11 @@ export default {
         },
         dataType: "json"
       })
-        .then(function(response) {})
+        .then(function(response) {
+          if(response.status == 200) {
+            location.href = '/project/'+vm.projectName
+          }
+        })
         .catch(function(error) {
           let errorFields = error.response.data.msg.fields;
 

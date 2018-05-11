@@ -18,16 +18,20 @@ require('./bootstrap');
 import Vue from 'vue'
 import ProjectForm from './components/ProjectForm.vue'
 import ProjectMain from './components/ProjectMain.vue'
+import ProjectShow from './components/ProjectShow.vue'
 //Vue.component('projectForm', require('./components/ProjectForm.vue'));
 //Vue.component('example', require('./components/Example.vue'));
 //Vue.component('FormV', Form);
+// Vue.use('ProjectForm', require('./components/ProjectForm.vue'))
+// Vue.use('ProjectMain', require('./components/ProjectMain.vue'))
+// Vue.use('ProjectShow', require('./components/ProjectShow.vue'))
 
 console.log(Vue.version)
 
 const app = new Vue({
     el: '#app',
     components: {
-        ProjectForm, ProjectMain
+        ProjectForm, ProjectMain, ProjectShow
     },
  
 })
