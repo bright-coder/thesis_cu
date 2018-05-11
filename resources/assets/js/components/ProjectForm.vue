@@ -85,7 +85,6 @@
 </div>
 </template>
 <script>
-import XLSX from "xlsx";
 export default {
   name: "project-form",
   props: ["accessToken", "requestType", "projectNameInit"],

@@ -8,24 +8,33 @@
                     </div>
                     <div class="card-body">
                         <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'basic' }" @click="showBasic">Basic Information</a>
-                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'database' }" @click="showDB">Database</a>
-                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'fr' }" @click="showFR">Functional Requirement</a>
-                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'tc' }" @click="showTC">Test Case</a>
-                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'rtm' }" @click="showRTM">Requirement Traceability Matrix</a>
+                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'basic' }" @click="showBasic"><i class="fas fa-info"></i>&nbsp;&nbsp;Basic Information</a>
+                            <a href="#database" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'database' }" @click="showDB"><i class="fas fa-database"></i>&nbsp;&nbsp;Database</a>
+                            <a href="#functionalRequirement" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'fr' }" @click="showFR"><i class="fas fa-list-ul"></i>&nbsp;&nbsp;Functional Requirement</a>
+                            <a href="#testCase" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'tc' }" @click="showTC"><i class="fas fa-clipboard-check"></i>&nbsp;&nbsp;Test Case</a>
+                            <a href="#requirementTraceabilityMatrix" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'rtm' }" @click="showRTM"><i class="fas fa-link"></i>&nbsp;&nbsp;Requirement Traceability Matrix</a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-10">
-                <project-form :access-token="accessToken" :request-type="requestType" :project-name-init="projectNameInit" v-if="menu == 'basic'">
+                <project-form 
+                    :access-token="accessToken" 
+                    :request-type="requestType" 
+                    :project-name-init="projectNameInit" 
+                    v-if="menu == 'basic'">
                 </project-form>
+                <project-functional-requirement
+                    :access-token="accessToken"
+                    :project-name="projectNameInit"
+                    v-if="menu == 'fr'"></project-functional-requirement>
             </div>
         </div>
     </div>
 </template>
 <script>
 import ProjectForm from "./ProjectForm.vue";
+import ProjectFunctionalRequirement from "./ProjectFunctionalRequirement.vue"
 export default {
   name: "project-show",
   props: ["accessToken", "requestType", "projectNameInit"],
@@ -35,7 +44,7 @@ export default {
     };
   },
   components: {
-    ProjectForm
+    ProjectForm, ProjectFunctionalRequirement
   },
   methods: {
     showBasic() {
