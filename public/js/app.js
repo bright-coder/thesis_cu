@@ -81436,7 +81436,7 @@ var render = function() {
         ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
             _c(
               "ul",
-              { staticClass: "pagination" },
+              { staticClass: "pagination justify-content-center" },
               [
                 _c(
                   "li",

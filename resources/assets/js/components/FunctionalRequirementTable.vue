@@ -50,7 +50,7 @@
             <br>
         </div>
         <nav aria-label="Page navigation example" v-if="this.frs.length > this.perPage">
-            <ul class="pagination">
+            <ul class="pagination justify-content-center">
                 <li class="page-item" v-bind:class="{'disabled' :active == 1}">
                     <button class="page-link" tabindex="-1" @click="previous">Previous</button>
                 </li>
