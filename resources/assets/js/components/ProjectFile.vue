@@ -17,21 +17,21 @@
             <button class="btn btn-primary" @click="this.save">Save</button>
           </div>
         </div>
+
         <div class="row" v-if="isSave > 0">
+          <div class="col-md-12" v-if="isSave > 1"><br></div>
           <div class="col-md-6">
             <div class="alert alert-dismissible fade show" v-bind:class="[this.isSave == 1 ? 'alert-success' : 'alert-danger']" role="alert">
               <strong>{{ this.msg }}</strong>
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
             </div>
           </div>
         </div>
         <div class="row" v-if="this.content.length > 0">
-          <div class="col-md-12"><hr></div>
+          <div class="col-md-12" v-if="isSave == 0 || isSave == 2"><hr></div>
           <div class="col-md-12">
             <functional-requirement-table v-if="this.contentType == 'fr'" v-bind:frs="this.content"></functional-requirement-table>
             <test-case-table v-if="this.contentType == 'tc'" v-bind:tcs="this.content"></test-case-table>
+            <rtm-table v-if="this.contentType == 'rtm'" v-bind:relations="this.content"></rtm-table>
           </div>
         </div>
       </div>
@@ -42,6 +42,7 @@
 import XLSX from "xlsx";
 import FunctionalRequirementTable from "./FunctionalRequirementTable.vue";
 import TestCaseTable from "./TestCaseTable.vue";
+import RtmTable from "./RtmTable.vue";
 export default {
   name: "project-file",
   props: ["accessToken", "projectName", "contentType"],
@@ -50,19 +51,48 @@ export default {
       content: [],
       filename: "Choose file .xlsx",
       isSave: 0,
-      msg: ''
+      msg: ""
     };
   },
   components: {
     FunctionalRequirementTable,
-    TestCaseTable
+    TestCaseTable,
+    RtmTable
   },
   methods: {
-    getContent() {},
-    readFileName() {
-      if (this.$refs.file.files.length > 0) {
-        this.$data.filename = this.$refs.file.files[0].name;
+    getContent() {
+      let url = "/api/v1/projects/" + this.projectName;
+      if (this.contentType == "fr") {
+        url += "/functionalRequirements";
+      } else if (this.contentType == "tc") {
+        url += "/testCases";
+      } else {
+        url += "/RTM";
       }
+      var vm = this
+      axios({
+        url: url,
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      })
+      .then(function(response){
+        if(response.status == 200) {
+          vm.isSave = -1
+          vm.content = response.data
+        }
+        console.log(vm.content)
+      
+      })
+      .catch(function(errors){
+        vm.isSave = 2
+        if(errors.response.status == 500)
+          vm.msg = 'Server Error, please try again later.'
+      })
     },
     readFile() {
       if (this.$refs.file.files.length > 0) {
@@ -92,13 +122,13 @@ export default {
             } else if (vm.contentType == "tc") {
               vm.readTcFromExcel(listOfSheet);
             } else if (vm.contentType == "rtm") {
-              vm.readRtmFromExcel(listOfSheet);
+              vm.readRtmFromExcel(listOfSheet[0]);
             }
           }
         };
         reader.readAsArrayBuffer(this.$refs.file.files[0]);
         //vm.content = vm.cleanContent(vm.content)
-        vm.cleanContent();
+        //vm.cleanContent();
       }
     },
     readFrFromExcel(frList) {
@@ -134,7 +164,7 @@ export default {
       var vm = this;
       $.each(tcList, function(index, tc) {
         var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
-        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
+        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1].toLowerCase() : undefined;
         var inputList = [];
         for (var i = 4; i < tc.length; ++i) {
           inputList.push({
@@ -150,15 +180,16 @@ export default {
       });
     },
     readRtmFromExcel(rtm) {
+      var vm = this;
       for (var i = 1; i < rtm.length; ++i) {
         var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
-        var testCaseNos = rtm[i];
-        this.content.push({
+        var testCaseNos = vm.filter_array(rtm[i]);
+        vm.content.push({
           functionalRequirementNo: frNo,
           testCaseNos: testCaseNos
         });
       }
-      console.log(cleanObject(rtmFromFile));
+      console.log(vm.content);
     },
     sheetToArray(sheet) {
       var result = [];
@@ -196,7 +227,6 @@ export default {
     },
     save() {
       let url = "/api/v1/projects/" + this.projectName;
-      console.log(this.contentType)
 
       if (this.contentType == "fr") {
         url += "/functionalRequirements";
@@ -219,15 +249,15 @@ export default {
         dataType: "json"
       })
         .then(function(response) {
-          vm.isSave = 1
-          vm.msg = "Save success."
+          vm.isSave = 1;
+          vm.msg = "Save success.";
         })
         .catch(function(errors) {
-          vm.isSave = 2
-          if(errors.response.status == 500)
-            vm.msg = "Server Error, please try again later."
-          else
-            vm.msg = "Somthing Wrong, please check your xlsx file."
+          vm.isSave = 2;
+          console.log(errors.response.status)
+          if (errors.response.status == 500)
+            vm.msg = "Server Error, please try again later.";
+          else vm.msg = "Somthing Wrong, please check your xlsx file.";
         });
     },
     cleanContent() {

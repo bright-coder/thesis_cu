@@ -18,9 +18,35 @@ class TestCaseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $projectName)
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectName);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        $result = [];
+        $statusCode = 202;
+        $tcList = TestCase::where([
+            ['projectId', $project->id], 
+            ['activeFlag', 'Y']
+            ])->get();
+        foreach ($tcList as $index => $tc) {
+            $result[$index] = $tc;
+            $tcInput = TestCaseInput::where([
+                ['testCaseId', $tc->id],
+                ])->get();
+            if($tcInput != null) {
+                $result[$index]['inputs'] = $tcInput;
+            } 
+        }
+        
+        if(count($result) > 0 ) {
+            $statusCode = 200;
+        }
+        return response()->json($result, $statusCode);
     }
 
     /**

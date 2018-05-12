@@ -18,9 +18,48 @@ class RTMController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $projectName)
     {
-        //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectName);
+
+        if (!$project) {
+            return response()->json(['msg' => 'Bad Request'], 400);
+        }
+
+        $result = [];
+        $statusCode = 202;
+        $rtm = RequirementTraceabilityMatrix::where('projectId', $project->id)->first();
+        if(!$rtm) {
+            return response()->json($result, $statusCode);
+        }
+        $relationList = RequirementTraceabilityMatrixRelation::where([
+            ['requirementTraceabilityMatrixId', $rtm->id], 
+            ['activeFlag', 'Y']
+            ])->get();
+        foreach ($relationList as $index => $relation) {
+            $frId = $relation->functionalRequirementId;
+            $frNo = FunctionalRequirement::select('no')->where('id', $frId)->first()->no;
+            $testCaseNo = TestCase::where('id', $relation->testCaseId)->first()->no;
+            if(\array_key_exists($frNo,$result)) {
+                $result[$frNo]['testCaseNos'][] = $testCaseNo;
+            }
+            else {
+                $result[$frNo] = [
+                    'functionalRequirementNo' => $frNo,
+                    'testCaseNos' => [$testCaseNo]
+                ];
+            }
+
+        }
+        if(count($result) > 0 ) {
+            $newKeyArray = []; // for change key from HS-FR-01 to 0 ,1 , 2
+            foreach($result as $obj) {
+                $newKeyArray[] = $obj;
+            }
+            $statusCode = 200;
+        }
+        return response()->json($newKeyArray, $statusCode);
     }
 
     /**
@@ -67,6 +106,7 @@ class RTMController extends Controller
                     'projectId' => $project->id,
                     'no' => "{$prefix}-TC-{$testCaseNo}",
                 ])->first()->id;
+                $requirementTraceabilityMatrixRelation->activeFlag = 'Y';
                 $requirementTraceabilityMatrixRelation->save();
             }
         }

@@ -28,6 +28,7 @@ class FunctionalRequirementController extends Controller
         }
 
         $result = [];
+        $statusCode = 202;
         $frList = FunctionalRequirement::where('projectId', $project->id)->get();
         foreach ($frList as $index => $fr) {
             $result[$index] = $fr;
@@ -39,8 +40,10 @@ class FunctionalRequirementController extends Controller
                 $result[$index]['inputs'] = $frInput;
             } 
         }
-        
-        return response()->json($result,200);
+        if(count($result) > 0 ) {
+            $statusCode = 200;
+        }
+        return response()->json($result, $statusCode);
     }
 
     /**

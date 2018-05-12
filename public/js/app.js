@@ -51747,6 +51747,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__ = __webpack_require__(73);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__RtmTable_vue__ = __webpack_require__(76);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__RtmTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__RtmTable_vue__);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 //
@@ -51793,6 +51795,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "project-file",
   props: ["accessToken", "projectName", "contentType"],
@@ -51801,20 +51804,45 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       content: [],
       filename: "Choose file .xlsx",
       isSave: 0,
-      msg: ''
+      msg: ""
     };
   },
 
   components: {
     FunctionalRequirementTable: __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default.a,
-    TestCaseTable: __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue___default.a
+    TestCaseTable: __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue___default.a,
+    RtmTable: __WEBPACK_IMPORTED_MODULE_3__RtmTable_vue___default.a
   },
   methods: {
-    getContent: function getContent() {},
-    readFileName: function readFileName() {
-      if (this.$refs.file.files.length > 0) {
-        this.$data.filename = this.$refs.file.files[0].name;
+    getContent: function getContent() {
+      var url = "/api/v1/projects/" + this.projectName;
+      if (this.contentType == "fr") {
+        url += "/functionalRequirements";
+      } else if (this.contentType == "tc") {
+        url += "/testCases";
+      } else {
+        url += "/RTM";
       }
+      var vm = this;
+      axios({
+        url: url,
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        if (response.status == 200) {
+          vm.isSave = -1;
+          vm.content = response.data;
+        }
+        console.log(vm.content);
+      }).catch(function (errors) {
+        vm.isSave = 2;
+        if (errors.response.status == 500) vm.msg = 'Server Error, please try again later.';
+      });
     },
     readFile: function readFile() {
       if (this.$refs.file.files.length > 0) {
@@ -51844,13 +51872,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             } else if (vm.contentType == "tc") {
               vm.readTcFromExcel(listOfSheet);
             } else if (vm.contentType == "rtm") {
-              vm.readRtmFromExcel(listOfSheet);
+              vm.readRtmFromExcel(listOfSheet[0]);
             }
           }
         };
         reader.readAsArrayBuffer(this.$refs.file.files[0]);
         //vm.content = vm.cleanContent(vm.content)
-        vm.cleanContent();
+        //vm.cleanContent();
       }
     },
     readFrFromExcel: function readFrFromExcel(frList) {
@@ -51886,7 +51914,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var vm = this;
       $.each(tcList, function (index, tc) {
         var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
-        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
+        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1].toLowerCase() : undefined;
         var inputList = [];
         for (var i = 4; i < tc.length; ++i) {
           inputList.push({
@@ -51902,15 +51930,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       });
     },
     readRtmFromExcel: function readRtmFromExcel(rtm) {
+      var vm = this;
       for (var i = 1; i < rtm.length; ++i) {
         var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
-        var testCaseNos = rtm[i];
-        this.content.push({
+        var testCaseNos = vm.filter_array(rtm[i]);
+        vm.content.push({
           functionalRequirementNo: frNo,
           testCaseNos: testCaseNos
         });
       }
-      console.log(cleanObject(rtmFromFile));
+      console.log(vm.content);
     },
     sheetToArray: function sheetToArray(sheet) {
       var result = [];
@@ -51949,7 +51978,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     },
     save: function save() {
       var url = "/api/v1/projects/" + this.projectName;
-      console.log(this.contentType);
 
       if (this.contentType == "fr") {
         url += "/functionalRequirements";
@@ -51975,6 +52003,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.msg = "Save success.";
       }).catch(function (errors) {
         vm.isSave = 2;
+        console.log(errors.response.status);
         if (errors.response.status == 500) vm.msg = "Server Error, please try again later.";else vm.msg = "Somthing Wrong, please check your xlsx file.";
       });
     },
@@ -81827,6 +81856,10 @@ var render = function() {
         _vm._v(" "),
         _vm.isSave > 0
           ? _c("div", { staticClass: "row" }, [
+              _vm.isSave > 1
+                ? _c("div", { staticClass: "col-md-12" }, [_c("br")])
+                : _vm._e(),
+              _vm._v(" "),
               _c("div", { staticClass: "col-md-6" }, [
                 _c(
                   "div",
@@ -81837,11 +81870,7 @@ var render = function() {
                     ],
                     attrs: { role: "alert" }
                   },
-                  [
-                    _c("strong", [_vm._v(_vm._s(this.msg))]),
-                    _vm._v(" "),
-                    _vm._m(0)
-                  ]
+                  [_c("strong", [_vm._v(_vm._s(this.msg))])]
                 )
               ])
             ])
@@ -81849,7 +81878,9 @@ var render = function() {
         _vm._v(" "),
         this.content.length > 0
           ? _c("div", { staticClass: "row" }, [
-              _vm._m(1),
+              _vm.isSave == 0 || _vm.isSave == 2
+                ? _c("div", { staticClass: "col-md-12" }, [_c("hr")])
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "div",
@@ -81863,6 +81894,10 @@ var render = function() {
                   _vm._v(" "),
                   this.contentType == "tc"
                     ? _c("test-case-table", { attrs: { tcs: this.content } })
+                    : _vm._e(),
+                  _vm._v(" "),
+                  this.contentType == "rtm"
+                    ? _c("rtm-table", { attrs: { relations: this.content } })
                     : _vm._e()
                 ],
                 1
@@ -81873,31 +81908,7 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass: "close",
-        attrs: {
-          type: "button",
-          "data-dismiss": "alert",
-          "aria-label": "Close"
-        }
-      },
-      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-12" }, [_c("hr")])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
@@ -82521,6 +82532,256 @@ if (false) {
   module.hot.accept()
   if (module.hot.data) {
     require("vue-hot-reload-api")      .rerender("data-v-d1af0136", module.exports)
+  }
+}
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(77)
+/* template */
+var __vue_template__ = __webpack_require__(78)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/RtmTable.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-5b1be84c", Component.options)
+  } else {
+    hotAPI.reload("data-v-5b1be84c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 77 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "rtm-table",
+  props: ["relations"],
+  data: function data() {
+    return {
+      startIndex: 0,
+      pages: 1,
+      active: 1,
+      perPage: 20
+    };
+  },
+  created: function created() {
+    console.log('kuy');
+    if (this.relations.length % 2 == 0) {
+      this.pages = parseInt(this.relations.length / this.perPage);
+    } else {
+      this.pages = parseInt(this.relations.length / this.perPage) + 1;
+    }
+  },
+
+  methods: {
+    go: function go(page) {
+      this.startIndex = (page - 1) * 2;
+      this.active = page;
+    },
+    previous: function previous() {
+      if (this.active > 1) {
+        --this.active;
+        this.startIndex -= this.perPage;
+      }
+    },
+    next: function next() {
+      if (this.active < this.pages) {
+        ++this.active;
+        this.startIndex += this.perPage;
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "groot" }, [
+    _c("table", { staticClass: "table table-hover" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c(
+        "tbody",
+        _vm._l(_vm.relations, function(rel, index) {
+          return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
+            ? _c("tr", { key: index }, [
+                _c("td", { attrs: { width: "30%" } }, [
+                  _vm._v(_vm._s(rel.functionalRequirementNo))
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(rel.testCaseNos.join(" | ")))])
+              ])
+            : _vm._e()
+        })
+      )
+    ]),
+    _vm._v(" "),
+    _c("br"),
+    _vm._v(" "),
+    this.relations.length > this.perPage
+      ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
+          _c(
+            "ul",
+            { staticClass: "pagination justify-content-center" },
+            [
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == 1 }
+                },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "page-link",
+                      attrs: { tabindex: "-1" },
+                      on: { click: _vm.previous }
+                    },
+                    [_vm._v("Previous")]
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _vm._l(_vm.pages, function(page) {
+                return _c(
+                  "li",
+                  {
+                    key: page,
+                    staticClass: "page-item",
+                    class: { active: _vm.active == page }
+                  },
+                  [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "page-link",
+                        on: {
+                          click: function($event) {
+                            _vm.go(page)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(page))]
+                    )
+                  ]
+                )
+              }),
+              _vm._v(" "),
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == _vm.pages }
+                },
+                [
+                  _c(
+                    "button",
+                    { staticClass: "page-link", on: { click: _vm.next } },
+                    [_vm._v("Next")]
+                  )
+                ]
+              )
+            ],
+            2
+          )
+        ])
+      : _vm._e()
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th", [_vm._v("Functional Requirement No")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Test Case")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-5b1be84c", module.exports)
   }
 }
 
