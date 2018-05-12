@@ -6,7 +6,7 @@
           <i class="fas" v-bind:class="[this.contentType == 'fr' ? 'fa-list-ul' : this.contentType == 'tc' ? 'fa-clipboard-check': 'fa-link']"></i>&nbsp;&nbsp;{{ this.projectName }}</h4>
       </div>
       <div class="card-body">
-        <div class="row">
+        <div class="row" v-if="isSave == 0 || isSave == 2">
           <div class="col-md-4">
             <div class="custom-file">
               <input type="file" class="custom-file-input" ref="file" @change="this.readFile">
@@ -17,11 +17,21 @@
             <button class="btn btn-primary" @click="this.save">Save</button>
           </div>
         </div>
+        <div class="row" v-if="isSave > 0">
+          <div class="col-md-6">
+            <div class="alert alert-dismissible fade show" v-bind:class="[this.isSave == 1 ? 'alert-success' : 'alert-danger']" role="alert">
+              <strong>{{ this.msg }}</strong>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="row" v-if="this.content.length > 0">
           <div class="col-md-12"><hr></div>
           <div class="col-md-12">
             <functional-requirement-table v-if="this.contentType == 'fr'" v-bind:frs="this.content"></functional-requirement-table>
-
+            <test-case-table v-if="this.contentType == 'tc'" v-bind:tcs="this.content"></test-case-table>
           </div>
         </div>
       </div>
@@ -31,17 +41,21 @@
 <script>
 import XLSX from "xlsx";
 import FunctionalRequirementTable from "./FunctionalRequirementTable.vue";
+import TestCaseTable from "./TestCaseTable.vue";
 export default {
   name: "project-file",
   props: ["accessToken", "projectName", "contentType"],
   data() {
     return {
       content: [],
-      filename: "Choose file .xlsx"
+      filename: "Choose file .xlsx",
+      isSave: 0,
+      msg: ''
     };
   },
   components: {
-    FunctionalRequirementTable
+    FunctionalRequirementTable,
+    TestCaseTable
   },
   methods: {
     getContent() {},
@@ -182,8 +196,9 @@ export default {
     },
     save() {
       let url = "/api/v1/projects/" + this.projectName;
+      console.log(this.contentType)
 
-      if (this.contentType == "fr ") {
+      if (this.contentType == "fr") {
         url += "/functionalRequirements";
       } else if (this.contentType == "tc") {
         url += "/testCases";
@@ -191,7 +206,7 @@ export default {
         url += "/RTM";
       }
 
-      vm = this;
+      var vm = this;
       var data = JSON.stringify(this.content);
       axios({
         url: url,
@@ -203,12 +218,17 @@ export default {
         },
         dataType: "json"
       })
-      .then(function(response){ 
-        alert('Insert OK')
-      })
-      .catch(function(errors) {
-
-      })
+        .then(function(response) {
+          vm.isSave = 1
+          vm.msg = "Save success."
+        })
+        .catch(function(errors) {
+          vm.isSave = 2
+          if(errors.response.status == 500)
+            vm.msg = "Server Error, please try again later."
+          else
+            vm.msg = "Somthing Wrong, please check your xlsx file."
+        });
     },
     cleanContent() {
       var obj = this.content;

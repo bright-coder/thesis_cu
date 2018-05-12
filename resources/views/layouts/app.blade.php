@@ -43,11 +43,6 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="{{ route('projectCreate') }}"><i class="fas fa-plus"></i> New project</a>
               <a class="dropdown-item" href="{{ route('project') }}"><i class="fas fa-list-ol"></i> My project</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Database</a>
-              <a class="dropdown-item" href="#">Functional Requirement</a>
-              <a class="dropdown-item" href="#">Test Case</a>
-              <a class="dropdown-item" href="#">Requirement Traceability Matrix</a>
             </div>
           </li>
           <li class="nav-item dropdown">
@@ -56,10 +51,9 @@
                       Change Request
                     </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-plus"></i> New Change Request</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-list-ol"></i> Change Request History</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
         </ul>

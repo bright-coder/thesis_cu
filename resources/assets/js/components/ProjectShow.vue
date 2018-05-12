@@ -49,9 +49,9 @@
             <div class="col-md-10">
                 <project-form :access-token="accessToken" :request-type="requestType" :project-name-init="projectNameInit" v-show="menu == 'basic'">
                 </project-form>
-                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'fr'" :contentType="menu" key="fr"></project-file>
-                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'tc'" :contentType="menu" key="tc"></project-file>
-                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'rtm'" :contentType="menu" key="rtm"></project-file>
+                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'fr'" :contentType="'fr'" key="fr"></project-file>
+                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'tc'" :contentType="'tc'" key="tc"></project-file>
+                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'rtm'" :contentType="'rtm'" key="rtm"></project-file>
             </div>
         </div>
     </div>

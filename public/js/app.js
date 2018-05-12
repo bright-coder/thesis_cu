@@ -51745,6 +51745,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_xlsx__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 //
@@ -51777,6 +51779,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -51786,12 +51799,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   data: function data() {
     return {
       content: [],
-      filename: "Choose file .xlsx"
+      filename: "Choose file .xlsx",
+      isSave: 0,
+      msg: ''
     };
   },
 
   components: {
-    FunctionalRequirementTable: __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default.a
+    FunctionalRequirementTable: __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default.a,
+    TestCaseTable: __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue___default.a
   },
   methods: {
     getContent: function getContent() {},
@@ -51933,8 +51949,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     },
     save: function save() {
       var url = "/api/v1/projects/" + this.projectName;
+      console.log(this.contentType);
 
-      if (this.contentType == "fr ") {
+      if (this.contentType == "fr") {
         url += "/functionalRequirements";
       } else if (this.contentType == "tc") {
         url += "/testCases";
@@ -51942,7 +51959,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         url += "/RTM";
       }
 
-      vm = this;
+      var vm = this;
       var data = JSON.stringify(this.content);
       axios({
         url: url,
@@ -51954,8 +51971,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         },
         dataType: "json"
       }).then(function (response) {
-        alert('Insert OK');
-      }).catch(function (errors) {});
+        vm.isSave = 1;
+        vm.msg = "Save success.";
+      }).catch(function (errors) {
+        vm.isSave = 2;
+        if (errors.response.status == 500) vm.msg = "Server Error, please try again later.";else vm.msg = "Somthing Wrong, please check your xlsx file.";
+      });
     },
     cleanContent: function cleanContent() {
       var obj = this.content;
@@ -81777,34 +81798,58 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "card-body" }, [
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-md-4" }, [
-            _c("div", { staticClass: "custom-file" }, [
-              _c("input", {
-                ref: "file",
-                staticClass: "custom-file-input",
-                attrs: { type: "file" },
-                on: { change: this.readFile }
-              }),
+        _vm.isSave == 0 || _vm.isSave == 2
+          ? _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-md-4" }, [
+                _c("div", { staticClass: "custom-file" }, [
+                  _c("input", {
+                    ref: "file",
+                    staticClass: "custom-file-input",
+                    attrs: { type: "file" },
+                    on: { change: this.readFile }
+                  }),
+                  _vm._v(" "),
+                  _c("label", { staticClass: "custom-file-label" }, [
+                    _vm._v(_vm._s(_vm.filename))
+                  ])
+                ])
+              ]),
               _vm._v(" "),
-              _c("label", { staticClass: "custom-file-label" }, [
-                _vm._v(_vm._s(_vm.filename))
+              _c("div", { staticClass: "col-md-4" }, [
+                _c(
+                  "button",
+                  { staticClass: "btn btn-primary", on: { click: this.save } },
+                  [_vm._v("Save")]
+                )
               ])
             ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-4" }, [
-            _c(
-              "button",
-              { staticClass: "btn btn-primary", on: { click: this.save } },
-              [_vm._v("Save")]
-            )
-          ])
-        ]),
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.isSave > 0
+          ? _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-md-6" }, [
+                _c(
+                  "div",
+                  {
+                    staticClass: "alert alert-dismissible fade show",
+                    class: [
+                      this.isSave == 1 ? "alert-success" : "alert-danger"
+                    ],
+                    attrs: { role: "alert" }
+                  },
+                  [
+                    _c("strong", [_vm._v(_vm._s(this.msg))]),
+                    _vm._v(" "),
+                    _vm._m(0)
+                  ]
+                )
+              ])
+            ])
+          : _vm._e(),
         _vm._v(" "),
         this.content.length > 0
           ? _c("div", { staticClass: "row" }, [
-              _vm._m(0),
+              _vm._m(1),
               _vm._v(" "),
               _c(
                 "div",
@@ -81814,6 +81859,10 @@ var render = function() {
                     ? _c("functional-requirement-table", {
                         attrs: { frs: this.content }
                       })
+                    : _vm._e(),
+                  _vm._v(" "),
+                  this.contentType == "tc"
+                    ? _c("test-case-table", { attrs: { tcs: this.content } })
                     : _vm._e()
                 ],
                 1
@@ -81825,6 +81874,23 @@ var render = function() {
   ])
 }
 var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "alert",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -82061,7 +82127,7 @@ var render = function() {
             attrs: {
               "access-token": _vm.accessToken,
               "project-name": _vm.projectNameInit,
-              contentType: _vm.menu
+              contentType: "fr"
             }
           }),
           _vm._v(" "),
@@ -82078,7 +82144,7 @@ var render = function() {
             attrs: {
               "access-token": _vm.accessToken,
               "project-name": _vm.projectNameInit,
-              contentType: _vm.menu
+              contentType: "tc"
             }
           }),
           _vm._v(" "),
@@ -82095,7 +82161,7 @@ var render = function() {
             attrs: {
               "access-token": _vm.accessToken,
               "project-name": _vm.projectNameInit,
-              contentType: _vm.menu
+              contentType: "rtm"
             }
           })
         ],
@@ -82165,6 +82231,298 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(74)
+/* template */
+var __vue_template__ = __webpack_require__(75)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/TestCaseTable.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-d1af0136", Component.options)
+  } else {
+    hotAPI.reload("data-v-d1af0136", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 74 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "test-case-table",
+  props: ["tcs"],
+  data: function data() {
+    return {
+      startIndex: 0,
+      pages: 1,
+      active: 1,
+      perPage: 4
+    };
+  },
+  created: function created() {
+    if (this.tcs.length % 2 == 0) {
+      this.pages = parseInt(this.tcs.length / this.perPage);
+    } else {
+      this.pages = parseInt(this.tcs.length / this.perPage) + 1;
+    }
+  },
+
+  methods: {
+    go: function go(page) {
+      this.startIndex = (page - 1) * 2;
+      this.active = page;
+    },
+    previous: function previous() {
+      if (this.active > 1) {
+        --this.active;
+        this.startIndex -= this.perPage;
+      }
+    },
+    next: function next() {
+      if (this.active < this.pages) {
+        ++this.active;
+        this.startIndex += this.perPage;
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "groot" }, [
+    _c(
+      "div",
+      { staticClass: "row" },
+      _vm._l(_vm.tcs, function(tc, index) {
+        return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
+          ? _c("div", { key: index, staticClass: "col-md-6" }, [
+              _c("div", { staticClass: "card" }, [
+                _c("div", { staticClass: "card-header" }, [
+                  _vm._v(_vm._s(tc.no) + " "),
+                  _c(
+                    "span",
+                    {
+                      staticClass: "badge",
+                      class: [
+                        tc.type.toLowerCase() == "valid"
+                          ? "badge-success"
+                          : "badge-danger"
+                      ]
+                    },
+                    [_vm._v(_vm._s(tc.type))]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "card-body" }, [
+                  _c("table", { staticClass: "table table-hover" }, [
+                    _vm._m(0, true),
+                    _vm._v(" "),
+                    _c(
+                      "tbody",
+                      _vm._l(tc.inputs, function(input, inputIndex) {
+                        return _c("tr", { key: inputIndex }, [
+                          _c("td", [_vm._v(_vm._s(input.name))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.testData))])
+                        ])
+                      })
+                    )
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("br")
+            ])
+          : _vm._e()
+      })
+    ),
+    _vm._v(" "),
+    this.tcs.length > this.perPage
+      ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
+          _c(
+            "ul",
+            { staticClass: "pagination justify-content-center" },
+            [
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == 1 }
+                },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "page-link",
+                      attrs: { tabindex: "-1" },
+                      on: { click: _vm.previous }
+                    },
+                    [_vm._v("Previous")]
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _vm._l(_vm.pages, function(page) {
+                return _c(
+                  "li",
+                  {
+                    key: page,
+                    staticClass: "page-item",
+                    class: { active: _vm.active == page }
+                  },
+                  [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "page-link",
+                        on: {
+                          click: function($event) {
+                            _vm.go(page)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(page))]
+                    )
+                  ]
+                )
+              }),
+              _vm._v(" "),
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == _vm.pages }
+                },
+                [
+                  _c(
+                    "button",
+                    { staticClass: "page-link", on: { click: _vm.next } },
+                    [_vm._v("Next")]
+                  )
+                ]
+              )
+            ],
+            2
+          )
+        ])
+      : _vm._e()
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th", [_vm._v("Input name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Data")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-d1af0136", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);
