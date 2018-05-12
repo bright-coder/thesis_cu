@@ -14807,7 +14807,7 @@ if (typeof module !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODE
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(16);
-module.exports = __webpack_require__(62);
+module.exports = __webpack_require__(65);
 
 
 /***/ }),
@@ -50753,7 +50753,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var url = "/api/v1/projects";
       var method = "post";
       if (this.requestType == "update") {
-        url += '/' + this.projectName;
+        url += "/" + this.projectName;
         method = "patch";
       }
       var data = JSON.stringify({
@@ -50781,7 +50781,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         dataType: "json"
       }).then(function (response) {
         if (response.status == 200) {
-          location.href = '/project/' + vm.projectName;
+          location.href = "/project/" + vm.projectName;
         }
       }).catch(function (error) {
         var errorFields = error.response.data.msg.fields;
@@ -50793,14 +50793,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var url = "/api/v1/projects/" + this.projectNameInit;
       var vm = this;
       axios({
-        method: 'get',
+        method: "get",
         url: url,
         data: null,
         headers: {
           Authorization: "Bearer " + this.accessToken,
           "Content-Type": "application/json; charset=utf-8"
         },
-        dataType: 'json'
+        dataType: "json"
       }).then(function (response) {
         var data = response.data;
         vm.projectName = data.name;
@@ -50815,7 +50815,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     }
   },
   created: function created() {
-    if (this.requestType == 'update') {
+    if (this.requestType == "update") {
       this.getProject();
     }
   }
@@ -50901,9 +50901,9 @@ var render = function() {
                     _vm.errors.projectName
                       ? _c("div", { staticClass: "invalid-feedback" }, [
                           _vm._v(
-                            "\n          " +
+                            "\n              " +
                               _vm._s(_vm.errors.projectName[0]) +
-                              "\n        "
+                              "\n            "
                           )
                         ])
                       : _vm._e()
@@ -50945,9 +50945,9 @@ var render = function() {
                 _vm.errors.prefix
                   ? _c("div", { staticClass: "invalid-feedback" }, [
                       _vm._v(
-                        "\n          " +
+                        "\n              " +
                           _vm._s(_vm.errors.prefix[0]) +
-                          "\n        "
+                          "\n            "
                       )
                     ])
                   : _vm._e()
@@ -50994,9 +50994,9 @@ var render = function() {
                 _vm.errors.dbName
                   ? _c("div", { staticClass: "invalid-feedback" }, [
                       _vm._v(
-                        "\n          " +
+                        "\n              " +
                           _vm._s(_vm.errors.dbName[0]) +
-                          "\n        "
+                          "\n            "
                       )
                     ])
                   : _vm._e()
@@ -51041,9 +51041,9 @@ var render = function() {
                 _vm.errors.dbServer
                   ? _c("div", { staticClass: "invalid-feedback" }, [
                       _vm._v(
-                        "\n          " +
+                        "\n              " +
                           _vm._s(_vm.errors.dbServer[0]) +
-                          "\n        "
+                          "\n            "
                       )
                     ])
                   : _vm._e()
@@ -51086,9 +51086,9 @@ var render = function() {
                 _vm.errors.dbPort
                   ? _c("div", { staticClass: "invalid-feedback" }, [
                       _vm._v(
-                        "\n          " +
+                        "\n              " +
                           _vm._s(_vm.errors.dbPort[0]) +
-                          "\n        "
+                          "\n            "
                       )
                     ])
                   : _vm._e()
@@ -51133,9 +51133,9 @@ var render = function() {
                 _vm.errors.dbUsername
                   ? _c("div", { staticClass: "invalid-feedback" }, [
                       _vm._v(
-                        "\n          " +
+                        "\n              " +
                           _vm._s(_vm.errors.dbUsername[0]) +
-                          "\n        "
+                          "\n            "
                       )
                     ])
                   : _vm._e()
@@ -51178,9 +51178,9 @@ var render = function() {
                 _vm.errors.dbPassword
                   ? _c("div", { staticClass: "invalid-feedback" }, [
                       _vm._v(
-                        "\n          " +
+                        "\n              " +
                           _vm._s(_vm.errors.dbPassword[0]) +
-                          "\n        "
+                          "\n            "
                       )
                     ])
                   : _vm._e()
@@ -51232,7 +51232,9 @@ var render = function() {
             _vm._v(" "),
             _vm.errors.dbType
               ? _c("div", { staticClass: "invalid-feedback" }, [
-                  _vm._v("\n      " + _vm._s(_vm.errors.dbType[0]) + "\n    ")
+                  _vm._v(
+                    "\n          " + _vm._s(_vm.errors.dbType[0]) + "\n        "
+                  )
                 ])
               : _vm._e(),
             _vm._v(" "),
@@ -51530,7 +51532,7 @@ var normalizeComponent = __webpack_require__(2)
 /* script */
 var __vue_script__ = __webpack_require__(50)
 /* template */
-var __vue_template__ = __webpack_require__(61)
+var __vue_template__ = __webpack_require__(64)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -51576,8 +51578,32 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -51643,13 +51669,336 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     showRTM: function showRTM() {
       this.menu = "rtm";
+    },
+    remove: function remove() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectNameInit,
+        method: "DELETE",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        location.href = "/project/";
+      }).catch(function (errors) {});
     }
   }
 });
 
 /***/ }),
-/* 51 */,
-/* 52 */,
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(52)
+/* template */
+var __vue_template__ = __webpack_require__(63)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ProjectFile.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-494ad14e", Component.options)
+  } else {
+    hotAPI.reload("data-v-494ad14e", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 52 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_xlsx__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "project-file",
+  props: ["accessToken", "projectName", "contentType"],
+  data: function data() {
+    return {
+      content: [],
+      filename: "Choose file .xlsx"
+    };
+  },
+
+  components: {
+    FunctionalRequirementTable: __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default.a
+  },
+  methods: {
+    getContent: function getContent() {},
+    readFileName: function readFileName() {
+      if (this.$refs.file.files.length > 0) {
+        this.$data.filename = this.$refs.file.files[0].name;
+      }
+    },
+    readFile: function readFile() {
+      if (this.$refs.file.files.length > 0) {
+        this.$data.filename = this.$refs.file.files[0].name;
+        var reader = new FileReader();
+        var vm = this;
+        vm.content = [];
+        reader.onload = function (e) {
+          var binary = "";
+          var bytes = new Uint8Array(e.target.result);
+          var length = bytes.byteLength;
+          for (var i = 0; i < length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          var workbook = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.read(binary, { type: "binary" });
+          var listOfSheet = [];
+          $.each(workbook.Sheets, function (index, sheet) {
+            var arraySheet = vm.sheetToArray(sheet);
+            if (arraySheet.length > 0) {
+              listOfSheet.push(arraySheet);
+            }
+          });
+
+          if (listOfSheet.length > 0) {
+            if (vm.contentType == "fr") {
+              vm.readFrFromExcel(listOfSheet);
+            } else if (vm.contentType == "tc") {
+              vm.readTcFromExcel(listOfSheet);
+            } else if (vm.contentType == "rtm") {
+              vm.readRtmFromExcel(listOfSheet);
+            }
+          }
+        };
+        reader.readAsArrayBuffer(this.$refs.file.files[0]);
+        //vm.content = vm.cleanContent(vm.content)
+        vm.cleanContent();
+      }
+    },
+    readFrFromExcel: function readFrFromExcel(frList) {
+      var vm = this;
+      $.each(frList, function (index, fr) {
+        var no = vm.isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
+        var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
+        var inputList = [];
+        for (var i = 4; i < fr.length; ++i) {
+          inputList.push({
+            name: 0 in fr[i] ? fr[i][0] : "",
+            dataType: 1 in fr[i] ? fr[i][1] : "",
+            length: 2 in fr[i] ? fr[i][2] : "",
+            precision: 3 in fr[i] ? fr[i][3] : "",
+            scale: 4 in fr[i] ? fr[i][4] : "",
+            default: 5 in fr[i] ? fr[i][5] : "",
+            nullable: 6 in fr[i] ? fr[i][6] : "",
+            unique: 7 in fr[i] ? fr[i][7] : "",
+            min: 8 in fr[i] ? fr[i][8] : "",
+            max: 9 in fr[i] ? fr[i][9] : "",
+            columnName: 10 in fr[i] ? fr[i][10] : "",
+            tableName: 11 in fr[i] ? fr[i][11] : ""
+          });
+        }
+        vm.content.push({
+          no: no,
+          desc: description,
+          inputs: inputList.length > 0 ? inputList : undefined
+        });
+      });
+    },
+    readTcFromExcel: function readTcFromExcel(tcList) {
+      var vm = this;
+      $.each(tcList, function (index, tc) {
+        var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
+        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
+        var inputList = [];
+        for (var i = 4; i < tc.length; ++i) {
+          inputList.push({
+            name: 0 in tc[i] ? tc[i][0] : undefined,
+            testData: 1 in tc[i] ? tc[i][1] : undefined
+          });
+        }
+        vm.content.push({
+          no: no,
+          type: type,
+          inputs: inputList.length > 0 ? inputList : undefined
+        });
+      });
+    },
+    readRtmFromExcel: function readRtmFromExcel(rtm) {
+      for (var i = 1; i < rtm.length; ++i) {
+        var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
+        var testCaseNos = rtm[i];
+        this.content.push({
+          functionalRequirementNo: frNo,
+          testCaseNos: testCaseNos
+        });
+      }
+      console.log(cleanObject(rtmFromFile));
+    },
+    sheetToArray: function sheetToArray(sheet) {
+      var result = [];
+      var row;
+      var rowNum;
+      var colNum;
+      if (sheet["!ref"] == undefined) {
+        return result;
+      }
+      var range = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.decode_range(sheet["!ref"]);
+      for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+        row = [];
+        for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
+          var nextCell = sheet[__WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.encode_cell({ r: rowNum, c: colNum })];
+          if (typeof nextCell === "undefined") {
+            row.push(void 0);
+          } else row.push(nextCell.w);
+        }
+        result.push(row);
+      }
+      return result;
+    },
+    isKeyExist: function isKeyExist(array, dimen1) {
+      var dimen2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+      if (dimen1 in array) {
+        if (dimen2 != undefined) {
+          if (!Array.isArray(array[dimen1])) {
+            return false;
+          }
+          if (dimen2 in array[dimen1]) {
+            return true;
+          } else return false;
+        }
+      } else return false;
+    },
+    save: function save() {
+      var url = "/api/v1/projects/" + this.projectName;
+
+      if (this.contentType == "fr ") {
+        url += "/functionalRequirements";
+      } else if (this.contentType == "tc") {
+        url += "/testCases";
+      } else {
+        url += "/RTM";
+      }
+
+      vm = this;
+      var data = JSON.stringify(this.content);
+      axios({
+        url: url,
+        method: "POST",
+        data: data,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        alert('Insert OK');
+      }).catch(function (errors) {});
+    },
+    cleanContent: function cleanContent() {
+      var obj = this.content;
+      Object.keys(obj).forEach(function (key) {
+        //console.log(555)
+        if (obj[key] instanceof Array || _typeof(obj[key]) === "object") {
+          string += "object " + key;
+          obj[key] = vm.cleanContent(obj[key]);
+          if (obj[key] instanceof Array) {
+            string += "array " + key;
+            obj[key] = vm.filter_array(obj[key]);
+          }
+        } else if (!obj[key]) {
+          delete obj[key];
+        }
+      });
+
+      return obj;
+    },
+    filter_array: function filter_array(array) {
+      var index = -1,
+          arr_length = array ? array.length : 0,
+          resIndex = -1,
+          result = [];
+
+      while (++index < arr_length) {
+        var value = array[index];
+
+        if (value) {
+          result[++resIndex] = value;
+        }
+      }
+
+      return result;
+    }
+  },
+
+  created: function created() {
+    this.getContent();
+  }
+});
+
+/***/ }),
 /* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -81028,184 +81377,15 @@ module.exports = ZStream;
 /* (ignored) */
 
 /***/ }),
-/* 60 */,
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container-fluid" }, [
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-md-2" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(0),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _c("div", { staticClass: "list-group" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "list-group-item list-group-item-action",
-                  class: { active: _vm.menu == "basic" },
-                  attrs: { href: "#" },
-                  on: { click: _vm.showBasic }
-                },
-                [
-                  _c("i", { staticClass: "fas fa-info" }),
-                  _vm._v("  Basic Information")
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "a",
-                {
-                  staticClass: "list-group-item list-group-item-action",
-                  class: { active: _vm.menu == "database" },
-                  attrs: { href: "#database" },
-                  on: { click: _vm.showDB }
-                },
-                [
-                  _c("i", { staticClass: "fas fa-database" }),
-                  _vm._v("  Database")
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "a",
-                {
-                  staticClass: "list-group-item list-group-item-action",
-                  class: { active: _vm.menu == "fr" },
-                  attrs: { href: "#functionalRequirement" },
-                  on: { click: _vm.showFR }
-                },
-                [
-                  _c("i", { staticClass: "fas fa-list-ul" }),
-                  _vm._v("  Functional Requirement")
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "a",
-                {
-                  staticClass: "list-group-item list-group-item-action",
-                  class: { active: _vm.menu == "tc" },
-                  attrs: { href: "#testCase" },
-                  on: { click: _vm.showTC }
-                },
-                [
-                  _c("i", { staticClass: "fas fa-clipboard-check" }),
-                  _vm._v("  Test Case")
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "a",
-                {
-                  staticClass: "list-group-item list-group-item-action",
-                  class: { active: _vm.menu == "rtm" },
-                  attrs: { href: "#requirementTraceabilityMatrix" },
-                  on: { click: _vm.showRTM }
-                },
-                [
-                  _c("i", { staticClass: "fas fa-link" }),
-                  _vm._v("  Requirement Traceability Matrix")
-                ]
-              )
-            ])
-          ])
-        ])
-      ]),
-      _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "col-md-10" },
-        [
-          _vm.menu == "basic"
-            ? _c("project-form", {
-                attrs: {
-                  "access-token": _vm.accessToken,
-                  "request-type": _vm.requestType,
-                  "project-name-init": _vm.projectNameInit
-                }
-              })
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.menu == "fr"
-            ? _c("project-file", {
-                attrs: {
-                  "access-token": _vm.accessToken,
-                  "project-name": _vm.projectNameInit,
-                  contentType: _vm.menu
-                }
-              })
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.menu == "tc"
-            ? _c("project-file", {
-                attrs: {
-                  "access-token": _vm.accessToken,
-                  "project-name": _vm.projectNameInit,
-                  contentType: _vm.menu
-                }
-              })
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.menu == "rtm"
-            ? _c("project-file", {
-                attrs: {
-                  "access-token": _vm.accessToken,
-                  "project-name": _vm.projectNameInit,
-                  contentType: _vm.menu
-                }
-              })
-            : _vm._e()
-        ],
-        1
-      )
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-header" }, [
-      _c("h4", [_vm._v("Menu")])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-60f00e4f", module.exports)
-  }
-}
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 63 */,
-/* 64 */,
-/* 65 */,
-/* 66 */,
-/* 67 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(2)
 /* script */
-var __vue_script__ = __webpack_require__(68)
+var __vue_script__ = __webpack_require__(61)
 /* template */
-var __vue_template__ = __webpack_require__(69)
+var __vue_template__ = __webpack_require__(62)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -81244,7 +81424,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 68 */
+/* 61 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -81356,7 +81536,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 69 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -81409,9 +81589,29 @@ var render = function() {
                           _vm._v(" "),
                           _c("td", [_vm._v(_vm._s(input.default))]),
                           _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(input.nullable))]),
+                          _c(
+                            "td",
+                            {
+                              class: [
+                                input.nullable == "N"
+                                  ? "text-danger"
+                                  : "text-success"
+                              ]
+                            },
+                            [_vm._v(_vm._s(input.nullable))]
+                          ),
                           _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(input.unique))]),
+                          _c(
+                            "td",
+                            {
+                              class: [
+                                input.unique == "N"
+                                  ? "text-danger"
+                                  : "text-success"
+                              ]
+                            },
+                            [_vm._v(_vm._s(input.unique))]
+                          ),
                           _vm._v(" "),
                           _c("td", [_vm._v(_vm._s(input.min))]),
                           _vm._v(" "),
@@ -81551,252 +81751,7 @@ if (false) {
 }
 
 /***/ }),
-/* 70 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(71)
-/* template */
-var __vue_template__ = __webpack_require__(72)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/ProjectFile.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-494ad14e", Component.options)
-  } else {
-    hotAPI.reload("data-v-494ad14e", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 71 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_xlsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "project-file",
-  props: ["accessToken", "projectName", "contentType"],
-  data: function data() {
-    return {
-      content: [],
-      filename: "Choose file .xlsx"
-    };
-  },
-
-  components: {
-    FunctionalRequirementTable: __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default.a
-  },
-  methods: {
-    getContent: function getContent() {},
-    readFileName: function readFileName() {
-      if (this.$refs.file.files.length > 0) {
-        this.$data.filename = this.$refs.file.files[0].name;
-      }
-    },
-    readFile: function readFile() {
-      if (this.$refs.file.files.length > 0) {
-        var reader = new FileReader();
-        var vm = this;
-        vm.content = [];
-        reader.onload = function (e) {
-          var binary = "";
-          var bytes = new Uint8Array(e.target.result);
-          var length = bytes.byteLength;
-          for (var i = 0; i < length; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
-          var workbook = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.read(binary, { type: "binary" });
-          var listOfSheet = [];
-          $.each(workbook.Sheets, function (index, sheet) {
-            var arraySheet = vm.sheetToArray(sheet);
-            if (arraySheet.length > 0) {
-              listOfSheet.push(arraySheet);
-            }
-          });
-
-          if (listOfSheet.length > 0) {
-            if (vm.contentType == "fr") {
-              vm.readFrFromExcel(listOfSheet);
-            } else if (vm.contentType == "tc") {
-              vm.readTcFromExcel(listOfSheet);
-            } else if (vm.contentType == "rtm") {
-              vm.readRtmFromExcel(listOfSheet);
-            }
-          }
-        };
-        reader.readAsArrayBuffer(this.$refs.file.files[0]);
-      }
-    },
-    readFrFromExcel: function readFrFromExcel(frList) {
-      var vm = this;
-      $.each(frList, function (index, fr) {
-        var no = vm.isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
-        var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
-        var inputList = [];
-        for (var i = 4; i < fr.length; ++i) {
-          inputList.push({
-            name: 0 in fr[i] ? fr[i][0] : "",
-            dataType: 1 in fr[i] ? fr[i][1] : "",
-            length: 2 in fr[i] ? fr[i][2] : "",
-            precision: 3 in fr[i] ? fr[i][3] : "",
-            scale: 4 in fr[i] ? fr[i][4] : "",
-            default: 5 in fr[i] ? fr[i][5] : "",
-            nullable: 6 in fr[i] ? fr[i][6] : "",
-            unique: 7 in fr[i] ? fr[i][7] : "",
-            min: 8 in fr[i] ? fr[i][8] : "",
-            max: 9 in fr[i] ? fr[i][9] : "",
-            columnName: 10 in fr[i] ? fr[i][10] : "",
-            tableName: 11 in fr[i] ? fr[i][11] : ""
-          });
-        }
-        vm.content.push({
-          no: no,
-          desc: description,
-          inputs: inputList.length > 0 ? inputList : undefined
-        });
-      });
-    },
-    readTcFromExcel: function readTcFromExcel(tcList) {
-      var vm = this;
-      $.each(tcList, function (index, tc) {
-        var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
-        var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
-        var inputList = [];
-        for (var i = 4; i < tc.length; ++i) {
-          inputList.push({
-            name: 0 in tc[i] ? tc[i][0] : undefined,
-            testData: 1 in tc[i] ? tc[i][1] : undefined
-          });
-        }
-        vm.content.push({
-          no: no,
-          type: type,
-          inputs: inputList.length > 0 ? inputList : undefined
-        });
-      });
-    },
-    readRtmFromExcel: function readRtmFromExcel(rtm) {
-      for (var i = 1; i < rtm.length; ++i) {
-        var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
-        var testCaseNos = rtm[i];
-        this.content.push({
-          functionalRequirementNo: frNo,
-          testCaseNos: testCaseNos
-        });
-      }
-      console.log(cleanObject(rtmFromFile));
-    },
-    sheetToArray: function sheetToArray(sheet) {
-      var result = [];
-      var row;
-      var rowNum;
-      var colNum;
-      if (sheet["!ref"] == undefined) {
-        return result;
-      }
-      var range = __WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.decode_range(sheet["!ref"]);
-      for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
-        row = [];
-        for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
-          var nextCell = sheet[__WEBPACK_IMPORTED_MODULE_0_xlsx___default.a.utils.encode_cell({ r: rowNum, c: colNum })];
-          if (typeof nextCell === "undefined") {
-            row.push(void 0);
-          } else row.push(nextCell.w);
-        }
-        result.push(row);
-      }
-      return result;
-    },
-    isKeyExist: function isKeyExist(array, dimen1) {
-      var dimen2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-
-      if (dimen1 in array) {
-        if (dimen2 != undefined) {
-          if (!Array.isArray(array[dimen1])) {
-            return false;
-          }
-          if (dimen2 in array[dimen1]) {
-            return true;
-          } else return false;
-        }
-      } else return false;
-    }
-  },
-
-  created: function created() {
-    this.getContent();
-  }
-});
-
-/***/ }),
-/* 72 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -81807,7 +81762,16 @@ var render = function() {
     _c("div", { staticClass: "card" }, [
       _c("div", { staticClass: "card-header" }, [
         _c("h4", [
-          _c("i", { staticClass: "fas fa-list-ul" }),
+          _c("i", {
+            staticClass: "fas",
+            class: [
+              this.contentType == "fr"
+                ? "fa-list-ul"
+                : this.contentType == "tc"
+                  ? "fa-clipboard-check"
+                  : "fa-link"
+            ]
+          }),
           _vm._v("  " + _vm._s(this.projectName))
         ])
       ]),
@@ -81819,26 +81783,21 @@ var render = function() {
               _c("input", {
                 ref: "file",
                 staticClass: "custom-file-input",
-                attrs: { type: "file", id: "customFile" },
-                on: { change: this.readFileName }
+                attrs: { type: "file" },
+                on: { change: this.readFile }
               }),
               _vm._v(" "),
-              _c(
-                "label",
-                {
-                  staticClass: "custom-file-label",
-                  attrs: { for: "customFile" }
-                },
-                [_vm._v(_vm._s(this.filename))]
-              )
+              _c("label", { staticClass: "custom-file-label" }, [
+                _vm._v(_vm._s(_vm.filename))
+              ])
             ])
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "col-md-4" }, [
             _c(
               "button",
-              { staticClass: "btn btn-primary", on: { click: this.readFile } },
-              [_vm._v("Read file")]
+              { staticClass: "btn btn-primary", on: { click: this.save } },
+              [_vm._v("Save")]
             )
           ])
         ]),
@@ -81881,6 +81840,331 @@ if (false) {
     require("vue-hot-reload-api")      .rerender("data-v-494ad14e", module.exports)
   }
 }
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container-fluid" }, [
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md-2" }, [
+        _c("div", { staticClass: "card" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c("div", { staticClass: "list-group" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "list-group-item list-group-item-action",
+                  class: { active: _vm.menu == "basic" },
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showBasic($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-info" }),
+                  _vm._v("  Basic Information")
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "a",
+                {
+                  staticClass: "list-group-item list-group-item-action",
+                  class: { active: _vm.menu == "database" },
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showDB($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-database" }),
+                  _vm._v("  Database")
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "a",
+                {
+                  staticClass: "list-group-item list-group-item-action",
+                  class: { active: _vm.menu == "fr" },
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showFR($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-list-ul" }),
+                  _vm._v("  Functional Requirement")
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "a",
+                {
+                  staticClass: "list-group-item list-group-item-action",
+                  class: { active: _vm.menu == "tc" },
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showTC($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-clipboard-check" }),
+                  _vm._v("  Test Case")
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "a",
+                {
+                  staticClass: "list-group-item list-group-item-action",
+                  class: { active: _vm.menu == "rtm" },
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showRTM($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-link" }),
+                  _vm._v("  Requirement Traceability Matrix")
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _vm._m(1),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "modal fade",
+                attrs: {
+                  id: "confirmModal",
+                  tabindex: "-1",
+                  role: "dialog",
+                  "aria-labelledby": "confirmModal",
+                  "aria-hidden": "true"
+                }
+              },
+              [
+                _c(
+                  "div",
+                  { staticClass: "modal-dialog", attrs: { role: "document" } },
+                  [
+                    _c("div", { staticClass: "modal-content" }, [
+                      _c("div", { staticClass: "modal-header" }, [
+                        _c(
+                          "h5",
+                          {
+                            staticClass: "modal-title",
+                            attrs: { id: "exampleModalLabel" }
+                          },
+                          [
+                            _c("span", { staticClass: "badge badge-danger" }, [
+                              _vm._v("Delete")
+                            ]),
+                            _vm._v(" " + _vm._s(this.projectNameInit))
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(2)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "modal-body" }, [
+                        _vm._v(
+                          "\n                                    Are you sure ?\n                                "
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "modal-footer" }, [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-secondary",
+                            attrs: { type: "button", "data-dismiss": "modal" }
+                          },
+                          [_vm._v("Cancel")]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-danger",
+                            attrs: { type: "button" },
+                            on: { click: _vm.remove }
+                          },
+                          [_vm._v("Delete")]
+                        )
+                      ])
+                    ])
+                  ]
+                )
+              ]
+            )
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "col-md-10" },
+        [
+          _c("project-form", {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.menu == "basic",
+                expression: "menu == 'basic'"
+              }
+            ],
+            attrs: {
+              "access-token": _vm.accessToken,
+              "request-type": _vm.requestType,
+              "project-name-init": _vm.projectNameInit
+            }
+          }),
+          _vm._v(" "),
+          _c("project-file", {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.menu == "fr",
+                expression: "menu == 'fr'"
+              }
+            ],
+            key: "fr",
+            attrs: {
+              "access-token": _vm.accessToken,
+              "project-name": _vm.projectNameInit,
+              contentType: _vm.menu
+            }
+          }),
+          _vm._v(" "),
+          _c("project-file", {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.menu == "tc",
+                expression: "menu == 'tc'"
+              }
+            ],
+            key: "tc",
+            attrs: {
+              "access-token": _vm.accessToken,
+              "project-name": _vm.projectNameInit,
+              contentType: _vm.menu
+            }
+          }),
+          _vm._v(" "),
+          _c("project-file", {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.menu == "rtm",
+                expression: "menu == 'rtm'"
+              }
+            ],
+            key: "rtm",
+            attrs: {
+              "access-token": _vm.accessToken,
+              "project-name": _vm.projectNameInit,
+              contentType: _vm.menu
+            }
+          })
+        ],
+        1
+      )
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card-header" }, [
+      _c("h4", [_vm._v("Menu")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "btn btn-outline-danger btn-block",
+        attrs: {
+          type: "button",
+          "data-toggle": "modal",
+          "data-target": "#confirmModal"
+        }
+      },
+      [
+        _c("i", { staticClass: "fas fa-trash" }),
+        _vm._v("  Delete This Project")
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-60f00e4f", module.exports)
+  }
+}
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);

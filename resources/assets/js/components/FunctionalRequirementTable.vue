@@ -36,8 +36,8 @@
                                 <td>{{ input.precision }}</td>
                                 <td>{{ input.scale }}</td>
                                 <td>{{ input.default }}</td>
-                                <td>{{ input.nullable }}</td>
-                                <td>{{ input.unique }}</td>
+                                <td v-bind:class="[input.nullable == 'N' ? 'text-danger' : 'text-success']">{{ input.nullable }}</td>
+                                <td v-bind:class="[input.unique == 'N' ? 'text-danger' : 'text-success']">{{ input.unique }}</td>
                                 <td>{{ input.min }}</td>
                                 <td>{{ input.max }}</td>
                                 <td>{{ input.tableName }}</td>

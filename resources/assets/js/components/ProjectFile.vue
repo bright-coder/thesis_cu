@@ -3,25 +3,25 @@
     <div class="card">
       <div class="card-header">
         <h4>
-          <i class="fas fa-list-ul"></i>&nbsp;&nbsp;{{ this.projectName }}</h4>
+          <i class="fas" v-bind:class="[this.contentType == 'fr' ? 'fa-list-ul' : this.contentType == 'tc' ? 'fa-clipboard-check': 'fa-link']"></i>&nbsp;&nbsp;{{ this.projectName }}</h4>
       </div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4">
             <div class="custom-file">
-              <input type="file" class="custom-file-input" id="customFile" ref="file" @change="this.readFileName">
-              <label class="custom-file-label" for="customFile">{{ this.filename }}</label>
+              <input type="file" class="custom-file-input" ref="file" @change="this.readFile">
+              <label class="custom-file-label">{{ filename }}</label>
             </div>
           </div>
           <div class="col-md-4">
-            <button class="btn btn-primary" @click="this.readFile">Read file</button>
+            <button class="btn btn-primary" @click="this.save">Save</button>
           </div>
         </div>
-
         <div class="row" v-if="this.content.length > 0">
           <div class="col-md-12"><hr></div>
           <div class="col-md-12">
             <functional-requirement-table v-if="this.contentType == 'fr'" v-bind:frs="this.content"></functional-requirement-table>
+
           </div>
         </div>
       </div>
@@ -52,6 +52,7 @@ export default {
     },
     readFile() {
       if (this.$refs.file.files.length > 0) {
+        this.$data.filename = this.$refs.file.files[0].name;
         var reader = new FileReader();
         var vm = this;
         vm.content = [];
@@ -82,10 +83,12 @@ export default {
           }
         };
         reader.readAsArrayBuffer(this.$refs.file.files[0]);
+        //vm.content = vm.cleanContent(vm.content)
+        vm.cleanContent();
       }
     },
     readFrFromExcel(frList) {
-      var vm = this
+      var vm = this;
       $.each(frList, function(index, fr) {
         var no = vm.isKeyExist(fr, 0, 1) ? fr[0][1] : undefined;
         var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
@@ -112,10 +115,9 @@ export default {
           inputs: inputList.length > 0 ? inputList : undefined
         });
       });
-
     },
     readTcFromExcel(tcList) {
-      var vm = this
+      var vm = this;
       $.each(tcList, function(index, tc) {
         var no = vm.isKeyExist(tc, 0, 1) ? tc[0][1] : undefined;
         var type = vm.isKeyExist(tc, 1, 1) ? tc[1][1] : undefined;
@@ -177,11 +179,75 @@ export default {
           } else return false;
         }
       } else return false;
+    },
+    save() {
+      let url = "/api/v1/projects/" + this.projectName;
+
+      if (this.contentType == "fr ") {
+        url += "/functionalRequirements";
+      } else if (this.contentType == "tc") {
+        url += "/testCases";
+      } else {
+        url += "/RTM";
+      }
+
+      vm = this;
+      var data = JSON.stringify(this.content);
+      axios({
+        url: url,
+        method: "POST",
+        data: data,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      })
+      .then(function(response){ 
+        alert('Insert OK')
+      })
+      .catch(function(errors) {
+
+      })
+    },
+    cleanContent() {
+      var obj = this.content;
+      Object.keys(obj).forEach(function(key) {
+        //console.log(555)
+        if (obj[key] instanceof Array || typeof obj[key] === "object") {
+          string += "object " + key;
+          obj[key] = vm.cleanContent(obj[key]);
+          if (obj[key] instanceof Array) {
+            string += "array " + key;
+            obj[key] = vm.filter_array(obj[key]);
+          }
+        } else if (!obj[key]) {
+          delete obj[key];
+        }
+      });
+
+      return obj;
+    },
+    filter_array(array) {
+      var index = -1,
+        arr_length = array ? array.length : 0,
+        resIndex = -1,
+        result = [];
+
+      while (++index < arr_length) {
+        var value = array[index];
+
+        if (value) {
+          result[++resIndex] = value;
+        }
+      }
+
+      return result;
     }
   },
 
   created() {
-    this.getContent()
+    this.getContent();
   }
 };
 </script>

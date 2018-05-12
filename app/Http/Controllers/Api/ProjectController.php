@@ -216,7 +216,7 @@ class ProjectController extends Controller
                 DB::table('FUNCTIONAL_REQUIREMENT')->where('id', $fr->id)->delete();
             }
 
-            DB::table('PROJECT')->where('id', '=', $id)->delete();
+            DB::table('PROJECT')->where('id', '=', $project->id)->delete();
 
             DB::commit();
         } catch (Exception $e) {
