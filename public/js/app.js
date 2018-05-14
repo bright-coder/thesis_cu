@@ -83008,7 +83008,7 @@ var render = function() {
         "div",
         { staticClass: "card-body" },
         [
-          _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "row sticky-top" }, [
             _c("div", { staticClass: "col-md-2 offset-md-10" }, [
               _c(
                 "select",

@@ -6,7 +6,7 @@
                     <i class="fas fa-database"></i>&nbsp;&nbsp;{{ this.projectName }}</h4>
             </div>
             <div class="card-body">
-                <div class="row">
+                <div class="row sticky-top">
                     <div class="col-md-2 offset-md-10">
                         <select class="form-control" @change="goto" v-model="gotoId">
                             <option value='-1' selected> Go to Table </option>
