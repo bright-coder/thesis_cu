@@ -84,8 +84,8 @@ export default {
         if(response.status == 200) {
           vm.isSave = -1
           vm.content = response.data
+          
         }
-        console.log(vm.content)
       
       })
       .catch(function(errors){

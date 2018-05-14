@@ -24,7 +24,7 @@ class DatabaseController extends Controller
         $project = $guard->getProject($projectName);
 
         if (!$project) {
-            return response()->json(['msg' => 'Not found your project.'], 200);
+            return response()->json(['msg' => 'Not found your project.'], 202);
         }
 
         $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer, $project->dbPort, $project->dbName, $project->dbUsername, $project->dbPassword);
@@ -35,7 +35,42 @@ class DatabaseController extends Controller
             $databaseBuilder->setUpTablesAndColumns();
         }
 
-        return response()->json($databaseBuilder->getDatabase()->toArray(), 200);
+        $result = [];
+        
+        foreach($databaseBuilder->getDatabase()->toArray() as $tableName => $tableInfo) {
+            $columns = [];
+
+            foreach($tableInfo['columns'] as $columnName => $columnInfo) {
+                $columns[] = array_merge(['name' => $columnName], $columnInfo);
+            }
+
+            $result[] = [
+                'name' => $tableName,
+                'columns' => $columns,
+                'constraints' => $tableInfo['constraints'],
+            ];
+            if(\array_key_exists('instance', $tableInfo)) {
+                $columnsOrder = [];
+                $records = [];
+                foreach($tableInfo['instance'][0] as $column => $value) {
+                    $columnsOrder[] = $column;
+                }
+
+                foreach($tableInfo['instance'] as $record) {
+                    $oneRecord = [];
+                    foreach($record as $column => $value) {
+                        $oneRecord[] = $value;
+                    }
+                    $records[] = $oneRecord;
+                }
+                $result[count($result) -1]['instance'] = [
+                    'columnOrder' => $columnsOrder,
+                    'records' => $records
+                ];
+            }
+        }
+
+        return response()->json($result, 200);
     }
 
     /**

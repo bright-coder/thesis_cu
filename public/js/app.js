@@ -14807,7 +14807,7 @@ if (typeof module !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODE
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(16);
-module.exports = __webpack_require__(65);
+module.exports = __webpack_require__(71);
 
 
 /***/ }),
@@ -51532,7 +51532,7 @@ var normalizeComponent = __webpack_require__(2)
 /* script */
 var __vue_script__ = __webpack_require__(50)
 /* template */
-var __vue_template__ = __webpack_require__(64)
+var __vue_template__ = __webpack_require__(70)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -51580,6 +51580,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__ = __webpack_require__(76);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__);
 //
 //
 //
@@ -51638,6 +51640,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+
 
 
 
@@ -51652,7 +51656,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
   components: {
     ProjectForm: __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default.a,
-    ProjectFile: __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default.a
+    ProjectFile: __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default.a,
+    DatabaseTable: __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue___default.a
   },
   methods: {
     showBasic: function showBasic() {
@@ -51697,7 +51702,7 @@ var normalizeComponent = __webpack_require__(2)
 /* script */
 var __vue_script__ = __webpack_require__(52)
 /* template */
-var __vue_template__ = __webpack_require__(63)
+var __vue_template__ = __webpack_require__(69)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -51745,9 +51750,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_xlsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_xlsx__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__FunctionalRequirementTable_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__TestCaseTable_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__RtmTable_vue__ = __webpack_require__(76);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__RtmTable_vue__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__RtmTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__RtmTable_vue__);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -51838,7 +51843,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           vm.isSave = -1;
           vm.content = response.data;
         }
-        console.log(vm.content);
       }).catch(function (errors) {
         vm.isSave = 2;
         if (errors.response.status == 500) vm.msg = 'Server Error, please try again later.';
@@ -81804,6 +81808,540 @@ if (false) {
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(64)
+/* template */
+var __vue_template__ = __webpack_require__(65)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/TestCaseTable.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-d1af0136", Component.options)
+  } else {
+    hotAPI.reload("data-v-d1af0136", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 64 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "test-case-table",
+  props: ["tcs"],
+  data: function data() {
+    return {
+      startIndex: 0,
+      pages: 1,
+      active: 1,
+      perPage: 4
+    };
+  },
+  created: function created() {
+    if (this.tcs.length % 2 == 0) {
+      this.pages = parseInt(this.tcs.length / this.perPage);
+    } else {
+      this.pages = parseInt(this.tcs.length / this.perPage) + 1;
+    }
+  },
+
+  methods: {
+    go: function go(page) {
+      this.startIndex = (page - 1) * 2;
+      this.active = page;
+    },
+    previous: function previous() {
+      if (this.active > 1) {
+        --this.active;
+        this.startIndex -= this.perPage;
+      }
+    },
+    next: function next() {
+      if (this.active < this.pages) {
+        ++this.active;
+        this.startIndex += this.perPage;
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "groot" }, [
+    _c(
+      "div",
+      { staticClass: "row" },
+      _vm._l(_vm.tcs, function(tc, index) {
+        return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
+          ? _c("div", { key: index, staticClass: "col-md-6" }, [
+              _c("div", { staticClass: "card" }, [
+                _c("div", { staticClass: "card-header" }, [
+                  _vm._v(_vm._s(tc.no) + " "),
+                  _c(
+                    "span",
+                    {
+                      staticClass: "badge",
+                      class: [
+                        tc.type.toLowerCase() == "valid"
+                          ? "badge-success"
+                          : "badge-danger"
+                      ]
+                    },
+                    [_vm._v(_vm._s(tc.type))]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "card-body" }, [
+                  _c("table", { staticClass: "table table-hover" }, [
+                    _vm._m(0, true),
+                    _vm._v(" "),
+                    _c(
+                      "tbody",
+                      _vm._l(tc.inputs, function(input, inputIndex) {
+                        return _c("tr", { key: inputIndex }, [
+                          _c("td", [_vm._v(_vm._s(input.name))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(input.testData))])
+                        ])
+                      })
+                    )
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("br")
+            ])
+          : _vm._e()
+      })
+    ),
+    _vm._v(" "),
+    this.tcs.length > this.perPage
+      ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
+          _c(
+            "ul",
+            { staticClass: "pagination justify-content-center" },
+            [
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == 1 }
+                },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "page-link",
+                      attrs: { tabindex: "-1" },
+                      on: { click: _vm.previous }
+                    },
+                    [_vm._v("Previous")]
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _vm._l(_vm.pages, function(page) {
+                return _c(
+                  "li",
+                  {
+                    key: page,
+                    staticClass: "page-item",
+                    class: { active: _vm.active == page }
+                  },
+                  [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "page-link",
+                        on: {
+                          click: function($event) {
+                            _vm.go(page)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(page))]
+                    )
+                  ]
+                )
+              }),
+              _vm._v(" "),
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == _vm.pages }
+                },
+                [
+                  _c(
+                    "button",
+                    { staticClass: "page-link", on: { click: _vm.next } },
+                    [_vm._v("Next")]
+                  )
+                ]
+              )
+            ],
+            2
+          )
+        ])
+      : _vm._e()
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th", [_vm._v("Input name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Data")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-d1af0136", module.exports)
+  }
+}
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(67)
+/* template */
+var __vue_template__ = __webpack_require__(68)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/RtmTable.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-5b1be84c", Component.options)
+  } else {
+    hotAPI.reload("data-v-5b1be84c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 67 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "rtm-table",
+  props: ["relations"],
+  data: function data() {
+    return {
+      startIndex: 0,
+      pages: 1,
+      active: 1,
+      perPage: 20
+    };
+  },
+  created: function created() {
+    if (this.relations.length % 2 == 0) {
+      this.pages = parseInt(this.relations.length / this.perPage);
+    } else {
+      this.pages = parseInt(this.relations.length / this.perPage) + 1;
+    }
+  },
+
+  methods: {
+    go: function go(page) {
+      this.startIndex = (page - 1) * 2;
+      this.active = page;
+    },
+    previous: function previous() {
+      if (this.active > 1) {
+        --this.active;
+        this.startIndex -= this.perPage;
+      }
+    },
+    next: function next() {
+      if (this.active < this.pages) {
+        ++this.active;
+        this.startIndex += this.perPage;
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "groot" }, [
+    _c("table", { staticClass: "table table-hover" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c(
+        "tbody",
+        _vm._l(_vm.relations, function(rel, index) {
+          return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
+            ? _c("tr", { key: index }, [
+                _c("td", { attrs: { width: "30%" } }, [
+                  _vm._v(_vm._s(rel.functionalRequirementNo))
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(rel.testCaseNos.join(" | ")))])
+              ])
+            : _vm._e()
+        })
+      )
+    ]),
+    _vm._v(" "),
+    _c("br"),
+    _vm._v(" "),
+    this.relations.length > this.perPage
+      ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
+          _c(
+            "ul",
+            { staticClass: "pagination justify-content-center" },
+            [
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == 1 }
+                },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "page-link",
+                      attrs: { tabindex: "-1" },
+                      on: { click: _vm.previous }
+                    },
+                    [_vm._v("Previous")]
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _vm._l(_vm.pages, function(page) {
+                return _c(
+                  "li",
+                  {
+                    key: page,
+                    staticClass: "page-item",
+                    class: { active: _vm.active == page }
+                  },
+                  [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "page-link",
+                        on: {
+                          click: function($event) {
+                            _vm.go(page)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(page))]
+                    )
+                  ]
+                )
+              }),
+              _vm._v(" "),
+              _c(
+                "li",
+                {
+                  staticClass: "page-item",
+                  class: { disabled: _vm.active == _vm.pages }
+                },
+                [
+                  _c(
+                    "button",
+                    { staticClass: "page-link", on: { click: _vm.next } },
+                    [_vm._v("Next")]
+                  )
+                ]
+              )
+            ],
+            2
+          )
+        ])
+      : _vm._e()
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th", [_vm._v("Functional Requirement No")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Test Case")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-5b1be84c", module.exports)
+  }
+}
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
@@ -81919,7 +82457,7 @@ if (false) {
 }
 
 /***/ }),
-/* 64 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -82125,56 +82663,47 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _c("project-file", {
-            directives: [
-              {
-                name: "show",
-                rawName: "v-show",
-                value: _vm.menu == "fr",
-                expression: "menu == 'fr'"
-              }
-            ],
-            key: "fr",
-            attrs: {
-              "access-token": _vm.accessToken,
-              "project-name": _vm.projectNameInit,
-              contentType: "fr"
-            }
-          }),
+          _vm.menu == "database"
+            ? _c("database-table", {
+                attrs: {
+                  "access-token": _vm.accessToken,
+                  "project-name": _vm.projectNameInit
+                }
+              })
+            : _vm._e(),
           _vm._v(" "),
-          _c("project-file", {
-            directives: [
-              {
-                name: "show",
-                rawName: "v-show",
-                value: _vm.menu == "tc",
-                expression: "menu == 'tc'"
-              }
-            ],
-            key: "tc",
-            attrs: {
-              "access-token": _vm.accessToken,
-              "project-name": _vm.projectNameInit,
-              contentType: "tc"
-            }
-          }),
+          _vm.menu == "fr"
+            ? _c("project-file", {
+                key: "fr",
+                attrs: {
+                  "access-token": _vm.accessToken,
+                  "project-name": _vm.projectNameInit,
+                  contentType: "fr"
+                }
+              })
+            : _vm._e(),
           _vm._v(" "),
-          _c("project-file", {
-            directives: [
-              {
-                name: "show",
-                rawName: "v-show",
-                value: _vm.menu == "rtm",
-                expression: "menu == 'rtm'"
-              }
-            ],
-            key: "rtm",
-            attrs: {
-              "access-token": _vm.accessToken,
-              "project-name": _vm.projectNameInit,
-              contentType: "rtm"
-            }
-          })
+          _vm.menu == "tc"
+            ? _c("project-file", {
+                key: "tc",
+                attrs: {
+                  "access-token": _vm.accessToken,
+                  "project-name": _vm.projectNameInit,
+                  contentType: "tc"
+                }
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.menu == "rtm"
+            ? _c("project-file", {
+                key: "rtm",
+                attrs: {
+                  "access-token": _vm.accessToken,
+                  "project-name": _vm.projectNameInit,
+                  contentType: "rtm"
+                }
+              })
+            : _vm._e()
         ],
         1
       )
@@ -82238,304 +82767,16 @@ if (false) {
 }
 
 /***/ }),
-/* 65 */
+/* 71 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 66 */,
-/* 67 */,
-/* 68 */,
-/* 69 */,
-/* 70 */,
-/* 71 */,
 /* 72 */,
-/* 73 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(74)
-/* template */
-var __vue_template__ = __webpack_require__(75)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/TestCaseTable.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-d1af0136", Component.options)
-  } else {
-    hotAPI.reload("data-v-d1af0136", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 74 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "test-case-table",
-  props: ["tcs"],
-  data: function data() {
-    return {
-      startIndex: 0,
-      pages: 1,
-      active: 1,
-      perPage: 4
-    };
-  },
-  created: function created() {
-    if (this.tcs.length % 2 == 0) {
-      this.pages = parseInt(this.tcs.length / this.perPage);
-    } else {
-      this.pages = parseInt(this.tcs.length / this.perPage) + 1;
-    }
-  },
-
-  methods: {
-    go: function go(page) {
-      this.startIndex = (page - 1) * 2;
-      this.active = page;
-    },
-    previous: function previous() {
-      if (this.active > 1) {
-        --this.active;
-        this.startIndex -= this.perPage;
-      }
-    },
-    next: function next() {
-      if (this.active < this.pages) {
-        ++this.active;
-        this.startIndex += this.perPage;
-      }
-    }
-  }
-});
-
-/***/ }),
-/* 75 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "groot" }, [
-    _c(
-      "div",
-      { staticClass: "row" },
-      _vm._l(_vm.tcs, function(tc, index) {
-        return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
-          ? _c("div", { key: index, staticClass: "col-md-6" }, [
-              _c("div", { staticClass: "card" }, [
-                _c("div", { staticClass: "card-header" }, [
-                  _vm._v(_vm._s(tc.no) + " "),
-                  _c(
-                    "span",
-                    {
-                      staticClass: "badge",
-                      class: [
-                        tc.type.toLowerCase() == "valid"
-                          ? "badge-success"
-                          : "badge-danger"
-                      ]
-                    },
-                    [_vm._v(_vm._s(tc.type))]
-                  )
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "card-body" }, [
-                  _c("table", { staticClass: "table table-hover" }, [
-                    _vm._m(0, true),
-                    _vm._v(" "),
-                    _c(
-                      "tbody",
-                      _vm._l(tc.inputs, function(input, inputIndex) {
-                        return _c("tr", { key: inputIndex }, [
-                          _c("td", [_vm._v(_vm._s(input.name))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(input.testData))])
-                        ])
-                      })
-                    )
-                  ])
-                ])
-              ]),
-              _vm._v(" "),
-              _c("br")
-            ])
-          : _vm._e()
-      })
-    ),
-    _vm._v(" "),
-    this.tcs.length > this.perPage
-      ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
-          _c(
-            "ul",
-            { staticClass: "pagination justify-content-center" },
-            [
-              _c(
-                "li",
-                {
-                  staticClass: "page-item",
-                  class: { disabled: _vm.active == 1 }
-                },
-                [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "page-link",
-                      attrs: { tabindex: "-1" },
-                      on: { click: _vm.previous }
-                    },
-                    [_vm._v("Previous")]
-                  )
-                ]
-              ),
-              _vm._v(" "),
-              _vm._l(_vm.pages, function(page) {
-                return _c(
-                  "li",
-                  {
-                    key: page,
-                    staticClass: "page-item",
-                    class: { active: _vm.active == page }
-                  },
-                  [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "page-link",
-                        on: {
-                          click: function($event) {
-                            _vm.go(page)
-                          }
-                        }
-                      },
-                      [_vm._v(_vm._s(page))]
-                    )
-                  ]
-                )
-              }),
-              _vm._v(" "),
-              _c(
-                "li",
-                {
-                  staticClass: "page-item",
-                  class: { disabled: _vm.active == _vm.pages }
-                },
-                [
-                  _c(
-                    "button",
-                    { staticClass: "page-link", on: { click: _vm.next } },
-                    [_vm._v("Next")]
-                  )
-                ]
-              )
-            ],
-            2
-          )
-        ])
-      : _vm._e()
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", { staticClass: "bg-info text-white" }, [
-        _c("th", [_vm._v("Input name")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Data")])
-      ])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-d1af0136", module.exports)
-  }
-}
-
-/***/ }),
+/* 73 */,
+/* 74 */,
+/* 75 */,
 /* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -82561,7 +82802,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/RtmTable.vue"
+Component.options.__file = "resources/assets/js/components/DatabaseTable.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -82570,9 +82811,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-5b1be84c", Component.options)
+    hotAPI.createRecord("data-v-7e8664ec", Component.options)
   } else {
-    hotAPI.reload("data-v-5b1be84c", Component.options)
+    hotAPI.reload("data-v-7e8664ec", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -82620,44 +82861,129 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: "rtm-table",
-  props: ["relations"],
+  name: "database-table",
+  props: ["accessToken", "projectName"],
   data: function data() {
     return {
-      startIndex: 0,
-      pages: 1,
-      active: 1,
-      perPage: 20
+      content: [],
+      statusShow: [{ isShow: true, thingShow: 0 }],
+      show: true,
+      gotoId: -1
     };
-  },
-  created: function created() {
-    console.log('kuy');
-    if (this.relations.length % 2 == 0) {
-      this.pages = parseInt(this.relations.length / this.perPage);
-    } else {
-      this.pages = parseInt(this.relations.length / this.perPage) + 1;
-    }
   },
 
   methods: {
-    go: function go(page) {
-      this.startIndex = (page - 1) * 2;
-      this.active = page;
-    },
-    previous: function previous() {
-      if (this.active > 1) {
-        --this.active;
-        this.startIndex -= this.perPage;
+    goto: function goto() {
+      if (this.gotoId != -1) {
+        this.statusShow[this.gotoId].isShow = true;
+        this.scrollToTop(this.gotoId);
+        this.gotoId = -1;
       }
     },
-    next: function next() {
-      if (this.active < this.pages) {
-        ++this.active;
-        this.startIndex += this.perPage;
-      }
+    scrollToTop: function scrollToTop(id) {
+      $("html, body").animate({
+        scrollTop: $("#" + id).offset().top
+      }, 1000);
+    },
+    getDatabase: function getDatabase() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        for (var index = 0; index < response.data.length; index++) {
+          vm.statusShow.push({ isShow: true, thingShow: 0 });
+        }
+        vm.content = response.data;
+      }).catch(function (errors) {});
     }
+  },
+  created: function created() {
+    this.getDatabase();
   }
 });
 
@@ -82670,96 +82996,388 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "groot" }, [
-    _c("table", { staticClass: "table table-hover" }, [
-      _vm._m(0),
+    _c("div", { ref: "messages", staticClass: "card" }, [
+      _c("div", { staticClass: "card-header" }, [
+        _c("h4", [
+          _c("i", { staticClass: "fas fa-database" }),
+          _vm._v("  " + _vm._s(this.projectName))
+        ])
+      ]),
       _vm._v(" "),
       _c(
-        "tbody",
-        _vm._l(_vm.relations, function(rel, index) {
-          return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
-            ? _c("tr", { key: index }, [
-                _c("td", { attrs: { width: "30%" } }, [
-                  _vm._v(_vm._s(rel.functionalRequirementNo))
+        "div",
+        { staticClass: "card-body" },
+        [
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-md-2 offset-md-10" }, [
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.gotoId,
+                      expression: "gotoId"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: [
+                      function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.gotoId = $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      },
+                      _vm.goto
+                    ]
+                  }
+                },
+                [
+                  _c("option", { attrs: { value: "-1", selected: "" } }, [
+                    _vm._v(" Go to Table ")
+                  ]),
+                  _vm._v(" "),
+                  _vm._l(this.content, function(table, index) {
+                    return _c(
+                      "option",
+                      { key: index, domProps: { value: index } },
+                      [_vm._v(_vm._s(table.name))]
+                    )
+                  })
+                ],
+                2
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _c("hr"),
+          _vm._v(" "),
+          _vm._l(this.content, function(table, index) {
+            return _c(
+              "div",
+              { key: index, staticClass: "card-br", attrs: { id: index } },
+              [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-header" }, [
+                    _c("span", { staticClass: "align-middle" }, [
+                      _c("div", { staticClass: "float-left" }, [
+                        _c(
+                          "span",
+                          {
+                            staticClass: "btn",
+                            on: {
+                              click: function($event) {
+                                _vm.scrollToTop(index)
+                              }
+                            }
+                          },
+                          [_vm._v(_vm._s(table.name))]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "float-right" }, [
+                        _c(
+                          "div",
+                          {
+                            staticClass: "btn-group",
+                            attrs: {
+                              role: "group",
+                              "aria-label": "Button group with nested dropdown"
+                            }
+                          },
+                          [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-primary",
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.statusShow[index].isShow = !_vm
+                                      .statusShow[index].isShow
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", {
+                                  staticClass: "fas",
+                                  class: [
+                                    _vm.statusShow[index].isShow
+                                      ? "fa-eye-slash"
+                                      : "fa-eye"
+                                  ]
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              {
+                                staticClass: "btn-group",
+                                attrs: { role: "group" }
+                              },
+                              [
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass:
+                                      "btn btn-primary dropdown-toggle",
+                                    attrs: {
+                                      id: "btnGroupDrop1",
+                                      type: "button",
+                                      "data-toggle": "dropdown",
+                                      "aria-haspopup": "false",
+                                      "aria-expanded": "true"
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                            More\n                                        "
+                                    )
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  {
+                                    staticClass: "dropdown-menu",
+                                    attrs: {
+                                      "aria-labelledby": "btnGroupDrop1"
+                                    }
+                                  },
+                                  [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "dropdown-item",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.statusShow[index].thingShow = 0
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Column")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "dropdown-item",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.statusShow[index].thingShow = 1
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Constraint")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "dropdown-item",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.statusShow[index].thingShow = 2
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Instance")]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _vm.statusShow[index].isShow
+                    ? _c("div", { staticClass: "card-body" }, [
+                        _vm.statusShow[index].thingShow == 0
+                          ? _c("table", { staticClass: "table table-hover" }, [
+                              _vm._m(0, true),
+                              _vm._v(" "),
+                              _c(
+                                "tbody",
+                                _vm._l(table.columns, function(
+                                  column,
+                                  indexColumn
+                                ) {
+                                  return _c("tr", { key: indexColumn }, [
+                                    _c("td", [
+                                      _vm._v(
+                                        _vm._s(column.name) +
+                                          "\n                                        "
+                                      ),
+                                      column.isPK
+                                        ? _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "badge badge-secondary"
+                                            },
+                                            [_vm._v("PK")]
+                                          )
+                                        : _vm._e(),
+                                      _vm._v(" "),
+                                      column.isFK
+                                        ? _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "badge badge-secondary"
+                                            },
+                                            [_vm._v("FK")]
+                                          )
+                                        : _vm._e()
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.dataType))]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.length))]),
+                                    _vm._v(" "),
+                                    _c("td", [
+                                      _vm._v(_vm._s(column.precision))
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.scale))]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.default))]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          column.nullable == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(column.nullable))]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          column.unique == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(column.unique))]
+                                    ),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.min))]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.max))])
+                                  ])
+                                })
+                              )
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.statusShow[index].thingShow == 2
+                          ? _c("div", [
+                              table.instance
+                                ? _c(
+                                    "table",
+                                    {
+                                      staticClass:
+                                        "table table-hover table-bordered"
+                                    },
+                                    [
+                                      _c("thead", [
+                                        _c(
+                                          "tr",
+                                          { staticClass: "bg-info text-white" },
+                                          _vm._l(
+                                            table.instance.columnOrder,
+                                            function(
+                                              columnOrder,
+                                              columnOrderIndex
+                                            ) {
+                                              return _c(
+                                                "td",
+                                                { key: columnOrderIndex },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                            " +
+                                                      _vm._s(columnOrder) +
+                                                      "\n                                        "
+                                                  )
+                                                ]
+                                              )
+                                            }
+                                          )
+                                        )
+                                      ]),
+                                      _vm._v(" "),
+                                      _c(
+                                        "tbody",
+                                        _vm._l(table.instance.records, function(
+                                          record,
+                                          recordIndex
+                                        ) {
+                                          return _c(
+                                            "tr",
+                                            { key: recordIndex },
+                                            _vm._l(record, function(
+                                              value,
+                                              valueIndex
+                                            ) {
+                                              return _c(
+                                                "td",
+                                                { key: valueIndex },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                            " +
+                                                      _vm._s(
+                                                        value ? value : "null"
+                                                      ) +
+                                                      "\n                                        "
+                                                  )
+                                                ]
+                                              )
+                                            })
+                                          )
+                                        })
+                                      )
+                                    ]
+                                  )
+                                : _c("p", [_vm._v(" Not found instance.")])
+                            ])
+                          : _vm._e()
+                      ])
+                    : _vm._e()
                 ]),
                 _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(rel.testCaseNos.join(" | ")))])
-              ])
-            : _vm._e()
-        })
+                _c("br")
+              ]
+            )
+          })
+        ],
+        2
       )
-    ]),
-    _vm._v(" "),
-    _c("br"),
-    _vm._v(" "),
-    this.relations.length > this.perPage
-      ? _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
-          _c(
-            "ul",
-            { staticClass: "pagination justify-content-center" },
-            [
-              _c(
-                "li",
-                {
-                  staticClass: "page-item",
-                  class: { disabled: _vm.active == 1 }
-                },
-                [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "page-link",
-                      attrs: { tabindex: "-1" },
-                      on: { click: _vm.previous }
-                    },
-                    [_vm._v("Previous")]
-                  )
-                ]
-              ),
-              _vm._v(" "),
-              _vm._l(_vm.pages, function(page) {
-                return _c(
-                  "li",
-                  {
-                    key: page,
-                    staticClass: "page-item",
-                    class: { active: _vm.active == page }
-                  },
-                  [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "page-link",
-                        on: {
-                          click: function($event) {
-                            _vm.go(page)
-                          }
-                        }
-                      },
-                      [_vm._v(_vm._s(page))]
-                    )
-                  ]
-                )
-              }),
-              _vm._v(" "),
-              _c(
-                "li",
-                {
-                  staticClass: "page-item",
-                  class: { disabled: _vm.active == _vm.pages }
-                },
-                [
-                  _c(
-                    "button",
-                    { staticClass: "page-link", on: { click: _vm.next } },
-                    [_vm._v("Next")]
-                  )
-                ]
-              )
-            ],
-            2
-          )
-        ])
-      : _vm._e()
+    ])
   ])
 }
 var staticRenderFns = [
@@ -82769,9 +83387,25 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", { staticClass: "bg-info text-white" }, [
-        _c("th", [_vm._v("Functional Requirement No")]),
+        _c("th", [_vm._v("Column Name")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Test Case")])
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")])
       ])
     ])
   }
@@ -82781,7 +83415,7 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-5b1be84c", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-7e8664ec", module.exports)
   }
 }
 

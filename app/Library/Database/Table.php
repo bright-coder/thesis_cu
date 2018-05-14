@@ -137,7 +137,7 @@ class Table
 
     public function isFK(string $columnName): bool
     {
-        $fks = $table->getAllFK();
+        $fks = $this->getAllFK();
         foreach ($fks as $fk) {
             foreach ($fk->getColumns() as $link) {
                 if ($link['from']['columnName'] == $columnName) {

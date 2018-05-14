@@ -49,9 +49,10 @@
             <div class="col-md-10">
                 <project-form :access-token="accessToken" :request-type="requestType" :project-name-init="projectNameInit" v-show="menu == 'basic'">
                 </project-form>
-                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'fr'" :contentType="'fr'" key="fr"></project-file>
-                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'tc'" :contentType="'tc'" key="tc"></project-file>
-                <project-file :access-token="accessToken" :project-name="projectNameInit" v-show="menu == 'rtm'" :contentType="'rtm'" key="rtm"></project-file>
+                <database-table :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'database'"></database-table>
+                <project-file :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'fr'" :contentType="'fr'" key="fr"></project-file>
+                <project-file :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'tc'" :contentType="'tc'" key="tc"></project-file>
+                <project-file :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'rtm'" :contentType="'rtm'" key="rtm"></project-file>
             </div>
         </div>
     </div>
@@ -59,6 +60,7 @@
 <script>
 import ProjectForm from "./ProjectForm.vue";
 import ProjectFile from "./ProjectFile.vue";
+import DatabaseTable from "./DatabaseTable.vue";
 export default {
   name: "project-show",
   props: ["accessToken", "requestType", "projectNameInit"],
@@ -69,7 +71,8 @@ export default {
   },
   components: {
     ProjectForm,
-    ProjectFile
+    ProjectFile,
+    DatabaseTable
   },
   methods: {
     showBasic() {

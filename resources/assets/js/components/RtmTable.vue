@@ -43,7 +43,6 @@ export default {
     };
   },
   created() {
-      console.log('kuy')
     if (this.relations.length % 2 == 0) {
       this.pages = parseInt(this.relations.length / this.perPage);
     } else {
