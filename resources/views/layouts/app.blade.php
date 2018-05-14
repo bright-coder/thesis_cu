@@ -9,7 +9,7 @@
   <!-- CSRF Token -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>{{ config('app.name', 'Laravel') }}</title>
+  <title>{{ config('app.name', 'Impact Analysis') }}</title>
 
   <!-- Scripts -->
   <script src="{{ asset('js/app.js') }}" defer></script>
@@ -51,7 +51,7 @@
                       Change Request
                     </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#"><i class="fas fa-plus"></i> New Change Request</a>
+            <a class="dropdown-item" href="{{ route('changeRequestCreate') }}"><i class="fas fa-plus"></i> New Change Request</a>
               <a class="dropdown-item" href="#"><i class="fas fa-list-ol"></i> Change Request History</a>
               <div class="dropdown-divider"></div>
             </div>

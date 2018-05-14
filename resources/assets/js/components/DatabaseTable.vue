@@ -30,12 +30,12 @@
 
                                         <div class="btn-group" role="group">
                                             <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true">
-                                                More
+                                                {{ statusShow[index].thingShow == 0 ? 'Column' : statusShow[index].thingShow == 1 ? 'Constraint' : 'Instance' }}
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#" @click.prevent="statusShow[index].thingShow = 0">Column</a>
-                                                <a class="dropdown-item" href="#" @click.prevent="statusShow[index].thingShow = 1">Constraint</a>
-                                                <a class="dropdown-item" href="#" @click.prevent="statusShow[index].thingShow = 2">Instance</a>
+                                                <a class="dropdown-item" href="#" @click.prevent="statusShow[index].thingShow = 0 ; statusShow[index].isShow = true">Column</a>
+                                                <a class="dropdown-item" href="#" @click.prevent="statusShow[index].thingShow = 1 ; statusShow[index].isShow = true">Constraint</a>
+                                                <a class="dropdown-item" href="#" @click.prevent="statusShow[index].thingShow = 2 ; statusShow[index].isShow = true">Instance</a>
                                             </div>
                                         </div>
                                     </div>
@@ -96,6 +96,112 @@
                                 </table>
                                 <p v-else> Not found instance.</p>
                             </div>
+                            <div v-if="statusShow[index].thingShow == 1">
+
+                                <div class="row" v-if="table.constraints">
+                                    <div class="col-md-12" v-if="table.constraints.PK">
+                                        <h4 class="text-primary">Primary Key</h4>
+                                        <p>Columns:
+                                            <span class="badge badge-secondary" v-for="(pkColumn, pkIndex) in table.constraints.PK.columns" :key="pkIndex">
+                                                {{ pkColumn }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-12" v-if="table.constraints.FKs">
+                                        <hr>
+                                        <h4 class="text-primary">Foreign Keys
+                                            <span class="badge badge-secondary">{{ table.constraints.FKs.length}} </span>
+                                        </h4>
+                                        <div class="row">
+                                            <div class="col-md-4" v-for="(fk, fkIndex) in table.constraints.FKs" :key="fkIndex">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <strong>{{ fk.name }}</strong>
+
+                                                        <table class="table table-hover">
+                                                            <thead>
+                                                                <tr class="table-dark">
+                                                                    <td>From</td>
+                                                                    <td>To</td>
+                                                                    <td>Table</td>
+                                                                    <td>Column</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="(fkLink, fkLinkIndex) in fk.links" :key="fkLinkIndex">
+                                                                    <td>{{ fkLink.from.columnName }}</td>
+                                                                    <td></td>
+                                                                    <td>{{ fkLink.to.tableName }}</td>
+                                                                    <td>{{ fkLink.to.columnName }}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="col-md-12" v-if="table.constraints.checks">
+                                        <hr>
+                                        <h4 class="text-primary">Check Constraints
+                                            <span class="badge badge-secondary">{{ table.constraints.checks.length}} </span>
+                                        </h4>
+                                        <div class="row">
+                                            <div class="col-md-4" v-for="(ck, ckIndex) in table.constraints.checks" :key="ckIndex">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <strong>{{ ck.name }}</strong>
+
+                                                        <table class="table table-hover">
+                                                            <thead>
+                                                                <tr class="table-dark">
+                                                                    <td>Column</td>
+                                                                    <td>Min</td>
+                                                                    <td>Max</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="(ckColumn, ckColumnIndex) in ck.columns" :key="ckColumnIndex">
+                                                                    <td>{{ ckColumnIndex }}</td>
+                                                                    <td>{{ (ckColumnIndex in ck.mins ? ck.mins[ckColumnIndex].value : '-') }}</td>
+                                                                    <td>{{ (ckColumnIndex in ck.maxs ? ck.maxs[ckColumnIndex].value : '-') }}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="col-md-12" v-if="table.constraints.uniques">
+                                        <hr>
+                                        <h4 class="text-primary">Unique Constraints
+                                            <span class="badge badge-secondary">{{ table.constraints.uniques.length}} </span>
+                                        </h4>
+                                        <div class="row">
+                                            <div class="col-md-4" v-for="(unique, uniIndex) in table.constraints.uniques" :key="uniIndex">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <strong>{{ unique.name }}</strong>
+                                                        <hr>
+                                                        <p>Columns:
+                                                            <span class="badge badge-secondary" v-for="(uniqueColumn, uniqueColumnIndex) in unique.columns" :key="uniqueColumnIndex">
+                                                                {{ uniqueColumn }}
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -151,6 +257,7 @@ export default {
             vm.statusShow.push({ isShow: true, thingShow: 0 });
           }
           vm.content = response.data;
+          console.log(vm.content);
         })
         .catch(function(errors) {});
     }

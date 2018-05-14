@@ -34,5 +34,6 @@ Route::post('project', 'ProjectController@store');
 
 Route::get('functionalrequirement', "ProjectController@index")->name('functionalrequirement');
 Route::get('testcase', "ProjectController@index")->name('testcase');
-Route::get('changerequest', "ChangeRequestController@index")->name('changerequest');
+Route::get('changerequest', "ChangeRequestController@index")->name('changeRequest');
+Route::get('changeRequest/create', "ChangeRequestController@create")->name('changeRequestCreate');
 Route::get('RTM', "ProjectController@index")->name('rtm');

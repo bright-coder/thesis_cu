@@ -18,7 +18,12 @@ class ChangeRequestController extends Controller
 
     public function index()
     {
-        return view('changeRequest');    
+        return view('changeRequest.main');    
+    }
+
+    public function create()
+    {
+        return view('changeRequest.create');
     }
     
 }

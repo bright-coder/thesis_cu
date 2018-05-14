@@ -377,33 +377,6 @@ module.exports = {
 /* 1 */
 /***/ (function(module, exports) {
 
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
 /* globals __VUE_SSR_CONTEXT__ */
 
 // IMPORTANT: Do NOT use ES2015 features in this file.
@@ -507,6 +480,33 @@ module.exports = function normalizeComponent (
     options: options
   }
 }
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
 
 
 /***/ }),
@@ -2598,7 +2598,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
 /* 6 */
@@ -13244,7 +13244,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(44)
 /* template */
@@ -14807,7 +14807,7 @@ if (typeof module !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODE
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(16);
-module.exports = __webpack_require__(71);
+module.exports = __webpack_require__(74);
 
 
 /***/ }),
@@ -32028,7 +32028,7 @@ if (token) {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(19)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(19)(module)))
 
 /***/ }),
 /* 19 */
@@ -38518,7 +38518,7 @@ Popper.Defaults = Defaults;
 /* harmony default export */ __webpack_exports__["default"] = (Popper);
 //# sourceMappingURL=popper.js.map
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(2)))
 
 /***/ }),
 /* 22 */
@@ -50372,7 +50372,7 @@ Vue.compile = compileToFunctions;
 
 module.exports = Vue;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(42).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(42).setImmediate))
 
 /***/ }),
 /* 42 */
@@ -50442,7 +50442,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
 /* 43 */
@@ -50635,7 +50635,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(4)))
 
 /***/ }),
 /* 44 */
@@ -51290,7 +51290,7 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(47)
 /* template */
@@ -51528,11 +51528,11 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(50)
 /* template */
-var __vue_template__ = __webpack_require__(70)
+var __vue_template__ = __webpack_require__(73)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -51580,7 +51580,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__ = __webpack_require__(76);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__ = __webpack_require__(70);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__);
 //
 //
@@ -51698,7 +51698,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(52)
 /* template */
@@ -72150,7 +72150,7 @@ XLSX.CFB = CFB;
 /*exported XLS, ODS */
 var XLS = XLSX, ODS = XLSX;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(5).Buffer, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(5).Buffer, __webpack_require__(4)))
 
 /***/ }),
 /* 54 */
@@ -81435,7 +81435,7 @@ module.exports = ZStream;
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(61)
 /* template */
@@ -81809,7 +81809,7 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(64)
 /* template */
@@ -82094,7 +82094,7 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(2)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(67)
 /* template */
@@ -82460,6 +82460,1287 @@ if (false) {
 /* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(71)
+/* template */
+var __vue_template__ = __webpack_require__(72)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/DatabaseTable.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-7e8664ec", Component.options)
+  } else {
+    hotAPI.reload("data-v-7e8664ec", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 71 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "database-table",
+  props: ["accessToken", "projectName"],
+  data: function data() {
+    return {
+      content: [],
+      statusShow: [{ isShow: true, thingShow: 0 }],
+      show: true,
+      gotoId: -1
+    };
+  },
+
+  methods: {
+    goto: function goto() {
+      if (this.gotoId != -1) {
+        this.statusShow[this.gotoId].isShow = true;
+        this.scrollToTop(this.gotoId);
+        this.gotoId = -1;
+      }
+    },
+    scrollToTop: function scrollToTop(id) {
+      $("html, body").animate({
+        scrollTop: $("#" + id).offset().top
+      }, 1000);
+    },
+    getDatabase: function getDatabase() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        for (var index = 0; index < response.data.length; index++) {
+          vm.statusShow.push({ isShow: true, thingShow: 0 });
+        }
+        vm.content = response.data;
+        console.log(vm.content);
+      }).catch(function (errors) {});
+    }
+  },
+  created: function created() {
+    this.getDatabase();
+  }
+});
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "groot" }, [
+    _c("div", { ref: "messages", staticClass: "card" }, [
+      _c("div", { staticClass: "card-header" }, [
+        _c("h4", [
+          _c("i", { staticClass: "fas fa-database" }),
+          _vm._v("  " + _vm._s(this.projectName))
+        ])
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "card-body" },
+        [
+          _c("div", { staticClass: "row sticky-top" }, [
+            _c("div", { staticClass: "col-md-2 offset-md-10" }, [
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.gotoId,
+                      expression: "gotoId"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: [
+                      function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.gotoId = $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      },
+                      _vm.goto
+                    ]
+                  }
+                },
+                [
+                  _c("option", { attrs: { value: "-1", selected: "" } }, [
+                    _vm._v(" Go to Table ")
+                  ]),
+                  _vm._v(" "),
+                  _vm._l(this.content, function(table, index) {
+                    return _c(
+                      "option",
+                      { key: index, domProps: { value: index } },
+                      [_vm._v(_vm._s(table.name))]
+                    )
+                  })
+                ],
+                2
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _c("hr"),
+          _vm._v(" "),
+          _vm._l(this.content, function(table, index) {
+            return _c(
+              "div",
+              { key: index, staticClass: "card-br", attrs: { id: index } },
+              [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-header" }, [
+                    _c("span", { staticClass: "align-middle" }, [
+                      _c("div", { staticClass: "float-left" }, [
+                        _c(
+                          "span",
+                          {
+                            staticClass: "btn",
+                            on: {
+                              click: function($event) {
+                                _vm.scrollToTop(index)
+                              }
+                            }
+                          },
+                          [_vm._v(_vm._s(table.name))]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "float-right" }, [
+                        _c(
+                          "div",
+                          {
+                            staticClass: "btn-group",
+                            attrs: {
+                              role: "group",
+                              "aria-label": "Button group with nested dropdown"
+                            }
+                          },
+                          [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-primary",
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.statusShow[index].isShow = !_vm
+                                      .statusShow[index].isShow
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", {
+                                  staticClass: "fas",
+                                  class: [
+                                    _vm.statusShow[index].isShow
+                                      ? "fa-eye-slash"
+                                      : "fa-eye"
+                                  ]
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              {
+                                staticClass: "btn-group",
+                                attrs: { role: "group" }
+                              },
+                              [
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass:
+                                      "btn btn-primary dropdown-toggle",
+                                    attrs: {
+                                      id: "btnGroupDrop1",
+                                      type: "button",
+                                      "data-toggle": "dropdown",
+                                      "aria-haspopup": "false",
+                                      "aria-expanded": "true"
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                            " +
+                                        _vm._s(
+                                          _vm.statusShow[index].thingShow == 0
+                                            ? "Column"
+                                            : _vm.statusShow[index].thingShow ==
+                                              1
+                                              ? "Constraint"
+                                              : "Instance"
+                                        ) +
+                                        "\n                                        "
+                                    )
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  {
+                                    staticClass: "dropdown-menu",
+                                    attrs: {
+                                      "aria-labelledby": "btnGroupDrop1"
+                                    }
+                                  },
+                                  [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "dropdown-item",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.statusShow[index].thingShow = 0
+                                            _vm.statusShow[index].isShow = true
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Column")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "dropdown-item",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.statusShow[index].thingShow = 1
+                                            _vm.statusShow[index].isShow = true
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Constraint")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "dropdown-item",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.statusShow[index].thingShow = 2
+                                            _vm.statusShow[index].isShow = true
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("Instance")]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _vm.statusShow[index].isShow
+                    ? _c("div", { staticClass: "card-body" }, [
+                        _vm.statusShow[index].thingShow == 0
+                          ? _c("table", { staticClass: "table table-hover" }, [
+                              _vm._m(0, true),
+                              _vm._v(" "),
+                              _c(
+                                "tbody",
+                                _vm._l(table.columns, function(
+                                  column,
+                                  indexColumn
+                                ) {
+                                  return _c("tr", { key: indexColumn }, [
+                                    _c("td", [
+                                      _vm._v(
+                                        _vm._s(column.name) +
+                                          "\n                                        "
+                                      ),
+                                      column.isPK
+                                        ? _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "badge badge-secondary"
+                                            },
+                                            [_vm._v("PK")]
+                                          )
+                                        : _vm._e(),
+                                      _vm._v(" "),
+                                      column.isFK
+                                        ? _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "badge badge-secondary"
+                                            },
+                                            [_vm._v("FK")]
+                                          )
+                                        : _vm._e()
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.dataType))]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.length))]),
+                                    _vm._v(" "),
+                                    _c("td", [
+                                      _vm._v(_vm._s(column.precision))
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.scale))]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.default))]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          column.nullable == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(column.nullable))]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          column.unique == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(column.unique))]
+                                    ),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.min))]),
+                                    _vm._v(" "),
+                                    _c("td", [_vm._v(_vm._s(column.max))])
+                                  ])
+                                })
+                              )
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.statusShow[index].thingShow == 2
+                          ? _c("div", [
+                              table.instance
+                                ? _c(
+                                    "table",
+                                    {
+                                      staticClass:
+                                        "table table-hover table-bordered"
+                                    },
+                                    [
+                                      _c("thead", [
+                                        _c(
+                                          "tr",
+                                          { staticClass: "bg-info text-white" },
+                                          _vm._l(
+                                            table.instance.columnOrder,
+                                            function(
+                                              columnOrder,
+                                              columnOrderIndex
+                                            ) {
+                                              return _c(
+                                                "td",
+                                                { key: columnOrderIndex },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                            " +
+                                                      _vm._s(columnOrder) +
+                                                      "\n                                        "
+                                                  )
+                                                ]
+                                              )
+                                            }
+                                          )
+                                        )
+                                      ]),
+                                      _vm._v(" "),
+                                      _c(
+                                        "tbody",
+                                        _vm._l(table.instance.records, function(
+                                          record,
+                                          recordIndex
+                                        ) {
+                                          return _c(
+                                            "tr",
+                                            { key: recordIndex },
+                                            _vm._l(record, function(
+                                              value,
+                                              valueIndex
+                                            ) {
+                                              return _c(
+                                                "td",
+                                                { key: valueIndex },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                            " +
+                                                      _vm._s(
+                                                        value ? value : "null"
+                                                      ) +
+                                                      "\n                                        "
+                                                  )
+                                                ]
+                                              )
+                                            })
+                                          )
+                                        })
+                                      )
+                                    ]
+                                  )
+                                : _c("p", [_vm._v(" Not found instance.")])
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.statusShow[index].thingShow == 1
+                          ? _c("div", [
+                              table.constraints
+                                ? _c("div", { staticClass: "row" }, [
+                                    table.constraints.PK
+                                      ? _c(
+                                          "div",
+                                          { staticClass: "col-md-12" },
+                                          [
+                                            _c(
+                                              "h4",
+                                              { staticClass: "text-primary" },
+                                              [_vm._v("Primary Key")]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "p",
+                                              [
+                                                _vm._v(
+                                                  "Columns:\n                                        "
+                                                ),
+                                                _vm._l(
+                                                  table.constraints.PK.columns,
+                                                  function(pkColumn, pkIndex) {
+                                                    return _c(
+                                                      "span",
+                                                      {
+                                                        key: pkIndex,
+                                                        staticClass:
+                                                          "badge badge-secondary"
+                                                      },
+                                                      [
+                                                        _vm._v(
+                                                          "\n                                            " +
+                                                            _vm._s(pkColumn) +
+                                                            "\n                                        "
+                                                        )
+                                                      ]
+                                                    )
+                                                  }
+                                                )
+                                              ],
+                                              2
+                                            )
+                                          ]
+                                        )
+                                      : _vm._e(),
+                                    _vm._v(" "),
+                                    table.constraints.FKs
+                                      ? _c(
+                                          "div",
+                                          { staticClass: "col-md-12" },
+                                          [
+                                            _c("hr"),
+                                            _vm._v(" "),
+                                            _c(
+                                              "h4",
+                                              { staticClass: "text-primary" },
+                                              [
+                                                _vm._v(
+                                                  "Foreign Keys\n                                        "
+                                                ),
+                                                _c(
+                                                  "span",
+                                                  {
+                                                    staticClass:
+                                                      "badge badge-secondary"
+                                                  },
+                                                  [
+                                                    _vm._v(
+                                                      _vm._s(
+                                                        table.constraints.FKs
+                                                          .length
+                                                      ) + " "
+                                                    )
+                                                  ]
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "div",
+                                              { staticClass: "row" },
+                                              _vm._l(
+                                                table.constraints.FKs,
+                                                function(fk, fkIndex) {
+                                                  return _c(
+                                                    "div",
+                                                    {
+                                                      key: fkIndex,
+                                                      staticClass: "col-md-4"
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "div",
+                                                        { staticClass: "card" },
+                                                        [
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "card-body"
+                                                            },
+                                                            [
+                                                              _c("strong", [
+                                                                _vm._v(
+                                                                  _vm._s(
+                                                                    fk.name
+                                                                  )
+                                                                )
+                                                              ]),
+                                                              _vm._v(" "),
+                                                              _c(
+                                                                "table",
+                                                                {
+                                                                  staticClass:
+                                                                    "table table-hover"
+                                                                },
+                                                                [
+                                                                  _vm._m(
+                                                                    1,
+                                                                    true
+                                                                  ),
+                                                                  _vm._v(" "),
+                                                                  _c(
+                                                                    "tbody",
+                                                                    _vm._l(
+                                                                      fk.links,
+                                                                      function(
+                                                                        fkLink,
+                                                                        fkLinkIndex
+                                                                      ) {
+                                                                        return _c(
+                                                                          "tr",
+                                                                          {
+                                                                            key: fkLinkIndex
+                                                                          },
+                                                                          [
+                                                                            _c(
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    fkLink
+                                                                                      .from
+                                                                                      .columnName
+                                                                                  )
+                                                                                )
+                                                                              ]
+                                                                            ),
+                                                                            _vm._v(
+                                                                              " "
+                                                                            ),
+                                                                            _c(
+                                                                              "td"
+                                                                            ),
+                                                                            _vm._v(
+                                                                              " "
+                                                                            ),
+                                                                            _c(
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    fkLink
+                                                                                      .to
+                                                                                      .tableName
+                                                                                  )
+                                                                                )
+                                                                              ]
+                                                                            ),
+                                                                            _vm._v(
+                                                                              " "
+                                                                            ),
+                                                                            _c(
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    fkLink
+                                                                                      .to
+                                                                                      .columnName
+                                                                                  )
+                                                                                )
+                                                                              ]
+                                                                            )
+                                                                          ]
+                                                                        )
+                                                                      }
+                                                                    )
+                                                                  )
+                                                                ]
+                                                              )
+                                                            ]
+                                                          )
+                                                        ]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c("br")
+                                                    ]
+                                                  )
+                                                }
+                                              )
+                                            )
+                                          ]
+                                        )
+                                      : _vm._e(),
+                                    _vm._v(" "),
+                                    table.constraints.checks
+                                      ? _c(
+                                          "div",
+                                          { staticClass: "col-md-12" },
+                                          [
+                                            _c("hr"),
+                                            _vm._v(" "),
+                                            _c(
+                                              "h4",
+                                              { staticClass: "text-primary" },
+                                              [
+                                                _vm._v(
+                                                  "Check Constraints\n                                        "
+                                                ),
+                                                _c(
+                                                  "span",
+                                                  {
+                                                    staticClass:
+                                                      "badge badge-secondary"
+                                                  },
+                                                  [
+                                                    _vm._v(
+                                                      _vm._s(
+                                                        table.constraints.checks
+                                                          .length
+                                                      ) + " "
+                                                    )
+                                                  ]
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "div",
+                                              { staticClass: "row" },
+                                              _vm._l(
+                                                table.constraints.checks,
+                                                function(ck, ckIndex) {
+                                                  return _c(
+                                                    "div",
+                                                    {
+                                                      key: ckIndex,
+                                                      staticClass: "col-md-4"
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "div",
+                                                        { staticClass: "card" },
+                                                        [
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "card-body"
+                                                            },
+                                                            [
+                                                              _c("strong", [
+                                                                _vm._v(
+                                                                  _vm._s(
+                                                                    ck.name
+                                                                  )
+                                                                )
+                                                              ]),
+                                                              _vm._v(" "),
+                                                              _c(
+                                                                "table",
+                                                                {
+                                                                  staticClass:
+                                                                    "table table-hover"
+                                                                },
+                                                                [
+                                                                  _vm._m(
+                                                                    2,
+                                                                    true
+                                                                  ),
+                                                                  _vm._v(" "),
+                                                                  _c(
+                                                                    "tbody",
+                                                                    _vm._l(
+                                                                      ck.columns,
+                                                                      function(
+                                                                        ckColumn,
+                                                                        ckColumnIndex
+                                                                      ) {
+                                                                        return _c(
+                                                                          "tr",
+                                                                          {
+                                                                            key: ckColumnIndex
+                                                                          },
+                                                                          [
+                                                                            _c(
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    ckColumnIndex
+                                                                                  )
+                                                                                )
+                                                                              ]
+                                                                            ),
+                                                                            _vm._v(
+                                                                              " "
+                                                                            ),
+                                                                            _c(
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    ckColumnIndex in
+                                                                                    ck.mins
+                                                                                      ? ck
+                                                                                          .mins[
+                                                                                          ckColumnIndex
+                                                                                        ]
+                                                                                          .value
+                                                                                      : "-"
+                                                                                  )
+                                                                                )
+                                                                              ]
+                                                                            ),
+                                                                            _vm._v(
+                                                                              " "
+                                                                            ),
+                                                                            _c(
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    ckColumnIndex in
+                                                                                    ck.maxs
+                                                                                      ? ck
+                                                                                          .maxs[
+                                                                                          ckColumnIndex
+                                                                                        ]
+                                                                                          .value
+                                                                                      : "-"
+                                                                                  )
+                                                                                )
+                                                                              ]
+                                                                            )
+                                                                          ]
+                                                                        )
+                                                                      }
+                                                                    )
+                                                                  )
+                                                                ]
+                                                              )
+                                                            ]
+                                                          )
+                                                        ]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c("br")
+                                                    ]
+                                                  )
+                                                }
+                                              )
+                                            )
+                                          ]
+                                        )
+                                      : _vm._e(),
+                                    _vm._v(" "),
+                                    table.constraints.uniques
+                                      ? _c(
+                                          "div",
+                                          { staticClass: "col-md-12" },
+                                          [
+                                            _c("hr"),
+                                            _vm._v(" "),
+                                            _c(
+                                              "h4",
+                                              { staticClass: "text-primary" },
+                                              [
+                                                _vm._v(
+                                                  "Unique Constraints\n                                        "
+                                                ),
+                                                _c(
+                                                  "span",
+                                                  {
+                                                    staticClass:
+                                                      "badge badge-secondary"
+                                                  },
+                                                  [
+                                                    _vm._v(
+                                                      _vm._s(
+                                                        table.constraints
+                                                          .uniques.length
+                                                      ) + " "
+                                                    )
+                                                  ]
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "div",
+                                              { staticClass: "row" },
+                                              _vm._l(
+                                                table.constraints.uniques,
+                                                function(unique, uniIndex) {
+                                                  return _c(
+                                                    "div",
+                                                    {
+                                                      key: uniIndex,
+                                                      staticClass: "col-md-4"
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "div",
+                                                        { staticClass: "card" },
+                                                        [
+                                                          _c(
+                                                            "div",
+                                                            {
+                                                              staticClass:
+                                                                "card-body"
+                                                            },
+                                                            [
+                                                              _c("strong", [
+                                                                _vm._v(
+                                                                  _vm._s(
+                                                                    unique.name
+                                                                  )
+                                                                )
+                                                              ]),
+                                                              _vm._v(" "),
+                                                              _c("hr"),
+                                                              _vm._v(" "),
+                                                              _c(
+                                                                "p",
+                                                                [
+                                                                  _vm._v(
+                                                                    "Columns:\n                                                        "
+                                                                  ),
+                                                                  _vm._l(
+                                                                    unique.columns,
+                                                                    function(
+                                                                      uniqueColumn,
+                                                                      uniqueColumnIndex
+                                                                    ) {
+                                                                      return _c(
+                                                                        "span",
+                                                                        {
+                                                                          key: uniqueColumnIndex,
+                                                                          staticClass:
+                                                                            "badge badge-secondary"
+                                                                        },
+                                                                        [
+                                                                          _vm._v(
+                                                                            "\n                                                            " +
+                                                                              _vm._s(
+                                                                                uniqueColumn
+                                                                              ) +
+                                                                              "\n                                                        "
+                                                                          )
+                                                                        ]
+                                                                      )
+                                                                    }
+                                                                  )
+                                                                ],
+                                                                2
+                                                              )
+                                                            ]
+                                                          )
+                                                        ]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c("br")
+                                                    ]
+                                                  )
+                                                }
+                                              )
+                                            )
+                                          ]
+                                        )
+                                      : _vm._e()
+                                  ])
+                                : _vm._e()
+                            ])
+                          : _vm._e()
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("br")
+              ]
+            )
+          })
+        ],
+        2
+      )
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th", [_vm._v("Column Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "table-dark" }, [
+        _c("td", [_vm._v("From")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("To")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("Table")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("Column")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "table-dark" }, [
+        _c("td", [_vm._v("Column")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("Max")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-7e8664ec", module.exports)
+  }
+}
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
@@ -82767,657 +84048,10 @@ if (false) {
 }
 
 /***/ }),
-/* 71 */
+/* 74 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 72 */,
-/* 73 */,
-/* 74 */,
-/* 75 */,
-/* 76 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(77)
-/* template */
-var __vue_template__ = __webpack_require__(78)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/DatabaseTable.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-7e8664ec", Component.options)
-  } else {
-    hotAPI.reload("data-v-7e8664ec", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 77 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "database-table",
-  props: ["accessToken", "projectName"],
-  data: function data() {
-    return {
-      content: [],
-      statusShow: [{ isShow: true, thingShow: 0 }],
-      show: true,
-      gotoId: -1
-    };
-  },
-
-  methods: {
-    goto: function goto() {
-      if (this.gotoId != -1) {
-        this.statusShow[this.gotoId].isShow = true;
-        this.scrollToTop(this.gotoId);
-        this.gotoId = -1;
-      }
-    },
-    scrollToTop: function scrollToTop(id) {
-      $("html, body").animate({
-        scrollTop: $("#" + id).offset().top
-      }, 1000);
-    },
-    getDatabase: function getDatabase() {
-      var vm = this;
-      axios({
-        url: "/api/v1/projects/" + this.projectName + "/databases",
-        method: "GET",
-        data: null,
-        headers: {
-          Authorization: "Bearer " + this.accessToken,
-          "Content-Type": "application/json; charset=utf-8"
-        },
-        dataType: "json"
-      }).then(function (response) {
-        for (var index = 0; index < response.data.length; index++) {
-          vm.statusShow.push({ isShow: true, thingShow: 0 });
-        }
-        vm.content = response.data;
-      }).catch(function (errors) {});
-    }
-  },
-  created: function created() {
-    this.getDatabase();
-  }
-});
-
-/***/ }),
-/* 78 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "groot" }, [
-    _c("div", { ref: "messages", staticClass: "card" }, [
-      _c("div", { staticClass: "card-header" }, [
-        _c("h4", [
-          _c("i", { staticClass: "fas fa-database" }),
-          _vm._v("  " + _vm._s(this.projectName))
-        ])
-      ]),
-      _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "card-body" },
-        [
-          _c("div", { staticClass: "row sticky-top" }, [
-            _c("div", { staticClass: "col-md-2 offset-md-10" }, [
-              _c(
-                "select",
-                {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.gotoId,
-                      expression: "gotoId"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  on: {
-                    change: [
-                      function($event) {
-                        var $$selectedVal = Array.prototype.filter
-                          .call($event.target.options, function(o) {
-                            return o.selected
-                          })
-                          .map(function(o) {
-                            var val = "_value" in o ? o._value : o.value
-                            return val
-                          })
-                        _vm.gotoId = $event.target.multiple
-                          ? $$selectedVal
-                          : $$selectedVal[0]
-                      },
-                      _vm.goto
-                    ]
-                  }
-                },
-                [
-                  _c("option", { attrs: { value: "-1", selected: "" } }, [
-                    _vm._v(" Go to Table ")
-                  ]),
-                  _vm._v(" "),
-                  _vm._l(this.content, function(table, index) {
-                    return _c(
-                      "option",
-                      { key: index, domProps: { value: index } },
-                      [_vm._v(_vm._s(table.name))]
-                    )
-                  })
-                ],
-                2
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("hr"),
-          _vm._v(" "),
-          _vm._l(this.content, function(table, index) {
-            return _c(
-              "div",
-              { key: index, staticClass: "card-br", attrs: { id: index } },
-              [
-                _c("div", { staticClass: "card" }, [
-                  _c("div", { staticClass: "card-header" }, [
-                    _c("span", { staticClass: "align-middle" }, [
-                      _c("div", { staticClass: "float-left" }, [
-                        _c(
-                          "span",
-                          {
-                            staticClass: "btn",
-                            on: {
-                              click: function($event) {
-                                _vm.scrollToTop(index)
-                              }
-                            }
-                          },
-                          [_vm._v(_vm._s(table.name))]
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "float-right" }, [
-                        _c(
-                          "div",
-                          {
-                            staticClass: "btn-group",
-                            attrs: {
-                              role: "group",
-                              "aria-label": "Button group with nested dropdown"
-                            }
-                          },
-                          [
-                            _c(
-                              "button",
-                              {
-                                staticClass: "btn btn-primary",
-                                attrs: { type: "button" },
-                                on: {
-                                  click: function($event) {
-                                    _vm.statusShow[index].isShow = !_vm
-                                      .statusShow[index].isShow
-                                  }
-                                }
-                              },
-                              [
-                                _c("i", {
-                                  staticClass: "fas",
-                                  class: [
-                                    _vm.statusShow[index].isShow
-                                      ? "fa-eye-slash"
-                                      : "fa-eye"
-                                  ]
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "div",
-                              {
-                                staticClass: "btn-group",
-                                attrs: { role: "group" }
-                              },
-                              [
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass:
-                                      "btn btn-primary dropdown-toggle",
-                                    attrs: {
-                                      id: "btnGroupDrop1",
-                                      type: "button",
-                                      "data-toggle": "dropdown",
-                                      "aria-haspopup": "false",
-                                      "aria-expanded": "true"
-                                    }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                                            More\n                                        "
-                                    )
-                                  ]
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "div",
-                                  {
-                                    staticClass: "dropdown-menu",
-                                    attrs: {
-                                      "aria-labelledby": "btnGroupDrop1"
-                                    }
-                                  },
-                                  [
-                                    _c(
-                                      "a",
-                                      {
-                                        staticClass: "dropdown-item",
-                                        attrs: { href: "#" },
-                                        on: {
-                                          click: function($event) {
-                                            $event.preventDefault()
-                                            _vm.statusShow[index].thingShow = 0
-                                          }
-                                        }
-                                      },
-                                      [_vm._v("Column")]
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "a",
-                                      {
-                                        staticClass: "dropdown-item",
-                                        attrs: { href: "#" },
-                                        on: {
-                                          click: function($event) {
-                                            $event.preventDefault()
-                                            _vm.statusShow[index].thingShow = 1
-                                          }
-                                        }
-                                      },
-                                      [_vm._v("Constraint")]
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "a",
-                                      {
-                                        staticClass: "dropdown-item",
-                                        attrs: { href: "#" },
-                                        on: {
-                                          click: function($event) {
-                                            $event.preventDefault()
-                                            _vm.statusShow[index].thingShow = 2
-                                          }
-                                        }
-                                      },
-                                      [_vm._v("Instance")]
-                                    )
-                                  ]
-                                )
-                              ]
-                            )
-                          ]
-                        )
-                      ])
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _vm.statusShow[index].isShow
-                    ? _c("div", { staticClass: "card-body" }, [
-                        _vm.statusShow[index].thingShow == 0
-                          ? _c("table", { staticClass: "table table-hover" }, [
-                              _vm._m(0, true),
-                              _vm._v(" "),
-                              _c(
-                                "tbody",
-                                _vm._l(table.columns, function(
-                                  column,
-                                  indexColumn
-                                ) {
-                                  return _c("tr", { key: indexColumn }, [
-                                    _c("td", [
-                                      _vm._v(
-                                        _vm._s(column.name) +
-                                          "\n                                        "
-                                      ),
-                                      column.isPK
-                                        ? _c(
-                                            "span",
-                                            {
-                                              staticClass:
-                                                "badge badge-secondary"
-                                            },
-                                            [_vm._v("PK")]
-                                          )
-                                        : _vm._e(),
-                                      _vm._v(" "),
-                                      column.isFK
-                                        ? _c(
-                                            "span",
-                                            {
-                                              staticClass:
-                                                "badge badge-secondary"
-                                            },
-                                            [_vm._v("FK")]
-                                          )
-                                        : _vm._e()
-                                    ]),
-                                    _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.dataType))]),
-                                    _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.length))]),
-                                    _vm._v(" "),
-                                    _c("td", [
-                                      _vm._v(_vm._s(column.precision))
-                                    ]),
-                                    _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.scale))]),
-                                    _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.default))]),
-                                    _vm._v(" "),
-                                    _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          column.nullable == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(column.nullable))]
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          column.unique == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(column.unique))]
-                                    ),
-                                    _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.min))]),
-                                    _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.max))])
-                                  ])
-                                })
-                              )
-                            ])
-                          : _vm._e(),
-                        _vm._v(" "),
-                        _vm.statusShow[index].thingShow == 2
-                          ? _c("div", [
-                              table.instance
-                                ? _c(
-                                    "table",
-                                    {
-                                      staticClass:
-                                        "table table-hover table-bordered"
-                                    },
-                                    [
-                                      _c("thead", [
-                                        _c(
-                                          "tr",
-                                          { staticClass: "bg-info text-white" },
-                                          _vm._l(
-                                            table.instance.columnOrder,
-                                            function(
-                                              columnOrder,
-                                              columnOrderIndex
-                                            ) {
-                                              return _c(
-                                                "td",
-                                                { key: columnOrderIndex },
-                                                [
-                                                  _vm._v(
-                                                    "\n                                            " +
-                                                      _vm._s(columnOrder) +
-                                                      "\n                                        "
-                                                  )
-                                                ]
-                                              )
-                                            }
-                                          )
-                                        )
-                                      ]),
-                                      _vm._v(" "),
-                                      _c(
-                                        "tbody",
-                                        _vm._l(table.instance.records, function(
-                                          record,
-                                          recordIndex
-                                        ) {
-                                          return _c(
-                                            "tr",
-                                            { key: recordIndex },
-                                            _vm._l(record, function(
-                                              value,
-                                              valueIndex
-                                            ) {
-                                              return _c(
-                                                "td",
-                                                { key: valueIndex },
-                                                [
-                                                  _vm._v(
-                                                    "\n                                            " +
-                                                      _vm._s(
-                                                        value ? value : "null"
-                                                      ) +
-                                                      "\n                                        "
-                                                  )
-                                                ]
-                                              )
-                                            })
-                                          )
-                                        })
-                                      )
-                                    ]
-                                  )
-                                : _c("p", [_vm._v(" Not found instance.")])
-                            ])
-                          : _vm._e()
-                      ])
-                    : _vm._e()
-                ]),
-                _vm._v(" "),
-                _c("br")
-              ]
-            )
-          })
-        ],
-        2
-      )
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", { staticClass: "bg-info text-white" }, [
-        _c("th", [_vm._v("Column Name")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("DataType")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Length")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Precision")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Scale")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Default")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Nullable")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Unique")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Min")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Max")])
-      ])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-7e8664ec", module.exports)
-  }
-}
 
 /***/ })
 /******/ ]);
