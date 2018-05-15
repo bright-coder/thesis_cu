@@ -71,9 +71,9 @@
                                 <td>{{ input.max }}</td>
                                 <td>{{ input.tableName }}</td>
                                 <td>{{ input.columnName }}</td>
-                                <td v-if="!(input.name in changeRequestIndex)">
-                                    <button class="btn btn-warning" data-toggle="modal" data-target="#modal" @click="editInput(indexInput)">Edit</button>
-                                    <button class="btn btn-danger" data-toggle="modal" data-target="#modal" @click="deleteInput(indexInput)">Delete</button>
+                                <td>
+                                    <button class="btn btn-warning" data-toggle="modal" data-target="#modal" @click="editInput(indexInput)" v-if="!(input.name in changeRequestIndex)">Edit</button>
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#modal" @click="deleteInput(indexInput)" v-if="!(input.name in changeRequestIndex)">Delete</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -101,6 +101,7 @@
                                         <th>Table name</th>
                                         <th>Column name</th>
                                         <th>ChangeType</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -127,6 +128,10 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            <hr>
+                            <div class="float-right">
+                                <button class="btn btn-primary" @click="submitChangeRequest">Submit</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -245,6 +250,9 @@
                                     <label v-else class="col-sm-10 col-form-label">{{ changeRequest.columnName }}</label>
                                 </div>
                             </div>
+                            <div class="alert alert-danger" role="alert" v-if="errors.length > 0">
+                                {{ errors }}
+                            </div>
 
                         </div>
                         <div class="modal-footer">
@@ -288,7 +296,8 @@ export default {
         max: ""
       },
       changeRequestList: [],
-      changeRequestIndex: {}
+      changeRequestIndex: {},
+      errors: ""
     };
   },
   methods: {
@@ -318,7 +327,7 @@ export default {
       this.selectedFunctional = "-";
       this.functionalList = [];
       this.changeRequestList = [];
-      this.changeRequestIndex = {}
+      this.changeRequestIndex = {};
       if (this.selectedProject == "-") {
         return;
       }
@@ -341,7 +350,7 @@ export default {
           } else {
             vm.isHaveFr = false;
           }
-          console.log(response.data);
+
         })
         .catch(function(errors) {});
     },
@@ -352,6 +361,7 @@ export default {
       (this.changeRequestList = []), (this.changeRequestIndex = {});
     },
     newInput() {
+      this.errors = "";
       this.changeRequest = {
         changeType: "add",
         name: "",
@@ -369,6 +379,7 @@ export default {
       };
     },
     editInput(inputIndex) {
+      this.errors = "";
       var input = this.functionalList[this.selectedFunctional].inputs[
         inputIndex
       ];
@@ -385,28 +396,107 @@ export default {
         min: input.min,
         max: input.max,
         tableName: input.tableName,
-        columnName: input.columnName
+        columnName: input.columnName,
+        oldInputIndex: inputIndex
       };
     },
     deleteInput(inputIndex) {
+      this.errors = "";
       var input = this.functionalList[this.selectedFunctional].inputs[
         inputIndex
       ];
       this.changeRequest = {
         changeType: "delete",
-        name: input.name
+        name: input.name,
+        oldInputIndex: inputIndex
       };
     },
     addChangeRequest() {
-      this.changeRequestList.push(this.changeRequest);
-      this.changeRequestIndex[this.changeRequest.name] = true;
-
-      $("#modal").modal("hide");
+      let newChangeRequest = Object.assign({}, this.changeRequest);
+      if (this.changeRequest.changeType == "edit") {
+        let oldInput = this.functionalList[this.selectedFunctional].inputs[
+          this.changeRequest.oldInputIndex
+        ];
+        let isNotChange = 0;
+        if (oldInput.dataType == this.changeRequest.dataType) {
+          delete newChangeRequest["dataType"];
+          ++isNotChange;
+        }
+        if (oldInput.length == this.changeRequest.length) {
+          delete newChangeRequest["length"];
+          ++isNotChange;
+        }
+        if (oldInput.precision == this.changeRequest.precision) {
+          delete newChangeRequest["precision"];
+          ++isNotChange;
+        }
+        if (oldInput.scale == this.changeRequest.scale) {
+          delete newChangeRequest["scale"];
+          ++isNotChange;
+        }
+        if (oldInput.default == this.changeRequest.default) {
+          delete newChangeRequest["default"];
+          ++isNotChange;
+        }
+        if (oldInput.nullable == this.changeRequest.nullable) {
+          delete newChangeRequest["nullable"];
+          ++isNotChange;
+        }
+        if (oldInput.unique == this.changeRequest.unique) {
+          delete newChangeRequest["unique"];
+          ++isNotChange;
+        }
+        if (oldInput.min == this.changeRequest.min) {
+          delete newChangeRequest["min"];
+          ++isNotChange;
+        }
+        if (oldInput.max == this.changeRequest.max) {
+          delete newChangeRequest["max"];
+          ++isNotChange;
+        }
+        delete newChangeRequest["tableName"];
+        delete newChangeRequest["columnName"];
+        if (isNotChange != 9) {
+          this.changeRequestList.push(newChangeRequest);
+          this.changeRequestIndex[this.changeRequest.name] = true;
+          $("#modal").modal("hide");
+        } else {
+          this.errors = "Nothing is changed.";
+        }
+      } else {
+        this.changeRequestList.push(newChangeRequest);
+        this.changeRequestIndex[this.changeRequest.name] = true;
+        $("#modal").modal("hide");
+      }
     },
     deleteChangeRequest(index) {
       let name = this.changeRequestList[index].name;
       this.changeRequestList.splice(index, 1);
       delete this.changeRequestIndex[name];
+    },
+    submitChangeRequest() {
+      let vm = this;
+      let data = JSON.stringify({
+        functionalRequirementNo: this.functionalList[this.selectedFunctional]
+          .no,
+        inputs: this.changeRequestList
+      });
+      axios({
+        url: "/api/v1/projects/" + this.selectedProject + "/changeRequests",
+        method: "POST",
+        data: data,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      })
+      .then(function (response) {
+
+      })
+      .catch(function (errors) {
+
+      })
     }
   },
   created() {

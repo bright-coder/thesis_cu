@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Library\GuardFunctionalRequirement;
 use App\Library\GuardProject;
 use App\Http\Requests\ChangeRequestRequest;
+use App\Model\FunctionalRequirementInput;
 use DB;
 use Illuminate\Http\Request;
 use App\Library\ChangeAnalysis;
@@ -51,7 +52,7 @@ class ChangeRequestController extends Controller
         $request = $request->json()->all();
 
         $guard = new GuardFunctionalRequirement($project->id);
-        $functionalRequirement = $guard->getAllFunctionalRequirement($request['functionalRequirementId']);
+        $functionalRequirement = $guard->getFunctionalRequirement($request['functionalRequirementNo']);
         if (!$functionalRequirement) {
             return response()->json(['msg' => 'forbidden'], 400);
         }
@@ -68,7 +69,7 @@ class ChangeRequestController extends Controller
         try {
             $changeRequest = new ChangeRequest;
             $changeRequest->projectId = $project->id;
-            $changeRequest->changeFunctionalRequirementId = $request['functionalRequirementId'];
+            $changeRequest->changeFunctionalRequirementId = $functionalRequirement->id;
             $changeRequest->save();
             $changeRequestInputList = [];
             foreach ($request['inputs'] as $input) {
@@ -77,6 +78,7 @@ class ChangeRequestController extends Controller
                 $changeRequestInput->changeType = $input['changeType'];
                 
                 if ($changeRequestInput->changeType == 'add') {
+                    // must change
                     if (\array_key_exists('functionalRequirementInputId', $input)) {
                         $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
                     } else {
@@ -156,9 +158,16 @@ class ChangeRequestController extends Controller
                     if (\array_key_exists('max', $input)) {
                         $changeRequestInput->max = $input['max'];
                     }
-                    $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
+                    
+                    $changeRequestInput->functionalRequirementInputId = FunctionalRequirementInput::where([
+                        ['functionalRequirementId', $functionalRequirement->id],
+                        ['name' , $input['name']]
+                        ])->first()->id;
                 } elseif ($changeRequestInput->changeType == 'delete') {
-                    $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
+                    $changeRequestInput->functionalRequirementInputId = FunctionalRequirementInput::where([
+                        ['functionalRequirementId', $functionalRequirement->id],
+                        ['name' , $input['name']]
+                        ])->first()->id;
                 }
                 $changeRequestInput->status = 'imported';
                 $changeRequestInput->save();

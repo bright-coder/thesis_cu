@@ -14807,7 +14807,7 @@ if (typeof module !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODE
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(16);
-module.exports = __webpack_require__(74);
+module.exports = __webpack_require__(77);
 
 
 /***/ }),
@@ -14824,7 +14824,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__ = __webpack_require__(74);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__);
 
 /**
@@ -84052,24 +84052,14 @@ if (false) {
 
 /***/ }),
 /* 74 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 75 */,
-/* 76 */,
-/* 77 */,
-/* 78 */,
-/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(80)
+var __vue_script__ = __webpack_require__(75)
 /* template */
-var __vue_template__ = __webpack_require__(81)
+var __vue_template__ = __webpack_require__(76)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -84108,11 +84098,19 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 80 */
+/* 75 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -84399,7 +84397,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         max: ""
       },
       changeRequestList: [],
-      changeRequestIndex: {}
+      changeRequestIndex: {},
+      errors: ""
     };
   },
 
@@ -84449,7 +84448,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         } else {
           vm.isHaveFr = false;
         }
-        console.log(response.data);
       }).catch(function (errors) {});
     },
     resetFunctional: function resetFunctional() {
@@ -84459,6 +84457,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.changeRequestList = [], this.changeRequestIndex = {};
     },
     newInput: function newInput() {
+      this.errors = "";
       this.changeRequest = {
         changeType: "add",
         name: "",
@@ -84476,6 +84475,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       };
     },
     editInput: function editInput(inputIndex) {
+      this.errors = "";
       var input = this.functionalList[this.selectedFunctional].inputs[inputIndex];
       this.changeRequest = {
         changeType: "edit",
@@ -84490,26 +84490,96 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         min: input.min,
         max: input.max,
         tableName: input.tableName,
-        columnName: input.columnName
+        columnName: input.columnName,
+        oldInputIndex: inputIndex
       };
     },
     deleteInput: function deleteInput(inputIndex) {
+      this.errors = "";
       var input = this.functionalList[this.selectedFunctional].inputs[inputIndex];
       this.changeRequest = {
         changeType: "delete",
-        name: input.name
+        name: input.name,
+        oldInputIndex: inputIndex
       };
     },
     addChangeRequest: function addChangeRequest() {
-      this.changeRequestList.push(this.changeRequest);
-      this.changeRequestIndex[this.changeRequest.name] = true;
-
-      $("#modal").modal("hide");
+      var newChangeRequest = Object.assign({}, this.changeRequest);
+      if (this.changeRequest.changeType == "edit") {
+        var oldInput = this.functionalList[this.selectedFunctional].inputs[this.changeRequest.oldInputIndex];
+        var isNotChange = 0;
+        if (oldInput.dataType == this.changeRequest.dataType) {
+          delete newChangeRequest["dataType"];
+          ++isNotChange;
+        }
+        if (oldInput.length == this.changeRequest.length) {
+          delete newChangeRequest["length"];
+          ++isNotChange;
+        }
+        if (oldInput.precision == this.changeRequest.precision) {
+          delete newChangeRequest["precision"];
+          ++isNotChange;
+        }
+        if (oldInput.scale == this.changeRequest.scale) {
+          delete newChangeRequest["scale"];
+          ++isNotChange;
+        }
+        if (oldInput.default == this.changeRequest.default) {
+          delete newChangeRequest["default"];
+          ++isNotChange;
+        }
+        if (oldInput.nullable == this.changeRequest.nullable) {
+          delete newChangeRequest["nullable"];
+          ++isNotChange;
+        }
+        if (oldInput.unique == this.changeRequest.unique) {
+          delete newChangeRequest["unique"];
+          ++isNotChange;
+        }
+        if (oldInput.min == this.changeRequest.min) {
+          delete newChangeRequest["min"];
+          ++isNotChange;
+        }
+        if (oldInput.max == this.changeRequest.max) {
+          delete newChangeRequest["max"];
+          ++isNotChange;
+        }
+        delete newChangeRequest["tableName"];
+        delete newChangeRequest["columnName"];
+        if (isNotChange != 9) {
+          this.changeRequestList.push(newChangeRequest);
+          this.changeRequestIndex[this.changeRequest.name] = true;
+          $("#modal").modal("hide");
+        } else {
+          this.errors = "Nothing is changed.";
+        }
+      } else {
+        this.changeRequestList.push(newChangeRequest);
+        this.changeRequestIndex[this.changeRequest.name] = true;
+        $("#modal").modal("hide");
+      }
     },
     deleteChangeRequest: function deleteChangeRequest(index) {
       var name = this.changeRequestList[index].name;
       this.changeRequestList.splice(index, 1);
       delete this.changeRequestIndex[name];
+    },
+    submitChangeRequest: function submitChangeRequest() {
+      var vm = this;
+      var data = JSON.stringify({
+        functionalRequirementNo: this.functionalList[this.selectedFunctional].no,
+        inputs: this.changeRequestList
+      });
+      axios({
+        url: "/api/v1/projects/" + this.selectedProject + "/changeRequests",
+        method: "POST",
+        data: data,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {}).catch(function (errors) {});
     }
   },
   created: function created() {
@@ -84518,7 +84588,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 81 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -84770,9 +84840,9 @@ var render = function() {
                         _vm._v(" "),
                         _c("td", [_vm._v(_vm._s(input.columnName))]),
                         _vm._v(" "),
-                        !(input.name in _vm.changeRequestIndex)
-                          ? _c("td", [
-                              _c(
+                        _c("td", [
+                          !(input.name in _vm.changeRequestIndex)
+                            ? _c(
                                 "button",
                                 {
                                   staticClass: "btn btn-warning",
@@ -84787,9 +84857,11 @@ var render = function() {
                                   }
                                 },
                                 [_vm._v("Edit")]
-                              ),
-                              _vm._v(" "),
-                              _c(
+                              )
+                            : _vm._e(),
+                          _vm._v(" "),
+                          !(input.name in _vm.changeRequestIndex)
+                            ? _c(
                                 "button",
                                 {
                                   staticClass: "btn btn-danger",
@@ -84805,8 +84877,8 @@ var render = function() {
                                 },
                                 [_vm._v("Delete")]
                               )
-                            ])
-                          : _vm._e()
+                            : _vm._e()
+                        ])
                       ])
                     }
                   )
@@ -84923,6 +84995,19 @@ var render = function() {
                               ])
                             ])
                           })
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("hr"),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "float-right" }, [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary",
+                            on: { click: _vm.submitChangeRequest }
+                          },
+                          [_vm._v("Submit")]
                         )
                       ])
                     ])
@@ -85660,6 +85745,23 @@ var render = function() {
                                 )
                           ])
                         ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.errors.length > 0
+                      ? _c(
+                          "div",
+                          {
+                            staticClass: "alert alert-danger",
+                            attrs: { role: "alert" }
+                          },
+                          [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(_vm.errors) +
+                                "\n                        "
+                            )
+                          ]
+                        )
                       : _vm._e()
                   ]),
                   _vm._v(" "),
@@ -85706,7 +85808,9 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Column name")]),
         _vm._v(" "),
-        _c("th", [_vm._v("ChangeType")])
+        _c("th", [_vm._v("ChangeType")]),
+        _vm._v(" "),
+        _c("th")
       ])
     ])
   },
@@ -85759,6 +85863,12 @@ if (false) {
     require("vue-hot-reload-api")      .rerender("data-v-3f83c108", module.exports)
   }
 }
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);

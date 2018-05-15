@@ -17,10 +17,11 @@ class GuardFunctionalRequirement {
         return FunctionalRequirement::where('projectId', $this->projectId)->get();
     }
 
-    public function getFunctionalRequirement(string $functionalRequirementId) {
+    public function getFunctionalRequirement(string $functionalRequirementNo) {
         return FunctionalRequirement::where([
                 // ['userId', '=', $this->userId],
-                ['id', $functionalRequirementId]
+                ['projectId', $this->projectId],
+                ['no', $functionalRequirementNo]
             ])->first();
     }
 
