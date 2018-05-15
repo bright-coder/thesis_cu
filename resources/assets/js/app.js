@@ -19,6 +19,7 @@ import Vue from 'vue'
 import ProjectForm from './components/ProjectForm.vue'
 import ProjectMain from './components/ProjectMain.vue'
 import ProjectShow from './components/ProjectShow.vue'
+import ChangeRequestForm from './components/ChangeRequestForm.vue'
 // Vue.use('ProjectForm', require('./components/ProjectForm.vue'))
 
 
@@ -27,7 +28,7 @@ console.log(Vue.version)
 const app = new Vue({
     el: '#app',
     components: {
-        ProjectForm, ProjectMain, ProjectShow
+        ProjectForm, ProjectMain, ProjectShow, ChangeRequestForm
     },
  
 })

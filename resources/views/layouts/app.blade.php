@@ -20,6 +20,7 @@
 
   <!-- Styles -->
   <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+  <link href="{{ asset('css/bootstrap4-premium/custom.css') }}" rel="stylesheet">
   <link href="{{ asset('css/fontawesome-all.css') }}" rel="stylesheet">
 </head>
 
@@ -45,7 +46,7 @@
               <a class="dropdown-item" href="{{ route('project') }}"><i class="fas fa-list-ol"></i> My project</a>
             </div>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown {{ (Request::is('changeRequest*') ? 'active' : '')  }}">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
               aria-expanded="false">
                       Change Request

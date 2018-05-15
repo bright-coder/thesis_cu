@@ -14824,6 +14824,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__);
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -14845,6 +14847,7 @@ __webpack_require__(17);
 
 
 
+
 // Vue.use('ProjectForm', require('./components/ProjectForm.vue'))
 
 
@@ -14853,7 +14856,7 @@ console.log(__WEBPACK_IMPORTED_MODULE_0_vue___default.a.version);
 var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
   el: '#app',
   components: {
-    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a
+    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a
   }
 
 });
@@ -84052,6 +84055,1706 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(80)
+/* template */
+var __vue_template__ = __webpack_require__(81)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ChangeRequestForm.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3f83c108", Component.options)
+  } else {
+    hotAPI.reload("data-v-3f83c108", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 80 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ["accessToken", "selectedProjectInit", "selectedFunctionalRequirementInit"],
+  name: "change-request-form",
+  data: function data() {
+    return {
+      projectList: [],
+      functionalList: [],
+      selectedProject: this.selectedProjectInit,
+      selectedFunctional: "",
+      isHaveFr: true,
+      changeRequest: {
+        changeType: "",
+        name: "",
+        dataType: "char",
+        length: "",
+        precision: "",
+        scale: "",
+        default: "",
+        nullable: "",
+        unique: "",
+        min: "",
+        max: ""
+      },
+      changeRequestList: [],
+      changeRequestIndex: {}
+    };
+  },
+
+  methods: {
+    getProjectList: function getProjectList() {
+      this.selectedFunctional = "-";
+      var url = "/api/v1/projects/";
+      var vm = this;
+
+      axios({
+        method: "GET",
+        url: url,
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        if (response.status == 200) {
+          vm.projectList = response.data;
+        }
+      }).catch(function (errors) {});
+    },
+    getFunctionalList: function getFunctionalList() {
+      this.selectedFunctional = "-";
+      this.functionalList = [];
+      if (this.selectedProject == "-") {
+        return;
+      }
+      var url = "/api/v1/projects/" + this.selectedProject + "/functionalRequirements";
+      var vm = this;
+      axios({
+        method: "GET",
+        url: url,
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        if (response.status == 200) {
+          vm.functionalList = response.data;
+        } else {
+          vm.isHaveFr = false;
+        }
+        console.log(response.data);
+      }).catch(function (errors) {});
+    },
+    getFunctional: function getFunctional() {
+      if (this.selectedFunctional == "-") {
+        return;
+      }
+    },
+    newInput: function newInput() {
+      this.changeRequest = {
+        changeType: "add",
+        name: "",
+        dataType: "char",
+        length: "",
+        precision: "",
+        scale: "",
+        default: "",
+        nullable: "Y",
+        unique: "N",
+        min: "",
+        max: "",
+        tableName: "",
+        columnName: ""
+      };
+    },
+    editInput: function editInput(inputIndex) {
+      var input = this.functionalList[this.selectedFunctional].inputs[inputIndex];
+      this.changeRequest = {
+        changeType: "edit",
+        name: input.name,
+        dataType: input.dataType,
+        length: input.length,
+        precision: input.precision,
+        scale: input.scale,
+        default: input.default,
+        nullable: input.nullable,
+        unique: input.unique,
+        min: input.min,
+        max: input.max,
+        tableName: input.tableName,
+        columnName: input.columnName
+      };
+    },
+    deleteInput: function deleteInput(inputIndex) {
+      var input = this.functionalList[this.selectedFunctional].inputs[inputIndex];
+      this.changeRequest = {
+        changeType: "delete",
+        name: input.name
+      };
+    },
+    addChangeRequest: function addChangeRequest() {
+      //alert('submit')
+      this.changeRequestList.push(this.changeRequest);
+      this.changeRequestIndex[this.changeRequest.name] = true;
+
+      $('#modal').modal('hide');
+    },
+    deleteChangeRequest: function deleteChangeRequest(index) {
+      var name = this.changeRequestList[index].name;
+      this.changeRequestList.splice(index, 1);
+      delete this.changeRequestIndex[name];
+    }
+  },
+  created: function created() {
+    this.getProjectList();
+  }
+});
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container-fluid" }, [
+    _c("div", { staticClass: "card" }, [
+      _c("div", { staticClass: "card-header bg-success text-white" }, [
+        _vm._v("\n            New Change Request\n        ")
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "card-body" }, [
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-md-3" }, [
+            _c("div", { staticClass: "form-group" }, [
+              _c("label", { attrs: { for: "project" } }, [_vm._v("Project")]),
+              _vm._v(" "),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.selectedProject,
+                      expression: "selectedProject"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { id: "project" },
+                  on: {
+                    change: [
+                      function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.selectedProject = $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      },
+                      _vm.getFunctionalList
+                    ]
+                  }
+                },
+                [
+                  _c("option", { attrs: { value: "-" } }, [_vm._v(" - ")]),
+                  _vm._v(" "),
+                  _vm._l(_vm.projectList, function(project, index) {
+                    return _c(
+                      "option",
+                      { key: index, domProps: { value: project.name } },
+                      [
+                        _vm._v(
+                          "\n                                " +
+                            _vm._s(project.name) +
+                            "\n                            "
+                        )
+                      ]
+                    )
+                  })
+                ],
+                2
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _vm.isHaveFr
+            ? _c("div", { staticClass: "col-md-3" }, [
+                _vm.functionalList.length > 0
+                  ? _c("div", { staticClass: "form-group" }, [
+                      _c("label", { attrs: { for: "project" } }, [
+                        _vm._v("Functional Requiremnt")
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "select",
+                        {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.selectedFunctional,
+                              expression: "selectedFunctional"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          on: {
+                            change: [
+                              function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.selectedFunctional = $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              },
+                              _vm.getFunctional
+                            ]
+                          }
+                        },
+                        [
+                          _c("option", { attrs: { value: "-" } }, [
+                            _vm._v(" - ")
+                          ]),
+                          _vm._v(" "),
+                          _vm._l(_vm.functionalList, function(
+                            functional,
+                            index
+                          ) {
+                            return _c(
+                              "option",
+                              { key: index, domProps: { value: index } },
+                              [
+                                _vm._v(
+                                  "\n                                " +
+                                    _vm._s(functional.no) +
+                                    "\n                            "
+                                )
+                              ]
+                            )
+                          })
+                        ],
+                        2
+                      )
+                    ])
+                  : _vm._e()
+              ])
+            : _c("div", { staticClass: "col-md-3" }, [
+                _c("label", { attrs: { for: "project" } }, [
+                  _vm._v("Functional Requirement")
+                ]),
+                _c("br"),
+                _vm._v(" Please\n                    "),
+                _c("a", { attrs: { href: "/project" } }, [_vm._v("upload")]),
+                _vm._v(" functional requirement first.\n                ")
+              ])
+        ]),
+        _vm._v(" "),
+        _vm.selectedFunctional != "-"
+          ? _c("div", [
+              _c("hr"),
+              _vm._v(" "),
+              _c("table", { staticClass: "table table-hover" }, [
+                _c("thead", [
+                  _c("tr", { staticClass: "bg-info text-white" }, [
+                    _c("th"),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Name")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("DataType")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Length")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Precision")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Scale")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Default")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Nullable")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Unique")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Min")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Max")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Table name")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("Column name")]),
+                    _vm._v(" "),
+                    _c("th", [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-success",
+                          attrs: {
+                            "data-toggle": "modal",
+                            "data-target": "#modal"
+                          },
+                          on: { click: _vm.newInput }
+                        },
+                        [_vm._v("Add new input")]
+                      )
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "tbody",
+                  _vm._l(
+                    _vm.functionalList[_vm.selectedFunctional].inputs,
+                    function(input, indexInput) {
+                      return _c("tr", { key: indexInput }, [
+                        _c("td", [_vm._v(_vm._s(indexInput + 1))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.name) + " ")]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.dataType))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.length) + " ")]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.precision))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.scale))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.default))]),
+                        _vm._v(" "),
+                        _c(
+                          "td",
+                          {
+                            class: [
+                              input.nullable == "N"
+                                ? "text-danger"
+                                : "text-success"
+                            ]
+                          },
+                          [_vm._v(_vm._s(input.nullable))]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "td",
+                          {
+                            class: [
+                              input.unique == "N"
+                                ? "text-danger"
+                                : "text-success"
+                            ]
+                          },
+                          [_vm._v(_vm._s(input.unique))]
+                        ),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.min))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.max))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.tableName))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(input.columnName))]),
+                        _vm._v(" "),
+                        !(input.name in _vm.changeRequestIndex)
+                          ? _c("td", [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-warning",
+                                  attrs: {
+                                    "data-toggle": "modal",
+                                    "data-target": "#modal"
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.editInput(indexInput)
+                                    }
+                                  }
+                                },
+                                [_vm._v("Edit")]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-danger",
+                                  attrs: {
+                                    "data-toggle": "modal",
+                                    "data-target": "#modal"
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.deleteInput(indexInput)
+                                    }
+                                  }
+                                },
+                                [_vm._v("Delete")]
+                              )
+                            ])
+                          : _vm._e()
+                      ])
+                    }
+                  )
+                )
+              ]),
+              _vm._v(" "),
+              _vm.changeRequestList.length > 0
+                ? _c("div", { staticClass: "card" }, [
+                    _c("div", { staticClass: "card-header" }, [
+                      _vm._v(
+                        "\n                        Change Request List\n                    "
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "card-body" }, [
+                      _c("table", { staticClass: "table table-hover" }, [
+                        _vm._m(0),
+                        _vm._v(" "),
+                        _c(
+                          "tbody",
+                          _vm._l(_vm.changeRequestList, function(
+                            changeRequest,
+                            index
+                          ) {
+                            return _c("tr", { key: index }, [
+                              _c("td", [_vm._v(_vm._s(index + 1))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(changeRequest.name) + " ")
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(changeRequest.dataType))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(changeRequest.length) + " ")
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(changeRequest.precision))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(changeRequest.scale))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(changeRequest.default))]),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                {
+                                  class: [
+                                    changeRequest.nullable == "N"
+                                      ? "text-danger"
+                                      : "text-success"
+                                  ]
+                                },
+                                [_vm._v(_vm._s(changeRequest.nullable))]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                {
+                                  class: [
+                                    changeRequest.unique == "N"
+                                      ? "text-danger"
+                                      : "text-success"
+                                  ]
+                                },
+                                [_vm._v(_vm._s(changeRequest.unique))]
+                              ),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(changeRequest.min))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(changeRequest.max))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(changeRequest.tableName))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(changeRequest.columnName))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass: "badge",
+                                    class: [
+                                      changeRequest.changeType == "add"
+                                        ? "badge-success"
+                                        : changeRequest.changeType == "edit"
+                                          ? "badge-warning"
+                                          : "badge-danger"
+                                    ]
+                                  },
+                                  [_vm._v(_vm._s(changeRequest.changeType))]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-danger",
+                                    on: {
+                                      click: function($event) {
+                                        _vm.deleteChangeRequest(index)
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("-")]
+                                )
+                              ])
+                            ])
+                          })
+                        )
+                      ])
+                    ])
+                  ])
+                : _vm._e()
+            ])
+          : _vm._e()
+      ])
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
+          id: "modal",
+          tabindex: "-1",
+          role: "dialog",
+          "aria-labelledby": "modalHeader",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c(
+          "div",
+          { staticClass: "modal-dialog", attrs: { role: "document" } },
+          [
+            _c("div", { staticClass: "modal-content" }, [
+              _c("div", { staticClass: "modal-header" }, [
+                _vm.changeRequest.changeType == "add"
+                  ? _c(
+                      "h4",
+                      {
+                        staticClass: "modal-title",
+                        attrs: { id: "modalHeader" }
+                      },
+                      [
+                        _c("span", { staticClass: "badge badge-success" }, [
+                          _vm._v("Add new input")
+                        ])
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.changeRequest.changeType == "edit"
+                  ? _c(
+                      "h4",
+                      {
+                        staticClass: "modal-title",
+                        attrs: { id: "modalHeader" }
+                      },
+                      [
+                        _c("span", { staticClass: "badge badge-warning" }, [
+                          _vm._v("Edit")
+                        ]),
+                        _vm._v(" "),
+                        _c("span", { staticClass: "badge badge-light" }, [
+                          _vm._v(_vm._s(_vm.changeRequest.name))
+                        ])
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.changeRequest.changeType == "delete"
+                  ? _c(
+                      "h4",
+                      {
+                        staticClass: "modal-title",
+                        attrs: { id: "modalHeader" }
+                      },
+                      [
+                        _c("span", { staticClass: "badge badge-danger" }, [
+                          _vm._v("Delete")
+                        ]),
+                        _vm._v(" "),
+                        _c("span", { staticClass: "badge badge-light" }, [
+                          _vm._v(_vm._s(_vm.changeRequest.name))
+                        ])
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm._m(1)
+              ]),
+              _vm._v(" "),
+              _c(
+                "form",
+                {
+                  on: {
+                    submit: function($event) {
+                      $event.preventDefault()
+                      return _vm.addChangeRequest($event)
+                    }
+                  }
+                },
+                [
+                  _c("div", { staticClass: "modal-body" }, [
+                    _vm.changeRequest.changeType == "add" ||
+                    _vm.changeRequest.changeType == "edit"
+                      ? _c("div", [
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "col-sm-2 col-form-label",
+                                attrs: { for: "" }
+                              },
+                              [_vm._v("Name")]
+                            ),
+                            _vm._v(" "),
+                            _vm.changeRequest.changeType == "add"
+                              ? _c(
+                                  "div",
+                                  {
+                                    staticClass: "col-sm-10 align-text-bottom"
+                                  },
+                                  [
+                                    _c("input", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.changeRequest.name,
+                                          expression: "changeRequest.name"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { type: "text", required: "" },
+                                      domProps: {
+                                        value: _vm.changeRequest.name
+                                      },
+                                      on: {
+                                        input: function($event) {
+                                          if ($event.target.composing) {
+                                            return
+                                          }
+                                          _vm.$set(
+                                            _vm.changeRequest,
+                                            "name",
+                                            $event.target.value
+                                          )
+                                        }
+                                      }
+                                    })
+                                  ]
+                                )
+                              : _c(
+                                  "label",
+                                  { staticClass: "col-sm-10 col-form-label" },
+                                  [_vm._v(_vm._s(_vm.changeRequest.name))]
+                                )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "col-sm-2 col-form-label",
+                                attrs: { for: "" }
+                              },
+                              [_vm._v("Data Type")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-10" }, [
+                              _c(
+                                "select",
+                                {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.changeRequest.dataType,
+                                      expression: "changeRequest.dataType"
+                                    }
+                                  ],
+                                  staticClass: "form-control",
+                                  on: {
+                                    change: function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.changeRequest,
+                                        "dataType",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("option", { attrs: { value: "char" } }, [
+                                    _vm._v("char")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "option",
+                                    { attrs: { value: "varchar" } },
+                                    [_vm._v("varchar")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "nchar" } }, [
+                                    _vm._v("nchar")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "option",
+                                    { attrs: { value: "nvarchar" } },
+                                    [_vm._v("nvarchar")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "int" } }, [
+                                    _vm._v("int")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "float" } }, [
+                                    _vm._v("float")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "option",
+                                    { attrs: { value: "decimal" } },
+                                    [_vm._v("decimal")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "date" } }, [
+                                    _vm._v("date")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "option",
+                                    { attrs: { value: "datetime" } },
+                                    [_vm._v("datetime")]
+                                  )
+                                ]
+                              )
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _vm.changeRequest.dataType.indexOf("char") != -1
+                            ? _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-2 col-form-label",
+                                    attrs: { for: "" }
+                                  },
+                                  [_vm._v("Length")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.length,
+                                        expression: "changeRequest.length"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number" },
+                                    domProps: {
+                                      value: _vm.changeRequest.length
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "length",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.changeRequest.dataType.indexOf("float") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("decimal") != -1
+                            ? _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-2 col-form-label",
+                                    attrs: { for: "" }
+                                  },
+                                  [_vm._v("Precision")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.precision,
+                                        expression: "changeRequest.precision"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number" },
+                                    domProps: {
+                                      value: _vm.changeRequest.precision
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "precision",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.changeRequest.dataType.indexOf("decimal") != -1
+                            ? _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-2 col-form-label",
+                                    attrs: { for: "" }
+                                  },
+                                  [_vm._v("Scale")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.scale,
+                                        expression: "changeRequest.scale"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number" },
+                                    domProps: {
+                                      value: _vm.changeRequest.scale
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "scale",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "col-sm-2 col-form-label",
+                                attrs: { for: "" }
+                              },
+                              [_vm._v("Default")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-10" }, [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.changeRequest.default,
+                                    expression: "changeRequest.default"
+                                  }
+                                ],
+                                staticClass: "form-control",
+                                attrs: { type: "text" },
+                                domProps: { value: _vm.changeRequest.default },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.$set(
+                                      _vm.changeRequest,
+                                      "default",
+                                      $event.target.value
+                                    )
+                                  }
+                                }
+                              })
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c("label", {
+                              staticClass: "col-sm-2 form-control-label"
+                            }),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-4" }, [
+                              _c("label", { staticClass: "checkbox-inline" }, [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.changeRequest.nullable,
+                                      expression: "changeRequest.nullable"
+                                    }
+                                  ],
+                                  attrs: {
+                                    name: "nullable",
+                                    type: "checkbox",
+                                    "true-value": "Y",
+                                    "false-value": "N"
+                                  },
+                                  domProps: {
+                                    checked: Array.isArray(
+                                      _vm.changeRequest.nullable
+                                    )
+                                      ? _vm._i(
+                                          _vm.changeRequest.nullable,
+                                          null
+                                        ) > -1
+                                      : _vm._q(_vm.changeRequest.nullable, "Y")
+                                  },
+                                  on: {
+                                    change: function($event) {
+                                      var $$a = _vm.changeRequest.nullable,
+                                        $$el = $event.target,
+                                        $$c = $$el.checked ? "Y" : "N"
+                                      if (Array.isArray($$a)) {
+                                        var $$v = null,
+                                          $$i = _vm._i($$a, $$v)
+                                        if ($$el.checked) {
+                                          $$i < 0 &&
+                                            _vm.$set(
+                                              _vm.changeRequest,
+                                              "nullable",
+                                              $$a.concat([$$v])
+                                            )
+                                        } else {
+                                          $$i > -1 &&
+                                            _vm.$set(
+                                              _vm.changeRequest,
+                                              "nullable",
+                                              $$a
+                                                .slice(0, $$i)
+                                                .concat($$a.slice($$i + 1))
+                                            )
+                                        }
+                                      } else {
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "nullable",
+                                          $$c
+                                        )
+                                      }
+                                    }
+                                  }
+                                }),
+                                _vm._v(
+                                  " Nullable\n                                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-4" }, [
+                              _c("label", { staticClass: "checkbox-inline" }, [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.changeRequest.unique,
+                                      expression: "changeRequest.unique"
+                                    }
+                                  ],
+                                  attrs: {
+                                    name: "unique",
+                                    type: "checkbox",
+                                    "true-value": "Y",
+                                    "false-value": "N"
+                                  },
+                                  domProps: {
+                                    checked: Array.isArray(
+                                      _vm.changeRequest.unique
+                                    )
+                                      ? _vm._i(_vm.changeRequest.unique, null) >
+                                        -1
+                                      : _vm._q(_vm.changeRequest.unique, "Y")
+                                  },
+                                  on: {
+                                    change: function($event) {
+                                      var $$a = _vm.changeRequest.unique,
+                                        $$el = $event.target,
+                                        $$c = $$el.checked ? "Y" : "N"
+                                      if (Array.isArray($$a)) {
+                                        var $$v = null,
+                                          $$i = _vm._i($$a, $$v)
+                                        if ($$el.checked) {
+                                          $$i < 0 &&
+                                            _vm.$set(
+                                              _vm.changeRequest,
+                                              "unique",
+                                              $$a.concat([$$v])
+                                            )
+                                        } else {
+                                          $$i > -1 &&
+                                            _vm.$set(
+                                              _vm.changeRequest,
+                                              "unique",
+                                              $$a
+                                                .slice(0, $$i)
+                                                .concat($$a.slice($$i + 1))
+                                            )
+                                        }
+                                      } else {
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "unique",
+                                          $$c
+                                        )
+                                      }
+                                    }
+                                  }
+                                }),
+                                _vm._v(
+                                  " Unique\n                                    "
+                                )
+                              ])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _vm.changeRequest.dataType.indexOf("int") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("float") != -1
+                            ? _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-2 col-form-label",
+                                    attrs: { for: "" }
+                                  },
+                                  [_vm._v("Min")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.min,
+                                        expression: "changeRequest.min"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number" },
+                                    domProps: { value: _vm.changeRequest.min },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "min",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.changeRequest.dataType.indexOf("int") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("float") != -1
+                            ? _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-2 col-form-label",
+                                    attrs: { for: "" }
+                                  },
+                                  [_vm._v("Max")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.max,
+                                        expression: "changeRequest.max"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number" },
+                                    domProps: { value: _vm.changeRequest.max },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "max",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "col-sm-2 col-form-label",
+                                attrs: { for: "" }
+                              },
+                              [_vm._v("Table")]
+                            ),
+                            _vm._v(" "),
+                            _vm.changeRequest.changeType == "add"
+                              ? _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.tableName,
+                                        expression: "changeRequest.tableName"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number", required: "" },
+                                    domProps: {
+                                      value: _vm.changeRequest.tableName
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "tableName",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              : _c(
+                                  "label",
+                                  { staticClass: "col-sm-10 col-form-label" },
+                                  [_vm._v(_vm._s(_vm.changeRequest.tableName))]
+                                )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass: "col-sm-2 col-form-label",
+                                attrs: { for: "" }
+                              },
+                              [_vm._v("Column")]
+                            ),
+                            _vm._v(" "),
+                            _vm.changeRequest.changeType == "add"
+                              ? _c("div", { staticClass: "col-sm-10" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.changeRequest.columnName,
+                                        expression: "changeRequest.columnName"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: { type: "number", required: "" },
+                                    domProps: {
+                                      value: _vm.changeRequest.columnName
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.changeRequest,
+                                          "columnName",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              : _c(
+                                  "label",
+                                  { staticClass: "col-sm-10 col-form-label" },
+                                  [_vm._v(_vm._s(_vm.changeRequest.columnName))]
+                                )
+                          ])
+                        ])
+                      : _vm._e()
+                  ]),
+                  _vm._v(" "),
+                  _vm._m(2)
+                ]
+              )
+            ])
+          ]
+        )
+      ]
+    )
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Table name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Column name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("ChangeType")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "modal-footer" }, [
+      _c("div", { staticClass: "float-right" }, [
+        _c(
+          "button",
+          {
+            staticClass: "btn btn-secondary",
+            attrs: { "data-dismiss": "modal", "aria-label": "Close" }
+          },
+          [_vm._v("Cancel")]
+        ),
+        _vm._v(" "),
+        _c(
+          "button",
+          { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+          [_vm._v("Submit")]
+        )
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-3f83c108", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);
