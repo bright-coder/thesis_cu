@@ -20,7 +20,7 @@
                     <div class="col-md-3" v-if="isHaveFr">
                         <div class="form-group" v-if="functionalList.length > 0">
                             <label for="project">Functional Requiremnt</label>
-                            <select class="form-control" v-model="selectedFunctional" @change="getFunctional">
+                            <select class="form-control" v-model="selectedFunctional" @change="resetFunctional">
                                 <option value="-"> - </option>
                                 <option v-for="(functional, index) in functionalList" :key="index" :value="index">
                                     {{ functional.no }}
@@ -87,41 +87,43 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr class="bg-info text-white">
-                                <th></th>
-                                <th>Name</th>
-                                <th>DataType</th>
-                                <th>Length</th>
-                                <th>Precision</th>
-                                <th>Scale</th>
-                                <th>Default</th>
-                                <th>Nullable</th>
-                                <th>Unique</th>
-                                <th>Min</th>
-                                <th>Max</th>
-                                <th>Table name</th>
-                                <th>Column name</th>
-                                <th>ChangeType</th>
+                                        <th></th>
+                                        <th>Name</th>
+                                        <th>DataType</th>
+                                        <th>Length</th>
+                                        <th>Precision</th>
+                                        <th>Scale</th>
+                                        <th>Default</th>
+                                        <th>Nullable</th>
+                                        <th>Unique</th>
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                        <th>Table name</th>
+                                        <th>Column name</th>
+                                        <th>ChangeType</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(changeRequest, index) in changeRequestList" :key="index">
-                                                                        <td>{{ index+1 }}</td>
-                                <td>{{ changeRequest.name }} </td>
-                                <td>{{ changeRequest.dataType }}</td>
-                                <td>{{ changeRequest.length }} </td>
-                                <td>{{ changeRequest.precision }}</td>
-                                <td>{{ changeRequest.scale }}</td>
-                                <td>{{ changeRequest.default }}</td>
-                                <td v-bind:class="[changeRequest.nullable == 'N' ? 'text-danger' : 'text-success']">{{ changeRequest.nullable }}</td>
-                                <td v-bind:class="[changeRequest.unique == 'N' ? 'text-danger' : 'text-success']">{{ changeRequest.unique }}</td>
-                                <td>{{ changeRequest.min }}</td>
-                                <td>{{ changeRequest.max }}</td>
-                                <td>{{ changeRequest.tableName }}</td>
-                                <td>{{ changeRequest.columnName }}</td>
-                                <td>
-                                   <span class="badge" v-bind:class="[changeRequest.changeType == 'add' ? 'badge-success' : changeRequest.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">{{ changeRequest.changeType }}</span> 
-                                </td>
-                                <td><button class="btn btn-danger" @click="deleteChangeRequest(index)">-</button></td>
+                                        <td>{{ index+1 }}</td>
+                                        <td>{{ changeRequest.name }} </td>
+                                        <td>{{ changeRequest.dataType }}</td>
+                                        <td>{{ changeRequest.length }} </td>
+                                        <td>{{ changeRequest.precision }}</td>
+                                        <td>{{ changeRequest.scale }}</td>
+                                        <td>{{ changeRequest.default }}</td>
+                                        <td v-bind:class="[changeRequest.nullable == 'N' ? 'text-danger' : 'text-success']">{{ changeRequest.nullable }}</td>
+                                        <td v-bind:class="[changeRequest.unique == 'N' ? 'text-danger' : 'text-success']">{{ changeRequest.unique }}</td>
+                                        <td>{{ changeRequest.min }}</td>
+                                        <td>{{ changeRequest.max }}</td>
+                                        <td>{{ changeRequest.tableName }}</td>
+                                        <td>{{ changeRequest.columnName }}</td>
+                                        <td>
+                                            <span class="badge" v-bind:class="[changeRequest.changeType == 'add' ? 'badge-success' : changeRequest.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">{{ changeRequest.changeType }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-danger" @click="deleteChangeRequest(index)">-</button>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -315,6 +317,8 @@ export default {
     getFunctionalList() {
       this.selectedFunctional = "-";
       this.functionalList = [];
+      this.changeRequestList = [];
+      this.changeRequestIndex = {}
       if (this.selectedProject == "-") {
         return;
       }
@@ -341,10 +345,11 @@ export default {
         })
         .catch(function(errors) {});
     },
-    getFunctional() {
+    resetFunctional() {
       if (this.selectedFunctional == "-") {
         return;
       }
+      (this.changeRequestList = []), (this.changeRequestIndex = {});
     },
     newInput() {
       this.changeRequest = {
@@ -393,17 +398,15 @@ export default {
       };
     },
     addChangeRequest() {
-        //alert('submit')
-        this.changeRequestList.push(this.changeRequest)
-        this.changeRequestIndex[this.changeRequest.name] = true
+      this.changeRequestList.push(this.changeRequest);
+      this.changeRequestIndex[this.changeRequest.name] = true;
 
-        $('#modal').modal('hide');
-
+      $("#modal").modal("hide");
     },
     deleteChangeRequest(index) {
-        let name = this.changeRequestList[index].name
-        this.changeRequestList.splice(index, 1)
-        delete this.changeRequestIndex[name]
+      let name = this.changeRequestList[index].name;
+      this.changeRequestList.splice(index, 1);
+      delete this.changeRequestIndex[name];
     }
   },
   created() {

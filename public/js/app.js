@@ -84372,6 +84372,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["accessToken", "selectedProjectInit", "selectedFunctionalRequirementInit"],
@@ -84425,6 +84427,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     getFunctionalList: function getFunctionalList() {
       this.selectedFunctional = "-";
       this.functionalList = [];
+      this.changeRequestList = [];
+      this.changeRequestIndex = {};
       if (this.selectedProject == "-") {
         return;
       }
@@ -84448,10 +84452,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         console.log(response.data);
       }).catch(function (errors) {});
     },
-    getFunctional: function getFunctional() {
+    resetFunctional: function resetFunctional() {
       if (this.selectedFunctional == "-") {
         return;
       }
+      this.changeRequestList = [], this.changeRequestIndex = {};
     },
     newInput: function newInput() {
       this.changeRequest = {
@@ -84496,11 +84501,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       };
     },
     addChangeRequest: function addChangeRequest() {
-      //alert('submit')
       this.changeRequestList.push(this.changeRequest);
       this.changeRequestIndex[this.changeRequest.name] = true;
 
-      $('#modal').modal('hide');
+      $("#modal").modal("hide");
     },
     deleteChangeRequest: function deleteChangeRequest(index) {
       var name = this.changeRequestList[index].name;
@@ -84622,7 +84626,7 @@ var render = function() {
                                   ? $$selectedVal
                                   : $$selectedVal[0]
                               },
-                              _vm.getFunctional
+                              _vm.resetFunctional
                             ]
                           }
                         },
