@@ -77,7 +77,7 @@ class AnalyzeImpactDBState implements StateInterface
             }
             //dd($changeAnalysis->getDBImpactResult());
             //$changeAnalysis->saveSchemaImpact();
-            $changeAnalysis->saveInstanceImpact();
+            //$changeAnalysis->saveInstanceImpact();
             $changeAnalysis->setState(new AnalyzeImpactFRState);
             $changeAnalysis->analyze();
         } else {

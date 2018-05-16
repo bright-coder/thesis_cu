@@ -13,6 +13,8 @@ use App\Model\TableImpact;
 use App\Model\ColumnImpact;
 use App\Model\InstanceImpact;
 use App\Model\OldInstance;
+use App\Model\FrImpact;
+use App\Model\FrInputImpact;
 
 class ChangeAnalysis
 {
@@ -232,7 +234,7 @@ class ChangeAnalysis
 
         foreach($this->dbImpactResult as $changeRequestInputId => $dbImpactList) {
             foreach($dbImpactList['instance'] as $index => $instanceImpactList) {
-                if(count($instanceImpactList) > 0) {
+                if(!empty($instanceImpactList)) {
 
                     foreach($instanceImpactList['oldInstance'] as $insIndex => $oldInstance) {
                         $newInstanceImpact = new InstanceImpact;
@@ -252,6 +254,75 @@ class ChangeAnalysis
                             $oldInstance->save();
                         }
                     }
+                }
+            }
+        }
+    }
+
+    public function saveFrImpact() {
+        $changeRequestId = $this->getChangeRequest()->id;
+        foreach($this->frImpactResult as $frImpact) {
+            $newFrImpact = new FrImpact;
+            $newFrImpact->changeRequestId = $changeRequestId;
+            $newFrImpact->no = $frImpact['no'];
+            $newFrImpact->save();
+            foreach($frImpact['inputList'] as $input) {
+                if(!empty($input['new'])) {
+                    $newFrInputImpact = new FrInputImpact;
+                    $newFrInputImpact->frInputImpactId = $newFrImpact->id;
+                    $newFrInputImpact->changeType = $input['changeType'];
+                    $newFrInputImpact->versionType = 'new';
+                    if (array_key_exists('dataType', $input['new'])) {
+                        $newFrInputImpact->dataType = $input['new']['dataType'];
+                    }
+                    if (array_key_exists('length', $input['new'])) {
+                        $newFrInputImpact->length = $input['new']['length'];
+                    }
+                    if (array_key_exists('precision', $input['new'])) {
+                        $newFrInputImpact->precision = $input['new']['precision'];
+                    }
+                    if (array_key_exists('scale', $input['new'])) {
+                        $newFrInputImpact->scale = $input['new']['scale'];
+                    }
+                    if (array_key_exists('default', $input['new'])) {
+                        $newFrInputImpact->default = $input['new']['default'];
+                    }
+                    if (array_key_exists('nullable', $input['new'])) {
+                        $newFrInputImpact->nullable = $input['new']['nullable'];
+                    }
+                    if (array_key_exists('unique', $input['new'])) {
+                        $newFrInputImpact->unique = $input['new']['unique'];
+                    }
+                    if (array_key_exists('min', $input['new'])) {
+                        $newFrInputImpact->min = $input['new']['min'];
+                    }
+                    if (array_key_exists('max', $input['new'])) {
+                        $newFrInputImpact->max = $input['new']['max'];
+                    }
+                    if (array_key_exists('tableName', $input['new'])) {
+                        $newFrInputImpact->tableName = $input['new']['tableName'];
+                    }
+                    if (array_key_exists('columnName', $input['new'])) {
+                        $newFrInputImpact->tableName = $input['new']['columnName'];
+                    }
+                    $newFrInputImpact->save();
+                }
+                if(!empty($input['old'])) {
+                    $newFrInputImpact = new FrInputImpact;
+                    $newFrInputImpact->frInputImpactId = $newFrImpact->id;
+                    $newFrInputImpact->changeType = $input['changeType'];
+                    $newFrInputImpact->versionType = 'old';
+                    $newColumnImpact->length = $input['old']['length'];
+                    $newColumnImpact->precision = $input['old']['precision'];
+                    $newColumnImpact->scale = $input['old']['scale'];
+                    $newColumnImpact->default = $input['old']['default'];
+                    $newColumnImpact->nullable = $input['old']['nullable'];
+                    $newColumnImpact->unique = $input['old']['unique'];
+                    $newColumnImpact->min = $input['old']['min'];
+                    $newColumnImpact->max = $input['old']['max'];
+                    $newColumnImpact->tableName = $input['old']['tableName'];
+                    $newColumnImpact->columnName = $input['old']['columnName'];
+                    $newColumnImpact->save();
                 }
             }
         }
