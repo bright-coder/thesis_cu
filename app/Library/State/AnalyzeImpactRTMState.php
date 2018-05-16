@@ -35,9 +35,9 @@ class AnalyzeImpactRTMState implements StateInterface
                 $this->rtmImpactResult[] = [
                     //'id' => $rtmRelation->id,
                     'changeType' => 'delete',
-                    'functionalRequirementId' => $tcImpact['functionalRequirementId'],
+                    //'functionalRequirementId' => $tcImpact['functionalRequirementId'],
                     'functionalRequirementNo' => $frNo,
-                    'testCaseId' => $tcImpact['oldTcId'],
+                    //'testCaseId' => $tcImpact['oldTcId'],
                     'testCaseNo' => TestCase::where('id', $tcImpact['oldTcId'])->first()->no
                 ];
                 //$rtmRelation->activeFlag = "N";
@@ -45,23 +45,23 @@ class AnalyzeImpactRTMState implements StateInterface
 
             }
             elseif($tcImpact['changeType'] == 'add') {
-
+                //dd($tcImpact['newNo']);
                 $this->rtmImpactResult[] = [
                     //'id' => $rtmRelation->id,
                     'changeType' => 'add',
-                    'functionalRequirementId' => $tcImpact['functionalRequirementId'],
+                    //'functionalRequirementId' => $tcImpact['functionalRequirementId'],
                     'functionalRequirementNo' => $frNo,
-                    'testCaseId' => TestCase::where([
-                        ['projectId', $changeAnalysis->getProjectId()],
-                        ['no', $tcImpact['newNo']]
-                    ])->first()->id,
+                    // 'testCaseId' => TestCase::where([
+                    //     ['projectId', $changeAnalysis->getProjectId()],
+                    //     ['no', $tcImpact['newNo']]
+                    // ])->first()->id,
                     'testCaseNo' => $tcImpact['newNo']
                 ];
             }
             
         }
         $changeAnalysis->setRtmImpactResult($this->rtmImpactResult);
-        dd($changeAnalysis->getRtmImpactResult());
+        //dd($changeAnalysis->getRtmImpactResult());
         //modify($rtmId);
     }
 

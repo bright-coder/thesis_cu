@@ -12,6 +12,17 @@ use App\Model\FunctionalRequirementInput;
 use DB;
 use Illuminate\Http\Request;
 use App\Library\ChangeAnalysis;
+use App\Model\User;
+use App\Model\TableImpact;
+use App\Model\ColumnImpact;
+use App\Model\InstanceImpact;
+use App\Model\OldInstance;
+use App\Model\FrImpact;
+use App\Model\FrInputImpact;
+use App\Model\TcImpact;
+use App\Model\TcInputImpact;
+use App\Model\TestCase;
+use App\Model\RtmRelationImpact;
 
 class ChangeRequestController extends Controller
 {
@@ -181,6 +192,13 @@ class ChangeRequestController extends Controller
 
         $changeAnalysis = new ChangeAnalysis($project->id, $changeRequest, $changeRequestInputList);
         $changeAnalysis->analyze();
+        $changeAnalysis->saveSchemaImpact();
+        $changeAnalysis->saveInstanceImpact();
+        $changeAnalysis->saveFrImpact();
+        $changeAnalysis->saveTcImpact();
+        $changeAnalysis->saveRtmRelationImpact();
+
+        return resonse()->json(['changeRequestId' => $changeAnalysis->getChangeRequest()->id], 201);
         //dd($changeAnalysis);
     }
 
@@ -190,9 +208,29 @@ class ChangeRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request , $projectName, $changeRequestId)
     {
         //
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectName);
+
+        if (!$project) {
+            return response()->json(['msg' => 'forbidden'], 403);
+        }
+
+        $changeRequest = ChangeRequest::where([['projectId', $project->id],['id', $changeRequestId]])->first();
+        if(!$changeRequest) {
+            return response()->json(['msg' => 'forbidden'], 403);
+        }
+        $changeRequestId = $changeRequest->id;
+        $tableImpactList = TableImpact::where('changeRequestId', $changeRequestId);
+        $tableResult = [];
+        foreach($tableImpactList as $tableImpact) {
+            $table = [
+                'name' => $tableImpact->name
+            ];
+            $columnList = ColumnImpact::where('tableImpactId', $tableImpact->id)->get();
+        }
     }
 
     /**
