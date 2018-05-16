@@ -185,19 +185,19 @@
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('char') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Length</label>
                                     <div class="col-sm-10">
-                                        <input type="number" class="form-control" v-model="changeRequest.length">
+                                        <input type="number" class="form-control" v-model="changeRequest.length" required>
                                     </div>
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('float') != -1 || changeRequest.dataType.indexOf('decimal') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Precision</label>
                                     <div class="col-sm-10">
-                                        <input type="number" class="form-control" v-model="changeRequest.precision">
+                                        <input type="number" class="form-control" v-model="changeRequest.precision" required>
                                     </div>
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('decimal') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Scale</label>
                                     <div class="col-sm-10">
-                                        <input type="number" class="form-control" v-model="changeRequest.scale">
+                                        <input type="number" class="form-control" v-model="changeRequest.scale" required>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -238,14 +238,14 @@
                                 <div class="form-group row">
                                     <label for="" class="col-sm-2 col-form-label">Table</label>
                                     <div class="col-sm-10" v-if="changeRequest.changeType == 'add'">
-                                        <input type="number" class="form-control" v-model="changeRequest.tableName" required>
+                                        <input type="text" class="form-control" v-model="changeRequest.tableName" required>
                                     </div>
                                     <label v-else class="col-sm-10 col-form-label">{{ changeRequest.tableName }}</label>
                                 </div>
                                 <div class="form-group row">
                                     <label for="" class="col-sm-2 col-form-label">Column</label>
                                     <div class="col-sm-10" v-if="changeRequest.changeType == 'add'">
-                                        <input type="number" class="form-control" v-model="changeRequest.columnName" required>
+                                        <input type="text" class="form-control" v-model="changeRequest.columnName" required>
                                     </div>
                                     <label v-else class="col-sm-10 col-form-label">{{ changeRequest.columnName }}</label>
                                 </div>
@@ -350,7 +350,6 @@ export default {
           } else {
             vm.isHaveFr = false;
           }
-
         })
         .catch(function(errors) {});
     },
@@ -464,6 +463,13 @@ export default {
           this.errors = "Nothing is changed.";
         }
       } else {
+        if (this.changeRequest.changeType == "add") {
+          Object.keys(newChangeRequest).forEach(function(key) {
+            if (!newChangeRequest[key]) {
+              delete newChangeRequest[key];
+            }
+          })
+        }
         this.changeRequestList.push(newChangeRequest);
         this.changeRequestIndex[this.changeRequest.name] = true;
         $("#modal").modal("hide");
@@ -491,12 +497,8 @@ export default {
         },
         dataType: "json"
       })
-      .then(function (response) {
-
-      })
-      .catch(function (errors) {
-
-      })
+        .then(function(response) {})
+        .catch(function(errors) {});
     }
   },
   created() {

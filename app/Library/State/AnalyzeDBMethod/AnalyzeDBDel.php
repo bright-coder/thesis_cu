@@ -1,25 +1,25 @@
 <?php 
 
 namespace App\Library\State\AnalyzeDBMethod;
+
 use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
 use App\Model\ChangeRequest;
 use App\Model\Project;
-use App\Model\FunctionRequirementInput;
+use App\Model\FunctionalRequirementInput;
 use App\Model\FunctionalRequirement;
 
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
 
-
-class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
+class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
     
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
-        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionRequirementInputId);
+        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
     }
 
     public function analyze(): bool {
@@ -32,14 +32,15 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
 
         $foundOther = false;
         foreach ($functionalRequirements as $fr) {
-            if($this->changeRequestInput->functionRequirementInputId != $fr->id) {
-                $frInputs = functionalRequirementInput::where([
+            if($this->functionalRequirementInput->functionalRequirementId != $fr->id) {
+                $frInputs = FunctionalRequirementInput::where([
                 ['functionalRequirementId',$fr->id],
                 ['tableName',$table->getName()],
-                ['columnName',$column->getName()]
+                ['columnName',$column->getName()],
+                ['activeFlag','Y']
                 ])->get();
 
-                if($frInputs) {
+                if(count($frInputs) > 0) {
                     $foundOther = true;
                     break;
                 }
@@ -54,11 +55,11 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
             }
         
         }
-
             $this->schemaImpactResult[0] = 
             [
                 'tableName' => $table->getName(),
                 'columnName' => $column->getName(),
+                'changeType' => 'delete',
                 'oldSchema' => null,
                 'newSchema' => null
             ];
@@ -70,7 +71,7 @@ class AnalyzeDBDelete extends AbstractAnalyzeDBMethod {
         return true;
     }
 
-    private function modify(): bool {
+    public function modify(): bool {
         //$dbTargetConnection->addColumn($changeRequestInput);
         if($this->schemaImpactResult) {
             $this->dbTargetConnection->disableConstraint();

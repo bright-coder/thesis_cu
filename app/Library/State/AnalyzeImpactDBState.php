@@ -13,7 +13,7 @@ use App\Library\State\StateInterface;
 use App\Library\State\AnalyzeImpactFRState;
 use App\Library\State\AnalyzeDBMethod\AnalyzeDBAdd;
 use App\Library\State\AnalyzeDBMethod\AnalyzeDBEdit;
-use App\Library\State\AnalyzeDBMethod\AnalyzeDBDelete;
+use App\Library\State\AnalyzeDBMethod\AnalyzeDBDel;
 
 use App\Model\Project;
 use App\Model\FunctionalRequirement;
@@ -41,7 +41,7 @@ class AnalyzeImpactDBState implements StateInterface
         return 'AnalyzeImpactDBState';
     }
 
-    public function analyze(ChangeAnalysis $changeAnalysis) : array
+    public function analyze(ChangeAnalysis $changeAnalysis) : void
     {   
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
@@ -56,7 +56,7 @@ class AnalyzeImpactDBState implements StateInterface
                         $analyzer = new AnalyzeDBEdit($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
                     case 'delete':
-                        $analyzer = new AnalyzeDBDelete($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
+                        $analyzer = new AnalyzeDBDel($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
                         break;
                     default:
                         # code...
@@ -75,7 +75,7 @@ class AnalyzeImpactDBState implements StateInterface
                 );
                 
             }
-            dd($changeAnalysis->getDBImpactResult());
+            //dd($changeAnalysis->getDBImpactResult());
             $changeAnalysis->setState(new AnalyzeImpactFRState);
             $changeAnalysis->analyze();
         } else {

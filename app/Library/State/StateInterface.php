@@ -7,7 +7,7 @@ use App\Library\ChangeAnalysis;
 interface StateInterface
 {
 
-    public function analyze(ChangeAnalysis $changeAnalysis): array;
+    public function analyze(ChangeAnalysis $changeAnalysis): void;
     public function getStateName(): string;
 
 }

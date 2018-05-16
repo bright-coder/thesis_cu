@@ -84554,6 +84554,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           this.errors = "Nothing is changed.";
         }
       } else {
+        if (this.changeRequest.changeType == "add") {
+          Object.keys(newChangeRequest).forEach(function (key) {
+            if (!newChangeRequest[key]) {
+              delete newChangeRequest[key];
+            }
+          });
+        }
         this.changeRequestList.push(newChangeRequest);
         this.changeRequestIndex[this.changeRequest.name] = true;
         $("#modal").modal("hide");
@@ -85278,7 +85285,7 @@ var render = function() {
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number" },
+                                    attrs: { type: "number", required: "" },
                                     domProps: {
                                       value: _vm.changeRequest.length
                                     },
@@ -85322,7 +85329,7 @@ var render = function() {
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number" },
+                                    attrs: { type: "number", required: "" },
                                     domProps: {
                                       value: _vm.changeRequest.precision
                                     },
@@ -85365,7 +85372,7 @@ var render = function() {
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number" },
+                                    attrs: { type: "number", required: "" },
                                     domProps: {
                                       value: _vm.changeRequest.scale
                                     },
@@ -85673,7 +85680,7 @@ var render = function() {
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number", required: "" },
+                                    attrs: { type: "text", required: "" },
                                     domProps: {
                                       value: _vm.changeRequest.tableName
                                     },
@@ -85720,7 +85727,7 @@ var render = function() {
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number", required: "" },
+                                    attrs: { type: "text", required: "" },
                                     domProps: {
                                       value: _vm.changeRequest.columnName
                                     },

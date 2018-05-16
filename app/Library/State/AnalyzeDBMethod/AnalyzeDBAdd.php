@@ -25,7 +25,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
         
         if ($this->functionalRequirementInput === null) {
 
-            $table = $database->getTableByName($this->changeRequestInput->tableName);
+            $table = $this->database->getTableByName($this->changeRequestInput->tableName);
 
             // if not have column in table
             if (!$table->getColumnbyName($this->changeRequestInput->columnName)) {
@@ -44,12 +44,13 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                 $this->schemaImpactResult[0] = [
                     'tableName' => $this->changeRequestInput->tableName,
                     'columnName' => $this->changeRequestInput->columnName,
+                    'changeType' => 'add',
                     'oldSchema' => null,
                     'newSchema' => $newSchema
                 ];
 
 
-                $numRows = $dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
+                $numRows = $this->dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
                 $randomData  = RandomContext::getRandomData(
                     $numRows,
                     $this->changeRequestInput->dataType,
@@ -84,8 +85,6 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
         $this->dbTargetConnection->disableConstraint();
         $this->dbTargetConnection->addColumn($this->changeRequestInput->toArray());
 
-
-        
         if (strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true) {
             $dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);
         }

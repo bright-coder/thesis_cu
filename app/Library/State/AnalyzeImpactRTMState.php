@@ -7,6 +7,7 @@ use App\Library\ChangeAnalysis;
 use App\Model\FunctionalRequirement;
 use App\Model\RequirementTraceabilityMatrix;
 use App\Model\RequirementTraceabilityMatrixRelation;
+use App\Model\TestCase;
 
 class AnalyzeImpactRTMState implements StateInterface
 {
@@ -20,49 +21,68 @@ class AnalyzeImpactRTMState implements StateInterface
     public function analyze(ChangeAnalysis $changeAnalysis): void
     {   
         $projectId = $changeAnalysis->getProjectId();
-        $rtmId = RequirementTraceabilityMatrix::where('projectId', $projectId)->id;
-        $tcImpactResult = $changeAnalysis->getcImpactResult();
+        $rtmId = RequirementTraceabilityMatrix::where('projectId', $projectId)->first()->id;
+        $tcImpactResult = $changeAnalysis->getTcImpactResult();
         foreach($tcImpactResult as $tcImpact) {
             $frNo = FunctionalRequirement::find($tcImpact['functionalRequirementId'])->no;
 
-            if($tcImpact->changeType == 'delete') {
-                $rtmRelation = RequirementTraceabilityMatrixRelation::where([
-                    ['functionalRequirementId', $tcImpact['functionalRequirementId']],
-                    ['requirementTraceabilityMatrixId', $rtmId],
-                    ['testCaseId', $tcImpact['id']]
-                ])->first();
-                $rtmImpactResult[] = [
-                    'id' => $rtmRelation->id,
+            if($tcImpact['changeType'] == 'delete') {
+                // $rtmRelation = RequirementTraceabilityMatrixRelation::where([
+                //     ['functionalRequirementId', $tcImpact['functionalRequirementId']],
+                //     ['requirementTraceabilityMatrixId', $rtmId],
+                //     ['testCaseId', $tcImpact['oldTc']]
+                // ])->first();
+                $this->rtmImpactResult[] = [
+                    //'id' => $rtmRelation->id,
                     'changeType' => 'delete',
                     'functionalRequirementId' => $tcImpact['functionalRequirementId'],
                     'functionalRequirementNo' => $frNo,
-                    'testCaseId' => $tcImpact['id'],
-                    'testCaseNo' => $tcImpact['no']
+                    'testCaseId' => $tcImpact['oldTcId'],
+                    'testCaseNo' => TestCase::where('id', $tcImpact['oldTcId'])->first()->no
                 ];
-                $rtmRelation->activeFlag = "N";
-                $rtmRelation->save();
+                //$rtmRelation->activeFlag = "N";
+                //$rtmRelation->save();
 
             }
-            elseif($tcImpact->changeType == 'add') {
-                $rtmRelation = new RequirementTraceabilityMatrixRelation;
-                $rtmRelation->functionalRequirementId = $tcImpact['functionalRequirementId'];
-                $rtmRelation->requirementTraceabilityMatrixId = $rtmId;
-                $rtmRelation->testCaseId = $tcImpact['id'];
-                $rtmRelation->activeFlag = "Y";
-                $rtmRelation->save();
+            elseif($tcImpact['changeType'] == 'add') {
 
-                $rtmImpactResult[] = [
-                    'id' => $rtmRelation->id,
+                $this->rtmImpactResult[] = [
+                    //'id' => $rtmRelation->id,
                     'changeType' => 'add',
                     'functionalRequirementId' => $tcImpact['functionalRequirementId'],
                     'functionalRequirementNo' => $frNo,
-                    'testCaseId' => $tcImpact['id'],
-                    'testCaseNo' => $tcImpact['no']
+                    'testCaseId' => TestCase::where([
+                        ['projectId', $changeAnalysis->getProjectId()],
+                        ['no', $tcImpact['newNo']]
+                    ])->first()->id,
+                    'testCaseNo' => $tcImpact['newNo']
                 ];
             }
             
         }
-
         $changeAnalysis->setRtmImpactResult($this->rtmImpactResult);
+        dd($changeAnalysis->getRtmImpactResult());
+        //modify($rtmId);
+    }
+
+    private function modify($rtmId) {
+        foreach($this->rtmImpactResult as $rtmImpact) {
+            if($rtmImpact['changeType'] == 'add') {
+                $newRelation = new RequirementTraceabilityMatrixRelation;
+                $newRelation->requirementTraceabilityMatrixId = $rtmId;
+                $newRelation->functionalRequirementId = $rtmImpact['functionalRequirementId'];
+                $newRelation->testCaseId = $rtmImpact['testCaseId'];
+                $newRelation->activeFlag = 'Y';
+                $newRelation->save();
+            }
+            else {
+                RequirementTraceabilityMatrixRelation::where([
+                    ['requirementTraceabilityMatrixId', $rtmId],
+                    ['functionalRequirementId', $rtmImpact['functionalRequirementId']],
+                    ['testCaseId', $rtmImpact['testCaseId']],
+                    ['activeFlag', 'Y']
+                ])->update(['activeFlag' , 'N']);
+            }
+        }
     }
 }

@@ -35,7 +35,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
         //$this->functionalRequirement = $this->findFunctionalRequirementById($frId);
-        $this->functinoalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
+        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
     }
 
     public function analyze() : bool
@@ -43,7 +43,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->schemaImpact = true;
         
 
-        if ($this->database->isLinked($this->functinoalRequirementInput->tableName, $this->functinoalRequirementInput->columnName)) {
+        if ($this->database->isLinked($this->functionalRequirementInput->tableName, $this->functionalRequirementInput->columnName)) {
             $this->findImpactLinkedColumn();
         } else {
             $this->findImpactNormalColumn();
@@ -53,7 +53,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     private function findImpactLinkedColumn(): void
     {
-        $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
+        $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
 
         // If this column is not Primary column ;
@@ -110,7 +110,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
         $table = $this->database->getTableByName($this->primaryColumnNode->getTableName());
         //dd($table);
-        $column = $table->getColumnByName($this->primaryColumnNode->getColumn());
+        $column = $table->getColumnByName($this->primaryColumnNode->getColumnName());
         
         //set refSchema to oldSchema
         $refSchema = [
@@ -147,7 +147,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->instanceImpactResult[0] = array();
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
-                $instance = $this->dbTargetConnection->getInstanceByTableName($this->functinoalRequirementInput->tableName);
+                $instance = $this->dbTargetConnection->getInstanceByTableName($this->functionalRequirementInput->tableName);
                 $this->instanceImpactResult[0] = $instance;
                 //return false;
             }
@@ -281,10 +281,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     private function findImpactNormalColumn(): void
     {
-        $table = $this->database->getTableByName($this->functinoalRequirementInput->tableName);
+        $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
  
-        $column = $table->getColumnByName($this->functinoalRequirementInput->columnName);
-        //dd($this->functinoalRequirementInput->columnName);
+        $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
+        //dd($this->functionalRequirementInput->columnName);
         //set refSchema to oldSchema
         $refSchema = [
             'dataType' => $column->getDataType()->getType(),
@@ -305,6 +305,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->schemaImpactResult[0] = [
             'tableName' => $table->getName(),
             'columnName' => $column->getName(),
+            'changeType' => 'edit',
             'oldSchema' => $refSchema,
             'newSchema' => count($newSchema) > 0 ? $newSchema : null
         ];
@@ -315,7 +316,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->instanceImpactResult[0] = array();
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
-                $instance = $this->dbTargetConnection->getInstanceByTableName($this->functinoalRequirementInput->tableName);
+                $instance = $this->dbTargetConnection->getInstanceByTableName($this->functionalRequirementInput->tableName);
                 $this->instanceImpactResult[0] = $instance;
                 //return false;
             }
@@ -714,11 +715,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     private function findPrimaryColumnNode(string $tableName, string $columnName) : Node
     {
-        $hashFKs =  $this->database->getHashFks();
+        $hashFKs = $this->database->getHashFks();
         $hashFKs = $hashFKs[$tableName][$columnName];
 
-        while ($hashFks->getPrevious() !== null) {
-            $hashFKs = $hashFks->getPrevious();
+        while ($hashFKs->getPrevious() !== null) {
+            $hashFKs = $hashFKs->getPrevious();
         }
         return $hashFKs;
     }

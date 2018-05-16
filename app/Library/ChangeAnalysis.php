@@ -73,7 +73,7 @@ class ChangeAnalysis
         $this->rtmImpactResult = $rtmImpactResult;
     }
 
-    public function getRtmImpactResult(): arrat
+    public function getRtmImpactResult(): array
     {
         return $this->rtmImpactResult;
     }

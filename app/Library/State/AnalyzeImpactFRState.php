@@ -36,13 +36,13 @@ class AnalyzeImpactFRState implements StateInterface
         }
     }
 
-    private function getFunctionalRequirementInput(string $projectId, string $tableName, string $columnName) : array
+    private function getFunctionalRequirementInput(string $projectId, string $tableName, string $columnName)
     {
         $frIdList = FunctionalRequirement::select('id')->where('projectId', $projectId)->get();
         
         $arrayFrId = [];
-        foreach ($frIdList as $frId) {
-            $arrayFrId[] = $frId;
+        foreach ($frIdList as $fr) {
+            $arrayFrId[] = $fr->id;
         }
         return FunctionalRequirementInput::where([
             ['columnName', $columnName],
@@ -99,7 +99,7 @@ class AnalyzeImpactFRState implements StateInterface
                 }
             } elseif ($changeRequestInput->changeType == 'delete') {
                 $schemaImpactResult = $changeAnalysis->getDBImpactResult()[$changeRequestInput->id]['schema'];
-
+                
                 foreach ($schemaImpactResult as $schema) {
                     $frInputList = $this->getFunctionalRequirementInput(
                         $changeAnalysis->getProjectId(),
@@ -117,12 +117,14 @@ class AnalyzeImpactFRState implements StateInterface
                             'delete',
                             $frInput
                         );
+                        
                     }
                 }
             }
         }
        // $this->modify();
         $changeAnalysis->setFRImpactResult($this->frImpactResult);
+       // dd($changeAnalysis->getFrImpactResult());
         $changeAnalysis->setState(new AnalyzeImpactTCState);
         $changeAnalysis->analyze();
     }
