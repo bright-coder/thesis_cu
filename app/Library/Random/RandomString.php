@@ -32,6 +32,11 @@
                 }
                 if (sizeof($this->randomData) == $numRows) { break; }
             }
+            $newResult = [];
+            foreach($this->randomData as $value => $bool) {
+                $newResult[] = $value;
+            }
+            $this->randomData = $newResult;
         }
     }
 

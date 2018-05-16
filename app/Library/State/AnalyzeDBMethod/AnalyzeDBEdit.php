@@ -87,8 +87,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'default' => $column->getDefault(),
                 'nullable' => $column->isNullable(),
                 'unique' => $table->isUnique($column->getName()),
-                'min' => $table->getMin($column->getName()),
-                'max' => $table->getMax($column->getName())
+                'min' => $table->getMin($column->getName())['value'],
+                'max' => $table->getMax($column->getName())['value']
             ];
 
             $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
@@ -121,8 +121,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'default' => $column->getDefault(),
             'nullable' => $column->isNullable(),
             'unique' => $table->isUnique($column->getName()),
-            'min' => $table->getMin($column->getName()),
-            'max' => $table->getMax($column->getName())
+            'min' => $table->getMin($column->getName())['value'],
+            'max' => $table->getMax($column->getName())['value']
         ];
 
         $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
@@ -173,6 +173,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
+                $refSchema['min'] = $this->changeRequestInput->min;
             }
             if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL') {
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
@@ -181,6 +182,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
+
+                $refSchema['max'] = $this->changeRequestInput->max;
             }
 
             if ($this->changeRequestInput->min == '#NULL') {
@@ -294,8 +297,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'default' => $column->getDefault(),
             'nullable' => $column->isNullable(),
             'unique' => $table->isUnique($column->getName()),
-            'min' => $table->getMin($column->getName()),
-            'max' => $table->getMax($column->getName())
+            'min' => $table->getMin($column->getName())['value'],
+            'max' => $table->getMax($column->getName())['value']
         ];
 
         $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
@@ -342,6 +345,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
+                $refSchema['min'] = $this->changeRequestInput->min;
+                
             }
             if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL') {
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
@@ -350,6 +355,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
+                $refSchema['max'] = $this->changeRequestInput->max;
+                
             }
 
             if ($this->changeRequestInput->min == '#NULL') {
@@ -454,8 +461,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'default' => $column->getDefault(),
                 'nullable' => $column->isNullable(),
                 'unique' => $table->isUnique($column->getName()),
-                'min' => $table->getMin($column->getName()),
-                'max' => $table->getMax($column->getName())
+                'min' => $table->getMin($column->getName())['value'],
+                'max' => $table->getMax($column->getName())['value']
             ];
     
             // $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {

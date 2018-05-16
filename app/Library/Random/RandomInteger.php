@@ -16,16 +16,20 @@ class RandomInteger implements RandomInterface {
         $max = $info['max'];
         $range = $max-$min;
         $rangeAvg = $range/5;
-
+        //dd($info);
         if(!$isUnique) {
-            $max = $min + $rangeAvg;
-            for($i = 0; $i < 5; ++$i){
-                while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1))){
-                    $r = rand($min,$max);
-                    $this->randomData[] = $r.'';
-                }
-                $min = $max;
-                $max = $min + $rangeAvg;
+            // $max = $min + $rangeAvg;
+            // for($i = 0; $i < 5; ++$i){
+            //     while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1))){
+            //         $r = rand($min,$max);
+            //         $this->randomData[] = $r.'';
+            //     }
+            //     $min = $max;
+            //     $max = $min + $rangeAvg;
+            // }
+            while(sizeof($this->randomData) < $numRows) {
+                $r = rand($min,$max);
+                $this->randomData[] = $r.'';
             }
         }
         else {
@@ -50,6 +54,11 @@ class RandomInteger implements RandomInterface {
                     $max = $min + $rangeAvg;
                 }
             }
+            $newResult = [];
+            foreach($this->randomData as $value => $bool) {
+                $newResult[] = $value;
+            }
+            $this->randomData = $newResult;
         }
     }
 
