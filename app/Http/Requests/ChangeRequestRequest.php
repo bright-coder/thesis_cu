@@ -35,8 +35,8 @@ class ChangeRequestRequest extends FormRequest
             'inputs.*.precision' => 'required_if:inputs.*.dataType,float,decimal|numeric',
             'inputs.*.unique' => 'required_if:inputs.*.changeType,add|string|size:1|in:Y,N,y,n',
             'inputs.*.nullable' => 'required_if:inputs.*.changeType,add|string|size:1|in:Y,N,y,n',
-            'inputs.*.tableName' => 'required_if:inputs.*.changeType,add|string|min:4',
-            'inputs.*.columnName' => 'required_if:inputs.*.changeType,add|string|min:4',
+            'inputs.*.tableName' => 'required_if:inputs.*.changeType,add|string|min:2',
+            'inputs.*.columnName' => 'required_if:inputs.*.changeType,add|string|min:2',
 
         ];
     }

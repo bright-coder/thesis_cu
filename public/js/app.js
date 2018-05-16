@@ -83088,9 +83088,21 @@ var render = function() {
                                       [_vm._v(_vm._s(column.unique))]
                                     ),
                                     _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.min))]),
+                                    _c("td", [
+                                      _vm._v(
+                                        _vm._s(
+                                          column.min ? column.min.value : ""
+                                        )
+                                      )
+                                    ]),
                                     _vm._v(" "),
-                                    _c("td", [_vm._v(_vm._s(column.max))])
+                                    _c("td", [
+                                      _vm._v(
+                                        _vm._s(
+                                          column.max ? column.max.value : ""
+                                        )
+                                      )
+                                    ])
                                   ])
                                 })
                               )
@@ -83472,7 +83484,7 @@ var render = function() {
                                                                               [
                                                                                 _vm._v(
                                                                                   _vm._s(
-                                                                                    ckColumnIndex
+                                                                                    ckColumn
                                                                                   )
                                                                                 )
                                                                               ]
@@ -83485,11 +83497,11 @@ var render = function() {
                                                                               [
                                                                                 _vm._v(
                                                                                   _vm._s(
-                                                                                    ckColumnIndex in
+                                                                                    ckColumn in
                                                                                     ck.mins
                                                                                       ? ck
                                                                                           .mins[
-                                                                                          ckColumnIndex
+                                                                                          ckColumn
                                                                                         ]
                                                                                           .value
                                                                                       : "-"
@@ -83505,11 +83517,11 @@ var render = function() {
                                                                               [
                                                                                 _vm._v(
                                                                                   _vm._s(
-                                                                                    ckColumnIndex in
+                                                                                    ckColumn in
                                                                                     ck.maxs
                                                                                       ? ck
                                                                                           .maxs[
-                                                                                          ckColumnIndex
+                                                                                          ckColumn
                                                                                         ]
                                                                                           .value
                                                                                       : "-"

@@ -72,8 +72,8 @@
                                         <td>{{ column.default }}</td>
                                         <td v-bind:class="[column.nullable == 'N' ? 'text-danger' : 'text-success']">{{ column.nullable }}</td>
                                         <td v-bind:class="[column.unique == 'N' ? 'text-danger' : 'text-success']">{{ column.unique }}</td>
-                                        <td>{{ column.min }}</td>
-                                        <td>{{ column.max }}</td>
+                                        <td>{{ column.min ? column.min.value : ''}}</td>
+                                        <td>{{ column.max ? column.max.value : ''}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -164,9 +164,9 @@
                                                             </thead>
                                                             <tbody>
                                                                 <tr v-for="(ckColumn, ckColumnIndex) in ck.columns" :key="ckColumnIndex">
-                                                                    <td>{{ ckColumnIndex }}</td>
-                                                                    <td>{{ (ckColumnIndex in ck.mins ? ck.mins[ckColumnIndex].value : '-') }}</td>
-                                                                    <td>{{ (ckColumnIndex in ck.maxs ? ck.maxs[ckColumnIndex].value : '-') }}</td>
+                                                                    <td>{{ ckColumn }}</td>
+                                                                    <td>{{ (ckColumn in ck.mins ? ck.mins[ckColumn].value : '-') }}</td>
+                                                                    <td>{{ (ckColumn in ck.maxs ? ck.maxs[ckColumn].value : '-') }}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>

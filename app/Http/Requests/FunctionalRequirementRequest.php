@@ -36,8 +36,8 @@ class FunctionalRequirementRequest extends FormRequest
             '*.inputs.*.precision' => 'required_if:*.inputs.*.dataType,float,decimal|numeric',
             '*.inputs.*.unique' => 'required|string|size:1|in:Y,N,y,n',
             '*.inputs.*.nullable' => 'required|string|size:1|in:Y,N,y,n',
-            '*.inputs.*.tableName' => 'required|string|min:4',
-            '*.inputs.*.columnName' => 'required|string|min:4',
+            '*.inputs.*.tableName' => 'required|string|min:2',
+            '*.inputs.*.columnName' => 'required|string|min:2',
         ];
     }
 
