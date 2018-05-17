@@ -131,7 +131,7 @@ class ChangeAnalysis
         $tableImpactMem = [];
         foreach ($this->dbImpactResult as $dbImpactList) {
             foreach ($dbImpactList['schema'] as $schema) {
-                if (!array_key_exists($schema['tableName'], $tableImpact)) {
+                if (!array_key_exists($schema['tableName'], $tableImpactMem)) {
                     $newTableImpact = new TableImpact;
                     $newTableImpact->name = $schema['tableName'];
                     $newTableImpact->changeRequestId = $changeRequestId;

@@ -122,7 +122,10 @@ class AnalyzeImpactTCState implements StateInterface
                             }
                         }
                     }
-                    $this->addTcImpactResult($frImpact['id'], null, 'edit', $oldTc->testCaseId, $tcInputChangeList);
+                    if(!empty($tcInputChangeList)) {
+                        $this->addTcImpactResult($frImpact['id'], null, 'edit', $oldTc->testCaseId, $tcInputChangeList);
+                    }
+                    
                 }
             }
         }

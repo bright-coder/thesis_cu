@@ -197,8 +197,9 @@ class ChangeRequestController extends Controller
         $changeAnalysis->saveFrImpact();
         $changeAnalysis->saveTcImpact();
         $changeAnalysis->saveRtmRelationImpact();
-
-        return resonse()->json(['changeRequestId' => $changeAnalysis->getChangeRequest()->id], 201);
+        //dd($changeAnalysis);
+        return response()->json(['changeRequestId' => $changeAnalysis->getChangeRequest()->id], 201);
+        //dd($changeAnalysis);
         //dd($changeAnalysis);
     }
 
@@ -227,9 +228,26 @@ class ChangeRequestController extends Controller
         $tableResult = [];
         foreach($tableImpactList as $tableImpact) {
             $table = [
-                'name' => $tableImpact->name
+                'name' => $tableImpact->name,
+                'columnList' => null
             ];
+            $columnResult = [];
             $columnList = ColumnImpact::where('tableImpactId', $tableImpact->id)->get();
+            foreach($columnList as $column) {
+                if(!array_key_exists($column->name, $columnResult)) {
+                    $columnResult[$column] = [
+                        'name' => $column->name
+                    ];
+                }
+                $columnResult[$column][$column->versionType] = $column;
+            }
+            if(!empty($columnResult)) {
+                foreach($columnResult as $result) {
+                    $table['columnList'][] = $result;
+                }
+            }
+            $tableResult[] = $table;
+            
         }
     }
 
