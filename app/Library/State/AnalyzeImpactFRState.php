@@ -57,7 +57,7 @@ class AnalyzeImpactFRState implements StateInterface
     {
         foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
             if ($changeRequestInput->changeType == 'add') {
-                // add New input
+                // add already exist input in database
                 $frInput = [
                     'new' => null,
                     'old' => null,
@@ -67,6 +67,7 @@ class AnalyzeImpactFRState implements StateInterface
                     ->first()->toArray();
                 }
                 // add already exist input int database
+                // add New input
                 else {
                     $frInput['new'] = $changeRequestInput->toArray();
                 }

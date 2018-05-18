@@ -13,16 +13,6 @@ use DB;
 use Illuminate\Http\Request;
 use App\Library\ChangeAnalysis;
 use App\Model\User;
-use App\Model\TableImpact;
-use App\Model\ColumnImpact;
-use App\Model\InstanceImpact;
-use App\Model\OldInstance;
-use App\Model\FrImpact;
-use App\Model\FrInputImpact;
-use App\Model\TcImpact;
-use App\Model\TcInputImpact;
-use App\Model\TestCase;
-use App\Model\RtmRelationImpact;
 
 class ChangeRequestController extends Controller
 {
@@ -224,31 +214,11 @@ class ChangeRequestController extends Controller
             return response()->json(['msg' => 'forbidden'], 403);
         }
         $changeRequestId = $changeRequest->id;
-        $tableImpactList = TableImpact::where('changeRequestId', $changeRequestId);
-        $tableResult = [];
-        foreach($tableImpactList as $tableImpact) {
-            $table = [
-                'name' => $tableImpact->name,
-                'columnList' => null
-            ];
-            $columnResult = [];
-            $columnList = ColumnImpact::where('tableImpactId', $tableImpact->id)->get();
-            foreach($columnList as $column) {
-                if(!array_key_exists($column->name, $columnResult)) {
-                    $columnResult[$column] = [
-                        'name' => $column->name
-                    ];
-                }
-                $columnResult[$column][$column->versionType] = $column;
-            }
-            if(!empty($columnResult)) {
-                foreach($columnResult as $result) {
-                    $table['columnList'][] = $result;
-                }
-            }
-            $tableResult[] = $table;
-            
-        }
+
+        $instance =
+        
+        
+
     }
 
     /**
