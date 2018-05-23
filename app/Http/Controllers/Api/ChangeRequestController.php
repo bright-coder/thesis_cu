@@ -13,6 +13,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Library\ChangeAnalysis;
 use App\Model\User;
+use App\Library\ImpactResult;
 
 class ChangeRequestController extends Controller
 {
@@ -215,10 +216,8 @@ class ChangeRequestController extends Controller
         }
         $changeRequestId = $changeRequest->id;
 
-        $instance =
+        return response()->json((new ImpactResult($changeRequestId))->getImpact(), 200);
         
-        
-
     }
 
     /**

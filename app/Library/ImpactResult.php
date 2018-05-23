@@ -25,12 +25,12 @@ class ImpactResult
 
     public function getImpact(): array
     {
-        $impactList = [
+        return [
             'schema' => $this->getSchemaImpact(),
-            'instance' => null,
-            'functionalRequirments' => null,
-            'testCases' => null,
-            'rtm' => null
+            'instance' => $this->getInstanceImpact(),
+            'functionalRequirments' => $this->getFrImpact(),
+            'testCases' => $this->getTcImpact(),
+            'rtm' => $this->getRtmImpact()
         ];
     }
 
@@ -149,6 +149,11 @@ class ImpactResult
 
     private function getRtmImpact() : array
     {
-        
+        $rtmResult = [];
+        foreach(RtmRelationImpact::where('changeRequestId',  $this->changeRequestId)->get() as $rtmImpact) {
+            unset($rtmImpact['id']);
+            $rtmResult[] = $rtmImpact;
+        }
+        return $rtmResult;
     }
 }
