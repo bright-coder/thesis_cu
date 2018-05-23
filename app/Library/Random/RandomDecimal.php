@@ -12,8 +12,8 @@ class RandomDecimal implements RandomInterface {
     }
 
     public function random(int $numRows, array $info, bool $isUnique): void {
-        $min = $info['min'];
-        $max = $info['max'];
+        $min = $this->isValid(floatval($info['min']), $info['precision']) ? $info['min'] : 1;
+        $max = $this->isValid(floatval($info['max']), $info['precision']) ? $info['max'] : pow(10, $info['precision']-1);
         $precision = $info['precision'];
         $scale = $info['scale'];
         
@@ -52,18 +52,27 @@ class RandomDecimal implements RandomInterface {
         return $this->randomData;
     }
 
-    private function checMinMaxPrecision(float $min, float $max, int $precision): void {
-        $precisionMin = strlen(str_replace(".", "", strval($min)));
-        $precisionMax = strlen(str_replace(".", "", strval($max)));
+    // private function checMinMaxPrecision(float $min, float $max, int $precision): void {
+    //     $precisionMin = strlen(str_replace(".", "", strval($min)));
+    //     $precisionMax = strlen(str_replace(".", "", strval($max)));
 
-        if($precisionMin > $precision) {
-            throw new \Exception("Error : min precision is more than precision", 1);
+    //     if($precisionMin > $precision) {
+    //         throw new \Exception("Error : min precision is more than precision", 1);
             
-        }
-        if($precisionMax > $precision) {
-            throw new \Exception("Error : max precision is more than precision", 1);
-        }
+    //     }
+    //     if($precisionMax > $precision) {
+    //         throw new \Exception("Error : max precision is more than precision", 1);
+    //     }
 
+    // }
+
+    private function isValid(float $value, int $precision): bool {
+        $valueLength = strlen(str_replace(".", "", strval($value)));
+
+        if($valueLength > $precision) {
+            return false;
+        }
+        return true;
     }
 
 }

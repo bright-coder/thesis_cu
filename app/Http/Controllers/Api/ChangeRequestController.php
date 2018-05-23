@@ -62,9 +62,37 @@ class ChangeRequestController extends Controller
         // Debug Mode Only
         $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $project->id)->get();
         foreach ($crs as $cr) {
-            DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
+            //DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
+            //DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
+            foreach (DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', $cr->id)->get() as $crInput) {
+                foreach (DB::table('INSTANCE_IMPACT')->where('changeRequestInputId', $crInput->id)->get() as $insNew) {
+                    DB::table('OLD_INSTANCE')->where('instanceImpactId', $insNew->id)->delete();
+                    DB::table('INSTANCE_IMPACT')->where('id', $insNew->id)->delete();
+                }
+                DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
+            }
+
+            foreach(DB::table('TABLE_IMPACT')->where('changeRequestId', $cr->id)->get() as $tableImpact) {
+                DB::table('COLUMN_IMPACT')->where('tableImpactId', $tableImpact->id)->delete();
+                DB::table('TABLE_IMPACT')->where('id', $tableImpact->id)->delete();
+            }
+
+            foreach(DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {
+                DB::table('FR_INPUT_IMPACT')->where('frImpactId', $frImpact->id)->delete();
+                DB::table('FR_IMPACT')->where('id', $frImpact->id)->delete();
+            }
+
+            foreach(DB::table('TC_IMPACT')->where('changeRequestId', $cr->id)->get() as $tcImpact) {
+                DB::table('TC_INPUT_IMPACT')->where('tcImpactId', $tcImpact->id)->delete();
+                DB::table('TC_IMPACT')->where('id', $tcImpact->id)->delete();
+            }
+
+            DB::table('RTM_RELATION_IMPACT')->where('changeRequestId', $cr->id)->delete();
+
             DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
+
         }
+
         //
 
         DB::beginTransaction();
@@ -183,15 +211,13 @@ class ChangeRequestController extends Controller
 
         $changeAnalysis = new ChangeAnalysis($project->id, $changeRequest, $changeRequestInputList);
         $changeAnalysis->analyze();
-        $changeAnalysis->saveSchemaImpact();
-        $changeAnalysis->saveInstanceImpact();
-        $changeAnalysis->saveFrImpact();
-        $changeAnalysis->saveTcImpact();
-        $changeAnalysis->saveRtmRelationImpact();
-        //dd($changeAnalysis);
+        // $changeAnalysis->saveSchemaImpact();
+        // $changeAnalysis->saveInstanceImpact();
+        // $changeAnalysis->saveFrImpact();
+        // $changeAnalysis->saveTcImpact();
+        // $changeAnalysis->saveRtmRelationImpact();
+
         return response()->json(['changeRequestId' => $changeAnalysis->getChangeRequest()->id], 201);
-        //dd($changeAnalysis);
-        //dd($changeAnalysis);
     }
 
     /**
@@ -200,7 +226,7 @@ class ChangeRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request , $projectName, $changeRequestId)
+    public function show(Request $request, $projectName, $changeRequestId)
     {
         //
         $guard = new GuardProject($request->bearerToken());
@@ -211,13 +237,12 @@ class ChangeRequestController extends Controller
         }
 
         $changeRequest = ChangeRequest::where([['projectId', $project->id],['id', $changeRequestId]])->first();
-        if(!$changeRequest) {
+        if (!$changeRequest) {
             return response()->json(['msg' => 'forbidden'], 403);
         }
         $changeRequestId = $changeRequest->id;
 
         return response()->json((new ImpactResult($changeRequestId))->getImpact(), 200);
-        
     }
 
     /**

@@ -497,7 +497,9 @@ export default {
         },
         dataType: "json"
       })
-        .then(function(response) {})
+        .then(function(response) {
+            alert(response.status)
+        })
         .catch(function(errors) {});
     }
   },

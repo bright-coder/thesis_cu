@@ -2,10 +2,6 @@
 
 namespace App\Library\State;
 
-// use App\ConstraintColumn;
-// use App\DatabaseSchemaColumn;
-// use App\DatabaseSchemaConstraint;
-// use App\DatabaseSchemaTable;
 use App\Library\Builder\DatabaseBuilder;
 use App\Library\CustomModel\DBTargetConnection;
 use App\Library\CustomModel\DBTargetInterface;
@@ -66,7 +62,7 @@ class AnalyzeImpactDBState implements StateInterface
 
             
                 $analyzer->analyze();    
-                //$analyzer->modify();
+                $analyzer->modify();
                 
                 $changeAnalysis->addDBImpactResult(
                     $changeRequestInput->id,
@@ -76,10 +72,8 @@ class AnalyzeImpactDBState implements StateInterface
                 
             }
             //dd($changeAnalysis->getDBImpactResult());
-            //$changeAnalysis->saveSchemaImpact();
-            //$changeAnalysis->saveInstanceImpact();
-            $changeAnalysis->setState(new AnalyzeImpactFRState);
-            $changeAnalysis->analyze();
+            //$changeAnalysis->setState(new AnalyzeImpactFRState);
+            //$changeAnalysis->analyze();
         } else {
         
         }

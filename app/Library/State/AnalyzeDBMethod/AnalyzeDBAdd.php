@@ -58,11 +58,12 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                         'length' => $this->changeRequestInput->length,
                         'precision' => $this->changeRequestInput->precision,
                         'scale' => $this->changeRequestInput->scale,
-                        'min' => $this->changeRequestInput->min,
-                        'max' => $this->changeRequestInput->max
+                        'min' => $this->changeRequestInput->min === null ? 1 : $this->changeRequestInput->min,
+                        'max' => $this->changeRequestInput->max === null ? 1000000 : $this->changeRequestInput->max
                     ],
                     strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true
                 );
+                
                 
                 $this->instanceImpactResult[0] = [
                     'oldInstance' => $this->dbTargetConnection->getInstanceByTableName($this->changeRequestInput->tableName),
@@ -84,17 +85,17 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
 
         $this->dbTargetConnection->disableConstraint();
         $this->dbTargetConnection->addColumn($this->changeRequestInput->toArray());
-
+        
         if (strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true) {
             $dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);
         }
         
-        if ($this->changeRequestInput->min != null || $this->changeRequestInput->max != null) {
+        if ($this->changeRequestInput->min !== null || $this->changeRequestInput->max !== null) {
             switch ($this->changeRequestInput->dataType) {
                 case 'int':
                 case 'float':
                 case 'decimal':
-                    $dbTargetConnection->addCheckConstraint(
+                    $this->dbTargetConnection->addCheckConstraint(
                         $this->changeRequestInput->tableName,
                         $this->changeRequestInput->columnName,
                         $this->changeRequestInput->min,
@@ -113,12 +114,14 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
             $default = '0';
         }
 
-        $dbTargetConnection->updateInstance(
+        $this->dbTargetConnection->updateInstance(
             $this->changeRequestInput->tableName,
             $this->changeRequestInput->columnName,
             $this->instanceImpactResult[0]['oldInstance'],
             $this->instanceImpactResult[0]['newInstance'],
             $default
         );
+
+        return true;
     }
 }

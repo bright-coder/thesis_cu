@@ -22,7 +22,6 @@ class SqlServer implements DBTargetInterface
 
     public function __construct(string $server, string $port, string $database, string $user, string $pass)
     {
-
         $this->server = $server;
         $this->port = $port;
         $this->database = $database;
@@ -31,7 +30,7 @@ class SqlServer implements DBTargetInterface
     }
 
     public function connect(): bool
-    {   
+    {
         // "dblib:host={$this->server}:{$this->port};dbname={$this->database};LoginTimeout=1"
         // sqlsrv:server={$this->server} ; Database={$this->database};LoginTimeout=1"
 
@@ -44,10 +43,8 @@ class SqlServer implements DBTargetInterface
             $this->conObj->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
             return false;
-
         }
         return true;
-
     }
 
     public function getDBType(): string
@@ -75,13 +72,14 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
-    public function getInstanceByTableName(string $tableName, string $condition = ''): array{
+    public function getInstanceByTableName(string $tableName, string $condition = ''): array
+    {
         $strQuery = "SELECT TOP 100 * FROM {$tableName}";
-        if($condition != '') {
+        if ($condition != '') {
             $strQuery .= " WHERE {$condition}";
         }
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()) {
+        if ($stmt->execute()) {
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
     }
@@ -96,7 +94,7 @@ class SqlServer implements DBTargetInterface
 
     public function getDistinctValues(string $tableName, array $columnName): array
     {
-        $strSqlColumnName = implode(",",$columnName);
+        $strSqlColumnName = implode(",", $columnName);
         $stmt = $this->conObj->prepare("SELECT DISTINCT {$strSqlColumnName} FROM {$tableName}");
         if ($stmt->execute()) {
             //return $stmt->fetch(\PDO::FETCH_OBJ)->numDistinctValue;
@@ -134,7 +132,6 @@ class SqlServer implements DBTargetInterface
             'checkConstraints' => $checkConstraints,
             'uniqueConstraints' => $uniqueConstraints
         ];
-
     }
 
     public function getPKConstraint(string $tableName): PrimaryKey
@@ -210,83 +207,94 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
-    public function dropConstraint(string $tableName, string $constraint) : bool {
-
+    public function dropConstraint(string $tableName, string $constraint) : bool
+    {
         $stmt = $this->conObj->prepare("ALTER TABLE $tableName DROP CONSTRAINT $constraint");
-        if($stmt->execute()) {
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function dropColumn(string $tableName, string $columnName): bool {
+    public function dropColumn(string $tableName, string $columnName): bool
+    {
         $stmt = $this->conObj->prepare("ALTER TABLE $tableName DROP COLUMN $columnName");
-        if($stmt->execute()) {
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function addColumn(array $columnDetail): bool {
-        $strSqlDataType = $this->getStrSqlDataType($columnDetail['dataType'],
+    public function addColumn(array $columnDetail): bool
+    {
+        $strSqlDataType = $this->getStrSqlDataType(
+            $columnDetail['dataType'],
             [
-                'length' => $columnDetail['length'],
-                'precision' => $columnDetail['precision'],
-                'scale' => $columnDetail['scale']
+                'length' =>  array_key_exists('length', $columnDetail) ? $columnDetail['length'] : null,
+                'precision' => array_key_exists('precision', $columnDetail) ? $columnDetail['precision'] : null,
+                'scale' => array_key_exists('scale', $columnDetail) ? $columnDetail['scale'] : null
             ]
         );
 
         $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
         
-        $strSqlDefault = "DEFAULT(".$columnDetail['default'].")";
-        if($columnDetail['default'] == null) {
-            $strSqlDefault = '';
-        }
+        $strSqlDefault = "";
+        if (array_key_exists('default', $columnDetail)) {
+            $strSqlDefault = "DEFAULT(".$columnDetail['default'].")";
+            if ($columnDetail['default'] == null) {
+                $strSqlDefault = '';
+            }
         
-        if($columnDetail['default'] == '#NULL' && \strcasecmp($columnDetail['nullable'], 'N') == 0){
-            $strSqlDefault = "0";
+            if ($columnDetail['default'] == '#NULL' && \strcasecmp($columnDetail['nullable'], 'N') == 0) {
+                $strSqlDefault = "0";
+            }
         }
 
         $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ADD ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
-
+        
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    private function getStrSqlNullable(bool $isNullable): string{
+    private function getStrSqlNullable(bool $isNullable): string
+    {
         return !$isNullable ? 'NOT NULL' : 'NULL';
     }
 
-    private function getStrSqlDataType(string $dataType, array $info = ['length' => null , 'precision' => null , 'scale' => null]): string {
+    private function getStrSqlDataType(string $dataType, array $info = ['length' => null , 'precision' => null , 'scale' => null]): string
+    {
+
         $dataType = strtolower($dataType);
-        if(\strpos($dataType, 'char') !== false || \strpos($dataType,'char') == 0) {
+        if (\strpos($dataType, 'char') !== false || \strpos($dataType, 'char') === 0) {
             $dataType .= "(".$info['length'].")";
-        }
-        elseif(\strpos($dataType,'decimal') != false ) {
+        } elseif (\strpos($dataType, 'decimal') !== false || \strpos($dataType, 'decimal') === 0) {
             $precision = $dataType['precision'] == null ? 38 : $dataType['precision'];
             $scale = $dataType['scale'] == null ? 0 : $dataType['scale'] ;
             $dataType .= "($precision,$scale)";
         }
+
         return $dataType;
     }
     
-    public function updateColumn(array $columnDetail): bool {
+    public function updateColumn(array $columnDetail): bool
+    {
         $dataTypeDetail = [
-            'length' => \array_key_exists('length',$columnDetail['newSchema']) ? 
+            'length' => \array_key_exists('length', $columnDetail['newSchema']) ?
                 $columnDetail['newSchema']['length'] : $columnDetail['oldSchema']['length'],
-            'precision' => \array_key_exists('precision',$columnDetail['newSchema']) ? 
+            'precision' => \array_key_exists('precision', $columnDetail['newSchema']) ?
                 $columnDetail['newSchema']['precision'] : $columnDetail['oldSchema']['precision'],
-            'scale' => \array_key_exists('scale',$columnDetail['newSchema']) ? 
+            'scale' => \array_key_exists('scale', $columnDetail['newSchema']) ?
                 $columnDetail['newSchema']['scale'] : $columnDetail['oldSchema']['scale'],
         ];
 
         $dataType = $this->getStrSqlDataType(
-            \array_key_exists('dataType', $columnDetail['newSchema']) ? 
+            \array_key_exists('dataType', $columnDetail['newSchema']) ?
                 $columnDetail['newSchema']['dataType'] : $columnDetail['oldSchema']['dataType'],
-            $dataTypeDetail);
+            $dataTypeDetail
+        );
         
         $nullable = $this->getStrSqlNullable(
             \array_key_exists('nullable', $columnDetail['newSchema']) ?
@@ -295,36 +303,33 @@ class SqlServer implements DBTargetInterface
 
         $default = "DEFAULT(".$columnDetail['oldSchema']['default'].")";
 
-        if($columnDetail['oldSchema']['default'] === null) {
+        if ($columnDetail['oldSchema']['default'] === null) {
             $default = '';
         }
 
-        if(\array_key_exists('default', $columnDetail['newSchema'])) {
-            if($columnDetail['newSchema']['default'] == '#NULL'){
+        if (\array_key_exists('default', $columnDetail['newSchema'])) {
+            if ($columnDetail['newSchema']['default'] == '#NULL') {
                 $default = '';
-            }
-            else {
+            } else {
                 $default = "DEFAULT(".$columnDetail['newSchema']['default'].")";
             }
         }
 
         $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$dataType." ".$nullable." ".$default;
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function setNullable(string $tableName, string $columnName, array $columnDetail): bool {
+    public function setNullable(string $tableName, string $columnName, array $columnDetail): bool
+    {
         $dataType = strtolower($columnDetail['dataType']);
-        if($dataType == "int" || $dataType == "date" || $dataType == "datetime"){
-
-        }
-        elseif(\strpos($dataType,'char') !== false || \strpos($dataType,'char') == 0) {
+        if ($dataType == "int" || $dataType == "date" || $dataType == "datetime") {
+        } elseif (\strpos($dataType, 'char') !== false || \strpos($dataType, 'char') == 0) {
             $dataType .= "(".$columnDetail['length'].")";
-        }
-        elseif(\strpos($dataType,'decimal') != false ) {
+        } elseif (\strpos($dataType, 'decimal') != false) {
             $precision = $columnDetail['length'] == null ? 38 : $columnDetail['length'];
             $scale = $columnDetail['scale'] == null ? 0 : $columnDetail['scale'];
         
@@ -333,107 +338,109 @@ class SqlServer implements DBTargetInterface
         $nullable = $columnDetail['nullable'] == false ? 'NOT NULL' : "";
         $strQuery = "ALTER TABLE $tableName ALTER COLUMN $columnName $dataType $nullable";
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function getDuplicateInstance(string $tableName, array $columnName): array{
-            $strOn = [];
-            foreach($columnName as $column) {
-                $strOn[] = "y.".$column."=dt.".$column;
-            }
-            $strQuery = "SELECT y.* FROM {$tableName} y INNER JOIN (".
-                "SELECT ".\implode(", ",$columnName)." COUNT(*) AS CountNumber".
-                " FROM {$tableName} GROUP BY ".\implode(", ",$columnName)." HAVING COUNT(*) > 1 ORDER BY ".\implode(", ",$columnName)." ) dt".
-                " ON ".\implode(" AND ",$strOn);
+    public function getDuplicateInstance(string $tableName, array $columnName): array
+    {
+        $strOn = [];
+        foreach ($columnName as $column) {
+            $strOn[] = "y.".$column."=dt.".$column;
+        }
+        $strQuery = "SELECT y.* FROM {$tableName} y INNER JOIN (".
+                "SELECT ".\implode(", ", $columnName)." COUNT(*) AS CountNumber".
+                " FROM {$tableName} GROUP BY ".\implode(", ", $columnName)." HAVING COUNT(*) > 1 ORDER BY ".\implode(", ", $columnName)." ) dt".
+                " ON ".\implode(" AND ", $strOn);
 
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()) {
+        if ($stmt->execute()) {
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         }
         return [];
     }
 
-    public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, $default): bool {
+    public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, $default): bool
+    {
         $columnTemp = $newColumnName;
         $strQuery = "UPDATE $tableName SET $columnTemp = CASE ";
         // if(\array_last($newValues) == false){
         //     $newValues = \array_keys($newValues);
         // }
         
-        foreach($refValues as $index => $refValue) {
+        foreach ($refValues as $index => $refValue) {
             $whenCondition = [];
-            foreach($refValue as $columnName => $oldValue) {
-                
+            foreach ($refValue as $columnName => $oldValue) {
                 $whenCondition[] = "$columnName = '$oldValue'";
             }
             $strWhenCondition = \implode(" AND ", $whenCondition);
             $strQuery .= "WHEN $strWhenCondition THEN '{$newData[$index]}' ";
         }
-        if($default == NULL) {
-            
+        if ($default == null) {
             $strQuery .= "ELSE NULL";
-        }
-        else {
-            
+        } else {
             $strQuery .= "ELSE $default";
         }
         $strQuery .= ' END';
         
         //dd($strQuery);
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function updateColumnName(string $tableName, string $oldColumnName, string $newColumnName) : bool {
+    public function updateColumnName(string $tableName, string $oldColumnName, string $newColumnName) : bool
+    {
         $param = $tableName.".".$oldColumnName;
         $stmt = $this->conObj->prepare("sp_rename '$param', '$newColumnName', 'COLUMN'");
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function addUniqueConstraint(string $tableName, string $columnName) : bool {
+    public function addUniqueConstraint(string $tableName, string $columnName) : bool
+    {
         $uniqueName = "{$tableName}_{$columnName}_UNIQUE";
         $strQuery = "ALTER TABLE $tableName ADD CONSTRAINT $uniqueName UNIQUE ($columnName)";
         //dd($strQuery);
         $stmt = $this->conObj->prepare($strQuery);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool {
+    public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool
+    {
         $min = $min == null ? "" : $columnName." >= ".$min;
         $max = $max == null ? "" : $columnName." <= ".$max;
         $AND = ($min == null) || ($max == null) ? "" : "AND";
         $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD CHECK ($min $AND $max)");
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             return true;
         }
         return false;
     }
 
-    public function disableConstraint(string $tableName): bool {
+    public function disableConstraint(string $tableName = '?'): bool
+    {
         $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} NOCHECK CONSTRAINT all\"");
-        if($stmt !== false){
+        if ($stmt !== false) {
             return true;
         }
         return false;
     }
-    public function enableConstraint(string $tableName = '?'): bool {
+    public function enableConstraint(string $tableName = '?'): bool
+    {
         $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} CHECK CONSTRAINT all\"");
-        if($stmt !== false){
+        if ($stmt !== false) {
             return true;
         }
         return false;
     }
-
 }
