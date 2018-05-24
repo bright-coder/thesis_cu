@@ -123,11 +123,11 @@ class AnalyzeImpactFRState implements StateInterface
                 }
             }
         }
-       // $this->modify();
+        $this->modify();
         $changeAnalysis->setFRImpactResult($this->frImpactResult);
         //dd($changeAnalysis->getFrImpactResult());
-        $changeAnalysis->setState(new AnalyzeImpactTCState);
-        $changeAnalysis->analyze();
+        //$changeAnalysis->setState(new AnalyzeImpactTCState);
+        //$changeAnalysis->analyze();
     }
 
     private function modify(): void
@@ -139,10 +139,10 @@ class AnalyzeImpactFRState implements StateInterface
                     $frNew->functionalRequirementId = $frImpact['id'];
                     $frNew->name = $frInput['new']['name'];
                     $frNew->dataType = $frInput['new']['dataType'];
-                    $frNew->length = $frInput['new']['length'];
-                    $frNew->precision = $frInput['new']['precision'];
-                    $frNew->scale = $frInput['new']['scale'];
-                    $frNew->default = $frInput['new']['default'];
+                    $frNew->length = array_key_exists('length',$frInput['new']) ? $frInput['new']['length'] : null;
+                    $frNew->precision = array_key_exists('precision',$frInput['new']) ? $frInput['new']['precision'] : null;
+                    $frNew->scale = array_key_exists('scale',$frInput['new']) ? $frInput['new']['scale'] : null;
+                    $frNew->default = array_key_exists('default',$frInput['new']) ? $frInput['new']['default'] : null;
                     $frNew->nullable = $frInput['new']['nullable'];
                     $frNew->unique = $frInput['new']['unique'];
                     $frNew->tableName = $frInput['new']['tableName'];

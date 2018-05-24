@@ -602,19 +602,33 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $scResult['columnName']
                 );
             }
+            else {
+                $oldValues = [];
+                foreach($this->dbTargetConnection->getInstanceByTableName($scResult['tableName']) as $oldRecord) {
+                    $oldValues[] = $oldRecord[$scResult['columnName']];
+                }
+                $this->dbTargetConnection->updateInstance(
+                    $scResult['tableName'],
+                    $scResult['columnName']."_#temp",
+                    $this->dbTargetConnection->getInstanceByTableName($scResult['tableName']),
+                    $oldValues,
+                    $scResult['columnName']
+                );
+            }
             $this->dbTargetConnection->dropColumn($scResult['tableName'], $scResult['columnName']);
             $this->dbTargetConnection->updateColumnName($scResult['tableName'],$scResult['columnName']."_#temp", $scResult['columnName']);
 
             if (\array_key_exists('unique', $scResult['newSchema'])) {
-                if ($scResult['newSchema']['unique'] === false) {
-                    $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['column']);
+
+                if (strcmp($scResult['newSchema']['unique'],'N') == 0) {
+                    $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
                     if (count($uniqueConstraintList) > 0) {
                         foreach ($uniqueConstraintList as $uniqueConstraint) {
                             $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
                         }
                     }
-                } elseif ($scResult['newSchema']['unique'] === true && $scResult['oldSchema']['unique'] === false) {
-                    $this->dbTargetConnection->addUniqueConstraint($scResult['tableName'], $scResult['column']);
+                } elseif (strcmp($scResult['newSchema']['unique'],'Y') == 0 && $scResult['oldSchema']['unique'] === false) {
+                    $this->dbTargetConnection->addUniqueConstraint($scResult['tableName'], $scResult['columnName']);
                 }
             }
 
@@ -624,7 +638,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
 
             if (DataType::isNumericType($dataTypeRef)) {
-                $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['column']);
+                $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
                 if (count($checkConstraintList) > 0) {
                     foreach ($checkConstraintList as $checkConstraint) {
                         $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
@@ -640,11 +654,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $max = $scResult['newSchema']['max'] == '#NULL' ? null : $scResult['newSchema']['max'];
                 }
 
-                $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['column'], $min, $max);
+                $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['columnName'], $min, $max);
             } else {
                 if (\array_key_exists('dataType', $scResult['newSchema'])) {
                     if (! DataType::isNumericType($scResult['newSchema']['dataType'])) {
-                        $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['column']);
+                        $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
                         if (count($checkConstraintList) > 0) {
                             foreach ($checkConstraintList as $checkConstraint) {
                                 $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());

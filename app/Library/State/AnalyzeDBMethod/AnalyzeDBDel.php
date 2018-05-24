@@ -97,6 +97,7 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
             $this->dbTargetConnection->enableConstraint();
             
         }
+        return true;
     }
 
 }
