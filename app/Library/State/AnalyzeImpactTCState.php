@@ -19,7 +19,7 @@ use App\Library\CustomModel\DBTargetInterface;
 class AnalyzeImpactTCState implements StateInterface
 {
     private $tcImpactResult = [];
-
+    
     /**
      * Undocumented variable
      *
@@ -129,11 +129,11 @@ class AnalyzeImpactTCState implements StateInterface
                 }
             }
         }
-        //$this->modify();
+        $this->modify($changeAnalysis->getFrImpactResult(), $projectId);
         $changeAnalysis->setTcImpactResult($this->tcImpactResult);
         //dd($changeAnalysis->getTcImpactResult());
-        $changeAnalysis->setState(new AnalyzeImpactRTMState);
-        $changeAnalysis->analyze();
+        //$changeAnalysis->setState(new AnalyzeImpactRTMState);
+        //$changeAnalysis->analyze();
     }
 
     private function findOldValue(string $tcId, string $inputName): string
@@ -200,16 +200,16 @@ class AnalyzeImpactTCState implements StateInterface
                 $tcNew->save();
                     
                 $tcOldInputList = TestCaseInput::Where('testCaseId', $tcImpact['oldTcId'])->get();
-
+                
                 foreach ($tcOldInputList as $tcOldInput) {
                     $tcInputNew = new TestCaseInput;
                     $tcInputNew->testCaseId = $tcNew->id;
                     $tcInputNew->name = $tcOldInput->name;
-                    $tcInputNew->data = $tcOldInput->data;
+                    $tcInputNew->testData = $tcOldInput->testData;
                     $tcInputNew->save();
                 }
 
-                foreach ($tcImpact['tcInput'] as $tcChangeDataInput) {
+                foreach ($tcImpact['tcInputEdit'] as $tcChangeDataInput) {
                     TestCaseInput::where([
                         ['testCaseId', $tcNew->id],
                         ['name', $tcChangeDataInput['inputName']],
@@ -221,18 +221,19 @@ class AnalyzeImpactTCState implements StateInterface
                     if ($frImpact['id'] == $tcImpact['functionalRequirementId']) {
                         foreach ($frImpact['inputList'] as $frInput) {
                             if ($frInput['changeType'] == 'add') {
-                                if ($this->connectTargetDB()) {
-                                    $instaceList = $this->dbTargetConnection->getInstanceByTableName($frInput['tableName']);
+                                if ($this->connectTargetDB($projectId)) {
+                                    
+                                    $instanceList = $this->dbTargetConnection->getInstanceByTableName($frInput['new']['tableName']);
                                     $numRows = count($instanceList);
                                     $pickId = rand(1, $numRows) -1 ;
-                                    $pickInstance = $instaceList[$pickId][$frInput['columnName']];
+                                    $pickInstance = $instanceList[$pickId][$frInput['new']['columnName']];
                                 } else {
                                     $pickInstance = '#ERROR';
                                 }
                                 $tcInputNew = new TestCaseInput;
-                                $tcInputNew->testCaseId = $tcImpact->id;
+                                $tcInputNew->testCaseId = $tcNew->id;
                                 $tcInputNew->name = $frInput['new']['name'];
-                                $tcInputNew->data = $pickInstance;
+                                $tcInputNew->testData = $pickInstance;
                                 $tcInputNew->save();
                             } elseif ($frInput['changeType'] == 'delete') {
                                 TestCaseInput::where([
@@ -247,12 +248,12 @@ class AnalyzeImpactTCState implements StateInterface
                 $tcOldInputList = TestCaseInput::Where('testCaseId', $tcImpact['oldTcId'])->get();
 
                 foreach ($tcOldInputList as $tcOldInput) {
-                    foreach ($tcImpact['tcInput'] as $tcChangeDataInput) {
+                    foreach ($tcImpact['tcInputEdit'] as $tcChangeDataInput) {
                         TestCaseInput::where([
                             ['testCaseId', $tcImpact['oldTcId']],
                             ['name', $tcChangeDataInput['inputName']],
                             ['testData', $tcChangeDataInput['old']]
-                        ])->update(['testData', $tcChangeDataInput['new']]);
+                        ])->update(['testData' => $tcChangeDataInput['new']]);
                     }
                 }
             } elseif ($tcImpact['changeType'] == 'delete') {

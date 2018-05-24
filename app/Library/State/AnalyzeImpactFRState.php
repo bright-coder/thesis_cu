@@ -126,8 +126,8 @@ class AnalyzeImpactFRState implements StateInterface
         $this->modify();
         $changeAnalysis->setFRImpactResult($this->frImpactResult);
         //dd($changeAnalysis->getFrImpactResult());
-        //$changeAnalysis->setState(new AnalyzeImpactTCState);
-        //$changeAnalysis->analyze();
+        $changeAnalysis->setState(new AnalyzeImpactTCState);
+        $changeAnalysis->analyze();
     }
 
     private function modify(): void
@@ -147,6 +147,8 @@ class AnalyzeImpactFRState implements StateInterface
                     $frNew->unique = $frInput['new']['unique'];
                     $frNew->tableName = $frInput['new']['tableName'];
                     $frNew->columnName = $frInput['new']['columnName'];
+                    $frNew->min = array_key_exists('min',$frInput['new']) ? $frInput['new']['min'] : null;
+                    $frNew->max = array_key_exists('max',$frInput['new']) ? $frInput['new']['max'] : null;
                     $frNew->activeFlag = 'Y';
                     $frNew->save();
                 }
@@ -167,6 +169,8 @@ class AnalyzeImpactFRState implements StateInterface
                     $frNew->unique = \array_key_exists('unique',$frInput['new']) ? $frInput['new']['unique'] : $frInput['old']['unique'];
                     $frNew->tableName = $frInput['old']['tableName'];
                     $frNew->columnName = $frInput['old']['columnName'];
+                    $frNew->min = \array_key_exists('min',$frInput['new']) ? $frInput['new']['min'] : $frInput['old']['min'];
+                    $frNew->max = \array_key_exists('max',$frInput['new']) ? $frInput['new']['max'] : $frInput['old']['max'];
                     $frNew->activeFlag = 'Y';
                     $frNew->save();
                 }

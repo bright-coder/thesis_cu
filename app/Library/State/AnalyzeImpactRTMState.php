@@ -12,6 +12,8 @@ use App\Model\TestCase;
 class AnalyzeImpactRTMState implements StateInterface
 {
     private $rtmImpactResult = [];
+    private $rtmId;
+    private $projectId;
 
     public function getStateName(): String
     {
@@ -21,7 +23,8 @@ class AnalyzeImpactRTMState implements StateInterface
     public function analyze(ChangeAnalysis $changeAnalysis): void
     {   
         $projectId = $changeAnalysis->getProjectId();
-        $rtmId = RequirementTraceabilityMatrix::where('projectId', $projectId)->first()->id;
+        $this->projectId = $changeAnalysis->getProjectId();
+        $this->rtmId = RequirementTraceabilityMatrix::where('projectId', $projectId)->first()->id;
         $tcImpactResult = $changeAnalysis->getTcImpactResult();
         foreach($tcImpactResult as $tcImpact) {
             $frNo = FunctionalRequirement::find($tcImpact['functionalRequirementId'])->no;
@@ -35,7 +38,7 @@ class AnalyzeImpactRTMState implements StateInterface
                 $this->rtmImpactResult[] = [
                     //'id' => $rtmRelation->id,
                     'changeType' => 'delete',
-                    //'functionalRequirementId' => $tcImpact['functionalRequirementId'],
+                    'functionalRequirementId' => $tcImpact['functionalRequirementId'],
                     'functionalRequirementNo' => $frNo,
                     //'testCaseId' => $tcImpact['oldTcId'],
                     'testCaseNo' => TestCase::where('id', $tcImpact['oldTcId'])->first()->no
@@ -49,7 +52,7 @@ class AnalyzeImpactRTMState implements StateInterface
                 $this->rtmImpactResult[] = [
                     //'id' => $rtmRelation->id,
                     'changeType' => 'add',
-                    //'functionalRequirementId' => $tcImpact['functionalRequirementId'],
+                    'functionalRequirementId' => $tcImpact['functionalRequirementId'],
                     'functionalRequirementNo' => $frNo,
                     // 'testCaseId' => TestCase::where([
                     //     ['projectId', $changeAnalysis->getProjectId()],
@@ -62,16 +65,22 @@ class AnalyzeImpactRTMState implements StateInterface
         }
         $changeAnalysis->setRtmImpactResult($this->rtmImpactResult);
         //dd($changeAnalysis->getRtmImpactResult());
-        //modify($rtmId);
+        $this->modify();
     }
 
-    private function modify($rtmId) {
+    private function modify() {
+        $rtmId = $this->rtmId;
         foreach($this->rtmImpactResult as $rtmImpact) {
+            $testCaseId = TestCase::where([
+                ['projectId', $this->projectId],
+                ['no', $rtmImpact['testCaseNo']]
+            ])->first()->id;
+            
             if($rtmImpact['changeType'] == 'add') {
                 $newRelation = new RequirementTraceabilityMatrixRelation;
                 $newRelation->requirementTraceabilityMatrixId = $rtmId;
                 $newRelation->functionalRequirementId = $rtmImpact['functionalRequirementId'];
-                $newRelation->testCaseId = $rtmImpact['testCaseId'];
+                $newRelation->testCaseId = $testCaseId;
                 $newRelation->activeFlag = 'Y';
                 $newRelation->save();
             }
@@ -79,9 +88,9 @@ class AnalyzeImpactRTMState implements StateInterface
                 RequirementTraceabilityMatrixRelation::where([
                     ['requirementTraceabilityMatrixId', $rtmId],
                     ['functionalRequirementId', $rtmImpact['functionalRequirementId']],
-                    ['testCaseId', $rtmImpact['testCaseId']],
+                    ['testCaseId', $testCaseId],
                     ['activeFlag', 'Y']
-                ])->update(['activeFlag' , 'N']);
+                ])->update(['activeFlag' => 'N']);
             }
         }
     }

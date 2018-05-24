@@ -615,19 +615,31 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $scResult['columnName']
                 );
             }
+            $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
+                    if (count($uniqueConstraintList) > 0) {
+                        foreach ($uniqueConstraintList as $uniqueConstraint) {
+                            $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
+                        }
+                    }
+            $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
+                        if (count($checkConstraintList) > 0) {
+                            foreach ($checkConstraintList as $checkConstraint) {
+                                $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
+                            }
+                        }
             $this->dbTargetConnection->dropColumn($scResult['tableName'], $scResult['columnName']);
             $this->dbTargetConnection->updateColumnName($scResult['tableName'],$scResult['columnName']."_#temp", $scResult['columnName']);
 
             if (\array_key_exists('unique', $scResult['newSchema'])) {
 
                 if (strcmp($scResult['newSchema']['unique'],'N') == 0) {
-                    $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                    if (count($uniqueConstraintList) > 0) {
-                        foreach ($uniqueConstraintList as $uniqueConstraint) {
-                            $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
-                        }
-                    }
-                } elseif (strcmp($scResult['newSchema']['unique'],'Y') == 0 && $scResult['oldSchema']['unique'] === false) {
+                    // $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
+                    // if (count($uniqueConstraintList) > 0) {
+                    //     foreach ($uniqueConstraintList as $uniqueConstraint) {
+                    //         $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
+                    //     }
+                    // }
+                } elseif (strcmp($scResult['newSchema']['unique'],'Y') == 0 ) { //&& $scResult['oldSchema']['unique'] === false
                     $this->dbTargetConnection->addUniqueConstraint($scResult['tableName'], $scResult['columnName']);
                 }
             }
@@ -638,12 +650,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
 
             if (DataType::isNumericType($dataTypeRef)) {
-                $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                if (count($checkConstraintList) > 0) {
-                    foreach ($checkConstraintList as $checkConstraint) {
-                        $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
-                    }
-                }
+                // $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
+                // if (count($checkConstraintList) > 0) {
+                //     foreach ($checkConstraintList as $checkConstraint) {
+                //         $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
+                //     }
+                // }
                 $min = $scResult['oldSchema']['min'];
                 if (array_key_exists('min', $scResult['newSchema'])) {
                     $min = $scResult['newSchema']['min'] == '#NULL' ? null : $scResult['newSchema']['min'];
