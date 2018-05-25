@@ -273,7 +273,7 @@ class ChangeAnalysis
             foreach($frImpact['inputList'] as $input) {
                 if(!empty($input['new'])) {
                     $newFrInputImpact = new FrInputImpact;
-                    $newFrInputImpact->frInputImpactId = $newFrImpact->id;
+                    $newFrInputImpact->frImpactId = $newFrImpact->id;
                     $newFrInputImpact->changeType = $input['changeType'];
                     $newFrInputImpact->versionType = 'new';
                     if (array_key_exists('dataType', $input['new'])) {
@@ -341,7 +341,7 @@ class ChangeAnalysis
             $newTcImpact->changeType = $tcImpact['changeType'];
             $newTcImpact->save();
             
-            if($changeType == 'edit' && !empty($tcImpact['tcInputEdit'])) {
+            if($tcImpact['changeType'] == 'edit' && !empty($tcImpact['tcInputEdit'])) {
                 foreach ($tcImpact['tcInputEdit'] as $tcInputEdit) {
                     $newTcInputEdit = new TcInputImpact;
                     $newTcInputEdit->tcImpactId = $newTcImpact->id;

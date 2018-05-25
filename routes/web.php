@@ -36,4 +36,5 @@ Route::get('functionalrequirement', "ProjectController@index")->name('functional
 Route::get('testcase', "ProjectController@index")->name('testcase');
 Route::get('changerequest', "ChangeRequestController@index")->name('changeRequest');
 Route::get('changeRequest/create', "ChangeRequestController@create")->name('changeRequestCreate');
+Route::get('project/{projectName}/changeRequest/{changeRequestId}', "ChangeRequestController@show")->name('changeRequestShow');
 Route::get('RTM', "ProjectController@index")->name('rtm');

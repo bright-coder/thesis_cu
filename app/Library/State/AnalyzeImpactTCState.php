@@ -132,8 +132,8 @@ class AnalyzeImpactTCState implements StateInterface
         $this->modify($changeAnalysis->getFrImpactResult(), $projectId);
         $changeAnalysis->setTcImpactResult($this->tcImpactResult);
         //dd($changeAnalysis->getTcImpactResult());
-        //$changeAnalysis->setState(new AnalyzeImpactRTMState);
-        //$changeAnalysis->analyze();
+        $changeAnalysis->setState(new AnalyzeImpactRTMState);
+        $changeAnalysis->analyze();
     }
 
     private function findOldValue(string $tcId, string $inputName): string

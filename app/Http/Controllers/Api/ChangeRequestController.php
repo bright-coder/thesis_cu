@@ -211,11 +211,11 @@ class ChangeRequestController extends Controller
 
         $changeAnalysis = new ChangeAnalysis($project->id, $changeRequest, $changeRequestInputList);
         $changeAnalysis->analyze();
-        // $changeAnalysis->saveSchemaImpact();
-        // $changeAnalysis->saveInstanceImpact();
-        // $changeAnalysis->saveFrImpact();
-        // $changeAnalysis->saveTcImpact();
-        // $changeAnalysis->saveRtmRelationImpact();
+        $changeAnalysis->saveSchemaImpact();
+        $changeAnalysis->saveInstanceImpact();
+        $changeAnalysis->saveFrImpact();
+        $changeAnalysis->saveTcImpact();
+        $changeAnalysis->saveRtmRelationImpact();
 
         return response()->json(['changeRequestId' => $changeAnalysis->getChangeRequest()->id], 201);
     }

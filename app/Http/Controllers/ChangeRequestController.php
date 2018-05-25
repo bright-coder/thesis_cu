@@ -25,5 +25,9 @@ class ChangeRequestController extends Controller
     {
         return view('changeRequest.create');
     }
+
+    public function show($projectName, $changeRequestId) {
+        return view('changeRequest.show',['projectName' => $projectName, 'changeRequestId' => $changeRequestId]);
+    }
     
 }
