@@ -309,7 +309,7 @@ class ChangeAnalysis
                         $newFrInputImpact->tableName = $input['new']['tableName'];
                     }
                     if (array_key_exists('columnName', $input['new'])) {
-                        $newFrInputImpact->tableName = $input['new']['columnName'];
+                        $newFrInputImpact->columnName = $input['new']['columnName'];
                     }
                     $newFrInputImpact->save();
                 }
