@@ -14807,7 +14807,7 @@ if (typeof module !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODE
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(16);
-module.exports = __webpack_require__(77);
+module.exports = __webpack_require__(80);
 
 
 /***/ }),
@@ -14826,6 +14826,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__ = __webpack_require__(74);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue__);
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -14848,6 +14850,7 @@ __webpack_require__(17);
 
 
 
+
 // Vue.use('ProjectForm', require('./components/ProjectForm.vue'))
 
 
@@ -14856,7 +14859,7 @@ console.log(__WEBPACK_IMPORTED_MODULE_0_vue___default.a.version);
 var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
   el: '#app',
   components: {
-    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a
+    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a, ImpactResult: __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default.a
   }
 
 });
@@ -84598,7 +84601,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           "Content-Type": "application/json; charset=utf-8"
         },
         dataType: "json"
-      }).then(function (response) {}).catch(function (errors) {});
+      }).then(function (response) {
+        alert(response.status);
+      }).catch(function (errors) {});
     }
   },
   created: function created() {
@@ -85885,6 +85890,197 @@ if (false) {
 
 /***/ }),
 /* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(78)
+/* template */
+var __vue_template__ = __webpack_require__(79)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ImpactResult.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-781f858c", Component.options)
+  } else {
+    hotAPI.reload("data-v-781f858c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 78 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: "impact-result",
+    props: ["accessToken", "projectName", "changeRequestId"],
+    data: function data() {
+        return {
+            impactList: {}
+        };
+    },
+
+    methods: {
+        getImpact: function getImpact() {
+            var vm = this;
+            axios({
+                url: '/api/v1/projects/' + this.projectName + '/changeRequests/' + this.changeRequestId,
+                method: 'GET',
+                data: null,
+                headers: {
+                    Authorization: "Bearer " + this.accessToken,
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                dataType: 'json'
+            }).then(function (response) {
+                vm.impactList = response.data;
+                console.log(response.data);
+            }).catch(function (errors) {});
+        }
+    },
+    created: function created() {
+        this.getImpact();
+    }
+});
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm._m(0)
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "groot" }, [
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [_vm._v("Schema")]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [_vm._v("Instance")]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("Functional Requirement")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [_vm._v("Test Case")]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("Requirement Traceability Matrix")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" })
+        ])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-781f858c", module.exports)
+  }
+}
+
+/***/ }),
+/* 80 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

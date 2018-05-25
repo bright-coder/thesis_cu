@@ -38,12 +38,33 @@ export default {
   props: ["accessToken", "projectName", "changeRequestId"],
   data() {
     return {
-        ImpactList: {}
+        impactList: {}
     }
   },
-  methods: {},
+  methods: {
+      getImpact() {
+          let vm = this;
+          axios({
+              url: '/api/v1/projects/' + this.projectName + '/changeRequests/' + this.changeRequestId,
+              method: 'GET',
+              data: null,
+              headers: {
+                Authorization: "Bearer " + this.accessToken,
+                "Content-Type": "application/json; charset=utf-8"
+              },
+              dataType: 'json'
+          })
+          .then(function (response){
+              vm.impactList = response.data
+              console.log(response.data)
+          })
+          .catch(function (errors) {
+
+          })
+      }
+  },
   created() {
-      
+      this.getImpact()
   }
 };
 </script>

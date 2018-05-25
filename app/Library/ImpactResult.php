@@ -36,7 +36,7 @@ class ImpactResult
 
     private function getSchemaImpact(): array
     {
-        $tableImpactList = TableImpact::where('changeRequestId', $this->changeRequestId);
+        $tableImpactList = TableImpact::where('changeRequestId', $this->changeRequestId)->get();
         $tableResult = [];
         foreach ($tableImpactList as $tableImpact) {
             $table = [
@@ -47,11 +47,12 @@ class ImpactResult
             $columnList = ColumnImpact::where('tableImpactId', $tableImpact->id)->get();
             foreach ($columnList as $column) {
                 if (!array_key_exists($column->name, $columnResult)) {
-                    $columnResult[$column] = [
-                        'name' => $column->name
+                    $columnResult[$column->name] = [
+                        'name' => $column->name,
+                        'changeType' => $column->changeType
                     ];
                 }
-                $columnResult[$column][$column->versionType] = $column;
+                $columnResult[$column->name][$column->versionType] = $column;
             }
             if (!empty($columnResult)) {
                 foreach ($columnResult as $result) {
@@ -60,6 +61,7 @@ class ImpactResult
             }
             $tableResult[] = $table;
         }
+        
         return $tableResult;
     }
 
@@ -96,14 +98,14 @@ class ImpactResult
     {
         $frResult = [];
        
-        foreach (FrImpact::where('changeRequestId', $this->changeRequest->id)->get() as $frImpact) {
+        foreach (FrImpact::where('changeRequestId', $this->changeRequestId)->get() as $frImpact) {
             $impact = [
                 'functionalRequirementNo' => $frImpact->no,
                 'inputs' => []
             ];
             
             $frInputMem = [];
-            foreach (FrInputImact::where('frImpactId', $frImpact->id)->get() as $frInputImpact) {
+            foreach (FrInputImpact::where('frImpactId', $frImpact->id)->get() as $frInputImpact) {
                 $arrFrImpact = $frInputImpact->toArray();
                 unset($arrFrImpact['id']);
                 unset($arrFrImpact['frImpactId']);
@@ -122,6 +124,7 @@ class ImpactResult
             foreach($frInputMem as $input) {
                 $impact['inputs'][] = $input;
             }
+            $frResult[] = $impact;
         }
         return $frResult;
     }

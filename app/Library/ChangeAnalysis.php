@@ -136,7 +136,7 @@ class ChangeAnalysis
                     $newTableImpact->name = $schema['tableName'];
                     $newTableImpact->changeRequestId = $changeRequestId;
                     $newTableImpact->save();
-
+                    
                     $tableImpactMem[ $schema['tableName'] ] = $newTableImpact->id;
                 }
                 if ($schema['changeType'] == 'add') {
@@ -172,6 +172,7 @@ class ChangeAnalysis
                     if (array_key_exists('max', $schema['newSchema'])) {
                         $newColumnImpact->max = $schema['newSchema']['max'];
                     }
+                    
                     $newColumnImpact->save();
                 } elseif ($schema['changeType'] == 'edit') {
                     $newColumnImpact = new ColumnImpact;
@@ -276,6 +277,7 @@ class ChangeAnalysis
                     $newFrInputImpact->frImpactId = $newFrImpact->id;
                     $newFrInputImpact->changeType = $input['changeType'];
                     $newFrInputImpact->versionType = 'new';
+                    $newFrInputImpact->name = $input['new']['name'];
                     if (array_key_exists('dataType', $input['new'])) {
                         $newFrInputImpact->dataType = $input['new']['dataType'];
                     }

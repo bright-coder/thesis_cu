@@ -70,6 +70,7 @@ class AnalyzeImpactFRState implements StateInterface
                 // add New input
                 else {
                     $frInput['new'] = $changeRequestInput->toArray();
+                    
                 }
                 $this->addFrImpactResult(
                     $changeAnalysis->getChangeFunctionalRequirementId(),
