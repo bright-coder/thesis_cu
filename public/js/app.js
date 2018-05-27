@@ -85975,37 +85975,193 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: "impact-result",
-    props: ["accessToken", "projectName", "changeRequestId"],
-    data: function data() {
-        return {
-            impactList: {}
-        };
-    },
+  name: "impact-result",
+  props: ["accessToken", "projectName", "changeRequestId"],
+  data: function data() {
+    return {
+      impact: {
+        schema: "",
+        instance: "",
+        fr: "",
+        tc: "",
+        rtm: ""
+      }
+    };
+  },
 
-    methods: {
-        getImpact: function getImpact() {
-            var vm = this;
-            axios({
-                url: '/api/v1/projects/' + this.projectName + '/changeRequests/' + this.changeRequestId,
-                method: 'GET',
-                data: null,
-                headers: {
-                    Authorization: "Bearer " + this.accessToken,
-                    "Content-Type": "application/json; charset=utf-8"
-                },
-                dataType: 'json'
-            }).then(function (response) {
-                vm.impactList = response.data;
-                console.log(response.data);
-            }).catch(function (errors) {});
-        }
-    },
-    created: function created() {
-        this.getImpact();
+  methods: {
+    getImpact: function getImpact() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/changeRequests/" + this.changeRequestId,
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        vm.impact.schema = response.data.schema;
+        vm.impact.instance = response.data.instance;
+        vm.impact.fr = response.data.functionalRequirments;
+        vm.impact.tc = response.data.testCases;
+        vm.impact.rtm = response.data.rtm;
+        console.log(vm.impact);
+      }).catch(function (errors) {});
     }
+  },
+  created: function created() {
+    this.getImpact();
+  }
 });
 
 /***/ }),
@@ -86016,56 +86172,592 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div", { staticClass: "groot" }, [
+    _c("div", { staticClass: "container-fluid" }, [
+      _c("div", { staticClass: "card" }, [
+        _c("div", { staticClass: "card-header bg-primary text-white" }, [
+          _vm._v("Impact Result")
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "card-body" }, [
+          _c("h3", { staticClass: "card-title" }, [
+            _vm._v("Project Name : " + _vm._s(_vm.projectName))
+          ]),
+          _vm._v(" "),
+          _c("h5", { staticClass: "card-subtitle text-muted" }, [
+            _vm._v("Change Request Id : " + _vm._s(_vm.changeRequestId))
+          ]),
+          _vm._v(" "),
+          _c("hr"),
+          _vm._v(" "),
+          _c(
+            "ul",
+            {
+              staticClass: "nav nav-pills mb-3",
+              attrs: { id: "pills-tab", role: "tablist" }
+            },
+            [
+              _c("li", { staticClass: "nav-item" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "nav-link active",
+                    attrs: {
+                      id: "pills-fr-tab",
+                      "data-toggle": "pill",
+                      href: "#pills-fr",
+                      role: "tab",
+                      "aria-controls": "pills-home",
+                      "aria-selected": "true"
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                            Functional Requirements "
+                    ),
+                    _c("span", { staticClass: "badge badge-light" }, [
+                      _vm._v(_vm._s(_vm.impact.fr.length))
+                    ])
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c("li", { staticClass: "nav-item" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "nav-link",
+                    attrs: {
+                      id: "pills-schema-tab",
+                      "data-toggle": "pill",
+                      href: "#pills-schema",
+                      role: "tab",
+                      "aria-controls": "pills-schema",
+                      "aria-selected": "false"
+                    }
+                  },
+                  [
+                    _vm._v("\n                            Database Schema "),
+                    _c("span", { staticClass: "badge badge-light" }, [
+                      _vm._v(_vm._s(_vm.impact.schema.length))
+                    ])
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _vm._m(0),
+              _vm._v(" "),
+              _c("li", { staticClass: "nav-item" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "nav-link",
+                    attrs: {
+                      id: "pills-tc-tab",
+                      "data-toggle": "pill",
+                      href: "#pills-tc",
+                      role: "tab",
+                      "aria-controls": "pills-tc",
+                      "aria-selected": "false"
+                    }
+                  },
+                  [
+                    _vm._v("\n                            Test Cases "),
+                    _c("span", { staticClass: "badge badge-light" }, [
+                      _vm._v(_vm._s(_vm.impact.tc.length))
+                    ])
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c("li", { staticClass: "nav-item" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "nav-link",
+                    attrs: {
+                      id: "pills-rtm-tab",
+                      "data-toggle": "pill",
+                      href: "#pills-rtm",
+                      role: "tab",
+                      "aria-controls": "pills-rtm",
+                      "aria-selected": "false"
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                            Requirement Traceability Matrix "
+                    ),
+                    _c("span", { staticClass: "badge badge-light" }, [
+                      _vm._v(_vm._s(_vm.impact.rtm.length))
+                    ])
+                  ]
+                )
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "tab-content", attrs: { id: "pills-tabContent" } },
+            [
+              _c(
+                "div",
+                {
+                  staticClass: "tab-pane fade show active",
+                  attrs: {
+                    id: "pills-fr",
+                    role: "tabpanel",
+                    "aria-labelledby": "pills-home-tab"
+                  }
+                },
+                _vm._l(_vm.impact.fr, function(fr, index) {
+                  return _c("div", { key: index, staticClass: "card-hr" }, [
+                    _c("div", { staticClass: "card" }, [
+                      _c("div", { staticClass: "card-header" }, [
+                        _vm._v(
+                          "\n                                    " +
+                            _vm._s(fr.functionalRequirementNo) +
+                            "\n                                    "
+                        ),
+                        _c("span", { staticClass: "badge badge-info" }, [
+                          _vm._v(_vm._s(fr.inputs.length))
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "card-body" }, [
+                        _c("table", { staticClass: "table table-hover" }, [
+                          _vm._m(1, true),
+                          _vm._v(" "),
+                          _c(
+                            "tbody",
+                            _vm._l(fr.inputs, function(input, inputIndex) {
+                              return _c("tr", { key: inputIndex }, [
+                                _c("td", [_vm._v(_vm._s(inputIndex + 1))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.name) + " ")]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.dataType))]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(input.new.length) + " ")
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.precision))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.scale))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.default))]),
+                                _vm._v(" "),
+                                _c(
+                                  "td",
+                                  {
+                                    class: [
+                                      input.new.nullable == "N"
+                                        ? "text-danger"
+                                        : "text-success"
+                                    ]
+                                  },
+                                  [_vm._v(_vm._s(input.new.nullable))]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "td",
+                                  {
+                                    class: [
+                                      input.new.unique == "N"
+                                        ? "text-danger"
+                                        : "text-success"
+                                    ]
+                                  },
+                                  [_vm._v(_vm._s(input.new.unique))]
+                                ),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.min))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.max))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(input.new.tableName))]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(input.new.columnName))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _c(
+                                    "span",
+                                    {
+                                      staticClass: "badge",
+                                      class: [
+                                        input.changeType == "add"
+                                          ? "badge-success"
+                                          : input.changeType == "edit"
+                                            ? "badge-warning"
+                                            : "badge-danger"
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s(input.changeType))]
+                                  )
+                                ])
+                              ])
+                            })
+                          )
+                        ])
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _vm.impact.fr.length > 1 ? _c("hr") : _vm._e()
+                  ])
+                })
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "tab-pane fade",
+                  attrs: {
+                    id: "pills-schema",
+                    role: "tabpanel",
+                    "aria-labelledby": "pills-schema-tab"
+                  }
+                },
+                _vm._l(_vm.impact.schema, function(table, index) {
+                  return _c("div", { key: index, staticClass: "card-hr" }, [
+                    _c("div", { staticClass: "card" }, [
+                      _c("div", { staticClass: "card-header" }, [
+                        _vm._v(
+                          "\n                                    " +
+                            _vm._s(table.name) +
+                            "\n                                    "
+                        ),
+                        _c("span", { staticClass: "badge badge-info" }, [
+                          _vm._v(_vm._s(table.columnList.length))
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "card-body" }, [
+                        _c("table", { staticClass: "table table-hover" }, [
+                          _vm._m(2, true),
+                          _vm._v(" "),
+                          _c(
+                            "tbody",
+                            _vm._l(table.columnList, function(
+                              column,
+                              columnIndex
+                            ) {
+                              return _c("tr", { key: columnIndex }, [
+                                _c("td", [_vm._v(_vm._s(columnIndex + 1))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(column.name) + " ")]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(column.new.dataType))]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(column.new.length) + " ")
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(column.new.precision))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(column.new.scale))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(column.new.default))]),
+                                _vm._v(" "),
+                                _c(
+                                  "td",
+                                  {
+                                    class: [
+                                      column.new.nullable == "N"
+                                        ? "text-danger"
+                                        : "text-success"
+                                    ]
+                                  },
+                                  [_vm._v(_vm._s(column.new.nullable))]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "td",
+                                  {
+                                    class: [
+                                      column.new.unique == "N"
+                                        ? "text-danger"
+                                        : "text-success"
+                                    ]
+                                  },
+                                  [_vm._v(_vm._s(column.new.unique))]
+                                ),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(column.new.min))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(column.new.max))]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _c(
+                                    "span",
+                                    {
+                                      staticClass: "badge",
+                                      class: [
+                                        column.changeType == "add"
+                                          ? "badge-success"
+                                          : column.changeType == "edit"
+                                            ? "badge-warning"
+                                            : "badge-danger"
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s(column.changeType))]
+                                  )
+                                ])
+                              ])
+                            })
+                          )
+                        ])
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _vm.impact.schema.length > 1 ? _c("hr") : _vm._e()
+                  ])
+                })
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "tab-pane fade",
+                  attrs: {
+                    id: "pills-instance",
+                    role: "tabpanel",
+                    "aria-labelledby": "pills-instance-tab"
+                  }
+                },
+                [_vm._v("...")]
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "tab-pane fade",
+                  attrs: {
+                    id: "pills-tc",
+                    role: "tabpanel",
+                    "aria-labelledby": "pills-tc-tab"
+                  }
+                },
+                [
+                  _c(
+                    "div",
+                    { staticClass: "row" },
+                    _vm._l(_vm.impact.tc, function(tc, index) {
+                      return _c(
+                        "div",
+                        { key: index, staticClass: "col-md-4" },
+                        [
+                          _c("div", { staticClass: "card" }, [
+                            _c("div", { staticClass: "card-body" }, [
+                              _c("h5", { staticClass: "card-title" }, [
+                                _vm._v(
+                                  _vm._s(tc.no) +
+                                    "\n                                            "
+                                ),
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass: "badge",
+                                    class: [
+                                      tc.changeType == "add"
+                                        ? "badge-success"
+                                        : tc.changeType == "edit"
+                                          ? "badge-warning"
+                                          : "badge-danger"
+                                    ]
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                                " +
+                                        _vm._s(tc.changeType) +
+                                        "\n                                            "
+                                    )
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "float-right" }, [
+                                  _vm._v(
+                                    "\n                                                T\n                                            "
+                                  )
+                                ])
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _vm.impact.tc.length > 3 ? _c("br") : _vm._e()
+                          ])
+                        ]
+                      )
+                    })
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "tab-pane fade",
+                  attrs: {
+                    id: "pills-rtm",
+                    role: "tabpanel",
+                    "aria-labelledby": "pills-rtm-tab"
+                  }
+                },
+                [
+                  _c(
+                    "div",
+                    { staticClass: "row" },
+                    _vm._l(_vm.impact.rtm, function(rtm, index) {
+                      return _c(
+                        "div",
+                        { key: index, staticClass: "col-md-3" },
+                        [
+                          _c("div", { staticClass: "card" }, [
+                            _c("div", { staticClass: "card-body" }, [
+                              _c("h5", { staticClass: "card-title" }, [
+                                _vm._v(
+                                  _vm._s(rtm.functionalRequirementNo) + " "
+                                ),
+                                _c("i", { staticClass: "fas fa-link" }),
+                                _vm._v(
+                                  " " +
+                                    _vm._s(rtm.testCaseNo) +
+                                    "\n                                            "
+                                ),
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass: "badge",
+                                    class: [
+                                      rtm.changeType == "add"
+                                        ? "badge-success"
+                                        : rtm.changeType == "edit"
+                                          ? "badge-warning"
+                                          : "badge-danger"
+                                    ]
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                                " +
+                                        _vm._s(rtm.changeType) +
+                                        "\n                                            "
+                                    )
+                                  ]
+                                )
+                              ])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _vm.impact.rtm.length > 4 ? _c("br") : _vm._e()
+                        ]
+                      )
+                    })
+                  )
+                ]
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  ])
 }
 var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "groot" }, [
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header" }, [_vm._v("Schema")]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header" }, [_vm._v("Instance")]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header" }, [
-            _vm._v("Functional Requirement")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header" }, [_vm._v("Test Case")]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header" }, [
-            _vm._v("Requirement Traceability Matrix")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" })
-        ])
+    return _c("li", { staticClass: "nav-item" }, [
+      _c(
+        "a",
+        {
+          staticClass: "nav-link",
+          attrs: {
+            id: "pills-instance-tab",
+            "data-toggle": "pill",
+            href: "#pills-instance",
+            role: "tab",
+            "aria-controls": "pills-instance",
+            "aria-selected": "false"
+          }
+        },
+        [_vm._v("Database Instance")]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Table name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Column name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("ChangeType")]),
+        _vm._v(" "),
+        _c("th")
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Column Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("ChangeType")]),
+        _vm._v(" "),
+        _c("th")
       ])
     ])
   }
