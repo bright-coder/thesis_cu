@@ -4,7 +4,7 @@
             <thead>
                 <tr class="bg-info text-white">
                     <th>Functional Requirement No</th>
-                    <th>Test Case</th>
+                    <th>Test Case No</th>
                 </tr>
             </thead>
             <tbody>

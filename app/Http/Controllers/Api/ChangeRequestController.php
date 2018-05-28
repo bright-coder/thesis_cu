@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use App\Library\ChangeAnalysis;
 use App\Model\User;
 use App\Library\ImpactResult;
+use App\Model\FunctionalRequirement;
+use App\Model\Project;
 
 class ChangeRequestController extends Controller
 {
@@ -22,8 +24,49 @@ class ChangeRequestController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $projectName)
     {
+        $user = User::where('accessToken', $request->bearerToken())->first();
+
+        if(!$user) {
+            return response()->json(['msg' => 'forbidden'],401);
+        }
+
+        $guard = new GuardProject($request->bearerToken());
+        //$projects = $guard->getAllProject();
+        if($projectName == 'all') {
+            $projects = $guard->getAllProject();
+        }
+        else {
+            $projects = $guard->getProject($projectName);
+        }
+
+        if(empty($projects)) {
+            return response()->json(['msg' => 'not found project'], 204);
+        }
+        $projectIdList = [];
+
+        foreach($projects as $project) {
+            $projectIdList[] = $project->id;
+        }
+        
+        $changeRequests = ChangeRequest::whereIn('projectId', $projectIdList)->orderBy('id', 'desc')->get();
+
+        if(empty($changeRequests)) {
+            return response()->json(['msg' => 'not found change request.'], 204);
+        }
+
+        $result = [];
+        
+        foreach($changeRequests as $changeRequest) {
+            $result[] = [
+                'id' => $changeRequest->id,
+                'frNo' => FunctionalRequirement::where('id', $changeRequest->changeFunctionalRequirementId)->first()->no,
+                'projectName' => Project::where('id', $changeRequest->projectId)->first()->name
+            ];
+        }
+        return response()->json($result, 200);
+
     }
 
     /**

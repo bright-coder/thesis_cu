@@ -14828,6 +14828,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue__ = __webpack_require__(77);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue__ = __webpack_require__(85);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue__);
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -14851,6 +14853,7 @@ __webpack_require__(17);
 
 
 
+
 // Vue.use('ProjectForm', require('./components/ProjectForm.vue'))
 
 
@@ -14859,7 +14862,7 @@ console.log(__WEBPACK_IMPORTED_MODULE_0_vue___default.a.version);
 var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
   el: '#app',
   components: {
-    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a, ImpactResult: __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default.a
+    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a, ImpactResult: __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default.a, RecentChangeRequest: __WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue___default.a
   }
 
 });
@@ -82330,7 +82333,7 @@ var staticRenderFns = [
       _c("tr", { staticClass: "bg-info text-white" }, [
         _c("th", [_vm._v("Functional Requirement No")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Test Case")])
+        _c("th", [_vm._v("Test Case No")])
       ])
     ])
   }
@@ -86121,6 +86124,37 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "impact-result",
@@ -86188,6 +86222,8 @@ var render = function() {
             _vm._v("Change Request Id : " + _vm._s(_vm.changeRequestId))
           ]),
           _vm._v(" "),
+          _vm._m(0),
+          _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
           _c(
@@ -86213,7 +86249,7 @@ var render = function() {
                   },
                   [
                     _vm._v(
-                      "\n                            Functional Requirements "
+                      "\n                            Functional Requirements\n                            "
                     ),
                     _c("span", { staticClass: "badge badge-light" }, [
                       _vm._v(_vm._s(_vm.impact.fr.length))
@@ -86237,7 +86273,9 @@ var render = function() {
                     }
                   },
                   [
-                    _vm._v("\n                            Database Schema "),
+                    _vm._v(
+                      "\n                            Database Schema\n                            "
+                    ),
                     _c("span", { staticClass: "badge badge-light" }, [
                       _vm._v(_vm._s(_vm.impact.schema.length))
                     ])
@@ -86245,7 +86283,30 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _vm._m(0),
+              _c("li", { staticClass: "nav-item" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "nav-link",
+                    attrs: {
+                      id: "pills-instance-tab",
+                      "data-toggle": "pill",
+                      href: "#pills-instance",
+                      role: "tab",
+                      "aria-controls": "pills-instance",
+                      "aria-selected": "false"
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                            Database Instance\n                            "
+                    ),
+                    _c("span", { staticClass: "badge badge-light" }, [
+                      _vm._v(_vm._s(_vm.impact.instance.length))
+                    ])
+                  ]
+                )
+              ]),
               _vm._v(" "),
               _c("li", { staticClass: "nav-item" }, [
                 _c(
@@ -86262,7 +86323,9 @@ var render = function() {
                     }
                   },
                   [
-                    _vm._v("\n                            Test Cases "),
+                    _vm._v(
+                      "\n                            Test Cases\n                            "
+                    ),
                     _c("span", { staticClass: "badge badge-light" }, [
                       _vm._v(_vm._s(_vm.impact.tc.length))
                     ])
@@ -86286,7 +86349,7 @@ var render = function() {
                   },
                   [
                     _vm._v(
-                      "\n                            Requirement Traceability Matrix "
+                      "\n                            Requirement Traceability Matrix\n                            "
                     ),
                     _c("span", { staticClass: "badge badge-light" }, [
                       _vm._v(_vm._s(_vm.impact.rtm.length))
@@ -86608,55 +86671,64 @@ var render = function() {
                   }
                 },
                 [
-                  _c(
-                    "div",
-                    { staticClass: "row" },
-                    _vm._l(_vm.impact.rtm, function(rtm, index) {
-                      return _c(
-                        "div",
-                        { key: index, staticClass: "col-md-3" },
-                        [
-                          _c("div", { staticClass: "card" }, [
-                            _c("div", { staticClass: "card-body" }, [
-                              _c("h5", { staticClass: "card-title" }, [
-                                _vm._v(
-                                  _vm._s(rtm.functionalRequirementNo) + " "
-                                ),
-                                _c("i", { staticClass: "fas fa-link" }),
-                                _vm._v(
-                                  " " +
-                                    _vm._s(rtm.testCaseNo) +
-                                    "\n                                            "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    staticClass: "badge",
-                                    class: [
-                                      rtm.changeType == "add"
-                                        ? "badge-success"
-                                        : rtm.changeType == "edit"
-                                          ? "badge-warning"
-                                          : "badge-danger"
-                                    ]
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                                                " +
-                                        _vm._s(rtm.changeType) +
-                                        "\n                                            "
+                  _c("div", { staticClass: "row" }, [
+                    _c("div", { staticClass: "col-md-6" }, [
+                      _c("div", { staticClass: "card" }, [
+                        _c("div", { staticClass: "card-body" }, [
+                          _c("table", { staticClass: "table table-hover" }, [
+                            _vm._m(3),
+                            _vm._v(" "),
+                            _c(
+                              "tbody",
+                              _vm._l(_vm.impact.rtm, function(rtm, index) {
+                                return _c("tr", { key: index }, [
+                                  _c("td", [_vm._v(_vm._s(index + 1))]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(_vm._s(rtm.functionalRequirementNo))
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _c("i", {
+                                      staticClass: "fas",
+                                      class: [
+                                        rtm.changeType == "add"
+                                          ? "fa-link"
+                                          : "fa-unlink"
+                                      ]
+                                    })
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [_vm._v(_vm._s(rtm.testCaseNo))]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _c(
+                                      "span",
+                                      {
+                                        staticClass: "badge",
+                                        class: [
+                                          rtm.changeType == "add"
+                                            ? "badge-success"
+                                            : "badge-danger"
+                                        ]
+                                      },
+                                      [
+                                        _vm._v(
+                                          "\n                                                            " +
+                                            _vm._s(rtm.changeType) +
+                                            "\n                                                        "
+                                        )
+                                      ]
                                     )
-                                  ]
-                                )
-                              ])
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _vm.impact.rtm.length > 4 ? _c("br") : _vm._e()
-                        ]
-                      )
-                    })
-                  )
+                                  ])
+                                ])
+                              })
+                            )
+                          ])
+                        ])
+                      ])
+                    ])
+                  ])
                 ]
               )
             ]
@@ -86671,22 +86743,9 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("li", { staticClass: "nav-item" }, [
-      _c(
-        "a",
-        {
-          staticClass: "nav-link",
-          attrs: {
-            id: "pills-instance-tab",
-            "data-toggle": "pill",
-            href: "#pills-instance",
-            role: "tab",
-            "aria-controls": "pills-instance",
-            "aria-selected": "false"
-          }
-        },
-        [_vm._v("Database Instance")]
-      )
+    return _c("h5", { staticClass: "card-subtitle text-muted" }, [
+      _vm._v("Status : "),
+      _c("span", { staticClass: "text-success" }, [_vm._v("Success")])
     ])
   },
   function() {
@@ -86760,6 +86819,24 @@ var staticRenderFns = [
         _c("th")
       ])
     ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Functional Requirement No")]),
+        _vm._v(" "),
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Test Case No")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Change Type")])
+      ])
+    ])
   }
 ]
 render._withStripped = true
@@ -86776,6 +86853,196 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(86)
+/* template */
+var __vue_template__ = __webpack_require__(87)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/RecentChangeRequest.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-358c76bd", Component.options)
+  } else {
+    hotAPI.reload("data-v-358c76bd", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 86 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "recent-change-request",
+  props: ["accessToken"],
+  data: function data() {
+    return {
+      changeRequestList: ''
+    };
+  },
+
+  methods: {
+    getAllChangeRequest: function getAllChangeRequest() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/all/changeRequests",
+        methods: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+        vm.changeRequestList = response.data;
+      }).catch(function (errors) {});
+    }
+  },
+  created: function created() {
+    this.getAllChangeRequest();
+  }
+});
+
+/***/ }),
+/* 87 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("table", { staticClass: "table table-hover" }, [
+    _vm._m(0),
+    _vm._v(" "),
+    _c(
+      "tbody",
+      _vm._l(_vm.changeRequestList, function(changeRequest, index) {
+        return _c("tr", { key: index }, [
+          _c("td", [_vm._v(_vm._s(index + 1))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(changeRequest.id))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(changeRequest.projectName))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(changeRequest.frNo))]),
+          _vm._v(" "),
+          _c("td", { staticClass: "text-success" }, [_vm._v(" SUCCESS ")]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "a",
+              {
+                staticClass: "btn btn-primary",
+                attrs: {
+                  href:
+                    "/project/" +
+                    changeRequest.projectName +
+                    "/changeRequest/" +
+                    changeRequest.id
+                }
+              },
+              [_vm._v("More")]
+            )
+          ])
+        ])
+      })
+    )
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Id")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Project Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Change Functional Requirement No")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Status")]),
+        _vm._v(" "),
+        _c("th")
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-358c76bd", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

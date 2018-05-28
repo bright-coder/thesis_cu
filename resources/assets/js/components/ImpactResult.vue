@@ -6,26 +6,38 @@
                 <div class="card-body">
                     <h3 class="card-title">Project Name : {{ projectName }}</h3>
                     <h5 class="card-subtitle text-muted">Change Request Id : {{ changeRequestId}}</h5>
+                    <h5 class="card-subtitle text-muted">Status : <span class="text-success">Success</span></h5>
                     <hr>
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="pills-fr-tab" data-toggle="pill" href="#pills-fr" role="tab" aria-controls="pills-home" aria-selected="true">
-                                Functional Requirements <span class="badge badge-light">{{ impact.fr.length }}</span></a>
+                                Functional Requirements
+                                <span class="badge badge-light">{{ impact.fr.length }}</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="pills-schema-tab" data-toggle="pill" href="#pills-schema" role="tab" aria-controls="pills-schema" aria-selected="false">
-                                Database Schema <span class="badge badge-light">{{ impact.schema.length }}</span></a>
+                                Database Schema
+                                <span class="badge badge-light">{{ impact.schema.length }}</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-instance-tab" data-toggle="pill" href="#pills-instance" role="tab" aria-controls="pills-instance" aria-selected="false">Database Instance</a>
+                            <a class="nav-link" id="pills-instance-tab" data-toggle="pill" href="#pills-instance" role="tab" aria-controls="pills-instance" aria-selected="false">
+                                Database Instance
+                                <span class="badge badge-light">{{ impact.instance.length }}</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="pills-tc-tab" data-toggle="pill" href="#pills-tc" role="tab" aria-controls="pills-tc" aria-selected="false">
-                                Test Cases <span class="badge badge-light">{{ impact.tc.length }}</span></a>
+                                Test Cases
+                                <span class="badge badge-light">{{ impact.tc.length }}</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="pills-rtm-tab" data-toggle="pill" href="#pills-rtm" role="tab" aria-controls="pills-rtm" aria-selected="false">
-                                Requirement Traceability Matrix <span class="badge badge-light">{{ impact.rtm.length }}</span></a>
+                                Requirement Traceability Matrix
+                                <span class="badge badge-light">{{ impact.rtm.length }}</span>
+                            </a>
                         </li>
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
@@ -80,7 +92,7 @@
                                         </table>
                                     </div>
                                 </div>
-                            <hr v-if="impact.fr.length > 1">
+                                <hr v-if="impact.fr.length > 1">
                             </div>
                         </div>
                         <div class="tab-pane fade" id="pills-schema" role="tabpanel" aria-labelledby="pills-schema-tab">
@@ -130,7 +142,7 @@
                                         </table>
                                     </div>
                                 </div>
-                            <hr v-if="impact.schema.length > 1">
+                                <hr v-if="impact.schema.length > 1">
                             </div>
                         </div>
                         <div class="tab-pane fade" id="pills-instance" role="tabpanel" aria-labelledby="pills-instance-tab">...</div>
@@ -148,7 +160,7 @@
                                                     T
                                                 </div>
                                             </h5>
-                                            
+
                                         </div>
                                         <br v-if="impact.tc.length > 3">
                                     </div>
@@ -157,18 +169,37 @@
                         </div>
                         <div class="tab-pane fade" id="pills-rtm" role="tabpanel" aria-labelledby="pills-rtm-tab">
                             <div class="row">
-                                <div class="col-md-3" v-for="(rtm,index) in impact.rtm" :key="index">
+                                <div class="col-md-6">
                                     <div class="card">
                                         <div class="card-body">
-                                            <h5 class="card-title">{{ rtm.functionalRequirementNo }} <i class="fas fa-link"></i> {{ rtm.testCaseNo }}
-                                                <span class="badge" v-bind:class="[rtm.changeType == 'add' ? 'badge-success' : 
-                                                    rtm.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">
-                                                    {{ rtm.changeType }}
-                                                </span>
-                                            </h5>
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr class="bg-info text-white">
+                                                        <th></th>
+                                                        <th>Functional Requirement No</th>
+                                                        <th>
+                                                            
+                                                        </th>
+                                                        <th>Test Case No</th>
+                                                        <th>Change Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(rtm,index) in impact.rtm" :key="index">
+                                                        <td>{{index+1}}</td>
+                                                        <td>{{ rtm.functionalRequirementNo }}</td>
+                                                        <td><i class="fas" v-bind:class="[rtm.changeType == 'add' ? 'fa-link' : 'fa-unlink']"></i></td>
+                                                        <td>{{ rtm.testCaseNo }}</td>
+                                                        <td>
+                                                            <span class="badge" v-bind:class="[rtm.changeType == 'add' ? 'badge-success' : 'badge-danger']">
+                                                                {{ rtm.changeType }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                    <br v-if="impact.rtm.length > 4">
                                 </div>
                             </div>
                         </div>
