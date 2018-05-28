@@ -21,6 +21,10 @@ class ChangeRequestController extends Controller
         return view('changeRequest.main');    
     }
 
+    public function list($projectName){
+        return view('changeRequest.listByProject',['projectName' => $projectName]);
+    }
+
     public function create()
     {
         return view('changeRequest.create');

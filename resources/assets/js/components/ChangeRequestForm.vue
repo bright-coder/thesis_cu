@@ -498,7 +498,7 @@ export default {
         dataType: "json"
       })
         .then(function(response) {
-            alert(response.status)
+            location.href = '/project/'+vm.selectedProject+'/changeRequest/'+response.data.changeRequestId
         })
         .catch(function(errors) {});
     }

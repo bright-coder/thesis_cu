@@ -55,12 +55,25 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
             }
         
         }
+
+        $refSchema = [
+            'dataType' => $column->getDataType()->getType(),
+            'length' => $column->getDataType()->getLength(),
+            'precision' => $column->getDataType()->getPrecision(),
+            'scale' => $column->getDataType()->getScale(),
+            'default' => $column->getDefault(),
+            'nullable' => $column->isNullable(),
+            'unique' => $table->isUnique($column->getName()),
+            'min' => $table->getMin($column->getName())['value'],
+            'max' => $table->getMax($column->getName())['value']
+        ];
+
             $this->schemaImpactResult[0] = 
             [
                 'tableName' => $table->getName(),
                 'columnName' => $column->getName(),
                 'changeType' => 'delete',
-                'oldSchema' => null,
+                'oldSchema' => $refSchema,
                 'newSchema' => null
             ];
             $this->instanceImpactResult[0] = [

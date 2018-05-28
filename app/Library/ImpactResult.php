@@ -112,13 +112,13 @@ class ImpactResult
                 unset($arrFrImpact['versionType']);
                 unset($arrFrImpact['changeType']);
                 unset($arrFrImpact['name']);
-                if (!\array_key_exists($frInputImpact->name, $frInputMem)) {
-                    $frInputMem[$frInputImpact->name] = [
+                if (!\array_key_exists($frInputImpact->frImpactId, $frInputMem)) {
+                    $frInputMem[$frInputImpact->frImpactId] = [
                         'name' => $frInputImpact->name,
                         'changeType' => $frInputImpact->changeType
                     ];
                 }
-                $frInputMem[$frInputImpact->name][$frInputImpact->versionType] = $arrFrImpact;
+                $frInputMem[$frInputImpact->frImpactId][$frInputImpact->versionType] = $arrFrImpact;
             }
 
             foreach($frInputMem as $input) {

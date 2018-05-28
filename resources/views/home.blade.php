@@ -7,7 +7,7 @@
         Recent Change Request
       </div>
       <div class="card-body">
-      <recent-change-request access-token="{{ Auth::user()->accessToken }}"></recent-change-request>
+      <change-request-list access-token="{{ Auth::user()->accessToken }}" project-name="all"></change-request-list>
       </div>
     </div>
 </div>

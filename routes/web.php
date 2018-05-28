@@ -30,11 +30,12 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::get('project', "ProjectController@index")->name('project');
 Route::get('project/create', "ProjectController@create")->name('projectCreate');
 Route::get('project/{name}', "ProjectController@show")->name('projectShow');
+Route::get('project/{name}/changeRequest', "ChangeRequestController@list")->name('changeRequestWithName');
 Route::post('project', 'ProjectController@store');
 
 Route::get('functionalrequirement', "ProjectController@index")->name('functionalrequirement');
 Route::get('testcase', "ProjectController@index")->name('testcase');
-Route::get('changerequest', "ChangeRequestController@index")->name('changeRequest');
+Route::get('changeRequest', "ChangeRequestController@index")->name('changeRequest');
 Route::get('changeRequest/create', "ChangeRequestController@create")->name('changeRequestCreate');
 Route::get('project/{projectName}/changeRequest/{changeRequestId}', "ChangeRequestController@show")->name('changeRequestShow');
 Route::get('RTM', "ProjectController@index")->name('rtm');

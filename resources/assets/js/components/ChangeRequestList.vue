@@ -4,7 +4,7 @@
             <tr class="bg-info text-white">
                 <th></th>
                 <th>Id</th>
-                <th>Project Name</th>
+                <th v-if="projectName == 'all'">Project Name</th>
                 <th>Change Functional Requirement No</th>
                 <th>Status</th>
                 <th></th>
@@ -14,7 +14,7 @@
             <tr v-for="(changeRequest,index) in changeRequestList" :key="index">
                 <td>{{ index+1 }}</td>
                 <td>{{ changeRequest.id }}</td>
-                <td>{{ changeRequest.projectName }}</td>
+                <td v-if="projectName == 'all'">{{ changeRequest.projectName }}</td>
                 <td>{{ changeRequest.frNo }}</td>
                 <td class="text-success"> SUCCESS </td>
                 <td><a :href="'/project/'+changeRequest.projectName+'/changeRequest/'+changeRequest.id" class="btn btn-primary">More</a></td>
@@ -24,8 +24,8 @@
 </template>
 <script>
 export default {
-  name: "recent-change-request",
-  props: ["accessToken"],
+  name: "change-request-list",
+  props: ["accessToken", 'projectName'],
   data() {
     return {
         changeRequestList: ''
@@ -35,7 +35,7 @@ export default {
     getAllChangeRequest() {
     let vm = this;
       axios({
-        url: "/api/v1/projects/all/changeRequests",
+        url: "/api/v1/projects/"+this.projectName+"/changeRequests",
         methods: "GET",
         data: null,
         headers: {

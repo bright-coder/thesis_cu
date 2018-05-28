@@ -207,8 +207,32 @@ class ProjectController extends Controller
             }
 
             foreach ($crs as $cr) {
-                DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', $cr->id)->delete();
-                DB::table('CHANGE_REQUEST')->where('id', $cr->id)->delete();
+                foreach (DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', $cr->id)->get() as $crInput) {
+                    foreach (DB::table('INSTANCE_IMPACT')->where('changeRequestInputId', $crInput->id)->get() as $insNew) {
+                        DB::table('OLD_INSTANCE')->where('instanceImpactId', $insNew->id)->delete();
+                        DB::table('INSTANCE_IMPACT')->where('id', $insNew->id)->delete();
+                    }
+                    DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
+                }
+    
+                foreach(DB::table('TABLE_IMPACT')->where('changeRequestId', $cr->id)->get() as $tableImpact) {
+                    DB::table('COLUMN_IMPACT')->where('tableImpactId', $tableImpact->id)->delete();
+                    DB::table('TABLE_IMPACT')->where('id', $tableImpact->id)->delete();
+                }
+    
+                foreach(DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {
+                    DB::table('FR_INPUT_IMPACT')->where('frImpactId', $frImpact->id)->delete();
+                    DB::table('FR_IMPACT')->where('id', $frImpact->id)->delete();
+                }
+    
+                foreach(DB::table('TC_IMPACT')->where('changeRequestId', $cr->id)->get() as $tcImpact) {
+                    DB::table('TC_INPUT_IMPACT')->where('tcImpactId', $tcImpact->id)->delete();
+                    DB::table('TC_IMPACT')->where('id', $tcImpact->id)->delete();
+                }
+    
+                DB::table('RTM_RELATION_IMPACT')->where('changeRequestId', $cr->id)->delete();
+    
+                DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
             }
 
             foreach ($frs as $fr) {

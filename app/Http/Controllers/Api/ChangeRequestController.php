@@ -39,6 +39,9 @@ class ChangeRequestController extends Controller
         }
         else {
             $projects = $guard->getProject($projectName);
+            $projects = [
+                $projects
+            ];
         }
 
         if(empty($projects)) {

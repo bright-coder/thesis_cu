@@ -14828,8 +14828,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue__ = __webpack_require__(77);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue__ = __webpack_require__(85);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_ChangeRequestList_vue__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_ChangeRequestList_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__components_ChangeRequestList_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_ChangeRequestMain_vue__ = __webpack_require__(88);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_ChangeRequestMain_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__components_ChangeRequestMain_vue__);
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -14854,6 +14856,7 @@ __webpack_require__(17);
 
 
 
+
 // Vue.use('ProjectForm', require('./components/ProjectForm.vue'))
 
 
@@ -14862,7 +14865,7 @@ console.log(__WEBPACK_IMPORTED_MODULE_0_vue___default.a.version);
 var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
   el: '#app',
   components: {
-    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a, ImpactResult: __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default.a, RecentChangeRequest: __WEBPACK_IMPORTED_MODULE_6__components_RecentChangeRequest_vue___default.a
+    ProjectForm: __WEBPACK_IMPORTED_MODULE_1__components_ProjectForm_vue___default.a, ProjectMain: __WEBPACK_IMPORTED_MODULE_2__components_ProjectMain_vue___default.a, ProjectShow: __WEBPACK_IMPORTED_MODULE_3__components_ProjectShow_vue___default.a, ChangeRequestForm: __WEBPACK_IMPORTED_MODULE_4__components_ChangeRequestForm_vue___default.a, ImpactResult: __WEBPACK_IMPORTED_MODULE_5__components_ImpactResult_vue___default.a, ChangeRequestList: __WEBPACK_IMPORTED_MODULE_6__components_ChangeRequestList_vue___default.a, ChangeRequestMain: __WEBPACK_IMPORTED_MODULE_7__components_ChangeRequestMain_vue___default.a
   }
 
 });
@@ -51591,6 +51594,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__ = __webpack_require__(70);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ChangeRequestList_vue__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ChangeRequestList_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__ChangeRequestList_vue__);
 //
 //
 //
@@ -51650,6 +51655,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -51666,7 +51685,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   components: {
     ProjectForm: __WEBPACK_IMPORTED_MODULE_0__ProjectForm_vue___default.a,
     ProjectFile: __WEBPACK_IMPORTED_MODULE_1__ProjectFile_vue___default.a,
-    DatabaseTable: __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue___default.a
+    DatabaseTable: __WEBPACK_IMPORTED_MODULE_2__DatabaseTable_vue___default.a,
+    ChangeRequestList: __WEBPACK_IMPORTED_MODULE_3__ChangeRequestList_vue___default.a
   },
   methods: {
     showBasic: function showBasic() {
@@ -51683,6 +51703,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     showRTM: function showRTM() {
       this.menu = "rtm";
+    },
+    showCrHistory: function showCrHistory() {
+      this.menu = "cr-history";
     },
     remove: function remove() {
       var vm = this;
@@ -83867,6 +83890,25 @@ var render = function() {
                   _c("i", { staticClass: "fas fa-link" }),
                   _vm._v("  Requirement Traceability Matrix")
                 ]
+              ),
+              _vm._v(" "),
+              _c(
+                "a",
+                {
+                  staticClass: "list-group-item list-group-item-action",
+                  class: { active: _vm.menu == "cr-history" },
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showCrHistory($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-history" }),
+                  _vm._v("  Change Request History")
+                ]
               )
             ]),
             _vm._v(" "),
@@ -84005,6 +84047,35 @@ var render = function() {
                   contentType: "rtm"
                 }
               })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.menu == "cr-history"
+            ? _c("div", { staticClass: "container-fluid" }, [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-header" }, [
+                    _c("h4", [
+                      _c("i", { staticClass: "fas fa-history" }),
+                      _vm._v("  " + _vm._s(_vm.projectNameInit))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "card-body" },
+                    [
+                      _vm.menu == "cr-history"
+                        ? _c("change-request-list", {
+                            attrs: {
+                              "access-token": _vm.accessToken,
+                              "project-name": _vm.projectNameInit
+                            }
+                          })
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ])
+              ])
             : _vm._e()
         ],
         1
@@ -84605,7 +84676,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         dataType: "json"
       }).then(function (response) {
-        alert(response.status);
+        location.href = '/project/' + vm.selectedProject + '/changeRequest/' + response.data.changeRequestId;
       }).catch(function (errors) {});
     }
   },
@@ -86155,6 +86226,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "impact-result",
@@ -86215,7 +86289,10 @@ var render = function() {
         _vm._v(" "),
         _c("div", { staticClass: "card-body" }, [
           _c("h3", { staticClass: "card-title" }, [
-            _vm._v("Project Name : " + _vm._s(_vm.projectName))
+            _vm._v("Project Name : "),
+            _c("a", { attrs: { href: "/project/" + _vm.projectName } }, [
+              _vm._v(" " + _vm._s(_vm.projectName) + " ")
+            ])
           ]),
           _vm._v(" "),
           _c("h5", { staticClass: "card-subtitle text-muted" }, [
@@ -86400,50 +86477,142 @@ var render = function() {
                                 _vm._v(" "),
                                 _c("td", [_vm._v(_vm._s(input.name) + " ")]),
                                 _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.dataType))]),
-                                _vm._v(" "),
                                 _c("td", [
-                                  _vm._v(_vm._s(input.new.length) + " ")
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.dataType
+                                        : input.new.dataType
+                                    )
+                                  )
                                 ]),
                                 _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.precision))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.scale))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.default))]),
-                                _vm._v(" "),
-                                _c(
-                                  "td",
-                                  {
-                                    class: [
-                                      input.new.nullable == "N"
-                                        ? "text-danger"
-                                        : "text-success"
-                                    ]
-                                  },
-                                  [_vm._v(_vm._s(input.new.nullable))]
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "td",
-                                  {
-                                    class: [
-                                      input.new.unique == "N"
-                                        ? "text-danger"
-                                        : "text-success"
-                                    ]
-                                  },
-                                  [_vm._v(_vm._s(input.new.unique))]
-                                ),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.min))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.max))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.new.tableName))]),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.length
+                                        : input.new.length
+                                    ) + " "
+                                  )
+                                ]),
                                 _vm._v(" "),
                                 _c("td", [
-                                  _vm._v(_vm._s(input.new.columnName))
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.precision
+                                        : input.new.precision
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.scale
+                                        : input.new.scale
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.default
+                                        : input.new.default
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                input.changeType != "delete"
+                                  ? _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          input.new.nullable == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(input.new.nullable))]
+                                    )
+                                  : _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          input.old.nullable == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(input.old.nullable))]
+                                    ),
+                                _vm._v(" "),
+                                input.changeType != "delete"
+                                  ? _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          input.new.unique == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(input.new.unique))]
+                                    )
+                                  : _c(
+                                      "td",
+                                      {
+                                        class: [
+                                          input.old.unique == "N"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        ]
+                                      },
+                                      [_vm._v(_vm._s(input.old.unique))]
+                                    ),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.min
+                                        : input.new.min
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.max
+                                        : input.new.max
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.tableName
+                                        : input.new.tableName
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    _vm._s(
+                                      input.changeType == "delete"
+                                        ? input.old.columnName
+                                        : input.new.columnName
+                                    )
+                                  )
                                 ]),
                                 _vm._v(" "),
                                 _c("td", [
@@ -86649,10 +86818,10 @@ var render = function() {
                                   )
                                 ])
                               ])
-                            ]),
-                            _vm._v(" "),
-                            _vm.impact.tc.length > 3 ? _c("br") : _vm._e()
-                          ])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _vm.impact.tc.length > 3 ? _c("br") : _vm._e()
                         ]
                       )
                     })
@@ -86859,15 +87028,18 @@ if (false) {
 /* 82 */,
 /* 83 */,
 /* 84 */,
-/* 85 */
+/* 85 */,
+/* 86 */,
+/* 87 */,
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(86)
+var __vue_script__ = __webpack_require__(89)
 /* template */
-var __vue_template__ = __webpack_require__(87)
+var __vue_template__ = __webpack_require__(90)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -86884,7 +87056,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/RecentChangeRequest.vue"
+Component.options.__file = "resources/assets/js/components/ChangeRequestMain.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -86893,9 +87065,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-358c76bd", Component.options)
+    hotAPI.createRecord("data-v-78fcd41e", Component.options)
   } else {
-    hotAPI.reload("data-v-358c76bd", Component.options)
+    hotAPI.reload("data-v-78fcd41e", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -86906,7 +87078,244 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 86 */
+/* 89 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'change-request-main',
+    props: ['accessToken', 'projectName'],
+    data: function data() {
+        return {
+            projects: '',
+            selectedProject: ''
+        };
+    },
+
+    methods: {
+        getAllProject: function getAllProject() {
+            var url = "/api/v1/projects";
+            var vm = this;
+            axios({
+                url: url,
+                method: "GET",
+                data: null,
+                headers: {
+                    Authorization: "Bearer " + this.accessToken,
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                dataType: "json"
+            }).then(function (response) {
+                if (response.status == 200) {
+                    vm.projects = response.data;
+                    vm.selectedProject = vm.projects[0].name;
+                }
+                //console.log(response);
+            }).catch(function (errors) {});
+        },
+        go: function go() {
+            location.href = '/project/' + this.selectedProject + '/changeRequest';
+        }
+    },
+    created: function created() {
+        this.getAllProject();
+    }
+});
+
+/***/ }),
+/* 90 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "card" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c("div", { staticClass: "card-body" }, [
+        _vm.projects.length > 0
+          ? _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-md-4" }, [
+                _c(
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.selectedProject,
+                        expression: "selectedProject"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    on: {
+                      change: function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.selectedProject = $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      }
+                    }
+                  },
+                  _vm._l(_vm.projects, function(project, index) {
+                    return _c(
+                      "option",
+                      { key: index, domProps: { value: project.name } },
+                      [
+                        _vm._v(
+                          "\n                            " +
+                            _vm._s(project.name) +
+                            "\n                        "
+                        )
+                      ]
+                    )
+                  })
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-4" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary",
+                    on: {
+                      click: function($event) {
+                        _vm.go()
+                      }
+                    }
+                  },
+                  [_vm._v(" Go")]
+                )
+              ])
+            ])
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.projects.length == 0
+          ? _c("div", { staticClass: "row" }, [_vm._m(1)])
+          : _vm._e()
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card-header bg-primary text-white" }, [
+      _c("h4", [_vm._v("My project")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-md-12" }, [
+      _vm._v("\n                    Let's \n                    "),
+      _c("a", { attrs: { href: "/project/create" } }, [
+        _vm._v("create a new project.")
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-78fcd41e", module.exports)
+  }
+}
+
+/***/ }),
+/* 91 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(92)
+/* template */
+var __vue_template__ = __webpack_require__(93)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ChangeRequestList.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-14374656", Component.options)
+  } else {
+    hotAPI.reload("data-v-14374656", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 92 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -86937,8 +87346,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: "recent-change-request",
-  props: ["accessToken"],
+  name: "change-request-list",
+  props: ["accessToken", 'projectName'],
   data: function data() {
     return {
       changeRequestList: ''
@@ -86949,7 +87358,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     getAllChangeRequest: function getAllChangeRequest() {
       var vm = this;
       axios({
-        url: "/api/v1/projects/all/changeRequests",
+        url: "/api/v1/projects/" + this.projectName + "/changeRequests",
         methods: "GET",
         data: null,
         headers: {
@@ -86968,7 +87377,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 87 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -86976,7 +87385,23 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("table", { staticClass: "table table-hover" }, [
-    _vm._m(0),
+    _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Id")]),
+        _vm._v(" "),
+        _vm.projectName == "all"
+          ? _c("th", [_vm._v("Project Name")])
+          : _vm._e(),
+        _vm._v(" "),
+        _c("th", [_vm._v("Change Functional Requirement No")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Status")]),
+        _vm._v(" "),
+        _c("th")
+      ])
+    ]),
     _vm._v(" "),
     _c(
       "tbody",
@@ -86986,7 +87411,9 @@ var render = function() {
           _vm._v(" "),
           _c("td", [_vm._v(_vm._s(changeRequest.id))]),
           _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(changeRequest.projectName))]),
+          _vm.projectName == "all"
+            ? _c("td", [_vm._v(_vm._s(changeRequest.projectName))])
+            : _vm._e(),
           _vm._v(" "),
           _c("td", [_vm._v(_vm._s(changeRequest.frNo))]),
           _vm._v(" "),
@@ -87013,34 +87440,13 @@ var render = function() {
     )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", { staticClass: "bg-info text-white" }, [
-        _c("th"),
-        _vm._v(" "),
-        _c("th", [_vm._v("Id")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Project Name")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Change Functional Requirement No")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Status")]),
-        _vm._v(" "),
-        _c("th")
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-358c76bd", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-14374656", module.exports)
   }
 }
 

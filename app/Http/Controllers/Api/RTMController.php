@@ -36,7 +36,7 @@ class RTMController extends Controller
         $relationList = RequirementTraceabilityMatrixRelation::where([
             ['requirementTraceabilityMatrixId', $rtm->id], 
             ['activeFlag', 'Y']
-            ])->get();
+            ])->orderBy('functionalRequirementId','asc')->get();
         foreach ($relationList as $index => $relation) {
             $frId = $relation->functionalRequirementId;
             $frNo = FunctionalRequirement::select('no')->where('id', $frId)->first()->no;

@@ -18,6 +18,8 @@
                                 <i class="fas fa-clipboard-check"></i>&nbsp;&nbsp;Test Case</a>
                             <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'rtm' }" @click.prevent="showRTM">
                                 <i class="fas fa-link"></i>&nbsp;&nbsp;Requirement Traceability Matrix</a>
+                            <a href="#" class="list-group-item list-group-item-action" v-bind:class="{'active' : menu == 'cr-history' }" @click.prevent="showCrHistory">
+                                <i class="fas fa-history"></i>&nbsp;&nbsp;Change Request History</a>
                         </div>
                         <hr>
                         <button type="button" data-toggle="modal" data-target="#confirmModal" class="btn btn-outline-danger btn-block">
@@ -53,6 +55,17 @@
                 <project-file :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'fr'" :contentType="'fr'" key="fr"></project-file>
                 <project-file :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'tc'" :contentType="'tc'" key="tc"></project-file>
                 <project-file :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'rtm'" :contentType="'rtm'" key="rtm"></project-file>
+                <div class="container-fluid" v-if="menu == 'cr-history'">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-history"></i>&nbsp;&nbsp;{{ projectNameInit }}</h4> 
+                        </div>
+                        <div class="card-body">
+                            <change-request-list :access-token="accessToken" :project-name="projectNameInit" v-if="menu == 'cr-history'"></change-request-list>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -61,6 +74,7 @@
 import ProjectForm from "./ProjectForm.vue";
 import ProjectFile from "./ProjectFile.vue";
 import DatabaseTable from "./DatabaseTable.vue";
+import ChangeRequestList from "./ChangeRequestList.vue";
 export default {
   name: "project-show",
   props: ["accessToken", "requestType", "projectNameInit"],
@@ -72,7 +86,8 @@ export default {
   components: {
     ProjectForm,
     ProjectFile,
-    DatabaseTable
+    DatabaseTable,
+    ChangeRequestList
   },
   methods: {
     showBasic() {
@@ -89,6 +104,9 @@ export default {
     },
     showRTM() {
       this.menu = "rtm";
+    },
+    showCrHistory() {
+      this.menu = "cr-history";
     },
     remove() {
       var vm = this;

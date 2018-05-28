@@ -4,7 +4,7 @@
             <div class="card">
                 <div class="card-header bg-primary text-white">Impact Result</div>
                 <div class="card-body">
-                    <h3 class="card-title">Project Name : {{ projectName }}</h3>
+                    <h3 class="card-title">Project Name : <a :href="'/project/'+projectName"> {{projectName }} </a></h3>
                     <h5 class="card-subtitle text-muted">Change Request Id : {{ changeRequestId}}</h5>
                     <h5 class="card-subtitle text-muted">Status : <span class="text-success">Success</span></h5>
                     <hr>
@@ -73,17 +73,19 @@
                                                 <tr v-for="(input, inputIndex) in fr.inputs" :key="inputIndex">
                                                     <td>{{ inputIndex+1 }}</td>
                                                     <td>{{ input.name }} </td>
-                                                    <td>{{ input.new.dataType }}</td>
-                                                    <td>{{ input.new.length }} </td>
-                                                    <td>{{ input.new.precision }}</td>
-                                                    <td>{{ input.new.scale }}</td>
-                                                    <td>{{ input.new.default }}</td>
-                                                    <td v-bind:class="[input.new.nullable == 'N' ? 'text-danger' : 'text-success']">{{ input.new.nullable }}</td>
-                                                    <td v-bind:class="[input.new.unique == 'N' ? 'text-danger' : 'text-success']">{{ input.new.unique }}</td>
-                                                    <td>{{ input.new.min }}</td>
-                                                    <td>{{ input.new.max }}</td>
-                                                    <td>{{ input.new.tableName }}</td>
-                                                    <td>{{ input.new.columnName }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.dataType : input.new.dataType }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.length : input.new.length }} </td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.precision : input.new.precision }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.scale : input.new.scale }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.default : input.new.default }}</td>
+                                                    <td v-if="input.changeType != 'delete'" v-bind:class="[input.new.nullable == 'N' ? 'text-danger' : 'text-success']">{{ input.new.nullable }}</td>
+                                                    <td v-else v-bind:class="[input.old.nullable == 'N' ? 'text-danger' : 'text-success']">{{ input.old.nullable }}</td>
+                                                    <td v-if="input.changeType != 'delete'" v-bind:class="[input.new.unique == 'N' ? 'text-danger' : 'text-success']">{{ input.new.unique }}</td>
+                                                    <td v-else v-bind:class="[input.old.unique == 'N' ? 'text-danger' : 'text-success']">{{ input.old.unique }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.min : input.new.min }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.max : input.new.max }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.tableName : input.new.tableName }}</td>
+                                                    <td>{{ input.changeType == 'delete' ? input.old.columnName : input.new.columnName }}</td>
                                                     <td>
                                                         <span class="badge" v-bind:class="[input.changeType == 'add' ? 'badge-success' : input.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">{{ input.changeType }}</span>
                                                     </td>
@@ -162,8 +164,9 @@
                                             </h5>
 
                                         </div>
-                                        <br v-if="impact.tc.length > 3">
+                                        
                                     </div>
+                                    <br v-if="impact.tc.length > 3">
                                 </div>
                             </div>
                         </div>
