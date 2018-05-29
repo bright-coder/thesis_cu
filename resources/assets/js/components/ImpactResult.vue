@@ -41,7 +41,7 @@
                         </li>
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade show active" id="pills-fr" role="tabpanel" aria-labelledby="pills-home-tab">
+                        <div class="tab-pane fade show active" id="pills-fr" role="tabpanel" aria-labelledby="pills-fr-tab">
                             <div class="card-hr" v-for="(fr,index) in impact.fr" :key="index">
                                 <div class="card">
                                     <div class="card-header">
@@ -127,15 +127,17 @@
                                                 <tr v-for="(column, columnIndex) in table.columnList" :key="columnIndex">
                                                     <td>{{ columnIndex+1 }}</td>
                                                     <td>{{ column.name }} </td>
-                                                    <td>{{ column.new.dataType }}</td>
-                                                    <td>{{ column.new.length }} </td>
-                                                    <td>{{ column.new.precision }}</td>
-                                                    <td>{{ column.new.scale }}</td>
-                                                    <td>{{ column.new.default }}</td>
-                                                    <td v-bind:class="[column.new.nullable == 'N' ? 'text-danger' : 'text-success']">{{ column.new.nullable }}</td>
-                                                    <td v-bind:class="[column.new.unique == 'N' ? 'text-danger' : 'text-success']">{{ column.new.unique }}</td>
-                                                    <td>{{ column.new.min }}</td>
-                                                    <td>{{ column.new.max }}</td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.dataType : column.new.dataType }}</td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.length : column.new.length }} </td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.precision : column.new.precision }}</td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.scale : column.new.scale }}</td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.default : column.new.default }}</td>
+                                                    <td v-if="column.changeType != 'delete'" v-bind:class="[column.new.nullable == 'N' ? 'text-danger' : 'text-success']">{{ column.new.nullable }}</td>
+                                                    <td v-else v-bind:class="[column.old.nullable == 'N' ? 'text-danger' : 'text-success']">{{ column.old.nullable }}</td>
+                                                    <td v-if="column.changeType != 'delete'" v-bind:class="[column.new.unique == 'N' ? 'text-danger' : 'text-success']">{{ column.new.unique }}</td>
+                                                    <td v-else v-bind:class="[column.old.unique == 'N' ? 'text-danger' : 'text-success']">{{ column.old.unique }}</td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.min : column.new.min }}</td>
+                                                    <td>{{ column.changeType == 'delete' ? column.old.max : column.new.max }}</td>
                                                     <td>
                                                         <span class="badge" v-bind:class="[column.changeType == 'add' ? 'badge-success' : column.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">{{ column.changeType }}</span>
                                                     </td>

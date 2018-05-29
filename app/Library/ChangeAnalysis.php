@@ -332,6 +332,7 @@ class ChangeAnalysis
                     $newFrInputImpact->changeType = $input['changeType'];
                     $newFrInputImpact->versionType = 'old';
                     $newFrInputImpact->name = $input['old']['name'];
+                    $newFrInputImpact->dataType = $input['old']['dataType'];
                     $newFrInputImpact->length = $input['old']['length'];
                     $newFrInputImpact->precision = $input['old']['precision'];
                     $newFrInputImpact->scale = $input['old']['scale'];
