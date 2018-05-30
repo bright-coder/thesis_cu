@@ -70,28 +70,59 @@ class ImpactResult
         $changeRequestInputList = ChangeRequestInput::where('changeRequestId', $this->changeRequestId)->get();
         $instanceResult = [];
         foreach ($changeRequestInputList as $crInput) {
+            $instanceResult[$crInput->id]['crInputId'] = $crInput->id;
+            $tableImpactList = [];
             $impact = [
                 'tableName' => '',
                 'columnName' => '',
+                'columnOrder' => [],
                 'changeType' => $crInput->changeType,
                 'records' => []
             ];
 
             foreach (InstanceImpact::where('changeRequestInputId', $crInput->id)->get() as $instanceImpact) {
                 $impact['tableName'] = $instanceImpact->tableName;
-                $impact['columnName'] = $instanceImpact->columnName;
                 if ($crInput->changeType != 'delete') {
-                    $impact['records']['newValue'][] = $instanceImpact->newValue;
+                    $impact['records']['new'][] = $instanceImpact->newValue;
                 }
                 $record = [];
-                foreach (OldInstance::where('instanceImpactId', $instanceImpact->id)->get() as $oldInstance) {
-                    $record[$oldInstance->columnName] = $oldInstance->value;
+                foreach (OldInstance::where('instanceImpactId', $instanceImpact->id)->orderBy('id','asc')->get() as $index => $oldInstance) {
+                    if(!array_key_exists($oldInstance->columnName, $impact['columnOrder'])) {
+                        $impact['columnOrder'][$oldInstance->columnName] = $index;
+                    }
+                    $record[] = $oldInstance->value;
                 }
                 $impact['records']['old'][] = $record;
+                if(array_key_exists($instanceImpact->tableName,$tableImpactList)) {
+                    $tableImpactList[$instanceImpact->tableName]['records']['new'][] = $instanceImpact->newValue;
+                    $tableImpactList[$instanceImpact->tableName]['records']['old'][] = $record;
+                }
+                else {
+                    $tableImpactList[$instanceImpact->tableName] = [
+                        'tableName' => $instanceImpact->tableName,
+                        'columnName' => $instanceImpact->columnName,
+                        'records' => ['new' => [$instanceImpact->newValue], 'old' => [$record] ],
+                        'changeType' => $crInput->changeType,
+                        'columnOrder' => array_flip($impact['columnOrder'])
+                    ];
+                }
+            
             }
-            $instanceResult[] = $impact;
+            //$tableImpactList[$impact['tableName']]['columnOrder'] = array_flip($impact['columnOrder']);
+            //$impact['columnOrder'] = array_flip($impact['columnOrder']);
+            foreach($tableImpactList as $tableImpact) {
+                $instanceResult[$crInput->id]['tableImpactList'][] = $tableImpact;
+            }
+            if(empty($tableImpactList)) {
+                unset($crInput->id, $instanceResult);
+            }
+            
         }
-        return $instanceResult;
+        $result = [];
+        foreach ($instanceResult as $crInputImpact) {
+            $result[] = $crInputImpact;
+        }
+        return $result;
     }
 
     private function getFrImpact(): array
@@ -112,13 +143,18 @@ class ImpactResult
                 unset($arrFrImpact['versionType']);
                 unset($arrFrImpact['changeType']);
                 unset($arrFrImpact['name']);
-                if (!\array_key_exists($frInputImpact->frImpactId, $frInputMem)) {
-                    $frInputMem[$frInputImpact->frImpactId] = [
+                if (!\array_key_exists($frInputImpact->name, $frInputMem)) {
+                    $frInputMem[$frInputImpact->name] = [
                         'name' => $frInputImpact->name,
                         'changeType' => $frInputImpact->changeType
                     ];
                 }
-                $frInputMem[$frInputImpact->frImpactId][$frInputImpact->versionType] = $arrFrImpact;
+                else {
+                    if($frInputImpact->changeType == 'edit' && $frInputImpact->versionType == 'old') {
+                        $frInputMem[$frInputImpact->name]['name'] = $frInputImpact->name;
+                    }
+                }
+                $frInputMem[$frInputImpact->name][$frInputImpact->versionType] = $arrFrImpact;
             }
 
             foreach($frInputMem as $input) {

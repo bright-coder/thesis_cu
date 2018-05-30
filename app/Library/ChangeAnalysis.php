@@ -291,6 +291,9 @@ class ChangeAnalysis
                     if(array_key_exists('name',$input['new'])) {
                         $newFrInputImpact->name = $input['new']['name'];
                     }
+                    if($newFrInputImpact->changeType == 'edit') {
+                        $newFrInputImpact->name = $input['old']['name'];
+                    }
                     if (array_key_exists('dataType', $input['new'])) {
                         $newFrInputImpact->dataType = $input['new']['dataType'];
                     }

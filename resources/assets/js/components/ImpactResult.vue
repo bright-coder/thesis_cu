@@ -4,9 +4,62 @@
             <div class="card">
                 <div class="card-header bg-primary text-white">Impact Result</div>
                 <div class="card-body">
-                    <h3 class="card-title">Project Name : <a :href="'/project/'+projectName"> {{projectName }} </a></h3>
+                    <h3 class="card-title">Project Name :
+                        <a :href="'/project/'+projectName"> {{projectName }} </a>
+                    </h3>
                     <h5 class="card-subtitle text-muted">Change Request Id : {{ changeRequestId}}</h5>
-                    <h5 class="card-subtitle text-muted">Status : <span class="text-success">Success</span></h5>
+                    <h5 class="card-subtitle text-muted">Status :
+                        <span class="text-success">{{ status }}</span>
+                    </h5>
+                    <br>
+                    <div class="card">
+                        <div class="card-header">Change Request Input List</div>
+                        <div class="card-body">
+                            <table class="table hover">
+                                <thead>
+                                    <tr class="bg-info text-white">
+                                        <th></th>
+                                        <th>Name</th>
+                                        <th>DataType</th>
+                                        <th>Length</th>
+                                        <th>Precision</th>
+                                        <th>Scale</th>
+                                        <th>Default</th>
+                                        <th>Nullable</th>
+                                        <th>Unique</th>
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                        <th>Table name</th>
+                                        <th>Column name</th>
+                                        <th>ChangeType</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(crInput, index) in crInputList" :key="index">
+                                        <td>{{ index+1 }}</td>
+                                        <td>{{ crInput.name }} </td>
+                                        <td>{{ crInput.dataType }}</td>
+                                        <td>{{ crInput.length }} </td>
+                                        <td>{{ crInput.precision }}</td>
+                                        <td>{{ crInput.scale }}</td>
+                                        <td>{{ crInput.default }}</td>
+                                        <td v-bind:class="[crInput.nullable == 'N' ? 'text-danger' : 'text-success']">{{ crInput.nullable }}</td>
+                                        <td v-bind:class="[crInput.unique == 'N' ? 'text-danger' : 'text-success']">{{ crInput.unique }}</td>
+                                        <td>{{ crInput.min }}</td>
+                                        <td>{{ crInput.max }}</td>
+                                        <td>{{ crInput.tableName }}</td>
+                                        <td>{{ crInput.columnName }}</td>
+                                        <td>
+                                            <span class="badge" v-bind:class="[crInput.changeType == 'add' ? 'badge-success' : crInput.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">{{ crInput.changeType }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <h5 class="card-subtitle">Impact Information</h5>
                     <hr>
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         <li class="nav-item">
@@ -149,7 +202,75 @@
                                 <hr v-if="impact.schema.length > 1">
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="pills-instance" role="tabpanel" aria-labelledby="pills-instance-tab">...</div>
+                        <div class="tab-pane fade" id="pills-instance" role="tabpanel" aria-labelledby="pills-instance-tab">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>
+                                        <span class="text-success">
+                                            <i class="fas fa-square-full"></i>
+                                        </span> Add&nbsp;&nbsp;&nbsp;
+                                        <span class="text-warning">
+                                            <i class="fas fa-square-full"></i>
+                                        </span> Edit&nbsp;&nbsp;&nbsp;
+                                        <span class="text-danger">
+                                            <i class="fas fa-square-full"></i>
+                                        </span> Delete
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <br>
+                            <div class="card-hr" v-for="(instance,index) in impact.instance" :key="index">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Impacted by Change Request Input : {{ getNoCrInput(instance.crInputId) }}</h5>
+                                        <hr>
+                                        <div class="card-br" v-for="(table, tableIndex) in instance.tableImpactList" :key="tableIndex">
+                                            <div class="card">
+                                                <div class="card-header">{{ table.tableName }}</div>
+                                                <div class="card-body">
+                                                    <table class="table table-hover table-bordered">
+                                                        <thead>
+                                                            <tr class="bg-info text-white">
+                                                                <td v-for="(columnName, cNameIndex) in table.columnOrder" :key="cNameIndex" v-bind:class="[
+                                                                        table.columnName == columnName && table.changeType == 'edit' ? 'bg-warning' :
+                                                                        table.columnName == columnName && table.changeType == 'delete' ? 'bg-danger' : ''
+                                                                    ]">
+                                                                    {{ columnName }}
+                                                                </td>
+                                                                
+                                                                <td v-if="table.changeType == 'add'" class="bg-success"> {{ table.columnName }}</td>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-for="(oldRecords, oldIndex) in table.records.old" :key="oldIndex">
+                                                                <td v-for="(oldValue, oldValueIndex) in oldRecords" :key="oldValueIndex">
+                                                                    {{ oldValue }}
+                                                                    <span v-if="table.changeType == 'edit' && isColumnImpact(index,tableIndex ,oldValueIndex)">
+                                                                        &nbsp;
+                                                                        <span class="text-warning">
+                                                                            <i class="fas fa-arrow-right"></i>
+                                                                        </span>
+                                                                        &nbsp;{{table.records.new[oldIndex]}}
+                                                                    </span>
+                                                                </td>
+                                                                <td v-if="table.changeType == 'add'"> {{ table.records.new[oldIndex] }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+
+                                                </div>
+                                            </div>
+
+                                            <br v-if="instance.tableImpactList.length-1 != tableIndex">
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <hr v-if="impact.instance.length > 0 && index != impact.instance.length -1">
+                            </div>
+
+                        </div>
                         <div class="tab-pane fade" id="pills-tc" role="tabpanel" aria-labelledby="pills-tc-tab">
                             <div class="row">
                                 <div class="col-md-4" v-for="(tc,index) in impact.tc" :key="index">
@@ -160,13 +281,34 @@
                                                     tc.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">
                                                     {{ tc.changeType }}
                                                 </span>
-                                                <div class="float-right">
-                                                    T
-                                                </div>
                                             </h5>
+                                            <div class="card-hr" v-if="tc.changeType == 'edit'">
+                                                <hr>
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr class="bg-info text-white">
+                                                            <td>Input Name</td>
+                                                            <td>Data</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr  v-for="(tcInputEdit, tcInputIndex) in tc.inputs" :key="tcInputIndex">
+                                                            <td>{{ tcInputEdit.name }}</td>
+                                                            <td>
+                                                                {{ tcInputEdit.oldData }}
+                                                                &nbsp;
+                                                                        <span class="text-warning">
+                                                                            <i class="fas fa-arrow-right"></i>
+                                                                        </span>
+                                                                        &nbsp;{{tcInputEdit.newData}}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
 
                                         </div>
-                                        
+
                                     </div>
                                     <br v-if="impact.tc.length > 3">
                                 </div>
@@ -183,7 +325,7 @@
                                                         <th></th>
                                                         <th>Functional Requirement No</th>
                                                         <th>
-                                                            
+
                                                         </th>
                                                         <th>Test Case No</th>
                                                         <th>Change Type</th>
@@ -193,7 +335,9 @@
                                                     <tr v-for="(rtm,index) in impact.rtm" :key="index">
                                                         <td>{{index+1}}</td>
                                                         <td>{{ rtm.functionalRequirementNo }}</td>
-                                                        <td><i class="fas" v-bind:class="[rtm.changeType == 'add' ? 'fa-link' : 'fa-unlink']"></i></td>
+                                                        <td>
+                                                            <i class="fas" v-bind:class="[rtm.changeType == 'add' ? 'fa-link' : 'fa-unlink']"></i>
+                                                        </td>
                                                         <td>{{ rtm.testCaseNo }}</td>
                                                         <td>
                                                             <span class="badge" v-bind:class="[rtm.changeType == 'add' ? 'badge-success' : 'badge-danger']">
@@ -220,6 +364,9 @@ export default {
   props: ["accessToken", "projectName", "changeRequestId"],
   data() {
     return {
+      status: "",
+      crInputList: [],
+      columnImpactEditIndex: 0,
       impact: {
         schema: "",
         instance: "",
@@ -247,14 +394,36 @@ export default {
         dataType: "json"
       })
         .then(function(response) {
-          vm.impact.schema = response.data.schema;
-          vm.impact.instance = response.data.instance;
-          vm.impact.fr = response.data.functionalRequirments;
-          vm.impact.tc = response.data.testCases;
-          vm.impact.rtm = response.data.rtm;
-          console.log(vm.impact);
+          vm.impact.schema = response.data.impactList.schema;
+          vm.impact.instance = response.data.impactList.instance;
+          vm.impact.fr = response.data.impactList.functionalRequirments;
+          vm.impact.tc = response.data.impactList.testCases;
+          vm.impact.rtm = response.data.impactList.rtm;
+          vm.status = response.data.status;
+          vm.crInputList = response.data.crInputList;
+          console.log(response.data);
+          
         })
         .catch(function(errors) {});
+    },
+    isColumnImpact(instanceIndex ,tableIndex, columnIndex) {
+        let impactIndex = -1;
+        for(let i = 0 ; i < this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder.length ; ++i){
+            if(this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnName == this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder[i]) {
+                impactIndex = i
+                break
+            }
+        }
+        return impactIndex == columnIndex
+    },
+    getNoCrInput(crInputId) {
+
+        for(let i = 0 ; i < this.crInputList.length; ++i) {
+            if(crInputId == this.crInputList[i].id) {
+                return i+1;
+            }
+        }
+        return -1;
     }
   },
   created() {

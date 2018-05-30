@@ -468,11 +468,36 @@ export default {
             if (!newChangeRequest[key]) {
               delete newChangeRequest[key];
             }
-          })
+          });
         }
-        this.changeRequestList.push(newChangeRequest);
-        this.changeRequestIndex[this.changeRequest.name] = true;
-        $("#modal").modal("hide");
+        let isError = false;
+
+        if (this.changeRequest.name in this.changeRequestIndex) {
+            console.log('name already')
+          isError = true;
+          this.errors =
+            "Input name : " +
+            this.changeRequest.name +
+            " already add in this request.";
+        } else {
+          for (let i = 0; i < this.changeRequestList.length; ++i) {
+            if (this.changeRequestList[i].changeType == "add") {
+              if (
+                this.changeRequestList[i].tableName == newChangeRequest.tableName &&
+                this.changeRequestList[i].columnName == newChangeRequest.columnName
+              ) {
+                isError = true;
+                this.errors =
+                  "Cannot add the same table name and column name in this request.";
+              }
+            }
+          }
+        }
+        if (!isError) {
+          this.changeRequestList.push(newChangeRequest);
+          this.changeRequestIndex[this.changeRequest.name] = true;
+          $("#modal").modal("hide");
+        }
       }
     },
     deleteChangeRequest(index) {
@@ -498,7 +523,11 @@ export default {
         dataType: "json"
       })
         .then(function(response) {
-            location.href = '/project/'+vm.selectedProject+'/changeRequest/'+response.data.changeRequestId
+          location.href =
+            "/project/" +
+            vm.selectedProject +
+            "/changeRequest/" +
+            response.data.changeRequestId;
         })
         .catch(function(errors) {});
     }

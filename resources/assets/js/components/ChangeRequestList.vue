@@ -16,7 +16,7 @@
                 <td>{{ changeRequest.id }}</td>
                 <td v-if="projectName == 'all'">{{ changeRequest.projectName }}</td>
                 <td>{{ changeRequest.frNo }}</td>
-                <td class="text-success"> SUCCESS </td>
+                <td class="text-success"> {{ changeRequest.status }} </td>
                 <td><a :href="'/project/'+changeRequest.projectName+'/changeRequest/'+changeRequest.id" class="btn btn-primary">More</a></td>
             </tr>
         </tbody>

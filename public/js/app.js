@@ -83931,7 +83931,9 @@ var render = function() {
           _vm._v(" "),
           _c("td", [_vm._v(_vm._s(changeRequest.frNo))]),
           _vm._v(" "),
-          _c("td", { staticClass: "text-success" }, [_vm._v(" SUCCESS ")]),
+          _c("td", { staticClass: "text-success" }, [
+            _vm._v(" " + _vm._s(changeRequest.status) + " ")
+          ]),
           _vm._v(" "),
           _c("td", [
             _c(
@@ -84833,9 +84835,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
           });
         }
-        this.changeRequestList.push(newChangeRequest);
-        this.changeRequestIndex[this.changeRequest.name] = true;
-        $("#modal").modal("hide");
+        var isError = false;
+
+        if (this.changeRequest.name in this.changeRequestIndex) {
+          console.log('name already');
+          isError = true;
+          this.errors = "Input name : " + this.changeRequest.name + " already add in this request.";
+        } else {
+          for (var i = 0; i < this.changeRequestList.length; ++i) {
+            if (this.changeRequestList[i].changeType == "add") {
+              if (this.changeRequestList[i].tableName == newChangeRequest.tableName && this.changeRequestList[i].columnName == newChangeRequest.columnName) {
+                isError = true;
+                this.errors = "Cannot add the same table name and column name in this request.";
+              }
+            }
+          }
+        }
+        if (!isError) {
+          this.changeRequestList.push(newChangeRequest);
+          this.changeRequestIndex[this.changeRequest.name] = true;
+          $("#modal").modal("hide");
+        }
       }
     },
     deleteChangeRequest: function deleteChangeRequest(index) {
@@ -84859,7 +84879,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         dataType: "json"
       }).then(function (response) {
-        location.href = '/project/' + vm.selectedProject + '/changeRequest/' + response.data.changeRequestId;
+        location.href = "/project/" + vm.selectedProject + "/changeRequest/" + response.data.changeRequestId;
       }).catch(function (errors) {});
     }
   },
@@ -86414,12 +86434,159 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "impact-result",
   props: ["accessToken", "projectName", "changeRequestId"],
   data: function data() {
     return {
+      status: "",
+      crInputList: [],
+      columnImpactEditIndex: 0,
       impact: {
         schema: "",
         instance: "",
@@ -86443,13 +86610,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         dataType: "json"
       }).then(function (response) {
-        vm.impact.schema = response.data.schema;
-        vm.impact.instance = response.data.instance;
-        vm.impact.fr = response.data.functionalRequirments;
-        vm.impact.tc = response.data.testCases;
-        vm.impact.rtm = response.data.rtm;
-        console.log(vm.impact);
+        vm.impact.schema = response.data.impactList.schema;
+        vm.impact.instance = response.data.impactList.instance;
+        vm.impact.fr = response.data.impactList.functionalRequirments;
+        vm.impact.tc = response.data.impactList.testCases;
+        vm.impact.rtm = response.data.impactList.rtm;
+        vm.status = response.data.status;
+        vm.crInputList = response.data.crInputList;
+        console.log(response.data);
       }).catch(function (errors) {});
+    },
+    isColumnImpact: function isColumnImpact(instanceIndex, tableIndex, columnIndex) {
+      var impactIndex = -1;
+      for (var i = 0; i < this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder.length; ++i) {
+        if (this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnName == this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder[i]) {
+          impactIndex = i;
+          break;
+        }
+      }
+      return impactIndex == columnIndex;
+    },
+    getNoCrInput: function getNoCrInput(crInputId) {
+
+      for (var i = 0; i < this.crInputList.length; ++i) {
+        if (crInputId == this.crInputList[i].id) {
+          return i + 1;
+        }
+      }
+      return -1;
     }
   },
   created: function created() {
@@ -86474,7 +86662,7 @@ var render = function() {
         _vm._v(" "),
         _c("div", { staticClass: "card-body" }, [
           _c("h3", { staticClass: "card-title" }, [
-            _vm._v("Project Name : "),
+            _vm._v("Project Name :\n                    "),
             _c("a", { attrs: { href: "/project/" + _vm.projectName } }, [
               _vm._v(" " + _vm._s(_vm.projectName) + " ")
             ])
@@ -86484,7 +86672,104 @@ var render = function() {
             _vm._v("Change Request Id : " + _vm._s(_vm.changeRequestId))
           ]),
           _vm._v(" "),
-          _vm._m(0),
+          _c("h5", { staticClass: "card-subtitle text-muted" }, [
+            _vm._v("Status :\n                    "),
+            _c("span", { staticClass: "text-success" }, [
+              _vm._v(_vm._s(_vm.status))
+            ])
+          ]),
+          _vm._v(" "),
+          _c("br"),
+          _vm._v(" "),
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header" }, [
+              _vm._v("Change Request Input List")
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("table", { staticClass: "table hover" }, [
+                _vm._m(0),
+                _vm._v(" "),
+                _c(
+                  "tbody",
+                  _vm._l(_vm.crInputList, function(crInput, index) {
+                    return _c("tr", { key: index }, [
+                      _c("td", [_vm._v(_vm._s(index + 1))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.name) + " ")]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.dataType))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.length) + " ")]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.precision))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.scale))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.default))]),
+                      _vm._v(" "),
+                      _c(
+                        "td",
+                        {
+                          class: [
+                            crInput.nullable == "N"
+                              ? "text-danger"
+                              : "text-success"
+                          ]
+                        },
+                        [_vm._v(_vm._s(crInput.nullable))]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "td",
+                        {
+                          class: [
+                            crInput.unique == "N"
+                              ? "text-danger"
+                              : "text-success"
+                          ]
+                        },
+                        [_vm._v(_vm._s(crInput.unique))]
+                      ),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.min))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.max))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.tableName))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(crInput.columnName))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c(
+                          "span",
+                          {
+                            staticClass: "badge",
+                            class: [
+                              crInput.changeType == "add"
+                                ? "badge-success"
+                                : crInput.changeType == "edit"
+                                  ? "badge-warning"
+                                  : "badge-danger"
+                            ]
+                          },
+                          [_vm._v(_vm._s(crInput.changeType))]
+                        )
+                      ])
+                    ])
+                  })
+                )
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("br"),
+          _vm._v(" "),
+          _c("br"),
+          _vm._v(" "),
+          _c("h5", { staticClass: "card-subtitle" }, [
+            _vm._v("Impact Information")
+          ]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -87023,7 +87308,207 @@ var render = function() {
                     "aria-labelledby": "pills-instance-tab"
                   }
                 },
-                [_vm._v("...")]
+                [
+                  _vm._m(3),
+                  _vm._v(" "),
+                  _c("br"),
+                  _vm._v(" "),
+                  _vm._l(_vm.impact.instance, function(instance, index) {
+                    return _c("div", { key: index, staticClass: "card-hr" }, [
+                      _c("div", { staticClass: "card" }, [
+                        _c(
+                          "div",
+                          { staticClass: "card-body" },
+                          [
+                            _c("h5", { staticClass: "card-title" }, [
+                              _vm._v(
+                                "Impacted by Change Request Input : " +
+                                  _vm._s(_vm.getNoCrInput(instance.crInputId))
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("hr"),
+                            _vm._v(" "),
+                            _vm._l(instance.tableImpactList, function(
+                              table,
+                              tableIndex
+                            ) {
+                              return _c(
+                                "div",
+                                { key: tableIndex, staticClass: "card-br" },
+                                [
+                                  _c("div", { staticClass: "card" }, [
+                                    _c("div", { staticClass: "card-header" }, [
+                                      _vm._v(_vm._s(table.tableName))
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "card-body" }, [
+                                      _c(
+                                        "table",
+                                        {
+                                          staticClass:
+                                            "table table-hover table-bordered"
+                                        },
+                                        [
+                                          _c("thead", [
+                                            _c(
+                                              "tr",
+                                              {
+                                                staticClass:
+                                                  "bg-info text-white"
+                                              },
+                                              [
+                                                _vm._l(
+                                                  table.columnOrder,
+                                                  function(
+                                                    columnName,
+                                                    cNameIndex
+                                                  ) {
+                                                    return _c(
+                                                      "td",
+                                                      {
+                                                        key: cNameIndex,
+                                                        class: [
+                                                          table.columnName ==
+                                                            columnName &&
+                                                          table.changeType ==
+                                                            "edit"
+                                                            ? "bg-warning"
+                                                            : table.columnName ==
+                                                                columnName &&
+                                                              table.changeType ==
+                                                                "delete"
+                                                              ? "bg-danger"
+                                                              : ""
+                                                        ]
+                                                      },
+                                                      [
+                                                        _vm._v(
+                                                          "\n                                                                " +
+                                                            _vm._s(columnName) +
+                                                            "\n                                                            "
+                                                        )
+                                                      ]
+                                                    )
+                                                  }
+                                                ),
+                                                _vm._v(" "),
+                                                table.changeType == "add"
+                                                  ? _c(
+                                                      "td",
+                                                      {
+                                                        staticClass:
+                                                          "bg-success"
+                                                      },
+                                                      [
+                                                        _vm._v(
+                                                          " " +
+                                                            _vm._s(
+                                                              table.columnName
+                                                            )
+                                                        )
+                                                      ]
+                                                    )
+                                                  : _vm._e()
+                                              ],
+                                              2
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c(
+                                            "tbody",
+                                            _vm._l(table.records.old, function(
+                                              oldRecords,
+                                              oldIndex
+                                            ) {
+                                              return _c(
+                                                "tr",
+                                                { key: oldIndex },
+                                                [
+                                                  _vm._l(oldRecords, function(
+                                                    oldValue,
+                                                    oldValueIndex
+                                                  ) {
+                                                    return _c(
+                                                      "td",
+                                                      { key: oldValueIndex },
+                                                      [
+                                                        _vm._v(
+                                                          "\n                                                                " +
+                                                            _vm._s(oldValue) +
+                                                            "\n                                                                "
+                                                        ),
+                                                        table.changeType ==
+                                                          "edit" &&
+                                                        _vm.isColumnImpact(
+                                                          index,
+                                                          tableIndex,
+                                                          oldValueIndex
+                                                        )
+                                                          ? _c("span", [
+                                                              _vm._v(
+                                                                "\n                                                                     \n                                                                    "
+                                                              ),
+                                                              _vm._m(4, true),
+                                                              _vm._v(
+                                                                "\n                                                                     " +
+                                                                  _vm._s(
+                                                                    table
+                                                                      .records
+                                                                      .new[
+                                                                      oldIndex
+                                                                    ]
+                                                                  ) +
+                                                                  "\n                                                                "
+                                                              )
+                                                            ])
+                                                          : _vm._e()
+                                                      ]
+                                                    )
+                                                  }),
+                                                  _vm._v(" "),
+                                                  table.changeType == "add"
+                                                    ? _c("td", [
+                                                        _vm._v(
+                                                          " " +
+                                                            _vm._s(
+                                                              table.records.new[
+                                                                oldIndex
+                                                              ]
+                                                            )
+                                                        )
+                                                      ])
+                                                    : _vm._e()
+                                                ],
+                                                2
+                                              )
+                                            })
+                                          )
+                                        ]
+                                      )
+                                    ])
+                                  ]),
+                                  _vm._v(" "),
+                                  instance.tableImpactList.length - 1 !=
+                                  tableIndex
+                                    ? _c("br")
+                                    : _vm._e()
+                                ]
+                              )
+                            })
+                          ],
+                          2
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _vm.impact.instance.length > 0 &&
+                      index != _vm.impact.instance.length - 1
+                        ? _c("hr")
+                        : _vm._e()
+                    ])
+                  })
+                ],
+                2
               ),
               _vm._v(" "),
               _c(
@@ -87071,14 +87556,60 @@ var render = function() {
                                         "\n                                            "
                                     )
                                   ]
-                                ),
-                                _vm._v(" "),
-                                _c("div", { staticClass: "float-right" }, [
-                                  _vm._v(
-                                    "\n                                                T\n                                            "
-                                  )
-                                ])
-                              ])
+                                )
+                              ]),
+                              _vm._v(" "),
+                              tc.changeType == "edit"
+                                ? _c("div", { staticClass: "card-hr" }, [
+                                    _c("hr"),
+                                    _vm._v(" "),
+                                    _c(
+                                      "table",
+                                      { staticClass: "table table-hover" },
+                                      [
+                                        _vm._m(5, true),
+                                        _vm._v(" "),
+                                        _c(
+                                          "tbody",
+                                          _vm._l(tc.inputs, function(
+                                            tcInputEdit,
+                                            tcInputIndex
+                                          ) {
+                                            return _c(
+                                              "tr",
+                                              { key: tcInputIndex },
+                                              [
+                                                _c("td", [
+                                                  _vm._v(
+                                                    _vm._s(tcInputEdit.name)
+                                                  )
+                                                ]),
+                                                _vm._v(" "),
+                                                _c("td", [
+                                                  _vm._v(
+                                                    "\n                                                            " +
+                                                      _vm._s(
+                                                        tcInputEdit.oldData
+                                                      ) +
+                                                      "\n                                                             \n                                                                    "
+                                                  ),
+                                                  _vm._m(6, true),
+                                                  _vm._v(
+                                                    "\n                                                                     " +
+                                                      _vm._s(
+                                                        tcInputEdit.newData
+                                                      ) +
+                                                      "\n                                                        "
+                                                  )
+                                                ])
+                                              ]
+                                            )
+                                          })
+                                        )
+                                      ]
+                                    )
+                                  ])
+                                : _vm._e()
                             ])
                           ]),
                           _vm._v(" "),
@@ -87106,7 +87637,7 @@ var render = function() {
                       _c("div", { staticClass: "card" }, [
                         _c("div", { staticClass: "card-body" }, [
                           _c("table", { staticClass: "table table-hover" }, [
-                            _vm._m(3),
+                            _vm._m(7),
                             _vm._v(" "),
                             _c(
                               "tbody",
@@ -87173,9 +87704,36 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("h5", { staticClass: "card-subtitle text-muted" }, [
-      _vm._v("Status : "),
-      _c("span", { staticClass: "text-success" }, [_vm._v("Success")])
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("th"),
+        _vm._v(" "),
+        _c("th", [_vm._v("Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("DataType")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Length")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Precision")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Scale")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Nullable")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Unique")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Min")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Max")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Table name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Column name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("ChangeType")])
+      ])
     ])
   },
   function() {
@@ -87248,6 +87806,57 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th")
       ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card" }, [
+      _c("div", { staticClass: "card-body" }, [
+        _c("h5", [
+          _c("span", { staticClass: "text-success" }, [
+            _c("i", { staticClass: "fas fa-square-full" })
+          ]),
+          _vm._v(" Add   \n                                    "),
+          _c("span", { staticClass: "text-warning" }, [
+            _c("i", { staticClass: "fas fa-square-full" })
+          ]),
+          _vm._v(" Edit   \n                                    "),
+          _c("span", { staticClass: "text-danger" }, [
+            _c("i", { staticClass: "fas fa-square-full" })
+          ]),
+          _vm._v(" Delete\n                                ")
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "text-warning" }, [
+      _c("i", { staticClass: "fas fa-arrow-right" })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticClass: "bg-info text-white" }, [
+        _c("td", [_vm._v("Input Name")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("Data")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "text-warning" }, [
+      _c("i", { staticClass: "fas fa-arrow-right" })
     ])
   },
   function() {

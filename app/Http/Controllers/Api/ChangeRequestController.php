@@ -28,48 +28,47 @@ class ChangeRequestController extends Controller
     {
         $user = User::where('accessToken', $request->bearerToken())->first();
 
-        if(!$user) {
-            return response()->json(['msg' => 'forbidden'],401);
+        if (!$user) {
+            return response()->json(['msg' => 'forbidden'], 401);
         }
 
         $guard = new GuardProject($request->bearerToken());
         //$projects = $guard->getAllProject();
-        if($projectName == 'all') {
+        if ($projectName == 'all') {
             $projects = $guard->getAllProject();
-        }
-        else {
+        } else {
             $projects = $guard->getProject($projectName);
             $projects = [
                 $projects
             ];
         }
 
-        if(empty($projects)) {
+        if (empty($projects)) {
             return response()->json(['msg' => 'not found project'], 204);
         }
         $projectIdList = [];
 
-        foreach($projects as $project) {
+        foreach ($projects as $project) {
             $projectIdList[] = $project->id;
         }
         
         $changeRequests = ChangeRequest::whereIn('projectId', $projectIdList)->orderBy('id', 'desc')->get();
 
-        if(empty($changeRequests)) {
+        if (empty($changeRequests)) {
             return response()->json(['msg' => 'not found change request.'], 204);
         }
 
         $result = [];
         
-        foreach($changeRequests as $changeRequest) {
+        foreach ($changeRequests as $changeRequest) {
             $result[] = [
                 'id' => $changeRequest->id,
                 'frNo' => FunctionalRequirement::where('id', $changeRequest->changeFunctionalRequirementId)->first()->no,
-                'projectName' => Project::where('id', $changeRequest->projectId)->first()->name
+                'projectName' => Project::where('id', $changeRequest->projectId)->first()->name,
+                'status' => 'success'
             ];
         }
         return response()->json($result, 200);
-
     }
 
     /**
@@ -118,17 +117,17 @@ class ChangeRequestController extends Controller
                 DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
             }
 
-            foreach(DB::table('TABLE_IMPACT')->where('changeRequestId', $cr->id)->get() as $tableImpact) {
+            foreach (DB::table('TABLE_IMPACT')->where('changeRequestId', $cr->id)->get() as $tableImpact) {
                 DB::table('COLUMN_IMPACT')->where('tableImpactId', $tableImpact->id)->delete();
                 DB::table('TABLE_IMPACT')->where('id', $tableImpact->id)->delete();
             }
 
-            foreach(DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {
+            foreach (DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {
                 DB::table('FR_INPUT_IMPACT')->where('frImpactId', $frImpact->id)->delete();
                 DB::table('FR_IMPACT')->where('id', $frImpact->id)->delete();
             }
 
-            foreach(DB::table('TC_IMPACT')->where('changeRequestId', $cr->id)->get() as $tcImpact) {
+            foreach (DB::table('TC_IMPACT')->where('changeRequestId', $cr->id)->get() as $tcImpact) {
                 DB::table('TC_INPUT_IMPACT')->where('tcImpactId', $tcImpact->id)->delete();
                 DB::table('TC_IMPACT')->where('id', $tcImpact->id)->delete();
             }
@@ -136,7 +135,6 @@ class ChangeRequestController extends Controller
             DB::table('RTM_RELATION_IMPACT')->where('changeRequestId', $cr->id)->delete();
 
             DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
-
         }
 
         //
@@ -288,7 +286,22 @@ class ChangeRequestController extends Controller
         }
         $changeRequestId = $changeRequest->id;
 
-        return response()->json((new ImpactResult($changeRequestId))->getImpact(), 200);
+        $changeRequestInputList = ChangeRequestInput::where('changeRequestId', $changeRequestId)->get();
+        $result = [
+            // 'id' => $changeRequestId,
+            // 'projectName' => $projectName,
+            'status' => 'success',
+            'crInputList' => [],
+            'impactList' => (new ImpactResult($changeRequestId))->getImpact()
+        ];
+        foreach($changeRequestInputList as $crInput) {
+            if($crInput->changeType != 'add') {
+                $crInput->name = FunctionalRequirementInput::where('id', $crInput->functionalRequirementInputId)->first()->name;
+            }
+            $result['crInputList'][] = $crInput;
+        }
+
+        return response()->json($result, 200);
     }
 
     /**

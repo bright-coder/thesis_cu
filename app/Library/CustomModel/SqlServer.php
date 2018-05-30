@@ -236,8 +236,6 @@ class SqlServer implements DBTargetInterface
             ]
         );
 
-        $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
-        
         $strSqlDefault = "";
         if (array_key_exists('default', $columnDetail)) {
             $strSqlDefault = "DEFAULT(".$columnDetail['default'].")";
@@ -250,8 +248,16 @@ class SqlServer implements DBTargetInterface
             }
         }
 
-        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ADD ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
+        if(is_string($columnDetail['nullable'])) {
+            $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
+        }
+        else {
+            $strSqlNullable = $this->getStrSqlNullable($columnDetail['nullable']);
+        }
         
+
+        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ADD ".$columnDetail['columnName']." ".$strSqlDataType." NULL ".$strSqlDefault;
+
         $stmt = $this->conObj->prepare($strQuery);
         if ($stmt->execute()) {
             return true;
@@ -281,41 +287,35 @@ class SqlServer implements DBTargetInterface
     
     public function updateColumn(array $columnDetail): bool
     {
-        $dataTypeDetail = [
-            'length' => \array_key_exists('length', $columnDetail['newSchema']) ?
-                $columnDetail['newSchema']['length'] : $columnDetail['oldSchema']['length'],
-            'precision' => \array_key_exists('precision', $columnDetail['newSchema']) ?
-                $columnDetail['newSchema']['precision'] : $columnDetail['oldSchema']['precision'],
-            'scale' => \array_key_exists('scale', $columnDetail['newSchema']) ?
-                $columnDetail['newSchema']['scale'] : $columnDetail['oldSchema']['scale'],
-        ];
-
-        $dataType = $this->getStrSqlDataType(
-            \array_key_exists('dataType', $columnDetail['newSchema']) ?
-                $columnDetail['newSchema']['dataType'] : $columnDetail['oldSchema']['dataType'],
-            $dataTypeDetail
+        $strSqlDataType = $this->getStrSqlDataType(
+            $columnDetail['dataType'],
+            [
+                'length' =>  array_key_exists('length', $columnDetail) ? $columnDetail['length'] : null,
+                'precision' => array_key_exists('precision', $columnDetail) ? $columnDetail['precision'] : null,
+                'scale' => array_key_exists('scale', $columnDetail) ? $columnDetail['scale'] : null
+            ]
         );
+
+        $strSqlDefault = "";
+        if (array_key_exists('default', $columnDetail)) {
+            $strSqlDefault = "DEFAULT(".$columnDetail['default'].")";
+            if ($columnDetail['default'] == null) {
+                $strSqlDefault = '';
+            }
         
-        $nullable = $this->getStrSqlNullable(
-            \array_key_exists('nullable', $columnDetail['newSchema']) ?
-                $columnDetail['newSchema']['nullable'] : $columnDetail['oldSchema']['nullable']
-        );
-
-        $default = "DEFAULT(".$columnDetail['oldSchema']['default'].")";
-
-        if ($columnDetail['oldSchema']['default'] === null) {
-            $default = '';
-        }
-
-        if (\array_key_exists('default', $columnDetail['newSchema'])) {
-            if ($columnDetail['newSchema']['default'] == '#NULL') {
-                $default = '';
-            } else {
-                $default = "DEFAULT(".$columnDetail['newSchema']['default'].")";
+            if ($columnDetail['default'] == '#NULL' && \strcasecmp($columnDetail['nullable'], 'N') == 0) {
+                $strSqlDefault = "0";
             }
         }
 
-        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$dataType." ".$nullable." ".$default;
+        if(is_string($columnDetail['nullable'])) {
+            $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
+        }
+        else {
+            $strSqlNullable = $this->getStrSqlNullable($columnDetail['nullable']);
+        }
+
+        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
         $stmt = $this->conObj->prepare($strQuery);
         if ($stmt->execute()) {
             return true;
@@ -427,6 +427,26 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
+    public function addPrimaryKeyConstraint(string $tableName, array $columnName, string $constraintName) : bool
+    {
+        $this->conObj->query("ALTER TABLE {$tableName} ADD CONSTRAINT {$constraintName} PRIMARY KEY (".implode(",",$columnName).")");
+        return true;
+    }
+
+    public function addForeignKeyConstraint(string $tableName, array $links, string $constraintName) : bool
+    {
+        $fromColumnList = [];
+        $toTable = "";
+        $toColumnList = [];
+        foreach($links as $link) {
+            $fromColumnList[] = $link['from']['columnName'];
+            $toColumnList[] = $link['to']['columnName'];
+            $toTable = $link['to']['tableName'];
+        }
+        $this->conObj->query("ALTER TABLE {$tableName} ADD CONSTRAINT {$constraintName} FOREIGN KEY (".implode(",",$fromColumnList).") REFERENCES {$toTable} (".implode(",", $toColumnList).")");
+        return true;
+    }
+
     public function disableConstraint(string $tableName = '?'): bool
     {
         $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} NOCHECK CONSTRAINT all\"");
@@ -438,6 +458,7 @@ class SqlServer implements DBTargetInterface
     public function enableConstraint(string $tableName = '?'): bool
     {
         $stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} CHECK CONSTRAINT all\"");
+        //$stmt = $this->conObj->query("EXEC sp_msforeachtable \"ALTER TABLE {$tableName} WITH NOCHECK CONSTRAINT all\"");
         if ($stmt !== false) {
             return true;
         }

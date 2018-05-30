@@ -214,7 +214,7 @@ class AnalyzeImpactTCState implements StateInterface
                         ['testCaseId', $tcNew->id],
                         ['name', $tcChangeDataInput['inputName']],
                         ['testData', $tcChangeDataInput['old']]
-                    ])->update(['testData', $tcChangeDataInput['new']]);
+                    ])->update(['testData' => $tcChangeDataInput['new']]);
                 }
 
                 foreach ($frImpactResult as $frImpact) {

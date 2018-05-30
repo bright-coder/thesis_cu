@@ -551,6 +551,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     {   
         
         //$dbTargetConnection->addColumn($changeRequestInput);
+        $pkFkTrace = [];
         foreach ($this->schemaImpactResult as $index => $scResult) {
             $this->dbTargetConnection->disableConstraint();
             $columnDetail = [
@@ -568,6 +569,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'columnName' => $scResult['columnName']."_#temp",
                 'default' => \array_key_exists('default', $scResult['newSchema']) ? $scResult['newSchema']['default'] : $scResult['oldSchema']['default']
             ];
+            //dd($columnDetail);
             //dd($columnDetail);
             //$default = \array_key_exists('default', $scResult['newSchema']) ? $scResult['newSchema']['default'] : $scResult['oldSchema']['default'];
             
@@ -627,7 +629,23 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                                 $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
                             }
                         }
+            if($this->database->getTableByName($scResult['tableName'])->isPK($scResult['columnName']) ) {
+                $fkRelatedList = $this->findFKRelated($scResult['tableName'],$scResult['columnName']);
+                foreach($fkRelatedList as $fkRelated) {
+                    $this->dbTargetConnection->dropConstraint($fkRelated['tableName'], $fkRelated['fk']->getName());
+                }
+                $this->dbTargetConnection->dropConstraint($scResult['tableName'], $this->database->getTableByName($scResult['tableName'])->getPK()->getName());
+                $pkFkTrace[] = [
+                    'pk' => [
+                        'tableName' => $scResult['tableName'], 
+                        'name' => $this->database->getTableByName($scResult['tableName'])->getPK()->getName(),
+                        'columns' => $this->database->getTableByName($scResult['tableName'])->getPK()->getColumns()
+                    ],
+                    'fks' => $fkRelatedList
+                ];
+            }
             $this->dbTargetConnection->dropColumn($scResult['tableName'], $scResult['columnName']);
+            $this->dbTargetConnection->updateColumn($columnDetail);
             $this->dbTargetConnection->updateColumnName($scResult['tableName'],$scResult['columnName']."_#temp", $scResult['columnName']);
 
             if (\array_key_exists('unique', $scResult['newSchema'])) {
@@ -679,6 +697,17 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     }
                 }
             }
+        }
+
+        foreach($pkFkTrace as $trace) {
+                $this->dbTargetConnection->addPrimaryKeyConstraint($trace['pk']['tableName'], 
+                $trace['pk']['columns'],
+                $trace['pk']['name']
+                );
+                foreach($trace['fks'] as $fkRelated) {
+                    $this->dbTargetConnection->addForeignKeyConstraint($fkRelated['tableName'], $fkRelated['fk']->getColumns(), $fkRelated['fk']->getName());
+                }
+                
         }
 
         $this->dbTargetConnection->enableConstraint();
@@ -755,5 +784,23 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $hashFKs = $hashFKs->getPrevious();
         }
         return $hashFKs;
+    }
+
+    private function findFKRelated(string $tableName, string $columnName) : array
+    {   
+        $result = [];
+        foreach($this->database->getAllTables() as $table) {
+            foreach($table->getAllFK() as $fk) {
+                foreach($fk->getColumns() as $link) {
+                    if($link['to']['tableName'] == $tableName && $link['to']['columnName'] == $columnName) {
+                        $result[] = [
+                            'tableName' => $link['from']['tableName'],
+                            'fk' => $fk
+                        ];
+                    }
+                }
+            }
+        }
+        return $result;
     }
 }
