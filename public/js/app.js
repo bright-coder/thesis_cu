@@ -86578,6 +86578,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "impact-result",
@@ -86585,6 +86586,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   data: function data() {
     return {
       status: "",
+      frNo: '',
       crInputList: [],
       columnImpactEditIndex: 0,
       impact: {
@@ -86616,6 +86618,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         vm.impact.tc = response.data.impactList.testCases;
         vm.impact.rtm = response.data.impactList.rtm;
         vm.status = response.data.status;
+        vm.frNo = response.data.changeFrNo;
         vm.crInputList = response.data.crInputList;
         console.log(response.data);
       }).catch(function (errors) {});
@@ -86668,11 +86671,15 @@ var render = function() {
             ])
           ]),
           _vm._v(" "),
-          _c("h5", { staticClass: "card-subtitle text-muted" }, [
+          _c("h5", { staticClass: " text-muted" }, [
+            _vm._v("Change Functional Requirement No : " + _vm._s(_vm.frNo))
+          ]),
+          _vm._v(" "),
+          _c("h5", { staticClass: " text-muted" }, [
             _vm._v("Change Request Id : " + _vm._s(_vm.changeRequestId))
           ]),
           _vm._v(" "),
-          _c("h5", { staticClass: "card-subtitle text-muted" }, [
+          _c("h5", { staticClass: " text-muted" }, [
             _vm._v("Status :\n                    "),
             _c("span", { staticClass: "text-success" }, [
               _vm._v(_vm._s(_vm.status))

@@ -69,60 +69,55 @@ class ImpactResult
     {
         $changeRequestInputList = ChangeRequestInput::where('changeRequestId', $this->changeRequestId)->get();
         $instanceResult = [];
+        
         foreach ($changeRequestInputList as $crInput) {
             $instanceResult[$crInput->id]['crInputId'] = $crInput->id;
             $tableImpactList = [];
-            $impact = [
-                'tableName' => '',
-                'columnName' => '',
-                'columnOrder' => [],
-                'changeType' => $crInput->changeType,
-                'records' => []
-            ];
-
-            foreach (InstanceImpact::where('changeRequestInputId', $crInput->id)->get() as $instanceImpact) {
-                $impact['tableName'] = $instanceImpact->tableName;
-                if ($crInput->changeType != 'delete') {
-                    $impact['records']['new'][] = $instanceImpact->newValue;
-                }
-                $record = [];
-                foreach (OldInstance::where('instanceImpactId', $instanceImpact->id)->orderBy('id','asc')->get() as $index => $oldInstance) {
-                    if(!array_key_exists($oldInstance->columnName, $impact['columnOrder'])) {
-                        $impact['columnOrder'][$oldInstance->columnName] = $index;
-                    }
-                    $record[] = $oldInstance->value;
-                }
-                $impact['records']['old'][] = $record;
-                if(array_key_exists($instanceImpact->tableName,$tableImpactList)) {
+            foreach(InstanceImpact::where('changeRequestInputId', $crInput->id)->get() as $instanceImpact) {
+                
+                if(array_key_exists($instanceImpact->tableName, $tableImpactList)) {
                     $tableImpactList[$instanceImpact->tableName]['records']['new'][] = $instanceImpact->newValue;
-                    $tableImpactList[$instanceImpact->tableName]['records']['old'][] = $record;
+                    $oldRecord = [];
+                    foreach (OldInstance::where('instanceImpactId', $instanceImpact->id)->orderBy('id','asc')->get() as $index => $oldInstance) {
+                        $oldRecord[] = $oldInstance->value;
+                    }
+                    $tableImpactList[$instanceImpact->tableName]['records']['old'][] = $oldRecord;
                 }
                 else {
-                    $tableImpactList[$instanceImpact->tableName] = [
-                        'tableName' => $instanceImpact->tableName,
-                        'columnName' => $instanceImpact->columnName,
-                        'records' => ['new' => [$instanceImpact->newValue], 'old' => [$record] ],
-                        'changeType' => $crInput->changeType,
-                        'columnOrder' => array_flip($impact['columnOrder'])
+                    $tableImpactList[$instanceImpact->tableName]['tableName'] = $instanceImpact->tableName;
+                    $tableImpactList[$instanceImpact->tableName]['columnName'] = $instanceImpact->columnName; 
+                    $tableImpactList[$instanceImpact->tableName]['changeType'] = ChangeRequestInput::where('id',$crInput->id)->first()->changeType;
+                    $tableImpactList[$instanceImpact->tableName]['columnOrder'] = [];
+                    $tableImpactList[$instanceImpact->tableName]['records'] = [
+                        'old' => [],
+                        'new' => [$instanceImpact->newValue]
                     ];
+                    $oldRecord = [];
+                    foreach (OldInstance::where('instanceImpactId', $instanceImpact->id)->orderBy('id','asc')->get() as $index => $oldInstance) {
+                        $tableImpactList[$instanceImpact->tableName]['columnOrder'][] = $oldInstance->columnName;
+                        $oldRecord[] = $oldInstance->value;
+                    }
+                    $tableImpactList[$instanceImpact->tableName]['records']['old'][] = $oldRecord;
                 }
-            
-            }
-            //$tableImpactList[$impact['tableName']]['columnOrder'] = array_flip($impact['columnOrder']);
-            //$impact['columnOrder'] = array_flip($impact['columnOrder']);
-            foreach($tableImpactList as $tableImpact) {
-                $instanceResult[$crInput->id]['tableImpactList'][] = $tableImpact;
+                
             }
             if(empty($tableImpactList)) {
-                unset($crInput->id, $instanceResult);
+                unset($instanceResult[$crInput->id]);
             }
-            
+            else {
+                foreach($tableImpactList as $tableImpact) {
+                    $instanceResult[$crInput->id]['tableImpactList'][] = $tableImpact;
+                }
+            }
         }
         $result = [];
-        foreach ($instanceResult as $crInputImpact) {
-            $result[] = $crInputImpact;
+        if(!empty($instanceResult)) {
+            foreach($instanceResult as $impactResult) {
+                $result[] = $impactResult;
+            }
         }
         return $result;
+
     }
 
     private function getFrImpact(): array

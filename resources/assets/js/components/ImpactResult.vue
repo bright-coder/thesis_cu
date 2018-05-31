@@ -7,8 +7,9 @@
                     <h3 class="card-title">Project Name :
                         <a :href="'/project/'+projectName"> {{projectName }} </a>
                     </h3>
-                    <h5 class="card-subtitle text-muted">Change Request Id : {{ changeRequestId}}</h5>
-                    <h5 class="card-subtitle text-muted">Status :
+                    <h5 class=" text-muted">Change Functional Requirement No : {{frNo}}</h5>
+                    <h5 class=" text-muted">Change Request Id : {{ changeRequestId}}</h5>
+                    <h5 class=" text-muted">Status :
                         <span class="text-success">{{ status }}</span>
                     </h5>
                     <br>
@@ -365,6 +366,7 @@ export default {
   data() {
     return {
       status: "",
+      frNo: '',
       crInputList: [],
       columnImpactEditIndex: 0,
       impact: {
@@ -400,6 +402,7 @@ export default {
           vm.impact.tc = response.data.impactList.testCases;
           vm.impact.rtm = response.data.impactList.rtm;
           vm.status = response.data.status;
+          vm.frNo = response.data.changeFrNo;
           vm.crInputList = response.data.crInputList;
           console.log(response.data);
           

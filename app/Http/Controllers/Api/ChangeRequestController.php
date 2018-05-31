@@ -290,6 +290,7 @@ class ChangeRequestController extends Controller
         $result = [
             // 'id' => $changeRequestId,
             // 'projectName' => $projectName,
+            'changeFrNo' => FunctionalRequirement::where('id', $changeRequest->changeFunctionalRequirementId)->first()->no,
             'status' => 'success',
             'crInputList' => [],
             'impactList' => (new ImpactResult($changeRequestId))->getImpact()
