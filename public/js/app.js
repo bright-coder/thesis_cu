@@ -81978,6 +81978,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "test-case-table",
@@ -82035,7 +82039,7 @@ var render = function() {
           ? _c("div", { key: index, staticClass: "col-md-6" }, [
               _c("div", { staticClass: "card" }, [
                 _c("div", { staticClass: "card-header" }, [
-                  _vm._v(_vm._s(tc.no) + " "),
+                  _vm._v(_vm._s(tc.no) + "\n                    "),
                   _c(
                     "span",
                     {
@@ -82051,19 +82055,21 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "card-body" }, [
-                  _c("table", { staticClass: "table table-hover" }, [
-                    _vm._m(0, true),
-                    _vm._v(" "),
-                    _c(
-                      "tbody",
-                      _vm._l(tc.inputs, function(input, inputIndex) {
-                        return _c("tr", { key: inputIndex }, [
-                          _c("td", [_vm._v(_vm._s(input.name))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(input.testData))])
-                        ])
-                      })
-                    )
+                  _c("div", { staticClass: "table-responsive" }, [
+                    _c("table", { staticClass: "table table-hover" }, [
+                      _vm._m(0, true),
+                      _vm._v(" "),
+                      _c(
+                        "tbody",
+                        _vm._l(tc.inputs, function(input, inputIndex) {
+                          return _c("tr", { key: inputIndex }, [
+                            _c("td", [_vm._v(_vm._s(input.name))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(input.testData))])
+                          ])
+                        })
+                      )
+                    ])
                   ])
                 ])
               ]),
@@ -86694,7 +86700,7 @@ var render = function() {
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "card-body" }, [
-              _c("table", { staticClass: "table hover" }, [
+              _c("table", { staticClass: "table table-hover" }, [
                 _vm._m(0),
                 _vm._v(" "),
                 _c(
@@ -86817,6 +86823,7 @@ var render = function() {
                   "a",
                   {
                     staticClass: "nav-link",
+                    class: { disabled: _vm.impact.schema.length == 0 },
                     attrs: {
                       id: "pills-schema-tab",
                       "data-toggle": "pill",
@@ -86842,6 +86849,7 @@ var render = function() {
                   "a",
                   {
                     staticClass: "nav-link",
+                    class: { disabled: _vm.impact.instance.length == 0 },
                     attrs: {
                       id: "pills-instance-tab",
                       "data-toggle": "pill",
@@ -86867,6 +86875,7 @@ var render = function() {
                   "a",
                   {
                     staticClass: "nav-link",
+                    class: { disabled: _vm.impact.tc.length == 0 },
                     attrs: {
                       id: "pills-tc-tab",
                       "data-toggle": "pill",
@@ -86892,6 +86901,7 @@ var render = function() {
                   "a",
                   {
                     staticClass: "nav-link",
+                    class: { disabled: _vm.impact.rtm.length == 0 },
                     attrs: {
                       id: "pills-rtm-tab",
                       "data-toggle": "pill",

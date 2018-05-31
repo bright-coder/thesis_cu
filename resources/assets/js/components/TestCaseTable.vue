@@ -3,23 +3,27 @@
         <div class="row">
             <div class="col-md-6" v-for="(tc,index) in tcs" :key="index" v-if="index >= startIndex && index < startIndex+perPage">
                 <div class="card">
-                    <div class="card-header">{{ tc.no }} <span class="badge" v-bind:class="[tc.type.toLowerCase() == 'valid' ? 'badge-success' : 'badge-danger' ]">{{ tc.type }}</span></div>
+                    <div class="card-header">{{ tc.no }}
+                        <span class="badge" v-bind:class="[tc.type.toLowerCase() == 'valid' ? 'badge-success' : 'badge-danger' ]">{{ tc.type }}</span>
+                    </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr class="bg-info text-white">
-                                    <th>Input name</th>
-                                    <th>Data</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(input,inputIndex) in tc.inputs" :key="inputIndex">
-                                    <td>{{ input.name }}</td>
-                                    <td>{{ input.testData }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-    
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr class="bg-info text-white">
+                                        <th>Input name</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(input,inputIndex) in tc.inputs" :key="inputIndex">
+                                        <td>{{ input.name }}</td>
+                                        <td>{{ input.testData }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
                 <br>
@@ -59,7 +63,7 @@ export default {
       this.pages = parseInt(this.tcs.length / this.perPage) + 1;
     }
   },
-    methods: {
+  methods: {
     go(page) {
       this.startIndex = (page - 1) * 2;
       this.active = page;

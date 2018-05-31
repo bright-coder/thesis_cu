@@ -16,7 +16,7 @@
                     <div class="card">
                         <div class="card-header">Change Request Input List</div>
                         <div class="card-body">
-                            <table class="table hover">
+                            <table class="table table-hover">
                                 <thead>
                                     <tr class="bg-info text-white">
                                         <th></th>
@@ -70,25 +70,25 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-schema-tab" data-toggle="pill" href="#pills-schema" role="tab" aria-controls="pills-schema" aria-selected="false">
+                            <a class="nav-link" v-bind:class="{'disabled' : impact.schema.length == 0}" id="pills-schema-tab" data-toggle="pill" href="#pills-schema" role="tab" aria-controls="pills-schema" aria-selected="false">
                                 Database Schema
                                 <span class="badge badge-light">{{ impact.schema.length }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-instance-tab" data-toggle="pill" href="#pills-instance" role="tab" aria-controls="pills-instance" aria-selected="false">
+                            <a class="nav-link" v-bind:class="{'disabled' : impact.instance.length == 0}" id="pills-instance-tab" data-toggle="pill" href="#pills-instance" role="tab" aria-controls="pills-instance" aria-selected="false">
                                 Database Instance
                                 <span class="badge badge-light">{{ impact.instance.length }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-tc-tab" data-toggle="pill" href="#pills-tc" role="tab" aria-controls="pills-tc" aria-selected="false">
+                            <a class="nav-link" v-bind:class="{'disabled' : impact.tc.length == 0}" id="pills-tc-tab" data-toggle="pill" href="#pills-tc" role="tab" aria-controls="pills-tc" aria-selected="false">
                                 Test Cases
                                 <span class="badge badge-light">{{ impact.tc.length }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-rtm-tab" data-toggle="pill" href="#pills-rtm" role="tab" aria-controls="pills-rtm" aria-selected="false">
+                            <a class="nav-link" v-bind:class="{'disabled' : impact.rtm.length == 0}" id="pills-rtm-tab" data-toggle="pill" href="#pills-rtm" role="tab" aria-controls="pills-rtm" aria-selected="false">
                                 Requirement Traceability Matrix
                                 <span class="badge badge-light">{{ impact.rtm.length }}</span>
                             </a>
