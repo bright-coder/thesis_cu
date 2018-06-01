@@ -83937,9 +83937,17 @@ var render = function() {
           _vm._v(" "),
           _c("td", [_vm._v(_vm._s(changeRequest.frNo))]),
           _vm._v(" "),
-          _c("td", { staticClass: "text-success" }, [
-            _vm._v(" " + _vm._s(changeRequest.status) + " ")
-          ]),
+          _c(
+            "td",
+            {
+              class: [
+                changeRequest.status == "success"
+                  ? "text-success"
+                  : "text-danger"
+              ]
+            },
+            [_c("strong", [_vm._v(" " + _vm._s(changeRequest.status) + " ")])]
+          ),
           _vm._v(" "),
           _c("td", [
             _c(
@@ -84803,6 +84811,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         if (oldInput.scale == this.changeRequest.scale) {
           delete newChangeRequest["scale"];
           ++isNotChange;
+        }
+        if (this.changeRequest.default == '') {
+          this.changeRequest.default = null;
         }
         if (oldInput.default == this.changeRequest.default) {
           delete newChangeRequest["default"];
@@ -86585,6 +86596,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "impact-result",
@@ -86592,7 +86610,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   data: function data() {
     return {
       status: "",
-      frNo: '',
+      frNo: "",
       crInputList: [],
       columnImpactEditIndex: 0,
       impact: {
@@ -86640,7 +86658,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       return impactIndex == columnIndex;
     },
     getNoCrInput: function getNoCrInput(crInputId) {
-
       for (var i = 0; i < this.crInputList.length; ++i) {
         if (crInputId == this.crInputList[i].id) {
           return i + 1;
@@ -86673,23 +86690,29 @@ var render = function() {
           _c("h3", { staticClass: "card-title" }, [
             _vm._v("Project Name :\n                    "),
             _c("a", { attrs: { href: "/project/" + _vm.projectName } }, [
-              _vm._v(" " + _vm._s(_vm.projectName) + " ")
+              _c("strong", [_vm._v(_vm._s(_vm.projectName))])
             ])
           ]),
           _vm._v(" "),
           _c("h5", { staticClass: " text-muted" }, [
-            _vm._v("Change Functional Requirement No : " + _vm._s(_vm.frNo))
+            _vm._v("Change Functional Requirement No : "),
+            _c("strong", [_vm._v(_vm._s(_vm.frNo))])
           ]),
           _vm._v(" "),
           _c("h5", { staticClass: " text-muted" }, [
-            _vm._v("Change Request Id : " + _vm._s(_vm.changeRequestId))
+            _vm._v("Change Request Id : "),
+            _c("strong", [_vm._v(_vm._s(_vm.changeRequestId))])
           ]),
           _vm._v(" "),
           _c("h5", { staticClass: " text-muted" }, [
             _vm._v("Status :\n                    "),
-            _c("span", { staticClass: "text-success" }, [
-              _vm._v(_vm._s(_vm.status))
-            ])
+            _c(
+              "span",
+              {
+                class: _vm.status == "success" ? "text-success" : "text-danger"
+              },
+              [_c("strong", [_vm._v(_vm._s(_vm.status))])]
+            )
           ]),
           _vm._v(" "),
           _c("br"),
@@ -86780,937 +86803,1095 @@ var render = function() {
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
-          _c("h5", { staticClass: "card-subtitle" }, [
-            _vm._v("Impact Information")
-          ]),
-          _vm._v(" "),
-          _c("hr"),
-          _vm._v(" "),
-          _c(
-            "ul",
-            {
-              staticClass: "nav nav-pills mb-3",
-              attrs: { id: "pills-tab", role: "tablist" }
-            },
-            [
-              _c("li", { staticClass: "nav-item" }, [
+          _vm.status == "success"
+            ? _c("div", { staticClass: "impact-information" }, [
+                _c("h5", { staticClass: "card-subtitle" }, [
+                  _vm._v("Impact Information")
+                ]),
+                _vm._v(" "),
+                _c("hr"),
+                _vm._v(" "),
                 _c(
-                  "a",
+                  "ul",
                   {
-                    staticClass: "nav-link active",
-                    attrs: {
-                      id: "pills-fr-tab",
-                      "data-toggle": "pill",
-                      href: "#pills-fr",
-                      role: "tab",
-                      "aria-controls": "pills-home",
-                      "aria-selected": "true"
-                    }
+                    staticClass: "nav nav-pills mb-3",
+                    attrs: { id: "pills-tab", role: "tablist" }
                   },
                   [
-                    _vm._v(
-                      "\n                            Functional Requirements\n                            "
-                    ),
-                    _c("span", { staticClass: "badge badge-light" }, [
-                      _vm._v(_vm._s(_vm.impact.fr.length))
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("li", { staticClass: "nav-item" }, [
-                _c(
-                  "a",
-                  {
-                    staticClass: "nav-link",
-                    class: { disabled: _vm.impact.schema.length == 0 },
-                    attrs: {
-                      id: "pills-schema-tab",
-                      "data-toggle": "pill",
-                      href: "#pills-schema",
-                      role: "tab",
-                      "aria-controls": "pills-schema",
-                      "aria-selected": "false"
-                    }
-                  },
-                  [
-                    _vm._v(
-                      "\n                            Database Schema\n                            "
-                    ),
-                    _c("span", { staticClass: "badge badge-light" }, [
-                      _vm._v(_vm._s(_vm.impact.schema.length))
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("li", { staticClass: "nav-item" }, [
-                _c(
-                  "a",
-                  {
-                    staticClass: "nav-link",
-                    class: { disabled: _vm.impact.instance.length == 0 },
-                    attrs: {
-                      id: "pills-instance-tab",
-                      "data-toggle": "pill",
-                      href: "#pills-instance",
-                      role: "tab",
-                      "aria-controls": "pills-instance",
-                      "aria-selected": "false"
-                    }
-                  },
-                  [
-                    _vm._v(
-                      "\n                            Database Instance\n                            "
-                    ),
-                    _c("span", { staticClass: "badge badge-light" }, [
-                      _vm._v(_vm._s(_vm.impact.instance.length))
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("li", { staticClass: "nav-item" }, [
-                _c(
-                  "a",
-                  {
-                    staticClass: "nav-link",
-                    class: { disabled: _vm.impact.tc.length == 0 },
-                    attrs: {
-                      id: "pills-tc-tab",
-                      "data-toggle": "pill",
-                      href: "#pills-tc",
-                      role: "tab",
-                      "aria-controls": "pills-tc",
-                      "aria-selected": "false"
-                    }
-                  },
-                  [
-                    _vm._v(
-                      "\n                            Test Cases\n                            "
-                    ),
-                    _c("span", { staticClass: "badge badge-light" }, [
-                      _vm._v(_vm._s(_vm.impact.tc.length))
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("li", { staticClass: "nav-item" }, [
-                _c(
-                  "a",
-                  {
-                    staticClass: "nav-link",
-                    class: { disabled: _vm.impact.rtm.length == 0 },
-                    attrs: {
-                      id: "pills-rtm-tab",
-                      "data-toggle": "pill",
-                      href: "#pills-rtm",
-                      role: "tab",
-                      "aria-controls": "pills-rtm",
-                      "aria-selected": "false"
-                    }
-                  },
-                  [
-                    _vm._v(
-                      "\n                            Requirement Traceability Matrix\n                            "
-                    ),
-                    _c("span", { staticClass: "badge badge-light" }, [
-                      _vm._v(_vm._s(_vm.impact.rtm.length))
-                    ])
-                  ]
-                )
-              ])
-            ]
-          ),
-          _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: "tab-content", attrs: { id: "pills-tabContent" } },
-            [
-              _c(
-                "div",
-                {
-                  staticClass: "tab-pane fade show active",
-                  attrs: {
-                    id: "pills-fr",
-                    role: "tabpanel",
-                    "aria-labelledby": "pills-fr-tab"
-                  }
-                },
-                _vm._l(_vm.impact.fr, function(fr, index) {
-                  return _c("div", { key: index, staticClass: "card-hr" }, [
-                    _c("div", { staticClass: "card" }, [
-                      _c("div", { staticClass: "card-header" }, [
-                        _vm._v(
-                          "\n                                    " +
-                            _vm._s(fr.functionalRequirementNo) +
-                            "\n                                    "
-                        ),
-                        _c("span", { staticClass: "badge badge-info" }, [
-                          _vm._v(_vm._s(fr.inputs.length))
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "card-body" }, [
-                        _c("table", { staticClass: "table table-hover" }, [
-                          _vm._m(1, true),
-                          _vm._v(" "),
-                          _c(
-                            "tbody",
-                            _vm._l(fr.inputs, function(input, inputIndex) {
-                              return _c("tr", { key: inputIndex }, [
-                                _c("td", [_vm._v(_vm._s(inputIndex + 1))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(input.name) + " ")]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.dataType
-                                        : input.new.dataType
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.length
-                                        : input.new.length
-                                    ) + " "
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.precision
-                                        : input.new.precision
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.scale
-                                        : input.new.scale
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.default
-                                        : input.new.default
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                input.changeType != "delete"
-                                  ? _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          input.new.nullable == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(input.new.nullable))]
-                                    )
-                                  : _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          input.old.nullable == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(input.old.nullable))]
-                                    ),
-                                _vm._v(" "),
-                                input.changeType != "delete"
-                                  ? _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          input.new.unique == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(input.new.unique))]
-                                    )
-                                  : _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          input.old.unique == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(input.old.unique))]
-                                    ),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.min
-                                        : input.new.min
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.max
-                                        : input.new.max
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.tableName
-                                        : input.new.tableName
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      input.changeType == "delete"
-                                        ? input.old.columnName
-                                        : input.new.columnName
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _c(
-                                    "span",
-                                    {
-                                      staticClass: "badge",
-                                      class: [
-                                        input.changeType == "add"
-                                          ? "badge-success"
-                                          : input.changeType == "edit"
-                                            ? "badge-warning"
-                                            : "badge-danger"
-                                      ]
-                                    },
-                                    [_vm._v(_vm._s(input.changeType))]
-                                  )
-                                ])
-                              ])
-                            })
-                          )
-                        ])
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _vm.impact.fr.length > 1 ? _c("hr") : _vm._e()
-                  ])
-                })
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                {
-                  staticClass: "tab-pane fade",
-                  attrs: {
-                    id: "pills-schema",
-                    role: "tabpanel",
-                    "aria-labelledby": "pills-schema-tab"
-                  }
-                },
-                _vm._l(_vm.impact.schema, function(table, index) {
-                  return _c("div", { key: index, staticClass: "card-hr" }, [
-                    _c("div", { staticClass: "card" }, [
-                      _c("div", { staticClass: "card-header" }, [
-                        _vm._v(
-                          "\n                                    " +
-                            _vm._s(table.name) +
-                            "\n                                    "
-                        ),
-                        _c("span", { staticClass: "badge badge-info" }, [
-                          _vm._v(_vm._s(table.columnList.length))
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "card-body" }, [
-                        _c("table", { staticClass: "table table-hover" }, [
-                          _vm._m(2, true),
-                          _vm._v(" "),
-                          _c(
-                            "tbody",
-                            _vm._l(table.columnList, function(
-                              column,
-                              columnIndex
-                            ) {
-                              return _c("tr", { key: columnIndex }, [
-                                _c("td", [_vm._v(_vm._s(columnIndex + 1))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(column.name) + " ")]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.dataType
-                                        : column.new.dataType
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.length
-                                        : column.new.length
-                                    ) + " "
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.precision
-                                        : column.new.precision
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.scale
-                                        : column.new.scale
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.default
-                                        : column.new.default
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                column.changeType != "delete"
-                                  ? _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          column.new.nullable == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(column.new.nullable))]
-                                    )
-                                  : _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          column.old.nullable == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(column.old.nullable))]
-                                    ),
-                                _vm._v(" "),
-                                column.changeType != "delete"
-                                  ? _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          column.new.unique == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(column.new.unique))]
-                                    )
-                                  : _c(
-                                      "td",
-                                      {
-                                        class: [
-                                          column.old.unique == "N"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        ]
-                                      },
-                                      [_vm._v(_vm._s(column.old.unique))]
-                                    ),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.min
-                                        : column.new.min
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _vm._v(
-                                    _vm._s(
-                                      column.changeType == "delete"
-                                        ? column.old.max
-                                        : column.new.max
-                                    )
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c("td", [
-                                  _c(
-                                    "span",
-                                    {
-                                      staticClass: "badge",
-                                      class: [
-                                        column.changeType == "add"
-                                          ? "badge-success"
-                                          : column.changeType == "edit"
-                                            ? "badge-warning"
-                                            : "badge-danger"
-                                      ]
-                                    },
-                                    [_vm._v(_vm._s(column.changeType))]
-                                  )
-                                ])
-                              ])
-                            })
-                          )
-                        ])
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _vm.impact.schema.length > 1 ? _c("hr") : _vm._e()
-                  ])
-                })
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                {
-                  staticClass: "tab-pane fade",
-                  attrs: {
-                    id: "pills-instance",
-                    role: "tabpanel",
-                    "aria-labelledby": "pills-instance-tab"
-                  }
-                },
-                [
-                  _vm._m(3),
-                  _vm._v(" "),
-                  _c("br"),
-                  _vm._v(" "),
-                  _vm._l(_vm.impact.instance, function(instance, index) {
-                    return _c("div", { key: index, staticClass: "card-hr" }, [
-                      _c("div", { staticClass: "card" }, [
-                        _c(
-                          "div",
-                          { staticClass: "card-body" },
-                          [
-                            _c("h5", { staticClass: "card-title" }, [
-                              _vm._v(
-                                "Impacted by Change Request Input : " +
-                                  _vm._s(_vm.getNoCrInput(instance.crInputId))
-                              )
-                            ]),
-                            _vm._v(" "),
-                            _c("hr"),
-                            _vm._v(" "),
-                            _vm._l(instance.tableImpactList, function(
-                              table,
-                              tableIndex
-                            ) {
-                              return _c(
-                                "div",
-                                { key: tableIndex, staticClass: "card-br" },
-                                [
-                                  _c("div", { staticClass: "card" }, [
-                                    _c("div", { staticClass: "card-header" }, [
-                                      _vm._v(_vm._s(table.tableName))
-                                    ]),
-                                    _vm._v(" "),
-                                    _c("div", { staticClass: "card-body" }, [
-                                      _c(
-                                        "table",
-                                        {
-                                          staticClass:
-                                            "table table-hover table-bordered"
-                                        },
-                                        [
-                                          _c("thead", [
-                                            _c(
-                                              "tr",
-                                              {
-                                                staticClass:
-                                                  "bg-info text-white"
-                                              },
-                                              [
-                                                _vm._l(
-                                                  table.columnOrder,
-                                                  function(
-                                                    columnName,
-                                                    cNameIndex
-                                                  ) {
-                                                    return _c(
-                                                      "td",
-                                                      {
-                                                        key: cNameIndex,
-                                                        class: [
-                                                          table.columnName ==
-                                                            columnName &&
-                                                          table.changeType ==
-                                                            "edit"
-                                                            ? "bg-warning"
-                                                            : table.columnName ==
-                                                                columnName &&
-                                                              table.changeType ==
-                                                                "delete"
-                                                              ? "bg-danger"
-                                                              : ""
-                                                        ]
-                                                      },
-                                                      [
-                                                        _vm._v(
-                                                          "\n                                                                " +
-                                                            _vm._s(columnName) +
-                                                            "\n                                                            "
-                                                        )
-                                                      ]
-                                                    )
-                                                  }
-                                                ),
-                                                _vm._v(" "),
-                                                table.changeType == "add"
-                                                  ? _c(
-                                                      "td",
-                                                      {
-                                                        staticClass:
-                                                          "bg-success"
-                                                      },
-                                                      [
-                                                        _vm._v(
-                                                          " " +
-                                                            _vm._s(
-                                                              table.columnName
-                                                            )
-                                                        )
-                                                      ]
-                                                    )
-                                                  : _vm._e()
-                                              ],
-                                              2
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c(
-                                            "tbody",
-                                            _vm._l(table.records.old, function(
-                                              oldRecords,
-                                              oldIndex
-                                            ) {
-                                              return _c(
-                                                "tr",
-                                                { key: oldIndex },
-                                                [
-                                                  _vm._l(oldRecords, function(
-                                                    oldValue,
-                                                    oldValueIndex
-                                                  ) {
-                                                    return _c(
-                                                      "td",
-                                                      { key: oldValueIndex },
-                                                      [
-                                                        _vm._v(
-                                                          "\n                                                                " +
-                                                            _vm._s(oldValue) +
-                                                            "\n                                                                "
-                                                        ),
-                                                        table.changeType ==
-                                                          "edit" &&
-                                                        _vm.isColumnImpact(
-                                                          index,
-                                                          tableIndex,
-                                                          oldValueIndex
-                                                        )
-                                                          ? _c("span", [
-                                                              _vm._v(
-                                                                "\n                                                                     \n                                                                    "
-                                                              ),
-                                                              _vm._m(4, true),
-                                                              _vm._v(
-                                                                "\n                                                                     " +
-                                                                  _vm._s(
-                                                                    table
-                                                                      .records
-                                                                      .new[
-                                                                      oldIndex
-                                                                    ]
-                                                                  ) +
-                                                                  "\n                                                                "
-                                                              )
-                                                            ])
-                                                          : _vm._e()
-                                                      ]
-                                                    )
-                                                  }),
-                                                  _vm._v(" "),
-                                                  table.changeType == "add"
-                                                    ? _c("td", [
-                                                        _vm._v(
-                                                          " " +
-                                                            _vm._s(
-                                                              table.records.new[
-                                                                oldIndex
-                                                              ]
-                                                            )
-                                                        )
-                                                      ])
-                                                    : _vm._e()
-                                                ],
-                                                2
-                                              )
-                                            })
-                                          )
-                                        ]
-                                      )
-                                    ])
-                                  ]),
-                                  _vm._v(" "),
-                                  instance.tableImpactList.length - 1 !=
-                                  tableIndex
-                                    ? _c("br")
-                                    : _vm._e()
-                                ]
-                              )
-                            })
-                          ],
-                          2
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _vm.impact.instance.length > 0 &&
-                      index != _vm.impact.instance.length - 1
-                        ? _c("hr")
-                        : _vm._e()
-                    ])
-                  })
-                ],
-                2
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                {
-                  staticClass: "tab-pane fade",
-                  attrs: {
-                    id: "pills-tc",
-                    role: "tabpanel",
-                    "aria-labelledby": "pills-tc-tab"
-                  }
-                },
-                [
-                  _c(
-                    "div",
-                    { staticClass: "row" },
-                    _vm._l(_vm.impact.tc, function(tc, index) {
-                      return _c(
-                        "div",
-                        { key: index, staticClass: "col-md-4" },
+                    _c("li", { staticClass: "nav-item" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "nav-link active",
+                          attrs: {
+                            id: "pills-fr-tab",
+                            "data-toggle": "pill",
+                            href: "#pills-fr",
+                            role: "tab",
+                            "aria-controls": "pills-home",
+                            "aria-selected": "true"
+                          }
+                        },
                         [
-                          _c("div", { staticClass: "card" }, [
-                            _c("div", { staticClass: "card-body" }, [
-                              _c("h5", { staticClass: "card-title" }, [
+                          _vm._v(
+                            "\n                                Functional Requirements\n                                "
+                          ),
+                          _c("span", { staticClass: "badge badge-light" }, [
+                            _vm._v(_vm._s(_vm.impact.fr.length))
+                          ])
+                        ]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("li", { staticClass: "nav-item" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "nav-link",
+                          class: { disabled: _vm.impact.schema.length == 0 },
+                          attrs: {
+                            id: "pills-schema-tab",
+                            "data-toggle": "pill",
+                            href: "#pills-schema",
+                            role: "tab",
+                            "aria-controls": "pills-schema",
+                            "aria-selected": "false"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                                Database Schema\n                                "
+                          ),
+                          _c("span", { staticClass: "badge badge-light" }, [
+                            _vm._v(_vm._s(_vm.impact.schema.length))
+                          ])
+                        ]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("li", { staticClass: "nav-item" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "nav-link",
+                          class: { disabled: _vm.impact.instance.length == 0 },
+                          attrs: {
+                            id: "pills-instance-tab",
+                            "data-toggle": "pill",
+                            href: "#pills-instance",
+                            role: "tab",
+                            "aria-controls": "pills-instance",
+                            "aria-selected": "false"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                                Database Instance\n                                "
+                          ),
+                          _c("span", { staticClass: "badge badge-light" }, [
+                            _vm._v(_vm._s(_vm.impact.instance.length))
+                          ])
+                        ]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("li", { staticClass: "nav-item" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "nav-link",
+                          class: { disabled: _vm.impact.tc.length == 0 },
+                          attrs: {
+                            id: "pills-tc-tab",
+                            "data-toggle": "pill",
+                            href: "#pills-tc",
+                            role: "tab",
+                            "aria-controls": "pills-tc",
+                            "aria-selected": "false"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                                Test Cases\n                                "
+                          ),
+                          _c("span", { staticClass: "badge badge-light" }, [
+                            _vm._v(_vm._s(_vm.impact.tc.length))
+                          ])
+                        ]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("li", { staticClass: "nav-item" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "nav-link",
+                          class: { disabled: _vm.impact.rtm.length == 0 },
+                          attrs: {
+                            id: "pills-rtm-tab",
+                            "data-toggle": "pill",
+                            href: "#pills-rtm",
+                            role: "tab",
+                            "aria-controls": "pills-rtm",
+                            "aria-selected": "false"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                                Requirement Traceability Matrix\n                                "
+                          ),
+                          _c("span", { staticClass: "badge badge-light" }, [
+                            _vm._v(_vm._s(_vm.impact.rtm.length))
+                          ])
+                        ]
+                      )
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "tab-content",
+                    attrs: { id: "pills-tabContent" }
+                  },
+                  [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "tab-pane fade show active",
+                        attrs: {
+                          id: "pills-fr",
+                          role: "tabpanel",
+                          "aria-labelledby": "pills-fr-tab"
+                        }
+                      },
+                      _vm._l(_vm.impact.fr, function(fr, index) {
+                        return _c(
+                          "div",
+                          { key: index, staticClass: "card-hr" },
+                          [
+                            _c("div", { staticClass: "card" }, [
+                              _c("div", { staticClass: "card-header" }, [
                                 _vm._v(
-                                  _vm._s(tc.no) +
-                                    "\n                                            "
+                                  "\n                                        " +
+                                    _vm._s(fr.functionalRequirementNo) +
+                                    "\n                                        "
                                 ),
                                 _c(
                                   "span",
-                                  {
-                                    staticClass: "badge",
-                                    class: [
-                                      tc.changeType == "add"
-                                        ? "badge-success"
-                                        : tc.changeType == "edit"
-                                          ? "badge-warning"
-                                          : "badge-danger"
-                                    ]
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                                                " +
-                                        _vm._s(tc.changeType) +
-                                        "\n                                            "
-                                    )
-                                  ]
+                                  { staticClass: "badge badge-info" },
+                                  [_vm._v(_vm._s(fr.inputs.length))]
                                 )
                               ]),
                               _vm._v(" "),
-                              tc.changeType == "edit"
-                                ? _c("div", { staticClass: "card-hr" }, [
-                                    _c("hr"),
+                              _c("div", { staticClass: "card-body" }, [
+                                _c(
+                                  "table",
+                                  { staticClass: "table table-hover" },
+                                  [
+                                    _vm._m(1, true),
                                     _vm._v(" "),
                                     _c(
-                                      "table",
-                                      { staticClass: "table table-hover" },
-                                      [
-                                        _vm._m(5, true),
-                                        _vm._v(" "),
-                                        _c(
-                                          "tbody",
-                                          _vm._l(tc.inputs, function(
-                                            tcInputEdit,
-                                            tcInputIndex
-                                          ) {
-                                            return _c(
-                                              "tr",
-                                              { key: tcInputIndex },
+                                      "tbody",
+                                      _vm._l(fr.inputs, function(
+                                        input,
+                                        inputIndex
+                                      ) {
+                                        return _c("tr", { key: inputIndex }, [
+                                          _c("td", [
+                                            _vm._v(_vm._s(inputIndex + 1))
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(_vm._s(input.name) + " ")
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.dataType
+                                                  : input.new.dataType
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.length
+                                                  : input.new.length
+                                              ) + " "
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.precision
+                                                  : input.new.precision
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.scale
+                                                  : input.new.scale
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.default
+                                                  : input.new.default
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          input.changeType != "delete"
+                                            ? _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    input.new.nullable == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(input.new.nullable)
+                                                  )
+                                                ]
+                                              )
+                                            : _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    input.old.nullable == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(input.old.nullable)
+                                                  )
+                                                ]
+                                              ),
+                                          _vm._v(" "),
+                                          input.changeType != "delete"
+                                            ? _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    input.new.unique == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(input.new.unique)
+                                                  )
+                                                ]
+                                              )
+                                            : _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    input.old.unique == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(input.old.unique)
+                                                  )
+                                                ]
+                                              ),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.min
+                                                  : input.new.min
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.max
+                                                  : input.new.max
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.tableName
+                                                  : input.new.tableName
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                input.changeType == "delete"
+                                                  ? input.old.columnName
+                                                  : input.new.columnName
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _c(
+                                              "span",
+                                              {
+                                                staticClass: "badge",
+                                                class: [
+                                                  input.changeType == "add"
+                                                    ? "badge-success"
+                                                    : input.changeType == "edit"
+                                                      ? "badge-warning"
+                                                      : "badge-danger"
+                                                ]
+                                              },
+                                              [_vm._v(_vm._s(input.changeType))]
+                                            )
+                                          ])
+                                        ])
+                                      })
+                                    )
+                                  ]
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _vm.impact.fr.length > 1 ? _c("hr") : _vm._e()
+                          ]
+                        )
+                      })
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "tab-pane fade",
+                        attrs: {
+                          id: "pills-schema",
+                          role: "tabpanel",
+                          "aria-labelledby": "pills-schema-tab"
+                        }
+                      },
+                      _vm._l(_vm.impact.schema, function(table, index) {
+                        return _c(
+                          "div",
+                          { key: index, staticClass: "card-hr" },
+                          [
+                            _c("div", { staticClass: "card" }, [
+                              _c("div", { staticClass: "card-header" }, [
+                                _vm._v(
+                                  "\n                                        " +
+                                    _vm._s(table.name) +
+                                    "\n                                        "
+                                ),
+                                _c(
+                                  "span",
+                                  { staticClass: "badge badge-info" },
+                                  [_vm._v(_vm._s(table.columnList.length))]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "card-body" }, [
+                                _c(
+                                  "table",
+                                  { staticClass: "table table-hover" },
+                                  [
+                                    _vm._m(2, true),
+                                    _vm._v(" "),
+                                    _c(
+                                      "tbody",
+                                      _vm._l(table.columnList, function(
+                                        column,
+                                        columnIndex
+                                      ) {
+                                        return _c("tr", { key: columnIndex }, [
+                                          _c("td", [
+                                            _vm._v(_vm._s(columnIndex + 1))
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(_vm._s(column.name) + " ")
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.dataType
+                                                  : column.new.dataType
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.length
+                                                  : column.new.length
+                                              ) + " "
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.precision
+                                                  : column.new.precision
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.scale
+                                                  : column.new.scale
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.default
+                                                  : column.new.default
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          column.changeType != "delete"
+                                            ? _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    column.new.nullable == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(column.new.nullable)
+                                                  )
+                                                ]
+                                              )
+                                            : _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    column.old.nullable == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(column.old.nullable)
+                                                  )
+                                                ]
+                                              ),
+                                          _vm._v(" "),
+                                          column.changeType != "delete"
+                                            ? _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    column.new.unique == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(column.new.unique)
+                                                  )
+                                                ]
+                                              )
+                                            : _c(
+                                                "td",
+                                                {
+                                                  class: [
+                                                    column.old.unique == "N"
+                                                      ? "text-danger"
+                                                      : "text-success"
+                                                  ]
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    _vm._s(column.old.unique)
+                                                  )
+                                                ]
+                                              ),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.min
+                                                  : column.new.min
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                column.changeType == "delete"
+                                                  ? column.old.max
+                                                  : column.new.max
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _c(
+                                              "span",
+                                              {
+                                                staticClass: "badge",
+                                                class: [
+                                                  column.changeType == "add"
+                                                    ? "badge-success"
+                                                    : column.changeType ==
+                                                      "edit"
+                                                      ? "badge-warning"
+                                                      : "badge-danger"
+                                                ]
+                                              },
                                               [
-                                                _c("td", [
-                                                  _vm._v(
-                                                    _vm._s(tcInputEdit.name)
-                                                  )
-                                                ]),
-                                                _vm._v(" "),
-                                                _c("td", [
-                                                  _vm._v(
-                                                    "\n                                                            " +
-                                                      _vm._s(
-                                                        tcInputEdit.oldData
-                                                      ) +
-                                                      "\n                                                             \n                                                                    "
-                                                  ),
-                                                  _vm._m(6, true),
-                                                  _vm._v(
-                                                    "\n                                                                     " +
-                                                      _vm._s(
-                                                        tcInputEdit.newData
-                                                      ) +
-                                                      "\n                                                        "
-                                                  )
-                                                ])
+                                                _vm._v(
+                                                  _vm._s(column.changeType)
+                                                )
                                               ]
                                             )
-                                          })
-                                        )
-                                      ]
+                                          ])
+                                        ])
+                                      })
                                     )
-                                  ])
-                                : _vm._e()
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _vm.impact.tc.length > 3 ? _c("br") : _vm._e()
-                        ]
-                      )
-                    })
-                  )
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                {
-                  staticClass: "tab-pane fade",
-                  attrs: {
-                    id: "pills-rtm",
-                    role: "tabpanel",
-                    "aria-labelledby": "pills-rtm-tab"
-                  }
-                },
-                [
-                  _c("div", { staticClass: "row" }, [
-                    _c("div", { staticClass: "col-md-6" }, [
-                      _c("div", { staticClass: "card" }, [
-                        _c("div", { staticClass: "card-body" }, [
-                          _c("table", { staticClass: "table table-hover" }, [
-                            _vm._m(7),
+                                  ]
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _c(
-                              "tbody",
-                              _vm._l(_vm.impact.rtm, function(rtm, index) {
-                                return _c("tr", { key: index }, [
-                                  _c("td", [_vm._v(_vm._s(index + 1))]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(_vm._s(rtm.functionalRequirementNo))
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _c("i", {
-                                      staticClass: "fas",
-                                      class: [
-                                        rtm.changeType == "add"
-                                          ? "fa-link"
-                                          : "fa-unlink"
-                                      ]
-                                    })
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("td", [_vm._v(_vm._s(rtm.testCaseNo))]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _c(
-                                      "span",
-                                      {
-                                        staticClass: "badge",
-                                        class: [
-                                          rtm.changeType == "add"
-                                            ? "badge-success"
-                                            : "badge-danger"
+                            _vm.impact.schema.length > 1 ? _c("hr") : _vm._e()
+                          ]
+                        )
+                      })
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "tab-pane fade",
+                        attrs: {
+                          id: "pills-instance",
+                          role: "tabpanel",
+                          "aria-labelledby": "pills-instance-tab"
+                        }
+                      },
+                      [
+                        _vm._m(3),
+                        _vm._v(" "),
+                        _c("br"),
+                        _vm._v(" "),
+                        _vm._l(_vm.impact.instance, function(instance, index) {
+                          return _c(
+                            "div",
+                            { key: index, staticClass: "card-hr" },
+                            [
+                              _c("div", { staticClass: "card" }, [
+                                _c(
+                                  "div",
+                                  { staticClass: "card-body" },
+                                  [
+                                    _c("h5", { staticClass: "card-title" }, [
+                                      _vm._v(
+                                        "Impacted by Change Request Input : " +
+                                          _vm._s(
+                                            _vm.getNoCrInput(instance.crInputId)
+                                          )
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("hr"),
+                                    _vm._v(" "),
+                                    _vm._l(instance.tableImpactList, function(
+                                      table,
+                                      tableIndex
+                                    ) {
+                                      return _c(
+                                        "div",
+                                        {
+                                          key: tableIndex,
+                                          staticClass: "card-br"
+                                        },
+                                        [
+                                          _c("div", { staticClass: "card" }, [
+                                            _c(
+                                              "div",
+                                              { staticClass: "card-header" },
+                                              [_vm._v(_vm._s(table.tableName))]
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "div",
+                                              { staticClass: "card-body" },
+                                              [
+                                                _c(
+                                                  "table",
+                                                  {
+                                                    staticClass:
+                                                      "table table-hover table-bordered"
+                                                  },
+                                                  [
+                                                    _c("thead", [
+                                                      _c(
+                                                        "tr",
+                                                        {
+                                                          staticClass:
+                                                            "bg-info text-white"
+                                                        },
+                                                        [
+                                                          _vm._l(
+                                                            table.columnOrder,
+                                                            function(
+                                                              columnName,
+                                                              cNameIndex
+                                                            ) {
+                                                              return _c(
+                                                                "td",
+                                                                {
+                                                                  key: cNameIndex,
+                                                                  class: [
+                                                                    table.columnName ==
+                                                                      columnName &&
+                                                                    table.changeType ==
+                                                                      "edit"
+                                                                      ? "bg-warning"
+                                                                      : table.columnName ==
+                                                                          columnName &&
+                                                                        table.changeType ==
+                                                                          "delete"
+                                                                        ? "bg-danger"
+                                                                        : ""
+                                                                  ]
+                                                                },
+                                                                [
+                                                                  _vm._v(
+                                                                    "\n                                                                    " +
+                                                                      _vm._s(
+                                                                        columnName
+                                                                      ) +
+                                                                      "\n                                                                "
+                                                                  )
+                                                                ]
+                                                              )
+                                                            }
+                                                          ),
+                                                          _vm._v(" "),
+                                                          table.changeType ==
+                                                          "add"
+                                                            ? _c(
+                                                                "td",
+                                                                {
+                                                                  staticClass:
+                                                                    "bg-success"
+                                                                },
+                                                                [
+                                                                  _vm._v(
+                                                                    " " +
+                                                                      _vm._s(
+                                                                        table.columnName
+                                                                      )
+                                                                  )
+                                                                ]
+                                                              )
+                                                            : _vm._e()
+                                                        ],
+                                                        2
+                                                      )
+                                                    ]),
+                                                    _vm._v(" "),
+                                                    _c(
+                                                      "tbody",
+                                                      _vm._l(
+                                                        table.records.old,
+                                                        function(
+                                                          oldRecords,
+                                                          oldIndex
+                                                        ) {
+                                                          return _c(
+                                                            "tr",
+                                                            { key: oldIndex },
+                                                            [
+                                                              _vm._l(
+                                                                oldRecords,
+                                                                function(
+                                                                  oldValue,
+                                                                  oldValueIndex
+                                                                ) {
+                                                                  return _c(
+                                                                    "td",
+                                                                    {
+                                                                      key: oldValueIndex
+                                                                    },
+                                                                    [
+                                                                      _vm._v(
+                                                                        "\n                                                                    " +
+                                                                          _vm._s(
+                                                                            oldValue
+                                                                          ) +
+                                                                          "\n                                                                    "
+                                                                      ),
+                                                                      table.changeType ==
+                                                                        "edit" &&
+                                                                      _vm.isColumnImpact(
+                                                                        index,
+                                                                        tableIndex,
+                                                                        oldValueIndex
+                                                                      )
+                                                                        ? _c(
+                                                                            "span",
+                                                                            [
+                                                                              _vm._v(
+                                                                                "\n                                                                         \n                                                                        "
+                                                                              ),
+                                                                              _vm._m(
+                                                                                4,
+                                                                                true
+                                                                              ),
+                                                                              _vm._v(
+                                                                                "\n                                                                         " +
+                                                                                  _vm._s(
+                                                                                    table
+                                                                                      .records
+                                                                                      .new[
+                                                                                      oldIndex
+                                                                                    ]
+                                                                                  ) +
+                                                                                  "\n                                                                    "
+                                                                              )
+                                                                            ]
+                                                                          )
+                                                                        : _vm._e()
+                                                                    ]
+                                                                  )
+                                                                }
+                                                              ),
+                                                              _vm._v(" "),
+                                                              table.changeType ==
+                                                              "add"
+                                                                ? _c("td", [
+                                                                    _vm._v(
+                                                                      " " +
+                                                                        _vm._s(
+                                                                          table
+                                                                            .records
+                                                                            .new[
+                                                                            oldIndex
+                                                                          ]
+                                                                        )
+                                                                    )
+                                                                  ])
+                                                                : _vm._e()
+                                                            ],
+                                                            2
+                                                          )
+                                                        }
+                                                      )
+                                                    )
+                                                  ]
+                                                )
+                                              ]
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          instance.tableImpactList.length - 1 !=
+                                          tableIndex
+                                            ? _c("br")
+                                            : _vm._e()
                                         ]
-                                      },
-                                      [
-                                        _vm._v(
-                                          "\n                                                            " +
-                                            _vm._s(rtm.changeType) +
-                                            "\n                                                        "
-                                        )
-                                      ]
-                                    )
+                                      )
+                                    })
+                                  ],
+                                  2
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _vm.impact.instance.length > 0 &&
+                              index != _vm.impact.instance.length - 1
+                                ? _c("hr")
+                                : _vm._e()
+                            ]
+                          )
+                        })
+                      ],
+                      2
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "tab-pane fade",
+                        attrs: {
+                          id: "pills-tc",
+                          role: "tabpanel",
+                          "aria-labelledby": "pills-tc-tab"
+                        }
+                      },
+                      [
+                        _c(
+                          "div",
+                          { staticClass: "row" },
+                          _vm._l(_vm.impact.tc, function(tc, index) {
+                            return _c(
+                              "div",
+                              { key: index, staticClass: "col-md-4" },
+                              [
+                                _c("div", { staticClass: "card" }, [
+                                  _c("div", { staticClass: "card-body" }, [
+                                    _c("h5", { staticClass: "card-title" }, [
+                                      _vm._v(
+                                        _vm._s(tc.no) +
+                                          "\n                                                "
+                                      ),
+                                      _c(
+                                        "span",
+                                        {
+                                          staticClass: "badge",
+                                          class: [
+                                            tc.changeType == "add"
+                                              ? "badge-success"
+                                              : tc.changeType == "edit"
+                                                ? "badge-warning"
+                                                : "badge-danger"
+                                          ]
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                                                    " +
+                                              _vm._s(tc.changeType) +
+                                              "\n                                                "
+                                          )
+                                        ]
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    tc.changeType == "edit"
+                                      ? _c("div", { staticClass: "card-hr" }, [
+                                          _c("hr"),
+                                          _vm._v(" "),
+                                          _c(
+                                            "table",
+                                            {
+                                              staticClass: "table table-hover"
+                                            },
+                                            [
+                                              _vm._m(5, true),
+                                              _vm._v(" "),
+                                              _c(
+                                                "tbody",
+                                                _vm._l(tc.inputs, function(
+                                                  tcInputEdit,
+                                                  tcInputIndex
+                                                ) {
+                                                  return _c(
+                                                    "tr",
+                                                    { key: tcInputIndex },
+                                                    [
+                                                      _c("td", [
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            tcInputEdit.name
+                                                          )
+                                                        )
+                                                      ]),
+                                                      _vm._v(" "),
+                                                      _c("td", [
+                                                        _vm._v(
+                                                          "\n                                                                " +
+                                                            _vm._s(
+                                                              tcInputEdit.oldData
+                                                            ) +
+                                                            "  \n                                                                "
+                                                        ),
+                                                        _vm._m(6, true),
+                                                        _vm._v(
+                                                          "\n                                                                 " +
+                                                            _vm._s(
+                                                              tcInputEdit.newData
+                                                            ) +
+                                                            "\n                                                            "
+                                                        )
+                                                      ])
+                                                    ]
+                                                  )
+                                                })
+                                              )
+                                            ]
+                                          )
+                                        ])
+                                      : _vm._e()
                                   ])
-                                ])
-                              })
+                                ]),
+                                _vm._v(" "),
+                                _vm.impact.tc.length > 3 ? _c("br") : _vm._e()
+                              ]
                             )
+                          })
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "tab-pane fade",
+                        attrs: {
+                          id: "pills-rtm",
+                          role: "tabpanel",
+                          "aria-labelledby": "pills-rtm-tab"
+                        }
+                      },
+                      [
+                        _c("div", { staticClass: "row" }, [
+                          _c("div", { staticClass: "col-md-6" }, [
+                            _c("div", { staticClass: "card" }, [
+                              _c("div", { staticClass: "card-body" }, [
+                                _c(
+                                  "table",
+                                  { staticClass: "table table-hover" },
+                                  [
+                                    _vm._m(7),
+                                    _vm._v(" "),
+                                    _c(
+                                      "tbody",
+                                      _vm._l(_vm.impact.rtm, function(
+                                        rtm,
+                                        index
+                                      ) {
+                                        return _c("tr", { key: index }, [
+                                          _c("td", [_vm._v(_vm._s(index + 1))]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(
+                                              _vm._s(
+                                                rtm.functionalRequirementNo
+                                              )
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _c("i", {
+                                              staticClass: "fas",
+                                              class: [
+                                                rtm.changeType == "add"
+                                                  ? "fa-link"
+                                                  : "fa-unlink"
+                                              ]
+                                            })
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _vm._v(_vm._s(rtm.testCaseNo))
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("td", [
+                                            _c(
+                                              "span",
+                                              {
+                                                staticClass: "badge",
+                                                class: [
+                                                  rtm.changeType == "add"
+                                                    ? "badge-success"
+                                                    : "badge-danger"
+                                                ]
+                                              },
+                                              [
+                                                _vm._v(
+                                                  "\n                                                                " +
+                                                    _vm._s(rtm.changeType) +
+                                                    "\n                                                            "
+                                                )
+                                              ]
+                                            )
+                                          ])
+                                        ])
+                                      })
+                                    )
+                                  ]
+                                )
+                              ])
+                            ])
                           ])
                         ])
-                      ])
-                    ])
-                  ])
-                ]
+                      ]
+                    )
+                  ]
+                )
+              ])
+            : _c(
+                "div",
+                _vm._l(_vm.crInputList, function(crInput, index) {
+                  return crInput.status == 0
+                    ? _c(
+                        "div",
+                        {
+                          key: index,
+                          staticClass: "alert alert-danger",
+                          attrs: { role: "alert" }
+                        },
+                        [
+                          _c("strong", [
+                            _vm._v(
+                              "At Change Request Input : " +
+                                _vm._s(_vm.getNoCrInput(crInput.id))
+                            )
+                          ]),
+                          _vm._v("   "),
+                          _c("i", { staticClass: "fas fa-arrow-right" }),
+                          _vm._v(
+                            "    '" +
+                              _vm._s(crInput.errorMessage) +
+                              "'\n                    "
+                          )
+                        ]
+                      )
+                    : _vm._e()
+                })
               )
-            ]
-          )
         ])
       ])
     ])
@@ -87835,15 +88016,15 @@ var staticRenderFns = [
           _c("span", { staticClass: "text-success" }, [
             _c("i", { staticClass: "fas fa-square-full" })
           ]),
-          _vm._v(" Add   \n                                    "),
+          _vm._v(" Add   \n                                        "),
           _c("span", { staticClass: "text-warning" }, [
             _c("i", { staticClass: "fas fa-square-full" })
           ]),
-          _vm._v(" Edit   \n                                    "),
+          _vm._v(" Edit   \n                                        "),
           _c("span", { staticClass: "text-danger" }, [
             _c("i", { staticClass: "fas fa-square-full" })
           ]),
-          _vm._v(" Delete\n                                ")
+          _vm._v(" Delete\n                                    ")
         ])
       ])
     ])

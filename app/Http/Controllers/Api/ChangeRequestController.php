@@ -61,13 +61,21 @@ class ChangeRequestController extends Controller
         $result = [];
         
         foreach ($changeRequests as $changeRequest) {
+            $status = 'success';
+            foreach(ChangeRequestInput::where('changeRequestId' , $changeRequest->id)->get() as $crInput) {
+                if($crInput->status == 0) {
+                    $status = 'failed';
+                }
+            }
             $result[] = [
                 'id' => $changeRequest->id,
                 'frNo' => FunctionalRequirement::where('id', $changeRequest->changeFunctionalRequirementId)->first()->no,
                 'projectName' => Project::where('id', $changeRequest->projectId)->first()->name,
-                'status' => 'success'
+                'status' => $status
             ];
+
         }
+        
         return response()->json($result, 200);
     }
 
@@ -232,6 +240,9 @@ class ChangeRequestController extends Controller
                     if (\array_key_exists('max', $input)) {
                         $changeRequestInput->max = $input['max'];
                     }
+                    if (\array_key_exists('default', $input)) {
+                        $changeRequestInput->default = $input['default'];
+                    }
                     
                     $changeRequestInput->functionalRequirementInputId = FunctionalRequirementInput::where([
                         ['functionalRequirementId', $functionalRequirement->id],
@@ -243,7 +254,7 @@ class ChangeRequestController extends Controller
                         ['name' , $input['name']]
                         ])->first()->id;
                 }
-                $changeRequestInput->status = 'imported';
+
                 $changeRequestInput->save();
                 $changeRequestInputList[] = $changeRequestInput;
             }
@@ -298,6 +309,9 @@ class ChangeRequestController extends Controller
         foreach($changeRequestInputList as $crInput) {
             if($crInput->changeType != 'add') {
                 $crInput->name = FunctionalRequirementInput::where('id', $crInput->functionalRequirementInputId)->first()->name;
+            }
+            if($crInput->status == 0) {
+                $result['status'] = 'failed';
             }
             $result['crInputList'][] = $crInput;
         }

@@ -433,6 +433,9 @@ export default {
           delete newChangeRequest["scale"];
           ++isNotChange;
         }
+        if(this.changeRequest.default == '') {
+            this.changeRequest.default = null
+        }
         if (oldInput.default == this.changeRequest.default) {
           delete newChangeRequest["default"];
           ++isNotChange;

@@ -49,8 +49,8 @@ class AnalyzeImpactDBState implements StateInterface
     {
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
+            $this->getDbSchema();
             if (!$this->validateChangeRequestInput($changeAnalysis->getAllChangeRequestInput())) {
-                $changeAnalysis->errorMessage = $this->errorMessage;
                 return;
             }
             
@@ -91,44 +91,53 @@ class AnalyzeImpactDBState implements StateInterface
 
     private function validateChangeRequestInput(array $changeRequestInputList) : bool
     {
+        $result = true;
         foreach ($changeRequestInputList as $changeRequestInput) {
             if ($changeRequestInput->changeType == 'edit') {
-                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->FunctionalRequirementInputId)->first();
+                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->functionalRequirementInputId)->first();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
-
+                $changeRequestInput->status = 1;
                 if ($table->isPK($frInput->columnName)) {
                     if ($changeRequestInput->unique != null) {
-                        $this->errorMessage = 'Cannot change Unique at Primary key column.';
-                        return false;
+                        $changeRequestInput->status = 0;
+                        $changeRequestInput->errorMessage = 'Cannot change Unique at Primary key column.';
                     }
-                    if ($changeRequestInput->nullable != null) {
-                        $this->errorMessage = 'Cannot change Nullable at Primary key column.';
-                        return false;
+                    else if ($changeRequestInput->nullable != null) {
+                        $changeRequestInput->status = 0;
+                        $changeRequestInput->errorMessage = 'Cannot change Nullable at Primary key column.';
                     }
                 }
-                if ($table->isFK($frInput->columnName)) {
+                else if ($table->isFK($frInput->columnName)) {
                     if ($changeRequestInput->default != null) {
-                        $this->errorMessage = 'Cannot change Default at Foreign Key column.';
-                        return false;
+                        $changeRequestInput->status = 0;
+                        $changeRequestInput->errorMessage = 'Cannot change Default at Foreign Key column.';
                     }
-                    if ($changeRequestInput->min != null) {
-                        $this->errorMessage = 'Cannot change Min at Foreign Key column.';
+                    else if ($changeRequestInput->min != null) {
+                        $changeRequestInput->status = 0;
+                        $changeRequestInput->errorMessage = 'Cannot change Min at Foreign Key column.';
                     }
-                    if ($changeRequestInput->max != null) {
-                        $this->errorMessage = 'Cannot change Max at Foreign Key column.';
+                    else if ($changeRequestInput->max != null) {
+                        $changeRequestInput->status = 0;
+                        $changeRequestInput->errorMessage = 'Cannot change Max at Foreign Key column.';
                     }
                 }
             }
-            if($changeRequestInput->changeType == 'delete') {
-                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->FunctionalRequirementInputId)->first();
+            else if($changeRequestInput->changeType == 'delete') {
+                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->functionalRequirementInputId)->first();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
-
+            
                 if($table->isPK($frInput->columnName)) {
-                    $this->errorMessage = 'Cannot delete Primary key column.';
-                    return false;
+                    $changeRequestInput->status = 0;
+                    $changeRequestInput->errorMessage = 'Cannot delete Primary key column.';
                 }
             }
+            if($changeRequestInput->status == 0) {
+                $result = false;
+            }
+            $changeRequestInput->save();
         }
+
+        return $result;
     }
 
     private function connectTargetDB(string $projectId): bool
