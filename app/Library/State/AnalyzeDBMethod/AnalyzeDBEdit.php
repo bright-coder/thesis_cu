@@ -406,10 +406,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
             $refSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true;
         }
-        
-        if ($this->changeRequestInput->unqiue != null) {
+
+        if ($this->changeRequestInput->unique != null) {
             if ($this->findInstanceImpactByUnique(\strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true, $refSchema['unique'])) {
-                $instance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), $column->getName());
+                $instance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), [ $column->getName() ]);
+                
                 if (count($instance) > 0) {
                     $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                 }
@@ -447,6 +448,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         } else {
             $this->instanceImpactResult[0] = null;
         }
+        //dd($this->instanceImpactResult[0]);
     }
 
     private function setImpactToLinkedColumn(Node $start) {

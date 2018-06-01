@@ -84984,7 +84984,7 @@ var render = function() {
                 _vm.functionalList.length > 0
                   ? _c("div", { staticClass: "form-group" }, [
                       _c("label", { attrs: { for: "project" } }, [
-                        _vm._v("Functional Requiremnt")
+                        _vm._v("Functional Requirement")
                       ]),
                       _vm._v(" "),
                       _c(

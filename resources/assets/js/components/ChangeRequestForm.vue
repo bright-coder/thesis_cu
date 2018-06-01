@@ -19,7 +19,7 @@
                     </div>
                     <div class="col-md-3" v-if="isHaveFr">
                         <div class="form-group" v-if="functionalList.length > 0">
-                            <label for="project">Functional Requiremnt</label>
+                            <label for="project">Functional Requirement</label>
                             <select class="form-control" v-model="selectedFunctional" @change="resetFunctional">
                                 <option value="-"> - </option>
                                 <option v-for="(functional, index) in functionalList" :key="index" :value="index">
