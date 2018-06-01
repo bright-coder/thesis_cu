@@ -89,7 +89,7 @@ class AnalyzeImpactDBState implements StateInterface
         }
     }
 
-    private function validate(array $changeRequestInputList) : bool
+    private function validateChangeRequestInput(array $changeRequestInputList) : bool
     {
         foreach ($changeRequestInputList as $changeRequestInput) {
             if ($changeRequestInput->changeType == 'edit') {
@@ -125,7 +125,7 @@ class AnalyzeImpactDBState implements StateInterface
 
                 if($table->isPK($frInput->columnName)) {
                     $this->errorMessage = 'Cannot delete Primary key column.';
-                        return false;
+                    return false;
                 }
             }
         }
