@@ -13,10 +13,12 @@ use App\Library\State\AnalyzeDBMethod\AnalyzeDBDel;
 
 use App\Model\Project;
 use App\Model\FunctionalRequirement;
+use App\Model\FunctionalRequirementInput;
 use App\Model\ChangeRequest;
 use App\Model\ChangeRequestInput;
 use App\Library\ChangeAnalysis;
 use DB;
+use App\Library\Database\Database;
 
 class AnalyzeImpactDBState implements StateInterface
 {
@@ -26,23 +28,33 @@ class AnalyzeImpactDBState implements StateInterface
      * @var DBTargetInterface
      */
     private $dbTargetConnection = null;
+    /**
+     * Undocumented variable
+     *
+     * @var Database
+     */
     private $dbTarget = null;
+    private $errorMessage = '';
 
     public function __construct()
     {
-
     }
 
-    public function getStateName(): String{
+    public function getStateName(): String
+    {
         return 'AnalyzeImpactDBState';
     }
 
     public function analyze(ChangeAnalysis $changeAnalysis) : void
-    {   
+    {
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
+            if (!$this->validateChangeRequestInput($changeAnalysis->getAllChangeRequestInput())) {
+                $changeAnalysis->errorMessage = $this->errorMessage;
+                return;
+            }
             
-            foreach($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
+            foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
                 $this->getDbSchema();
                 switch ($changeRequestInput->changeType) {
                     case 'add':
@@ -61,7 +73,7 @@ class AnalyzeImpactDBState implements StateInterface
                 }
 
             
-                $analyzer->analyze();    
+                $analyzer->analyze();
                 $analyzer->modify();
                 
                 $changeAnalysis->addDBImpactResult(
@@ -69,15 +81,54 @@ class AnalyzeImpactDBState implements StateInterface
                     $analyzer->getSchemaImpactResult(),
                     $analyzer->getInstanceImpactResult()
                 );
-                
             }
             //dd($changeAnalysis->getDBImpactResult());
             $changeAnalysis->setState(new AnalyzeImpactFRState);
             $changeAnalysis->analyze();
         } else {
-        
         }
+    }
 
+    private function validate(array $changeRequestInputList) : bool
+    {
+        foreach ($changeRequestInputList as $changeRequestInput) {
+            if ($changeRequestInput->changeType == 'edit') {
+                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->FunctionalRequirementInputId)->first();
+                $table = $this->dbTarget->getTableByName($frInput->tableName);
+
+                if ($table->isPK($frInput->columnName)) {
+                    if ($changeRequestInput->unique != null) {
+                        $this->errorMessage = 'Cannot change Unique at Primary key column.';
+                        return false;
+                    }
+                    if ($changeRequestInput->nullable != null) {
+                        $this->errorMessage = 'Cannot change Nullable at Primary key column.';
+                        return false;
+                    }
+                }
+                if ($table->isFK($frInput->columnName)) {
+                    if ($changeRequestInput->default != null) {
+                        $this->errorMessage = 'Cannot change Default at Foreign Key column.';
+                        return false;
+                    }
+                    if ($changeRequestInput->min != null) {
+                        $this->errorMessage = 'Cannot change Min at Foreign Key column.';
+                    }
+                    if ($changeRequestInput->max != null) {
+                        $this->errorMessage = 'Cannot change Max at Foreign Key column.';
+                    }
+                }
+            }
+            if($changeRequestInput->changeType == 'delete') {
+                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->FunctionalRequirementInputId)->first();
+                $table = $this->dbTarget->getTableByName($frInput->tableName);
+
+                if($table->isPK($frInput->columnName)) {
+                    $this->errorMessage = 'Cannot delete Primary key column.';
+                        return false;
+                }
+            }
+        }
     }
 
     private function connectTargetDB(string $projectId): bool
@@ -215,5 +266,4 @@ class AnalyzeImpactDBState implements StateInterface
         }
         return true;
     }
-
 }
