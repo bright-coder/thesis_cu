@@ -16,6 +16,7 @@ use App\Model\User;
 use App\Library\ImpactResult;
 use App\Model\FunctionalRequirement;
 use App\Model\Project;
+use App\Library\CancelChangeRequest;
 
 class ChangeRequestController extends Controller
 {
@@ -348,8 +349,31 @@ class ChangeRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $projectName, $id)
     {
-        //
+        $user = User::where('accessToken', $request->bearerToken())->first();
+
+        if (!$user) {
+            return response()->json(['msg' => 'forbidden'], 401);
+        }
+
+        $guard = new GuardProject($request->bearerToken());
+        $project = $guard->getProject($projectName);
+
+        if(empty($project)) {
+            return response()->json(['msg' => 'not found project : '.$projectName], 400);
+        }
+        
+        $changeRequest = ChangeRequest::where([
+            ['id' , $id],
+            ['projectId', $project->id]
+        ])->first();
+
+        if(empty($changeRequest)) {
+            return response()->json(['msg' => 'not found Change Request ID : '.$id], 400);
+        }
+
+        $canellation = new CancelChangeRequest($project->id, $id);
+
     }
 }
