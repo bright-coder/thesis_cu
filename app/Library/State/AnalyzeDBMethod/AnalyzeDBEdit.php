@@ -346,7 +346,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     }
                 }
                 $refSchema['min'] = $this->changeRequestInput->min;
-                
             }
             if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL') {
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
@@ -356,7 +355,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     }
                 }
                 $refSchema['max'] = $this->changeRequestInput->max;
-                
             }
 
             if ($this->changeRequestInput->min == '#NULL') {
@@ -443,7 +441,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'oldInstance' =>  $this->instanceImpactResult[0],
                 'newInstance' => $randomData
             ];
-            //dd($this->instanceImpactResult[0]);
+        //dd($this->instanceImpactResult[0]);
         //$pkColumns = $this->database->getTableByName($this->changeRequestInput->tableName)->getPK()->getColumns();
         } else {
             $this->instanceImpactResult[0] = null;
@@ -451,7 +449,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         //dd($this->instanceImpactResult[0]);
     }
 
-    private function setImpactToLinkedColumn(Node $start) {
+    private function setImpactToLinkedColumn(Node $start)
+    {
         foreach ($start->getLinks() as $node) {
             $table = $this->database->getTableByName($node->getTableName());
             $column = $table->getColumnByName($node->getColumnName());
@@ -543,27 +542,27 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $this->instanceImpactResult[] = null;
             }
 
-            if(count($node->getLinks()) > 0) {
+            if (count($node->getLinks()) > 0) {
                 $this->setImpactToLinkedColumn($node);
             }
         }
     }
 
     public function modify(): bool
-    {   
+    {
         
         //$dbTargetConnection->addColumn($changeRequestInput);
         $pkFkTrace = [];
         foreach ($this->schemaImpactResult as $index => $scResult) {
             $this->dbTargetConnection->disableConstraint();
             $columnDetail = [
-                'length' => \array_key_exists('length',$scResult['newSchema']) ? 
+                'length' => \array_key_exists('length', $scResult['newSchema']) ?
                 $scResult['newSchema']['length'] : $scResult['oldSchema']['length'],
-            'precision' => \array_key_exists('precision',$scResult['newSchema']) ? 
+            'precision' => \array_key_exists('precision', $scResult['newSchema']) ?
                 $columnDetail['newSchema']['precision'] : $scResult['oldSchema']['precision'],
-            'scale' => \array_key_exists('scale',$scResult['newSchema']) ? 
+            'scale' => \array_key_exists('scale', $scResult['newSchema']) ?
                 $scResult['newSchema']['scale'] : $scResult['oldSchema']['scale'],
-                'dataType' => \array_key_exists('dataType', $scResult['newSchema']) ? 
+                'dataType' => \array_key_exists('dataType', $scResult['newSchema']) ?
                 $scResult['newSchema']['dataType'] : $scResult['oldSchema']['dataType'],
                 'nullable' => \array_key_exists('nullable', $scResult['newSchema']) ?
                 $scResult['newSchema']['nullable'] : $scResult['oldSchema']['nullable'],
@@ -605,10 +604,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $this->instanceImpactResult[$index]['newInstance'],
                     $scResult['columnName']
                 );
-            }
-            else {
+            } else {
                 $oldValues = [];
-                foreach($this->dbTargetConnection->getInstanceByTableName($scResult['tableName']) as $oldRecord) {
+                foreach ($this->dbTargetConnection->getInstanceByTableName($scResult['tableName']) as $oldRecord) {
                     $oldValues[] = $oldRecord[$scResult['columnName']];
                 }
                 $this->dbTargetConnection->updateInstance(
@@ -620,26 +618,26 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 );
             }
             $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                    if (count($uniqueConstraintList) > 0) {
-                        foreach ($uniqueConstraintList as $uniqueConstraint) {
-                            $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
-                        }
-                    }
+            if (count($uniqueConstraintList) > 0) {
+                foreach ($uniqueConstraintList as $uniqueConstraint) {
+                    $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
+                }
+            }
             $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                        if (count($checkConstraintList) > 0) {
-                            foreach ($checkConstraintList as $checkConstraint) {
-                                $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
-                            }
-                        }
-            if($this->database->getTableByName($scResult['tableName'])->isPK($scResult['columnName']) ) {
-                $fkRelatedList = $this->findFKRelated($scResult['tableName'],$scResult['columnName']);
-                foreach($fkRelatedList as $fkRelated) {
+            if (count($checkConstraintList) > 0) {
+                foreach ($checkConstraintList as $checkConstraint) {
+                    $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
+                }
+            }
+            if ($this->database->getTableByName($scResult['tableName'])->isPK($scResult['columnName'])) {
+                $fkRelatedList = $this->findFKRelated($scResult['tableName'], $scResult['columnName']);
+                foreach ($fkRelatedList as $fkRelated) {
                     $this->dbTargetConnection->dropConstraint($fkRelated['tableName'], $fkRelated['fk']->getName());
                 }
                 $this->dbTargetConnection->dropConstraint($scResult['tableName'], $this->database->getTableByName($scResult['tableName'])->getPK()->getName());
                 $pkFkTrace[] = [
                     'pk' => [
-                        'tableName' => $scResult['tableName'], 
+                        'tableName' => $scResult['tableName'],
                         'name' => $this->database->getTableByName($scResult['tableName'])->getPK()->getName(),
                         'columns' => $this->database->getTableByName($scResult['tableName'])->getPK()->getColumns()
                     ],
@@ -648,18 +646,17 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
             $this->dbTargetConnection->dropColumn($scResult['tableName'], $scResult['columnName']);
             $this->dbTargetConnection->updateColumn($columnDetail);
-            $this->dbTargetConnection->updateColumnName($scResult['tableName'],$scResult['columnName']."_#temp", $scResult['columnName']);
+            $this->dbTargetConnection->updateColumnName($scResult['tableName'], $scResult['columnName']."_#temp", $scResult['columnName']);
 
             if (\array_key_exists('unique', $scResult['newSchema'])) {
-
-                if (strcmp($scResult['newSchema']['unique'],'N') == 0) {
+                if (strcmp($scResult['newSchema']['unique'], 'N') == 0) {
                     // $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
                     // if (count($uniqueConstraintList) > 0) {
                     //     foreach ($uniqueConstraintList as $uniqueConstraint) {
                     //         $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
                     //     }
                     // }
-                } elseif (strcmp($scResult['newSchema']['unique'],'Y') == 0 ) { //&& $scResult['oldSchema']['unique'] === false
+                } elseif (strcmp($scResult['newSchema']['unique'], 'Y') == 0) { //&& $scResult['oldSchema']['unique'] === false
                     $this->dbTargetConnection->addUniqueConstraint($scResult['tableName'], $scResult['columnName']);
                 }
             }
@@ -685,8 +682,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if (array_key_exists('max', $scResult['newSchema'])) {
                     $max = $scResult['newSchema']['max'] == '#NULL' ? null : $scResult['newSchema']['max'];
                 }
-
-                $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['columnName'], $min, $max);
+                if($min != null && $max != null) {
+                    $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['columnName'], $min, $max);
+                }
+                
             } else {
                 if (\array_key_exists('dataType', $scResult['newSchema'])) {
                     if (! DataType::isNumericType($scResult['newSchema']['dataType'])) {
@@ -701,15 +700,15 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
         }
 
-        foreach($pkFkTrace as $trace) {
-                $this->dbTargetConnection->addPrimaryKeyConstraint($trace['pk']['tableName'], 
+        foreach ($pkFkTrace as $trace) {
+            $this->dbTargetConnection->addPrimaryKeyConstraint(
+                    $trace['pk']['tableName'],
                 $trace['pk']['columns'],
                 $trace['pk']['name']
                 );
-                foreach($trace['fks'] as $fkRelated) {
-                    $this->dbTargetConnection->addForeignKeyConstraint($fkRelated['tableName'], $fkRelated['fk']->getColumns(), $fkRelated['fk']->getName());
-                }
-                
+            foreach ($trace['fks'] as $fkRelated) {
+                $this->dbTargetConnection->addForeignKeyConstraint($fkRelated['tableName'], $fkRelated['fk']->getColumns(), $fkRelated['fk']->getName());
+            }
         }
 
         $this->dbTargetConnection->enableConstraint();
@@ -789,12 +788,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     }
 
     private function findFKRelated(string $tableName, string $columnName) : array
-    {   
+    {
         $result = [];
-        foreach($this->database->getAllTables() as $table) {
-            foreach($table->getAllFK() as $fk) {
-                foreach($fk->getColumns() as $link) {
-                    if($link['to']['tableName'] == $tableName && $link['to']['columnName'] == $columnName) {
+        foreach ($this->database->getAllTables() as $table) {
+            foreach ($table->getAllFK() as $fk) {
+                foreach ($fk->getColumns() as $link) {
+                    if ($link['to']['tableName'] == $tableName && $link['to']['columnName'] == $columnName) {
                         $result[] = [
                             'tableName' => $link['from']['tableName'],
                             'fk' => $fk

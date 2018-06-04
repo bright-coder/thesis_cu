@@ -35,7 +35,7 @@ class Database
         $this->server = $server;
         $this->name = $name;
 
-        $tables = [];
+        $this->tables = [];
     }
 
     public function setTables(array $tables): void

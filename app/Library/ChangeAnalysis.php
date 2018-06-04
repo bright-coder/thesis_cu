@@ -129,20 +129,21 @@ class ChangeAnalysis
     {
         $changeRequestId = $this->getChangeRequest()->id;
         $tableImpactMem = [];
-        foreach ($this->dbImpactResult as $dbImpactList) {
+        foreach ($this->dbImpactResult as $crInputId => $dbImpactList) {
             foreach ($dbImpactList['schema'] as $schema) {
-                if (!array_key_exists($schema['tableName'], $tableImpactMem)) {
-                    $newTableImpact = new TableImpact;
-                    $newTableImpact->name = $schema['tableName'];
-                    $newTableImpact->changeRequestId = $changeRequestId;
-                    $newTableImpact->save();
+                // if (!array_key_exists($schema['tableName'], $tableImpactMem)) {
+                //     $newTableImpact = new TableImpact;
+                //     $newTableImpact->name = $schema['tableName'];
+                //     $newTableImpact->changeRequestId = $changeRequestId;
+                //     $newTableImpact->save();
                     
-                    $tableImpactMem[ $schema['tableName'] ] = $newTableImpact->id;
-                }
+                //     $tableImpactMem[ $schema['tableName'] ] = $newTableImpact->id;
+                // }
                 if ($schema['changeType'] == 'add') {
                     $newColumnImpact = new ColumnImpact;
                     $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableImpactId = $tableImpactMem[$schema['tableName']];
+                    $newColumnImpact->tableName = $schema['tableName'];
+                    $newColumnImpact->changeRequestInputId = $crInputId;
                     $newColumnImpact->changeType = 'add';
                     $newColumnImpact->versionType = 'new';
                     if (array_key_exists('dataType', $schema['newSchema'])) {
@@ -177,7 +178,8 @@ class ChangeAnalysis
                 } elseif ($schema['changeType'] == 'edit') {
                     $newColumnImpact = new ColumnImpact;
                     $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableImpactId = $tableImpactMem[$schema['tableName']];
+                    $newColumnImpact->tableName = $schema['tableName'];
+                    $newColumnImpact->changeRequestInputId = $crInputId;
                     $newColumnImpact->changeType = 'edit';
                     $newColumnImpact->versionType = 'old';
                     $newColumnImpact->dataType = $schema['oldSchema']['dataType'];
@@ -193,7 +195,8 @@ class ChangeAnalysis
 
                     $newColumnImpact = new ColumnImpact;
                     $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableImpactId = $tableImpactMem[$schema['tableName']];
+                    $newColumnImpact->tableName = $schema['tableName'];
+                    $newColumnImpact->changeRequestInputId = $crInputId;
                     $newColumnImpact->changeType = 'edit';
                     $newColumnImpact->versionType = 'new';
                     if (array_key_exists('dataType', $schema['newSchema'])) {
@@ -228,7 +231,8 @@ class ChangeAnalysis
                 else {
                     $newColumnImpact = new ColumnImpact;
                     $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableImpactId = $tableImpactMem[$schema['tableName']];
+                    $newColumnImpact->tableName = $schema['tableName'];
+                    $newColumnImpact->changeRequestInputId = $crInputId;
                     $newColumnImpact->changeType = 'delete';
                     $newColumnImpact->versionType = 'old';
                     $newColumnImpact->dataType = $schema['oldSchema']['dataType'];

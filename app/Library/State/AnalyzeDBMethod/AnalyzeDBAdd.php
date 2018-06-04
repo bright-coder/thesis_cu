@@ -22,15 +22,11 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
 
     public function analyze(): bool
     {
-        
         if ($this->functionalRequirementInput === null) {
-
             $table = $this->database->getTableByName($this->changeRequestInput->tableName);
 
             // if not have column in table
             if (!$table->getColumnbyName($this->changeRequestInput->columnName)) {
-                
-                
                 $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
                     return $val !== null;
                 });
@@ -61,7 +57,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                         'min' => $this->changeRequestInput->min === null ? 1 : $this->changeRequestInput->min,
                         'max' => $this->changeRequestInput->max === null ? 1000000 : $this->changeRequestInput->max
                     ],
-                    strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true
+                    strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true
                 );
                 
                 
@@ -77,17 +73,28 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
     }
 
     public function modify(): bool
-    {   
-
-        if(count($this->schemaImpactResult) == 0) {
+    {
+        if (count($this->schemaImpactResult) == 0) {
             return false;
         }
 
         $this->dbTargetConnection->disableConstraint();
         $this->dbTargetConnection->addColumn($this->changeRequestInput->toArray());
+
+        $default = $this->changeRequestInput->default == '#NULL' ? null : $this->changeRequestInput->default;
+
+        $this->dbTargetConnection->updateInstance(
+            $this->changeRequestInput->tableName,
+            $this->changeRequestInput->columnName,
+            $this->instanceImpactResult[0]['oldInstance'],
+            $this->instanceImpactResult[0]['newInstance'],
+            $default
+        );
+
+        $this->dbTargetConnection->updateColumn($this->changeRequestInput->toArray());
         
-        if (strcasecmp($this->changeRequestInput->unique,'N') == 0 ? false : true) {
-            $dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);
+        if (strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true) {
+            $this->dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);
         }
         
         if ($this->changeRequestInput->min !== null || $this->changeRequestInput->max !== null) {
@@ -107,21 +114,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                     break;
             }
         }
-
-        $default = $this->changeRequestInput->default == '#NULL' ? null : $this->changeRequestInput->default;
-
-        if(\strcasecmp($this->changeRequestInput->nullable,'N') == 0 ) {
-            $default = '0';
-        }
-
-        $this->dbTargetConnection->updateInstance(
-            $this->changeRequestInput->tableName,
-            $this->changeRequestInput->columnName,
-            $this->instanceImpactResult[0]['oldInstance'],
-            $this->instanceImpactResult[0]['newInstance'],
-            $default
-        );
-
+        $this->dbTargetConnection->enableConstraint();
         return true;
     }
 }

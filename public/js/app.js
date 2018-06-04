@@ -83864,6 +83864,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "change-request-list",
@@ -83879,7 +83882,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var vm = this;
       axios({
         url: "/api/v1/projects/" + this.projectName + "/changeRequests",
-        methods: "GET",
+        method: "GET",
         data: null,
         headers: {
           Authorization: "Bearer " + this.accessToken,
@@ -83889,6 +83892,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }).then(function (response) {
         vm.changeRequestList = response.data;
       }).catch(function (errors) {});
+    },
+    cancelChangeRequest: function cancelChangeRequest(projectName, changeRequestId) {
+
+      axios({
+        url: "/api/v1/projects/" + projectName + "/changeRequests/" + changeRequestId,
+        method: "DELETE",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {}).catach(function (errors) {});
     }
   },
   created: function created() {
@@ -83919,7 +83935,7 @@ var render = function() {
         _vm._v(" "),
         _c("th", [_vm._v("Status")]),
         _vm._v(" "),
-        _c("th")
+        _c("th", [_vm._v("Action")])
       ])
     ]),
     _vm._v(" "),
@@ -83963,7 +83979,25 @@ var render = function() {
                 }
               },
               [_vm._v("More")]
-            )
+            ),
+            _vm._v(" "),
+            changeRequest.status == "success"
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger",
+                    on: {
+                      click: function($event) {
+                        _vm.cancelChangeRequest(
+                          changeRequest.projectName,
+                          changeRequest.id
+                        )
+                      }
+                    }
+                  },
+                  [_vm._v("Cancel")]
+                )
+              : _vm._e()
           ])
         ])
       })

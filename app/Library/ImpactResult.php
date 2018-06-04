@@ -2,7 +2,6 @@
 
 namespace App\Library;
 
-use App\Model\TableImpact;
 use App\Model\ColumnImpact;
 use App\Model\InstanceImpact;
 use App\Model\OldInstance;
@@ -36,30 +35,49 @@ class ImpactResult
 
     private function getSchemaImpact(): array
     {
-        $tableImpactList = TableImpact::where('changeRequestId', $this->changeRequestId)->get();
-        $tableResult = [];
-        foreach ($tableImpactList as $tableImpact) {
-            $table = [
-                'name' => $tableImpact->name,
-                'columnList' => null
-            ];
-            $columnResult = [];
-            $columnList = ColumnImpact::where('tableImpactId', $tableImpact->id)->get();
-            foreach ($columnList as $column) {
-                if (!array_key_exists($column->name, $columnResult)) {
-                    $columnResult[$column->name] = [
-                        'name' => $column->name,
-                        'changeType' => $column->changeType
+        //$tableImpactList = TableImpact::where('changeRequestId', $this->changeRequestId)->get();
+        //$tableResult = [];
+        $crInputList = ChangeRequestInput::select('id')->where('changeRequestId', $this->changeRequestId)->get();
+        $crInputId = [];
+        foreach($crInputList as $crInput) {
+            $crInputId[] = $crInput->id;
+        }
+        $columnImpactList = ColumnImpact::whereIn('changeRequestInputId', $crInputId)->get();
+
+        $tableMem = [];
+        foreach($columnImpactList as $columnImpact) {
+            if(array_key_exists($columnImpact->tableName, $tableMem)) {
+                if(array_key_exists($columnImpact->name, $tableMem[$columnImpact->tableName]['columnList'])) {
+                    $tableMem[$columnImpact->tableName]['columnList'][$columnImpact->name][$columnImpact->versionType] = $columnImpact;
+                }
+                else {
+                    $tableMem[$columnImpact->tableName]['columnList'][$columnImpact->name] = [
+                        'name' => $columnImpact->name,
+                        'changeType' => $columnImpact->changeType
                     ];
-                }
-                $columnResult[$column->name][$column->versionType] = $column;
-            }
-            if (!empty($columnResult)) {
-                foreach ($columnResult as $result) {
-                    $table['columnList'][] = $result;
+                    $tableMem[$columnImpact->tableName]['columnList'][$columnImpact->name][$columnImpact->versionType] = $columnImpact;
                 }
             }
-            $tableResult[] = $table;
+            else {
+                $tableMem[$columnImpact->tableName] = ['name' => $columnImpact->tableName, 'columnList' => []];
+                $tableMem[$columnImpact->tableName]['columnList'][$columnImpact->name] = [
+                    'name' => $columnImpact->name,
+                    'changeType' => $columnImpact->changeType
+                ];
+                $tableMem[$columnImpact->tableName]['columnList'][$columnImpact->name][$columnImpact->versionType] = $columnImpact;
+            }
+        }
+        $tableResult = [];
+
+        foreach($tableMem as $table) {
+            $columnResult = [];
+            foreach($table['columnList'] as $column) {
+                $columnResult[] = $column;
+            }
+            $tableResult[] = [
+                'name' => $table['name'],
+                'columnList' => $columnResult
+            ];
         }
         
         return $tableResult;

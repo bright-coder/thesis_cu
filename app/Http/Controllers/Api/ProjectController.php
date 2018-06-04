@@ -212,12 +212,8 @@ class ProjectController extends Controller
                         DB::table('OLD_INSTANCE')->where('instanceImpactId', $insNew->id)->delete();
                         DB::table('INSTANCE_IMPACT')->where('id', $insNew->id)->delete();
                     }
+                    DB::table('COLUMN_IMPACT')->where('changeRequestInputId', $crInput->id)->delete();
                     DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
-                }
-    
-                foreach(DB::table('TABLE_IMPACT')->where('changeRequestId', $cr->id)->get() as $tableImpact) {
-                    DB::table('COLUMN_IMPACT')->where('tableImpactId', $tableImpact->id)->delete();
-                    DB::table('TABLE_IMPACT')->where('id', $tableImpact->id)->delete();
                 }
     
                 foreach(DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {

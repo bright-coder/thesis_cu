@@ -308,12 +308,19 @@ class SqlServer implements DBTargetInterface
             }
         }
 
-        if(is_string($columnDetail['nullable'])) {
-            $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
+        if(array_key_exists('nullable', $columnDetail)) {
+            if(is_string($columnDetail['nullable'])) {
+                $strSqlNullable = $this->getStrSqlNullable(\strcasecmp($columnDetail['nullable'], 'N') == 0 ? false : true);
+            }
+            else {
+                 $strSqlNullable = $this->getStrSqlNullable($columnDetail['nullable']);
+                }
         }
         else {
-            $strSqlNullable = $this->getStrSqlNullable($columnDetail['nullable']);
+            $strSqlNullable = "NULL";
         }
+
+        
 
         $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
         $stmt = $this->conObj->prepare($strQuery);
