@@ -93,10 +93,12 @@ class CancelChangeRequest
                 //$impactResult = (new ImpactResult($changeRequest->id))->getImpact();
                 $this->reverseDatabase($changeRequest->id);
                 // # More Code
-                $this->reverseFunctionalRequirement($changeRequest->id);
-                $this->reverseTestCase($changeRequest->id);
                 $this->reverseRTM($changeRequest->id);
                 $this->reverseTestCase($changeRequest->id);
+                $this->reverseFunctionalRequirement($changeRequest->id);
+                //$this->reverseFunctionalRequirement($changeRequest->id);
+                //$this->reverseTestCase($changeRequest->id);
+                //$this->reverseRTM($changeRequest->id);
             }
             
         }
@@ -280,10 +282,10 @@ class CancelChangeRequest
         unset($columnArray['name']);
         $this->dbTargetConnection->addColumn($columnArray);
 
-        $default = $this->changeRequestInput->default == '#NULL' ? null : $this->changeRequestInput->default;
+        $default = $column->default == '#NULL' ? null : $column->default;
 
         $instanceImpactList = InstanceImpact::where([
-            ['changeRequestInput', $column->changeRequestInputId],
+            ['changeRequestInputId', $column->changeRequestInputId],
             ['tableName', $column->tableName],
             ['columnName', $column->name]
         ])->get();
@@ -470,8 +472,9 @@ class CancelChangeRequest
     {
         $tcImpactList = TcImpact::where('changeRequestId', $changeRequestId)->get();
         $projectId = ChangeRequest::where('id', $changeRequestId)->first()->projectId;
-        
+
         foreach($tcImpactList as $tcImpact) {
+            $gg[$tcImpact->no] = [];
             if($tcImpact->changeType == 'add') {
                 $testCase = TestCase::where([
                     ['no', $tcImpact->no],
@@ -488,19 +491,16 @@ class CancelChangeRequest
                     ['activeFlag', 'Y']
                 ])->orderBy('id', 'desc')->first();
                 $tcInputEditList = TcInputImpact::where('tcImpactId', $tcImpact->id)->get();
-                $tcId = TestCase::where([
-                    ['no', $tcImpact->no],
-                    ['projectId', $projectId],
-                    ['activeFlag', 'Y']
-                ])->orderBy('id', 'desc')->first()->id;
+                
 
                 foreach($tcInputEditList as $tcInputEdit) {
+                    
                     $tcInput = TestCaseInput::where([
                         ['testCaseId', $testCase->id],
                         ['name', $tcInputEdit->inputName],
                         ['testData', $tcInputEdit->testDataNew]
                     ])->orderBy('id', 'desc')->first();
-                    $tcInput->testData = $tcInputEdit->testDataOld;
+                    $tcInput->testData = trim($tcInputEdit->testDataOld);
                     $tcInput->save();
                 }
             }
@@ -514,6 +514,7 @@ class CancelChangeRequest
                 $testCase->save();
             }
         }
+
     }
 
     private function reverseRTM(int $changeRequestId)
@@ -531,13 +532,14 @@ class CancelChangeRequest
             $tcId = TestCase::where([
                 ['projectId', $projectId],
                 ['no', $rtmRelationImpact->testCaseNo],
-                ['activeFlag', 'Y']
+                // ['activeFlag', 'Y']
             ])->orderBy('id','desc')->first()->id;
-            $rtmRelation = RequirementTraceabilityMatrixRelation::where([
-                ['requirementTraceabilityMatrixId', $rtmId],
-                ['functionalRequirementId', $frId],
-                ['testCaseId', $tcId]
-            ])->orderBy('id','desc')->first();
+            
+            // $rtmRelation = RequirementTraceabilityMatrixRelation::where([
+            //     ['requirementTraceabilityMatrixId', $rtmId],
+            //     ['functionalRequirementId', $frId],
+            //     ['testCaseId', $tcId]
+            // ])->orderBy('id','desc')->first();
             if($rtmRelationImpact == 'add') {
                 $rtmRelation = RequirementTraceabilityMatrixRelation::where([
                     ['requirementTraceabilityMatrixId', $rtmId],

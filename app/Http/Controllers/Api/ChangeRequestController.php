@@ -371,5 +371,7 @@ class ChangeRequestController extends Controller
 
         $canellation = new CancelChangeRequest($project->id, $id);
         $canellation->cancel();
+
+        return response()->json(['msg' => 'success'], 200);
     }
 }

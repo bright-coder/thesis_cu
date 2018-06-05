@@ -14,6 +14,12 @@ class RandomInteger implements RandomInterface {
     public function random(int $numRows, array $info, bool $isUnique): void {
         $min = $info['min'];
         $max = $info['max'];
+        if($min == null) {
+            $min = 1;
+        }
+        if($max = null) {
+            $mxa = 10000000;
+        }
         $range = $max-$min;
         $rangeAvg = $range/5;
         //dd($info);

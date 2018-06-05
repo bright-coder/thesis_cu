@@ -205,15 +205,16 @@ class AnalyzeImpactTCState implements StateInterface
                     $tcInputNew = new TestCaseInput;
                     $tcInputNew->testCaseId = $tcNew->id;
                     $tcInputNew->name = $tcOldInput->name;
-                    $tcInputNew->testData = $tcOldInput->testData;
+                    $tcInputNew->testData = trim($tcOldInput->testData);
                     $tcInputNew->save();
                 }
 
                 foreach ($tcImpact['tcInputEdit'] as $tcChangeDataInput) {
+                    //dd('helloWorld');
                     TestCaseInput::where([
                         ['testCaseId', $tcNew->id],
                         ['name', $tcChangeDataInput['inputName']],
-                        ['testData', $tcChangeDataInput['old']]
+                        ['testData', trim($tcChangeDataInput['old'])]
                     ])->update(['testData' => $tcChangeDataInput['new']]);
                 }
 
@@ -252,7 +253,7 @@ class AnalyzeImpactTCState implements StateInterface
                         TestCaseInput::where([
                             ['testCaseId', $tcImpact['oldTcId']],
                             ['name', $tcChangeDataInput['inputName']],
-                            ['testData', $tcChangeDataInput['old']]
+                            ['testData', trim($tcChangeDataInput['old'])]
                         ])->update(['testData' => $tcChangeDataInput['new']]);
                     }
                 }

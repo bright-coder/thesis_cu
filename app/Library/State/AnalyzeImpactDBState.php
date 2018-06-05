@@ -93,10 +93,11 @@ class AnalyzeImpactDBState implements StateInterface
     {
         $result = true;
         foreach ($changeRequestInputList as $changeRequestInput) {
+            $changeRequestInput->status = 1;
             if ($changeRequestInput->changeType == 'edit') {
                 $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->functionalRequirementInputId)->first();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
-                $changeRequestInput->status = 1;
+                
                 if ($table->isPK($frInput->columnName)) {
                     if ($changeRequestInput->unique != null) {
                         $changeRequestInput->status = 0;

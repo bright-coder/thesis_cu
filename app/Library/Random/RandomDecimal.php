@@ -12,6 +12,12 @@ class RandomDecimal implements RandomInterface {
     }
 
     public function random(int $numRows, array $info, bool $isUnique): void {
+        if($info['min'] == null) {
+            $info['min'] = 1.0;
+        }
+        if($info['max'] == null) {
+            $info['max'] = $info['min'] + 100.0;
+        }
         $min = $this->isValid(floatval($info['min']), $info['precision']) ? $info['min'] : 1;
         $max = $this->isValid(floatval($info['max']), $info['precision']) ? $info['max'] : pow(10, $info['precision']-1);
         $precision = $info['precision'];
