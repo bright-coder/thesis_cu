@@ -30,13 +30,12 @@ class TestCaseController extends Controller
         $result = [];
         $statusCode = 202;
         $tcList = TestCase::where([
-            ['projectId', $project->id], 
-            ['activeFlag', 'Y']
+            ['projectId', $project->id],
             ])->get();
         foreach ($tcList as $index => $tc) {
             $result[$index] = $tc;
             $tcInput = TestCaseInput::where([
-                ['testCaseId', $tc->id],
+                ['tcId', $tc->id],
                 ])->get();
             if($tcInput != null) {
                 $result[$index]['inputs'] = $tcInput;
@@ -83,11 +82,10 @@ class TestCaseController extends Controller
                 $testCase->projectId = $project->id;
                 $testCase->no = "{$prefix}-TC-{$importTc['no']}";
                 $testCase->type = $importTc['type'];
-                $testCase->activeFlag = 'Y';
                 $testCase->save();
                 foreach ($importTc['inputs'] as $importTcInput) {
                     $testCaseInput = new testCaseInput;
-                    $testCaseInput->testCaseId = $testCase->id;
+                    $testCaseInput->tcId = $testCase->id;
                     $testCaseInput->name = $importTcInput['name'];
                     $testCaseInput->testData = $importTcInput['testData'];
                     $testCaseInput->save();
@@ -155,7 +153,7 @@ class TestCaseController extends Controller
             if ($testCaseNo === "all") {
                 $tcs = TestCase::select('id')->where('projectId', $project->id)->get();
                 foreach ($tcs as $tc) {
-                    TestCaseInput::where('testCaseId', $tc->id)->delete();
+                    TestCaseInput::where('tcId', $tc->id)->delete();
                     TestCase::where('id', $tc->id)->delete();
                 }
             }
@@ -164,7 +162,7 @@ class TestCaseController extends Controller
                     ['no', $testCaseNo],
                     ['projectId', $project->id]
                 ])->first()->id;
-                TestCaseInput::where('testCaseId', $testCaseId)->delete();
+                TestCaseInput::where('tcId', $testCaseId)->delete();
                 TestCase::where('id', $testCaseId)->delete();
             }
             DB::commit();

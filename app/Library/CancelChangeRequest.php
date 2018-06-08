@@ -535,11 +535,6 @@ class CancelChangeRequest
                 // ['activeFlag', 'Y']
             ])->orderBy('id','desc')->first()->id;
             
-            // $rtmRelation = RequirementTraceabilityMatrixRelation::where([
-            //     ['requirementTraceabilityMatrixId', $rtmId],
-            //     ['functionalRequirementId', $frId],
-            //     ['testCaseId', $tcId]
-            // ])->orderBy('id','desc')->first();
             if($rtmRelationImpact == 'add') {
                 $rtmRelation = RequirementTraceabilityMatrixRelation::where([
                     ['requirementTraceabilityMatrixId', $rtmId],

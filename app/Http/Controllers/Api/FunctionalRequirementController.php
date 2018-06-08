@@ -33,7 +33,7 @@ class FunctionalRequirementController extends Controller
         foreach ($frList as $index => $fr) {
             $result[$index] = $fr;
             $frInput = FunctionalRequirementInput::where([
-                ['functionalRequirementId', $fr->id],
+                ['frId', $fr->id],
                 ['activeFlag', 'Y']
                 ])->get();
             if($frInput != null) {
@@ -83,7 +83,7 @@ class FunctionalRequirementController extends Controller
                 $fr->save();
                 foreach ($frImport['inputs'] as $input) {
                     $frInput = new FunctionalRequirementInput;
-                    $frInput->functionalRequirementId = $fr->id;
+                    $frInput->frId = $fr->id;
                     $frInput->name = $input['name'];
                     $frInput->dataType = $input['dataType'];
                     $frInput->length = \array_key_exists('length', $input) ? $input['length'] : null;
@@ -162,7 +162,7 @@ class FunctionalRequirementController extends Controller
             if ($functionalRequirementNo === "all") {
                 $frs = FunctionalRequirement::select('id')->where('projectId', $project->id)->get();
                 foreach ($frs as $fr) {
-                    FunctionalRequirementInput::where(['functionalRequirementId', $fr->id])->delete();
+                    FunctionalRequirementInput::where(['frId', $fr->id])->delete();
                     FunctionalRequirement::where('id', $fr->id)->delete();
                 }
             }
@@ -171,7 +171,7 @@ class FunctionalRequirementController extends Controller
                     ['no', $functionalRequirementNo],
                     ['projectId', $project->id]
                 ])->first()->id;
-                FunctionalRequirementInput::where('functionalRequirementId', $functionalRequirementId)->delete();
+                FunctionalRequirementInput::where('frId', $functionalRequirementId)->delete();
                 FunctionalRequirement::where('id', $functionalRequirementId)->delete();
             }
             DB::commit();

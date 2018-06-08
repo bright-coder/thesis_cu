@@ -189,54 +189,44 @@ class ProjectController extends Controller
         try {
             $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', $project->id)->get();
             $frs = DB::table('FUNCTIONAL_REQUIREMENT')->select('id')->where('projectId',  $project->id)->get();
-            $tcs = DB::table('TEST_CASE')->select('id')->where('projectId', '=', $project->id)->get();
-            $rtm = DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->select('id')->where('projectId', $project->id)->get();
-            $tables = DB::table('DATABASE_SCHEMA_TABLE')->select('id')->where('projectId', $project->id)->get();
-            foreach ($tables as $table) {
-                DB::table('DATABASE_SCHEMA_CONSTRAINT')->where('tableId', $table->id)->delete();
-                DB::table('DATABASE_SCHEMA_COLUMN')->where('tableId', $table->id)->delete();
-                DB::table('DATABASE_SCHEMA_TABLE')->where('id', $table->id)->delete();
-            }
-            foreach ($rtm as $rtmK) {
-                DB::table('REQUIREMENT_TRACEABILITY_MATRIX_RELATION')->where('requirementTraceabilityMatrixId', $rtmK->id)->delete();
-                DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->where('id', $rtmK->id)->delete();
-            }
+            $tcs = DB::table('TEST_CASE')->select('id')->where('projectId', $project->id)->get();
+            $rtm = DB::table('REQUIREMENT_TRACEABILITY_MATRIX')->where('projectId', $project->id)->delete();
             foreach ($tcs as $tc) {
-                DB::table('TEST_CASE_INPUT')->where('testCaseId', $tc->id)->delete();
+                DB::table('TEST_CASE_INPUT')->where('tcId', $tc->id)->delete();
                 DB::table('TEST_CASE')->where('id', $tc->id)->delete();
             }
 
             foreach ($crs as $cr) {
-                foreach (DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', $cr->id)->get() as $crInput) {
-                    foreach (DB::table('INSTANCE_IMPACT')->where('changeRequestInputId', $crInput->id)->get() as $insNew) {
+                foreach (DB::table('CHANGE_REQUEST_INPUT')->where('crId', $cr->id)->get() as $crInput) {
+                    foreach (DB::table('INSTANCE_IMPACT')->where('crInputId', $crInput->id)->get() as $insNew) {
                         DB::table('OLD_INSTANCE')->where('instanceImpactId', $insNew->id)->delete();
                         DB::table('INSTANCE_IMPACT')->where('id', $insNew->id)->delete();
                     }
-                    DB::table('COLUMN_IMPACT')->where('changeRequestInputId', $crInput->id)->delete();
+                    DB::table('COLUMN_IMPACT')->where('crInputId', $crInput->id)->delete();
                     DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
                 }
     
-                foreach(DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {
+                foreach(DB::table('FR_IMPACT')->where('crId', $cr->id)->get() as $frImpact) {
                     DB::table('FR_INPUT_IMPACT')->where('frImpactId', $frImpact->id)->delete();
                     DB::table('FR_IMPACT')->where('id', $frImpact->id)->delete();
                 }
     
-                foreach(DB::table('TC_IMPACT')->where('changeRequestId', $cr->id)->get() as $tcImpact) {
+                foreach(DB::table('TC_IMPACT')->where('crId', $cr->id)->get() as $tcImpact) {
                     DB::table('TC_INPUT_IMPACT')->where('tcImpactId', $tcImpact->id)->delete();
                     DB::table('TC_IMPACT')->where('id', $tcImpact->id)->delete();
                 }
     
-                DB::table('RTM_RELATION_IMPACT')->where('changeRequestId', $cr->id)->delete();
+                DB::table('RTM_IMPACT')->where('crId', $cr->id)->delete();
     
-                DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
+                DB::table('CHANGE_REQUEST')->where('id', $cr->id)->delete();
             }
 
             foreach ($frs as $fr) {
-                DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('functionalRequirementId', $fr->id)->delete();
+                DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('frId', $fr->id)->delete();
                 DB::table('FUNCTIONAL_REQUIREMENT')->where('id', $fr->id)->delete();
             }
 
-            DB::table('PROJECT')->where('id', '=', $project->id)->delete();
+            DB::table('PROJECT')->where('id', $project->id)->delete();
 
             DB::commit();
         } catch (Exception $e) {

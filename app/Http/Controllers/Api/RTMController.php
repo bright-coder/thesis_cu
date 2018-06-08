@@ -7,7 +7,6 @@ use App\Http\Requests\RTMRequest;
 use App\Http\Controllers\Controller;
 use App\Library\GuardProject;
 use App\Model\RequirementTraceabilityMatrix;
-use App\Model\RequirementTraceabilityMatrixRelation;
 use App\Model\FunctionalRequirement;
 use App\Model\TestCase;
 
@@ -29,16 +28,14 @@ class RTMController extends Controller
 
         $result = [];
         $statusCode = 202;
-        $rtm = RequirementTraceabilityMatrix::where('projectId', $project->id)->first();
-        if(!$rtm) {
+        $rtm = RequirementTraceabilityMatrix::where('projectId', $project->id)
+            ->orderBy('frId', 'asc')->get();
+        if(count($rtm) == 0) {
             return response()->json($result, $statusCode);
         }
-        $relationList = RequirementTraceabilityMatrixRelation::where([
-            ['requirementTraceabilityMatrixId', $rtm->id], 
-            ['activeFlag', 'Y']
-            ])->orderBy('functionalRequirementId','asc')->get();
-        foreach ($relationList as $index => $relation) {
-            $frId = $relation->functionalRequirementId;
+
+        foreach($rtm as $relation) {
+            $frId = $relation->frId;
             $frNo = FunctionalRequirement::select('no')->where('id', $frId)->first()->no;
             $testCaseNo = TestCase::where('id', $relation->testCaseId)->first()->no;
             if(\array_key_exists($frNo,$result)) {
@@ -50,8 +47,8 @@ class RTMController extends Controller
                     'testCaseNos' => [$testCaseNo]
                 ];
             }
-
         }
+
         if(count($result) > 0 ) {
             $newKeyArray = []; // for change key from HS-FR-01 to 0 ,1 , 2
             foreach($result as $obj) {
@@ -87,27 +84,18 @@ class RTMController extends Controller
             return response()->json(['msg' => 'Bad Request'], 400);
         }
 
-        $request = $request->json()->all();
-        $requirementTraceabilityMatrix = new RequirementTraceabilityMatrix;
-        $requirementTraceabilityMatrix->projectId = $project->id;
-        $prefix = $project->prefix;
-        //$requirementTraceabilityMatrix->version = $request['requirementTraceabilityMatrix']['version'];
-        $requirementTraceabilityMatrix->save();
         foreach ($request as $relation) {
             foreach ($relation['testCaseNos'] as $testCaseNo) {
-                $requirementTraceabilityMatrixRelation = new RequirementTraceabilityMatrixRelation;
-
-                $requirementTraceabilityMatrixRelation->requirementTraceabilityMatrixId = $requirementTraceabilityMatrix->id;
-                $requirementTraceabilityMatrixRelation->functionalRequirementId = FunctionalRequirement::where([
+                $rtm = new RequirementTraceabilityMatrix;
+                $rtm->frId = FunctionalRequirement::where([
                     'projectId' => $project->id,
                     'no' => "{$prefix}-FR-{$relation['functionalRequirementNo']}",
                 ])->first()->id;
-                $requirementTraceabilityMatrixRelation->testCaseId = TestCase::where([
+                $rtm->testCaseId = TestCase::where([
                     'projectId' => $project->id,
                     'no' => "{$prefix}-TC-{$testCaseNo}",
                 ])->first()->id;
-                $requirementTraceabilityMatrixRelation->activeFlag = 'Y';
-                $requirementTraceabilityMatrixRelation->save();
+                $rtm->save();
             }
         }
     }
@@ -164,16 +152,14 @@ class RTMController extends Controller
         DB::beginTransaction();
         try {
             if ($functionalRequirementNo === "all") {
-                $rtm = RequirementTraceabilityMatrix::select('id')->where('projectId', '=', $project->id)->first();
-                RequirementTraceabilityMatrixRelation::where('requirementTraceabilityMatrixId', '=', $rtm->id)->delete();
-                RequirementTraceabilityMatrix::where('id', '=', $rtm->id)->delete();
+                RequirementTraceabilityMatrix::where('projectId', $project->id)->delete();
             }
             else {
-                $functionalRequirementId = FunctionalRequirement::where([
+                $frId = FunctionalRequirement::where([
                     ['no', $functionalRequirementNo],
                     ['projectId', $project->id]
                 ])->first()->id;
-                RequirementTraceabilityMatrixRelation::where('functionalRequirementId', '=', $functionalRequirementId)->delete();
+                RequirementTraceabilityMatrix::where('frId', $frId)->delete();
             }
             DB::commit();
         } catch (Exception $e) {

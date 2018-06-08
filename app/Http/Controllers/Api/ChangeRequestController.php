@@ -63,14 +63,14 @@ class ChangeRequestController extends Controller
         
         foreach ($changeRequests as $changeRequest) {
             $status = 'success';
-            foreach(ChangeRequestInput::where('changeRequestId' , $changeRequest->id)->get() as $crInput) {
+            foreach(ChangeRequestInput::where('crId' , $changeRequest->id)->get() as $crInput) {
                 if($crInput->status == 0) {
                     $status = 'failed';
                 }
             }
             $result[] = [
                 'id' => $changeRequest->id,
-                'frNo' => FunctionalRequirement::where('id', $changeRequest->changeFunctionalRequirementId)->first()->no,
+                'frNo' => FunctionalRequirement::where('id', $changeRequest->changeFrId)->first()->no,
                 'projectName' => Project::where('id', $changeRequest->projectId)->first()->name,
                 'status' => $status
             ];
@@ -113,53 +113,24 @@ class ChangeRequestController extends Controller
             return response()->json(['msg' => 'forbidden'], 400);
         }
 
-        // Debug Mode Only
-        // $crs = DB::table('CHANGE_REQUEST')->select('id')->where('projectId', '=', $project->id)->get();
-        // foreach ($crs as $cr) {
-        //     //DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', '=', $cr->id)->delete();
-        //     //DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
-        //     foreach (DB::table('CHANGE_REQUEST_INPUT')->where('changeRequestId', $cr->id)->get() as $crInput) {
-        //         foreach (DB::table('INSTANCE_IMPACT')->where('changeRequestInputId', $crInput->id)->get() as $insNew) {
-        //             DB::table('OLD_INSTANCE')->where('instanceImpactId', $insNew->id)->delete();
-        //             DB::table('INSTANCE_IMPACT')->where('id', $insNew->id)->delete();
-        //         }
-        //         DB::table('COLUMN_IMPACT')->where('changeRequestInputId', $crInput->id)->delete();
-        //         DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
-        //     }
-
-        //     foreach (DB::table('FR_IMPACT')->where('changeRequestId', $cr->id)->get() as $frImpact) {
-        //         DB::table('FR_INPUT_IMPACT')->where('frImpactId', $frImpact->id)->delete();
-        //         DB::table('FR_IMPACT')->where('id', $frImpact->id)->delete();
-        //     }
-
-        //     foreach (DB::table('TC_IMPACT')->where('changeRequestId', $cr->id)->get() as $tcImpact) {
-        //         DB::table('TC_INPUT_IMPACT')->where('tcImpactId', $tcImpact->id)->delete();
-        //         DB::table('TC_IMPACT')->where('id', $tcImpact->id)->delete();
-        //     }
-
-        //     DB::table('RTM_RELATION_IMPACT')->where('changeRequestId', $cr->id)->delete();
-
-        //     DB::table('CHANGE_REQUEST')->where('id', '=', $cr->id)->delete();
-        // }
-
-        //
-
         DB::beginTransaction();
         try {
             $changeRequest = new ChangeRequest;
             $changeRequest->projectId = $project->id;
-            $changeRequest->changeFunctionalRequirementId = $functionalRequirement->id;
+            $changeRequest->changeFrId = $functionalRequirement->id;
             $changeRequest->save();
             $changeRequestInputList = [];
             foreach ($request['inputs'] as $input) {
                 $changeRequestInput = new ChangeRequestInput;
-                $changeRequestInput->changeRequestId = $changeRequest->id;
+                $changeRequestInput->crId = $changeRequest->id;
                 $changeRequestInput->changeType = $input['changeType'];
-                
+                if (\array_key_exists('functionalRequirementInputId', $input)) {
+                    $changeRequestInput->frInputId = $input['functionalRequirementInputId'];
+                }
                 if ($changeRequestInput->changeType == 'add') {
                     // must change
                     if (\array_key_exists('functionalRequirementInputId', $input)) {
-                        $changeRequestInput->functionalRequirementInputId = $input['functionalRequirementInputId'];
+                        $changeRequestInput->frId = $input['functionalRequirementInputId'];
                     } else {
                         $changeRequestInput->name = $input['name'];
                         $changeRequestInput->dataType = $input['dataType'];
@@ -241,13 +212,13 @@ class ChangeRequestController extends Controller
                         $changeRequestInput->default = $input['default'];
                     }
                     
-                    $changeRequestInput->functionalRequirementInputId = FunctionalRequirementInput::where([
-                        ['functionalRequirementId', $functionalRequirement->id],
+                    $changeRequestInput->frInputId = FunctionalRequirementInput::where([
+                        ['frId', $functionalRequirement->id],
                         ['name' , $input['name']]
                         ])->first()->id;
                 } elseif ($changeRequestInput->changeType == 'delete') {
-                    $changeRequestInput->functionalRequirementInputId = FunctionalRequirementInput::where([
-                        ['functionalRequirementId', $functionalRequirement->id],
+                    $changeRequestInput->frInputId = FunctionalRequirementInput::where([
+                        ['frId', $functionalRequirement->id],
                         ['name' , $input['name']]
                         ])->first()->id;
                 }
@@ -294,18 +265,18 @@ class ChangeRequestController extends Controller
         }
         $changeRequestId = $changeRequest->id;
 
-        $changeRequestInputList = ChangeRequestInput::where('changeRequestId', $changeRequestId)->get();
+        $changeRequestInputList = ChangeRequestInput::where('crId', $changeRequestId)->get();
         $result = [
             // 'id' => $changeRequestId,
             // 'projectName' => $projectName,
-            'changeFrNo' => FunctionalRequirement::where('id', $changeRequest->changeFunctionalRequirementId)->first()->no,
+            'changeFrNo' => FunctionalRequirement::where('id', $changeRequest->changeFrId)->first()->no,
             'status' => 'success',
             'crInputList' => [],
             'impactList' => (new ImpactResult($changeRequestId))->getImpact()
         ];
         foreach($changeRequestInputList as $crInput) {
             if($crInput->changeType != 'add') {
-                $crInput->name = FunctionalRequirementInput::where('id', $crInput->functionalRequirementInputId)->first()->name;
+                $crInput->name = FunctionalRequirementInput::where('id', $crInput->frInputId)->first()->name;
             }
             if($crInput->status == 0) {
                 $result['status'] = 'failed';
