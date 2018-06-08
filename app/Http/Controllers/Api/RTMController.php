@@ -87,6 +87,7 @@ class RTMController extends Controller
         foreach ($request as $relation) {
             foreach ($relation['testCaseNos'] as $testCaseNo) {
                 $rtm = new RequirementTraceabilityMatrix;
+                $rtm->projectId = $project->id;
                 $rtm->frId = FunctionalRequirement::where([
                     'projectId' => $project->id,
                     'no' => "{$prefix}-FR-{$relation['functionalRequirementNo']}",

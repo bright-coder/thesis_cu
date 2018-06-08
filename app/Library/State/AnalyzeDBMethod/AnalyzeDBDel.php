@@ -19,7 +19,7 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
-        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
+        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
     }
 
     public function analyze(): bool {
@@ -34,10 +34,9 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         foreach ($functionalRequirements as $fr) {
             if($this->functionalRequirementInput->functionalRequirementId != $fr->id) {
                 $frInputs = FunctionalRequirementInput::where([
-                ['functionalRequirementId',$fr->id],
+                ['frId',$fr->id],
                 ['tableName',$table->getName()],
                 ['columnName',$column->getName()],
-                ['activeFlag','Y']
                 ])->get();
 
                 if(count($frInputs) > 0) {

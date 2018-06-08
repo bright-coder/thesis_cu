@@ -95,7 +95,6 @@ class FunctionalRequirementController extends Controller
                     $frInput->max = \array_key_exists('max', $input) ? $input['max'] : null;
                     $frInput->tableName = $input['tableName'];
                     $frInput->columnName = $input['columnName'];
-                    $frInput->activeFlag = 'Y';
                     $frInput->save();
                 }
             }

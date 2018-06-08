@@ -47,10 +47,13 @@ class AnalyzeImpactDBState implements StateInterface
 
     public function analyze(ChangeAnalysis $changeAnalysis) : void
     {
+        $cr = $changeAnalysis->getChangeRequest();
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
             $this->getDbSchema();
             if (!$this->validateChangeRequestInput($changeAnalysis->getAllChangeRequestInput())) {
+                $cr->status = 0;
+                $cr->save();
                 return;
             }
             
@@ -82,10 +85,11 @@ class AnalyzeImpactDBState implements StateInterface
                     $analyzer->getInstanceImpactResult()
                 );
             }
+            $cr->status = 1;
+            $cr->save();
             //dd($changeAnalysis->getDBImpactResult());
             $changeAnalysis->setState(new AnalyzeImpactFRState);
             $changeAnalysis->analyze();
-        } else {
         }
     }
 
@@ -95,7 +99,7 @@ class AnalyzeImpactDBState implements StateInterface
         foreach ($changeRequestInputList as $changeRequestInput) {
             $changeRequestInput->status = 1;
             if ($changeRequestInput->changeType == 'edit') {
-                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->functionalRequirementInputId)->first();
+                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->frInputId)->first();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
                 
                 if ($table->isPK($frInput->columnName)) {
@@ -124,7 +128,7 @@ class AnalyzeImpactDBState implements StateInterface
                 }
             }
             else if($changeRequestInput->changeType == 'delete') {
-                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->functionalRequirementInputId)->first();
+                $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->frInputId)->first();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
             
                 if($table->isPK($frInput->columnName)) {
@@ -167,113 +171,4 @@ class AnalyzeImpactDBState implements StateInterface
         $this->dbTarget = $databaseBuilder->getDatabase();
     }
 
-    private function saveDbSchema(int $projectId): bool
-    {
-        DB::beginTransaction();
-        $tempId = [];
-        try {
-            foreach ($this->dbTarget->getAllTables() as $table) {
-                $dbSchemaTable = new DatabaseSchemaTable;
-                $dbSchemaTable->projectId = $projectId;
-                $dbSchemaTable->name = $table->getName();
-                $dbSchemaTable->save();
-
-                $tempId[$table->getName()] = [];
-
-                foreach ($table->getAllColumns() as $column) {
-                    $dbSchemaColumn = new DatabaseSchemaColumn;
-                    $dbSchemaColumn->tableId = $dbSchemaTable->id;
-                    $dbSchemaColumn->name = $column->getName();
-
-                    $datatype = $column->getDatatype();
-                    $dbSchemaColumn->dataType = $datatype->getType();
-                    $dbSchemaColumn->length = $datatype->getLength();
-                    $dbSchemaColumn->precision = $datatype->getPrecision();
-                    $dbSchemaColumn->scale = $datatype->getScale();
-
-                    $dbSchemaColumn->nullable = $column->isNullable() ? 1 : 0;
-                    $dbSchemaColumn->default = $column->getDefault();
-                    $dbSchemaColumn->save();
-
-                    $tempId[$table->getName()][$column->getName()] = $dbSchemaColumn->id;
-                }
-            }
-
-            foreach ($this->dbTarget->getAllTables() as $table) {
-                $pk = $table->getPK();
-
-                $dbSchemaConstraint = new DatabaseSchemaConstraint;
-                $dbSchemaConstraint->name = $pk->getName();
-                $dbSchemaConstraint->type = 'PK';
-                $dbSchemaConstraint->save();
-
-                foreach ($pk->getColumns() as $column) {
-                    $constraintColumn = new ConstraintColumn;
-                    $constraintColumn->constraintId = $dbSchemaConstraint->id;
-                    $constraintColumn->columnId = $tempId[$table->getName()][$column];
-                    $constraintColumn->save();
-                }
-
-                $fks = $table->getAllFK();
-
-                foreach ($fks as $fk) {
-                    $dbSchemaConstraint = new DatabaseSchemaConstraint;
-                    $dbSchemaConstraint->name = $fk->getName();
-                    $dbSchemaConstraint->type = 'FK';
-                    $dbSchemaConstraint->save();
-
-                    foreach ($fk->getColumns() as $column) {
-                        $constraintColumn = new ConstraintColumn;
-                        $constraintColumn->constraintId = $dbSchemaConstraint->id;
-                        $constraintColumn->columnId = $tempId[$table->getName()][$column['primary']['columnName']];
-                        $constraintColumn->columnRefId = $tempId[$column['reference']['tableName']][$column['reference']['columnName']];
-                        $constraintColumn->save();
-                    }
-                }
-
-                $checks = $table->getAllCheckConstraint();
-
-                foreach ($checks as $check) {
-                    $detail = $check->getDetail();
-                    $dbSchemaConstraint = new DatabaseSchemaConstraint;
-                    $dbSchemaConstraint->name = $check->getName();
-                    $dbSchemaConstraint->type = 'CK';
-                    $dbSchemaConstraint->rawCondition = $detail['definition'];
-                    $dbSchemaConstraint->save();
-
-                    foreach ($check->getColumns() as $column) {
-                        $constraintColumn = new ConstraintColumn;
-                        $constraintColumn->constraintId = $dbSchemaConstraint->id;
-                        $constraintColumn->columnId = $tempId[$table->getName()][$column];
-                        $constraintColumn->min = array_key_exists($column, $detail['min']) ? $detail['min'][$column]['value'] : null;
-                        $constraintColumn->max = array_key_exists($column, $detail['max']) ? $detail['max'][$column]['value'] : null;
-                        $constraintColumn->save();
-                    }
-                }
-
-                $uniques = $table->getAllUniqueConstraint();
-
-                foreach ($uniques as $unique) {
-                    $dbSchemaConstraint = new DatabaseSchemaConstraint;
-                    $dbSchemaConstraint->name = $unique->getName();
-                    $dbSchemaConstraint->type = 'UN';
-                    $dbSchemaConstraint->save();
-
-                    foreach ($unique->getColumns() as $column) {
-                        $constraintColumn = new ConstraintColumn;
-                        $constraintColumn->constraintId = $dbSchemaConstraint->id;
-                        $constraintColumn->columnId = $tempId[$table->getName()][$column];
-                        $constraintColumn->save();
-                    }
-                }
-            }
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            $this->message = $e->getMessage();
-            return false;
-        }
-        return true;
-    }
 }

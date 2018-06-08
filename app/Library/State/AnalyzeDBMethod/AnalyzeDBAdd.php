@@ -15,8 +15,8 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
-        if ($changeRequestInput->functionalRequirementInputId !== null) {
-            $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
+        if ($changeRequestInput->frInputId !== null) {
+            $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
         }
     }
 
