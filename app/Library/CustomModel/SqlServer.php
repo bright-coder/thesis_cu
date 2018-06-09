@@ -72,9 +72,13 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
-    public function getInstanceByTableName(string $tableName, string $condition = ''): array
+    public function getInstanceByTableName(string $tableName, array $columnNameList = [],string $condition = ''): array
     {
-        $strQuery = "SELECT TOP 100 * FROM {$tableName}";
+        $columnName = '*';
+        if($columnNameList) {
+            $columnName = implode(",", $columnNameList);
+        }
+        $strQuery = "SELECT {$columnName} FROM {$tableName}";
         if ($condition != '') {
             $strQuery .= " WHERE {$condition}";
         }
@@ -428,7 +432,8 @@ class SqlServer implements DBTargetInterface
         $min = $min == null ? "" : $columnName." >= ".$min;
         $max = $max == null ? "" : $columnName." <= ".$max;
         $AND = ($min == null) || ($max == null) ? "" : "AND";
-        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD CHECK ($min $AND $max)");
+        $checkName = "{$tableName}_{$columnName}_CHECK";
+        $stmt = $this->conObj->prepare("ALTER TABLE $tableName ADD CONSTRAINT $checkName CHECK ($min $AND $max)");
         if ($stmt->execute()) {
             return true;
         }

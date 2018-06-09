@@ -29,13 +29,16 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
      */
     private $primaryColumnNode = null;
 
+    private $keyConstraintImpact = [];
+
+
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
         //$this->functionalRequirement = $this->findFunctionalRequirementById($frId);
-        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->functionalRequirementInputId);
+        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
     }
 
     public function analyze() : bool
@@ -58,26 +61,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
         // If this column is not Primary column ;
         if ($table->isFK($column->getName())) {
-            if ($this->changeRequestInput->unique != null) {
-                if (\strcasecmp($this->changeRequestInput->unique, 'N') == 0) {
-                    $duplicateInstance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), [$column->getName()]);
-                    if (count($duplicateInstance > 0)) {
-                        // cannot modify impact; Referential Integrity;
-
-                        return;
-                    }
-                }
-            }
-            if ($this->changeRequestInput->nullable != null) {
-                if (\strcasecmp($this->changeRequestInput->nullable, 'N') == 0) {
-                    $nullInstance =  $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} IS NULL");
-                    if (count($nullInstance) > 0) {
-                        // cannot modify impact; Referential Integrity;
-                        
-                        return;
-                    }
-                }
-            }
 
             $refSchema = [
                 'dataType' => $column->getDataType()->getType(),
@@ -95,13 +78,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 return $val !== null;
             });
     
-            // $this->schemaImpactResult[0] = [
-            //     'tableName' => $table->getName(),
-            //     'columnName' => $column->getName(),
-            //     'changeType' => $this->changeRequestInput->changeType,
-            //     'oldSchema' => $refSchema,
-            //     'newSchema' => count($newSchema) > 0 ? $newSchema : null
-            // ];
         }
 
         // use Primary Column to find impacted
@@ -305,14 +281,14 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             return $val !== null;
         });
 
-        $this->schemaImpactResult[0] = [
+        $this->addImpact = [
             'tableName' => $table->getName(),
             'columnName' => $column->getName(),
             'changeType' => 'edit',
             'oldSchema' => $refSchema,
             'newSchema' => count($newSchema) > 0 ? $newSchema : null
         ];
-        //dd($this->schemaImpactResult[0]);
+
 
         $dataTypeRef = $refSchema['dataType'];
 
@@ -413,6 +389,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
                 }
             }
+            
+
             $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true;
         }
         
@@ -620,6 +598,13 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
             if (count($uniqueConstraintList) > 0) {
                 foreach ($uniqueConstraintList as $uniqueConstraint) {
+                    if(count($uniqueConstraint->getColumns()) > 1) {
+                        foreach($uniqueConstraint->getColumns() as $column) {
+                            if($column != $scResult['columnName']) {
+                                
+                            }
+                        }
+                    }
                     $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
                 }
             }
@@ -649,14 +634,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $this->dbTargetConnection->updateColumnName($scResult['tableName'], $scResult['columnName']."_#temp", $scResult['columnName']);
 
             if (\array_key_exists('unique', $scResult['newSchema'])) {
-                if (strcmp($scResult['newSchema']['unique'], 'N') == 0) {
-                    // $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                    // if (count($uniqueConstraintList) > 0) {
-                    //     foreach ($uniqueConstraintList as $uniqueConstraint) {
-                    //         $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
-                    //     }
-                    // }
-                } elseif (strcmp($scResult['newSchema']['unique'], 'Y') == 0) { //&& $scResult['oldSchema']['unique'] === false
+                if (strcmp($scResult['newSchema']['unique'], 'Y') == 0) { //&& $scResult['oldSchema']['unique'] === false
                     $this->dbTargetConnection->addUniqueConstraint($scResult['tableName'], $scResult['columnName']);
                 }
             }
@@ -667,12 +645,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
 
             if (DataType::isNumericType($dataTypeRef)) {
-                // $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                // if (count($checkConstraintList) > 0) {
-                //     foreach ($checkConstraintList as $checkConstraint) {
-                //         $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
-                //     }
-                // }
+
                 $min = $scResult['oldSchema']['min'];
                 if (array_key_exists('min', $scResult['newSchema'])) {
                     $min = $scResult['newSchema']['min'] == '#NULL' ? null : $scResult['newSchema']['min'];

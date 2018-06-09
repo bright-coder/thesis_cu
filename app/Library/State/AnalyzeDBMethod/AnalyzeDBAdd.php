@@ -15,38 +15,26 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
         $this->database = $database;
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
-        if ($changeRequestInput->frInputId !== null) {
-            $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
-        }
+
     }
 
-    public function analyze(): bool
+    public function analyze(): array
     {
-        if ($this->functionalRequirementInput === null) {
-            $table = $this->database->getTableByName($this->changeRequestInput->tableName);
+        $result = [];
 
-            // if not have column in table
-            if (!$table->getColumnbyName($this->changeRequestInput->columnName)) {
+            $tableName = $this->changeRequestInput->tableName;
+            $columnName = $this->changeRequestInput->columnName;
+            $table = $this->database->getTableByName($tableName);
+           
                 $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
                     return $val !== null;
                 });
 
                 unset($newSchema['id']);
                 unset($newSchema['changeRequestId']);
-                unset($newSchema['functionalRequirmenInputId']);
-                unset($newSchema['tableName']);
-                unset($newSchema['columnName']);
+                unset($newSchema['frInputId']);
                 
-                $this->schemaImpactResult[0] = [
-                    'tableName' => $this->changeRequestInput->tableName,
-                    'columnName' => $this->changeRequestInput->columnName,
-                    'changeType' => 'add',
-                    'oldSchema' => null,
-                    'newSchema' => $newSchema
-                ];
-
-
-                $numRows = $this->dbTargetConnection->getNumRows($this->changeRequestInput->tableName);
+                $numRows = $this->dbTargetConnection->getNumRows($tableName);
                 $randomData  = RandomContext::getRandomData(
                     $numRows,
                     $this->changeRequestInput->dataType,
@@ -57,19 +45,24 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                         'min' => $this->changeRequestInput->min === null ? 1 : $this->changeRequestInput->min,
                         'max' => $this->changeRequestInput->max === null ? 1000000 : $this->changeRequestInput->max
                     ],
-                    strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true
+                    strcasecmp($this->changeRequestInput->unique, 'Y') == 0
                 );
                 
-                
-                $this->instanceImpactResult[0] = [
-                    'oldInstance' => $this->dbTargetConnection->getInstanceByTableName($this->changeRequestInput->tableName),
-                    'newInstance' => $randomData
+                $result[$tableName] = [];
+                $result[$tableName][$columName] = [
+                    'changeType' => 'add',
+                    'old' => [],
+                    'new' => $newSchema,
+                    'isPK' => false,
+                    'instance' => [
+                        'pkRecord' => $this->dbTargetConnection->getInstanceByTableName($tableName, $table->getPK()->getColumns()),
+                        'newValues' => $randomData,
+                        'oldValues' => []
+                    ]
                 ];
 
-                return true;
-            }
-            return false;
-        }
+                return result;
+        
     }
 
     public function modify(): bool
@@ -83,18 +76,21 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
 
         $default = $this->changeRequestInput->default == '#NULL' ? null : $this->changeRequestInput->default;
 
+        $tableName = $this->changeRequestInput->tableName;
+        $columnName = $this->changeRequestInput->columnName;
+
         $this->dbTargetConnection->updateInstance(
             $this->changeRequestInput->tableName,
             $this->changeRequestInput->columnName,
-            $this->instanceImpactResult[0]['oldInstance'],
-            $this->instanceImpactResult[0]['newInstance'],
+            $this->instanceImpactResult[$tableName]['columnList'][$columnName]['oldInstance'],
+            $this->instanceImpactResult[$tableName]['columnList'][$columnName]['newInstance'],
             $default
         );
 
         $this->dbTargetConnection->updateColumn($this->changeRequestInput->toArray());
         
-        if (strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true) {
-            $this->dbTargetConnection->addUniqueConstraint($this->changeRequestInput->tableName, $this->changeRequestInput->columnName);
+        if (strcasecmp($this->changeRequestInput->unique, 'Y') == 0 ) {
+            $this->dbTargetConnection->addUniqueConstraint($tableName, $columnName);
         }
         
         if ($this->changeRequestInput->min !== null || $this->changeRequestInput->max !== null) {

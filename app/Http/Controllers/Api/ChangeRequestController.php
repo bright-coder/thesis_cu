@@ -117,6 +117,7 @@ class ChangeRequestController extends Controller
         try {
             $changeRequest = new ChangeRequest;
             $changeRequest->projectId = $project->id;
+            $changeRequest->status = -1;
             $changeRequest->changeFrId = $functionalRequirement->id;
             $changeRequest->save();
             $changeRequestInputList = [];

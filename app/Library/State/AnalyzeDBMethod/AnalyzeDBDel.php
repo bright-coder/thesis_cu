@@ -13,6 +13,8 @@ use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
 
 class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
+
+    private $keyConstraintImpact = [];
     
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
@@ -27,12 +29,12 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
 
-        $changeRequest = ChangeRequest::select('projectId')->where('id',$this->changeRequestInput->changeRequestId)->first();
+        $changeRequest = ChangeRequest::select('projectId')->where('id', $this->changeRequestInput->crId)->first();
         $functionalRequirements = FunctionalRequirement::select('id')->where('projectId', $changeRequest->projectId)->get();
 
         $foundOther = false;
         foreach ($functionalRequirements as $fr) {
-            if($this->functionalRequirementInput->functionalRequirementId != $fr->id) {
+            if($this->functionalRequirementInput->frId != $fr->id) {
                 $frInputs = FunctionalRequirementInput::where([
                 ['frId',$fr->id],
                 ['tableName',$table->getName()],
@@ -46,14 +48,9 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
             }
         }
 
-        if($foundOther) { return false; }
+        if($foundOther) { return []; }
 
-        if($this->database->isLinked($table->getName(), $column->getName()) ) {
-            if($table->isPK($column->getName())){
-                return false;
-            }
-        
-        }
+        $result = [];
 
         $refSchema = [
             'dataType' => $column->getDataType()->getType(),
@@ -67,44 +64,88 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
             'max' => $table->getMax($column->getName())['value']
         ];
 
-            $this->schemaImpactResult[0] = 
-            [
-                'tableName' => $table->getName(),
-                'columnName' => $column->getName(),
-                'changeType' => 'delete',
-                'oldSchema' => $refSchema,
-                'newSchema' => null
+        $records = $this->dbTargetConnection->getInstanceByTableName(
+            $tableName, 
+            array_merge(
+                $table->getPK()->getColumns(),
+                [$this->functionalRequirementInput->columnName]
+            )
+        );
+        $oldValues = [];
+        foreach($records as $index => $record) {
+            $oldValues[] = $record[$this->functionalRequirementInput->columnName];
+            unset($records[$index][$this->functionalRequirementInput->columnName]);
+        }
+            $result[$tableName] = [
+                'keyConstraintList' => [],
+                'columnList' => []
             ];
-            $this->instanceImpactResult[0] = [
-                'oldInstance' => $this->dbTargetConnection->getInstanceByTableName($table->getName()),
-                'newInstance' => null
-            ];
+            if($table->isFK($column->getName())) {
+                $fk = $table->getFKByColumnName($column->getName());
+                $fkColumns = [];
+                foreach($fk->getColumns() as $link) {
+                    $fkColumns[] = $link['from']['columnName'];
+                }
+
+                $result[$tableName]['keyConstraintList'][$fk->getName()] = [
+                    'type' => 'FK',
+                    'columns' => $fkColumns 
+                ];
+            }
+            if($table->isUnique($column->getName())) {
+                $uniques = $table->getAllUniqueConstraint();
+                foreach($uniques as $unique) {
+                    $uniqueColumn = [];
+                   if(array_search($column->getName(), $unique->getColumns()) !== FALSE && count($unique->getColumns()) > 1 ) {
+                        foreach($unique->getColumns() as $uniqueCol) {
+                            $uniqueColumn[] = $uniqueCol;
+                        }
+                        $result[$tableName]['keyConstraintList'][$unique->getName()] = [
+                            'type' => 'UNIQUE',
+                            'columns' => $uniqueColumn 
+                        ];
+                   }
+                }
+            }
+                $result[$tableName][$columName] = [
+                    'changeType' => 'add',
+                    'old' => [],
+                    'new' => $newSchema,
+                    'isPK' => false,
+                    'instance' => [
+                        'pkRecord' => $records,
+                        'oldValues' => $oldValues,
+                        'newValues' => []
+                    ]
+                ];
         
-        return true;
+        return $result;
     }
 
     public function modify(): bool {
         //$dbTargetConnection->addColumn($changeRequestInput);
-        if($this->schemaImpactResult) {
+        if(count($this->schemaImpactResult) > 0) {
             $this->dbTargetConnection->disableConstraint();
-
-            $table = $this->database->getTableByName($this->schemaImpactResult[0]['tableName']);
-            if($table->isFK($this->schemaImpactResult[0]['columnName'])) {
-                $fkName = $table->getFKByColumnName($this->schemaImpactResult[0]['columnName']);
-                $dbTargetConnection->dropConstraint($this->schemaImpactResult[0]['tableName'], $fkName->getName());
+            $tableImpact = array_slice($this->schemaImpactResult,0,1);
+            $columnImpact = array_slice($tableImpact['columnList'],0,1);
+            $table = $this->database->getTableByName($tableImpact['tableName']);
+            if($table->isFK($columnImpact['columnName'])) {
+                $fkName = $table->getFKByColumnName($columnImpact['columnName']);
+                $dbTargetConnection->dropConstraint($tableImpact['tableName'], $fkName->getName());
+                
             }
             
-            $relatedUniques = $this->findUniqueConstraintRelated($this->schemaImpactResult[0]['tableName'],$this->schemaImpactResult[0]['columnName']);
+            $relatedUniques = $this->findUniqueConstraintRelated($tableImpact['tableName'],$columnImpact['columnName']);
             foreach ($relatedUniques as $unique) {
-                $this->dbTargetConnection->dropConstraint($this->schemaImpactResult[0]['tableName'],$unique->getName());
+                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'],$unique->getName());
             }
 
-            $relatedChecks = $this->findCheckConstraintRelated($this->schemaImpactResult[0]['tableName'],$this->schemaImpactResult[0]['columnName']);
+            $relatedChecks = $this->findCheckConstraintRelated($tableImpact['tableName'],$columnImpact['columnName']);
             foreach ($relatedChecks as $check) {
-                $this->dbTargetConnection->dropConstraint($this->schemaImpactResult[0]['tableName'],$check->getName());
+                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'],$check->getName());
             }
 
-            $this->dbTargetConnection->dropColumn($this->schemaImpactResult[0]['tableName'],$this->schemaImpactResult[0]['columnName']);
+            $this->dbTargetConnection->dropColumn($tableImpact['tableName'],$columnImpact['columnName']);
 
             $this->dbTargetConnection->enableConstraint();
             

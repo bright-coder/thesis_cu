@@ -26,7 +26,9 @@ class ChangeAnalysis
     private $changeRequest;
     private $changeRequestInputList;
 
-    private $dbImpactResult = [];
+    private $schemaImpactResult = [];
+    private $instanceImpactResult = [];
+    private $keyConstraintImpactResult = [];
     private $frImpactResult = [];
     private $tcImpactResult = [];
     private $rtmImpactResult = [];
@@ -47,12 +49,90 @@ class ChangeAnalysis
         return $this->changeRequest->changeFunctionalRequirementId;
     }
 
-    public function addDBImpactResult(string $changeRequestInputId, array $schemaImpactResult, array $instanceImpactResult) : void
+    public function addSchemaImpactResult(string $tableName, string $columName, string $changeType, array $oldCol, array $newCol, bool $isPK) : void
     {
-        $this->dbImpactResult[$changeRequestInputId] = [
-            'schema' => $schemaImpactResult,
-            'instance' => $instanceImpactResult
+        if (!array_key_exists($tableName, $this->schemaImpactResult)) {
+            $this->schemaImpactResult[$tableName] = [];
+        }
+        if (!array_key_exists($columName, $this->schemaImpactResult[$tableName])) {
+            $this->schemaImpactResult[$tableName][$columName] = [];
+        }
+
+        if (!empty($this->schemaImpactResult[$tableName][$columName])) {
+            if ($this->schemaImpactResult[$tableName][$columName]['changeType'] == 'edit') {
+                //composite foreign key
+                $this->schemaImpactResult[$tableName][$columName]['new']['unique'] = 'N';
+            }
+        } else {
+            $this->schemaImpactResult[$tableName][$columName] = [
+            'changeType' => $changeType,
+            'old' => $oldCol,
+            'new' => $newCol,
+            'isPK' => $isPK
         ];
+        }
+    }
+
+    public function addKeyConstaintImpactResult(string $tableName, string $consName, string $consType, array $consColumns) : void {
+        if (!array_key_exists($tableName, $this->keyConstraintImpactResult)) {
+            $this->keyConstraintImpactResult[$tableName] = [];
+        }
+
+        if(!array_key_exists($consName, $this->keyConstraintImpactResult[$tableName])) {
+            $this->keyConstraintImpactResult[$tableName][$consName] = [
+                'type' => $consType,
+                'columns' => $consColumns
+            ];
+        }
+    }
+
+    public function addInstanceResult(string $tableName, string $columName, array $pkRecords, array $oldValues = [], array $newValues = []): void
+    {
+        if (!array_key_exists($tableName, $this->schemaImpactResult)) {
+            $this->instanceImpactResult[$tableName] = [];
+        }
+        // array of record
+        if (!$this->instanceImpactResult[$tableName]) {
+            foreach ($pkRecords as $index => $pkRecord) {
+                $this->instanceImpactResult[$tableName][] = [
+                    'pkRecord' => $pkRecord,
+                    'columnList' => [
+                        $columName => [
+                            'oldValue' => $oldValues ? $oldValues[$index] : [],
+                            'newValue' => $newValues ? $newValues[$index] : []
+                        ]
+                    ]
+                ];
+            }
+        } else {
+            $memo = [];
+            foreach ($pkRecords as $index => $pkRecord) {
+                foreach ($this->instanceImpactResult[$tableName] as $indexInstance => $instance) {
+                    if ($pkRecord == $instance['pkRecord']) {
+                        $this->instanceImpactResult[$tableName][$indexInstance]['columnList'][$columName] = [
+                            'oldValue' => $oldValues ? $oldValues[$index] : [],
+                            'newValue' => $newValues ? $newValues[$index] : []
+                        ];
+                        $memo[$index] = true;
+                    }
+                }
+            }
+            if (count($memo) != count($pkRecords)) {
+                foreach ($pkRecords as $index => $pkRecord) {
+                    if (!\array_key_exists($index, $memo)) {
+                        $this->instanceImpactResult[$tableName][] = [
+                            'pkRecord' => $pkRecord,
+                            'columnList' => [
+                                $columName => [
+                                    'oldValue' => $oldValues ? $oldValues[$index] : [],
+                                    'newValue' => $newValues ? $newValues[$index] : []
+                                ]
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
     }
 
     public function setTcImpactResult(array $tcImpactResult): void
@@ -227,8 +307,7 @@ class ChangeAnalysis
                         $newColumnImpact->max = $schema['newSchema']['max'];
                     }
                     $newColumnImpact->save();
-                }
-                else {
+                } else {
                     $newColumnImpact = new ColumnImpact;
                     $newColumnImpact->name = $schema['columnName'];
                     $newColumnImpact->tableName = $schema['tableName'];
@@ -250,23 +329,22 @@ class ChangeAnalysis
         }
     }
 
-    public function saveInstanceImpact() {
-
-        foreach($this->dbImpactResult as $changeRequestInputId => $dbImpactList) {
-            foreach($dbImpactList['instance'] as $index => $instanceImpactList) {
-                if(!empty($instanceImpactList)) {
-
-                    foreach($instanceImpactList['oldInstance'] as $insIndex => $oldInstance) {
+    public function saveInstanceImpact()
+    {
+        foreach ($this->dbImpactResult as $changeRequestInputId => $dbImpactList) {
+            foreach ($dbImpactList['instance'] as $index => $instanceImpactList) {
+                if (!empty($instanceImpactList)) {
+                    foreach ($instanceImpactList['oldInstance'] as $insIndex => $oldInstance) {
                         $newInstanceImpact = new InstanceImpact;
                         $newInstanceImpact->changeRequestInputId = $changeRequestInputId;
                         $newInstanceImpact->tableName = $dbImpactList['schema'][$index]['tableName'];
                         $newInstanceImpact->columnName = $dbImpactList['schema'][$index]['columnName'];
-                        if($dbImpactList['schema'][$index]['changeType'] != 'delete') {
+                        if ($dbImpactList['schema'][$index]['changeType'] != 'delete') {
                             $newInstanceImpact->newValue = $instanceImpactList['newInstance'][$insIndex];
                         }
                         $newInstanceImpact->save();
                         //dd($newInstanceImpact->toArray());
-                        foreach($oldInstance as $columName => $value) {
+                        foreach ($oldInstance as $columName => $value) {
                             $oldInstance = new OldInstance;
                             $oldInstance->instanceImpactId = $newInstanceImpact->id;
                             $oldInstance->columnName = $columName;
@@ -279,23 +357,24 @@ class ChangeAnalysis
         }
     }
 
-    public function saveFrImpact() {
+    public function saveFrImpact()
+    {
         $changeRequestId = $this->getChangeRequest()->id;
-        foreach($this->frImpactResult as $frImpact) {
+        foreach ($this->frImpactResult as $frImpact) {
             $newFrImpact = new FrImpact;
             $newFrImpact->changeRequestId = $changeRequestId;
             $newFrImpact->no = $frImpact['no'];
             $newFrImpact->save();
-            foreach($frImpact['inputList'] as $input) {
-                if(!empty($input['new'])) {
+            foreach ($frImpact['inputList'] as $input) {
+                if (!empty($input['new'])) {
                     $newFrInputImpact = new FrInputImpact;
                     $newFrInputImpact->frImpactId = $newFrImpact->id;
                     $newFrInputImpact->changeType = $input['changeType'];
                     $newFrInputImpact->versionType = 'new';
-                    if(array_key_exists('name',$input['new'])) {
+                    if (array_key_exists('name', $input['new'])) {
                         $newFrInputImpact->name = $input['new']['name'];
                     }
-                    if($newFrInputImpact->changeType == 'edit') {
+                    if ($newFrInputImpact->changeType == 'edit') {
                         $newFrInputImpact->name = $input['old']['name'];
                     }
                     if (array_key_exists('dataType', $input['new'])) {
@@ -333,7 +412,7 @@ class ChangeAnalysis
                     }
                     $newFrInputImpact->save();
                 }
-                if(!empty($input['old'])) {
+                if (!empty($input['old'])) {
                     $newFrInputImpact = new FrInputImpact;
                     $newFrInputImpact->frImpactId = $newFrImpact->id;
                     $newFrInputImpact->changeType = $input['changeType'];
@@ -356,16 +435,17 @@ class ChangeAnalysis
         }
     }
 
-    public function saveTcImpact() {
+    public function saveTcImpact()
+    {
         $changeRequestId = $this->getChangeRequest()->id;
-        foreach($this->tcImpactResult as $tcImpact) {
+        foreach ($this->tcImpactResult as $tcImpact) {
             $newTcImpact = new TcImpact;
             $newTcImpact->changeRequestId = $changeRequestId;
             $newTcImpact->no = $tcImpact['changeType'] == 'add' ? $tcImpact['newNo'] : TestCase::find($tcImpact['oldTcId'])->no;
             $newTcImpact->changeType = $tcImpact['changeType'];
             $newTcImpact->save();
             
-            if($tcImpact['changeType'] == 'edit' && !empty($tcImpact['tcInputEdit'])) {
+            if ($tcImpact['changeType'] == 'edit' && !empty($tcImpact['tcInputEdit'])) {
                 foreach ($tcImpact['tcInputEdit'] as $tcInputEdit) {
                     $newTcInputEdit = new TcInputImpact;
                     $newTcInputEdit->tcImpactId = $newTcImpact->id;
@@ -378,9 +458,10 @@ class ChangeAnalysis
         }
     }
 
-    public function saveRtmRelationImpact() {
+    public function saveRtmRelationImpact()
+    {
         $changeRequestId = $this->getChangeRequest()->id;
-        foreach($this->rtmImpactResult as $rtmImpact) {
+        foreach ($this->rtmImpactResult as $rtmImpact) {
             $newRtmImpact = new RtmRelationImpact;
             $newRtmImpact->changeRequestId = $changeRequestId;
             $newRtmImpact->functionalRequirementNo = $rtmImpact['functionalRequirementNo'];

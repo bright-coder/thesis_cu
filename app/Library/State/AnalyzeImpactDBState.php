@@ -47,6 +47,7 @@ class AnalyzeImpactDBState implements StateInterface
 
     public function analyze(ChangeAnalysis $changeAnalysis) : void
     {
+        
         $cr = $changeAnalysis->getChangeRequest();
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
@@ -124,6 +125,26 @@ class AnalyzeImpactDBState implements StateInterface
                     else if ($changeRequestInput->max != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Max at Foreign Key column.';
+                    }
+                    else if ($this->changeRequestInput->unique != null) {
+                        if (\strcasecmp($this->changeRequestInput->unique, 'Y') == 0) {
+                            $duplicateInstance = $this->dbTarget->getDuplicateInstance($table->getName(), [$frInput->columnName]);
+                            if (count($duplicateInstance > 0)) {
+                                // cannot modify impact; Referential Integrity;
+                                $changeRequestInput->status = 0;
+                                $changeRequestInput->errorMessage = 'Conflict with Referential Integrity Constraint.';
+                            }
+                        }
+                    }
+                    else if ($this->changeRequestInput->nullable != null) {
+                        if (\strcasecmp($this->changeRequestInput->nullable, 'N') == 0) {
+                            $nullInstance =  $this->dbTarget->getInstanceByTableName($table->getName(), "{$frInput->columnName} IS NULL");
+                            if (count($nullInstance) > 0) {
+                                $changeRequestInput->status = 0;
+                                $changeRequestInput->errorMessage = 'Conflict with Referential Integrity Constraint.';
+                                
+                            }
+                        }
                     }
                 }
             }

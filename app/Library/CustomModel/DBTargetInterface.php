@@ -31,7 +31,7 @@ interface DBTargetInterface
     public function addForeignKeyConstraint(string $tableName, array $links, string $constraintName) : bool;
     public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool;
     public function setNullable(string $tableName, string $columnName, array $columnDetail): bool;
-    public function getInstanceByTableName(string $tableName, string $condition = ''): array;
+    public function getInstanceByTableName(string $tableName, array $columnList = [], string $condition = ''): array;
     public function getDuplicateInstance(string $tableName, array $columnName): array;
     public function getNumRows(string $tableName): int;
     public function disableConstraint(string $tableName): bool;

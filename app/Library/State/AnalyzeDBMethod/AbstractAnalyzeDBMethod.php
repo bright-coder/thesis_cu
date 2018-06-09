@@ -6,6 +6,7 @@ use App\Model\ChangeRequestInput;
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
 use App\Model\FunctionalRequirementInput;
+use App\Library\Constraint\Constraint;
 
 abstract class AbstractAnalyzeDBMethod
 {
@@ -34,23 +35,30 @@ abstract class AbstractAnalyzeDBMethod
      */
     protected $instanceImpactResult = [];
     protected $schemaImpactResult = [];
+    protected $keyConstraintImpactResult = [];
 
     /**
     * @var FunctionalRequirementInput;
     */
     protected $functionalRequirementInput = null;
 
-    public function isSchemaImpact(): bool { return $this->schemaImpact; }
-    public function isInstanceImpact() : bool {
-        return count($this->instanceImpactResult) > 0; 
+    public function isSchemaImpact(): bool
+    {
+        return $this->schemaImpact;
+    }
+    public function isInstanceImpact() : bool
+    {
+        return count($this->instanceImpactResult) > 0;
     }
 
-    public function getInstanceImpactResult(): array {
-        //$this->instanceImpactResult = array_unique($this->instanceImpactResult, SORT_REGULAR); 
+    public function getInstanceImpactResult(): array
+    {
+        //$this->instanceImpactResult = array_unique($this->instanceImpactResult, SORT_REGULAR);
         return $this->instanceImpactResult;
     }
     
-    public function getSchemaImpactResult(): array {
+    public function getSchemaImpactResult(): array
+    {
         return $this->schemaImpactResult;
     }
 
@@ -89,8 +97,42 @@ abstract class AbstractAnalyzeDBMethod
         return $arrayCheckRelated;
     }
 
-    abstract public function analyze(): bool;
+    protected function addSchemaImpactResult(string $tableName, string $columnName, string $changeType, array $old, array $new) : void
+    {
+        if (!array_key_exists($tableName, $this->schemaImpactResult)) {
+            $this->schemaImpactResult[$tableName] = [
+                'tableName' => $tableName,
+                'columnList' => []
+            ];
+        }
+        if (!array_key_exists($columnName, $this->schemaImpactResult[$tableName]['columnList'])) {
+            $this->instanceImpactResult[$tableName]['columnList'] = [];
+        }
+        $this->instanceImpactResult[$tableName]['columnList'][$columnName] = [
+            'columnName' => $columnName,
+            'changeType' => $changeType,
+            'old' => $old,
+            'new' => $new
+        ];
+    }
+
+    protected function addInstanceImpactResult(string $tableName, string $columnName, array $oldRecords, array $newValues) : void
+    {
+        if (!array_key_exists($tableName, $this->instanceImpactResult)) {
+            $this->instanceImpactResult[$tableName] = [
+                'tableName' => $tableName,
+                'columnList' => []
+            ];
+        }
+        if (!array_key_exists($columnName, $this->instanceImpactResult[$tableName]['columnList'])) {
+            $this->instanceImpactResult[$tableName]['columnList'] = [];
+        }
+        $this->instanceImpactResult[$tableName]['columnList'][$columnName] = [
+            'oldInstance' => $oldRecords,
+            'newInstance' => $newValues
+        ];
+    }
+
+    abstract public function analyze(): array;
     abstract public function modify(): bool;
-    
-    
 }
