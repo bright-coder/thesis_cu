@@ -55,7 +55,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                     'new' => $newSchema,
                     'isPK' => false,
                     'instance' => [
-                        'pkRecord' => $this->dbTargetConnection->getInstanceByTableName($tableName, $table->getPK()->getColumns()),
+                        'pkRecords' => $this->dbTargetConnection->getInstanceByTableName($tableName, $table->getPK()->getColumns()),
                         'newValues' => $randomData,
                         'oldValues' => []
                     ]

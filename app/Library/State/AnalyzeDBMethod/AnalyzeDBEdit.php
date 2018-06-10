@@ -31,9 +31,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     private $keyConstraintImpact = [];
 
-    private $records = [];
-
-
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
         $this->database = $database;
@@ -60,28 +57,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     {
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
-
-        // If this column is not Primary column ;
-        // if ($table->isFK($column->getName())) {
-
-        //     $refSchema = [
-        //         'dataType' => $column->getDataType()->getType(),
-        //         'length' => $column->getDataType()->getLength(),
-        //         'precision' => $column->getDataType()->getPrecision(),
-        //         'scale' => $column->getDataType()->getScale(),
-        //         'default' => $column->getDefault(),
-        //         'nullable' => $column->isNullable(),
-        //         'unique' => $table->isUnique($column->getName()),
-        //         'min' => $table->getMin($column->getName())['value'],
-        //         'max' => $table->getMax($column->getName())['value']
-        //     ];
-
-        //     $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
-        //         return $val !== null;
-        //     });
-
-    
-        // }
+        $result = [];
 
         // use Primary Column to find impacted
         // This Impact will affected many table;
@@ -120,21 +96,26 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 unset($newSchema['unique']);
         }
 
-        $this->schemaImpactResult[0] = [
-            'tableName' => $table->getName(),
-            'columnName' => $column->getName(),
-            'changeType' => $this->changeRequestInput->changeType,
-            'oldSchema' => $refSchema,
-            'newSchema' => count($newSchema) > 0 ? $newSchema : null
+        $result[$table->getName()] = [];
+        $result[$table->getName()][$column->getName()] = [
+            'changeType' => 'add',
+            'old' => $refSchema,
+            'new' => $newSchema,
+            'isPK' => $table->isPK($column->getName()),
+            'instance' => []
         ];
 
         $dataTypeRef = $refSchema['dataType'];
-
-        $this->instanceImpactResult[0] = array();
+        
+        $records = [];
+        $columnList = array_unique(array_merge(
+            $table->getPK()->getColumns(),
+            [$column->getName()]
+        ));
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
-                $instance = $this->dbTargetConnection->getInstanceByTableName($this->functionalRequirementInput->tableName);
-                $this->instanceImpactResult[0] = $instance;
+                $instance = $this->dbTargetConnection->getInstanceByTableName($this->functionalRequirementInput->tableName, $columnList);
+                $records = $instance;
                 //return false;
             }
             $refSchema['dataType'] = $this->changeRequestInput->dataType;
@@ -144,9 +125,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         if (DataType::isStringType($dataTypeRef)) {
             if ($this->changeRequestInput->length != null) {
                 if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'])) {
-                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
                     if (count($instance) > 0) {
-                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
+                        $records = array_merge($this->instanceImpactResult[0], $instance);
                     }
                 }
                 $refSchema['length'] = $this->changeRequestInput->length;
@@ -154,18 +135,18 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         } elseif (DataType::isNumericType($dataTypeRef)) {
             if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL') {
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
-                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} < {$this->changeRequestInput->min}");
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} < {$this->changeRequestInput->min}");
                     if (count($instance) > 0) {
-                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
                 $refSchema['min'] = $this->changeRequestInput->min;
             }
             if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL') {
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
-                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} > {$this->changeRequestInput->max}");
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} > {$this->changeRequestInput->max}");
                     if (count($instance) > 0) {
-                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
 
@@ -179,26 +160,27 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             if ($this->changeRequestInput->max == '#NULL') {
                 $refSchema['max'] = null;
             }
-        } elseif (DataType::isFloatType($dataTypeRef)) {
-            if ($this->changeRequestInput->precision != null) {
-                if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
-                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
-                    if (count($instance) > 0) {
-                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
-                    }
-                }
-                $refSchema['precision'] = $this->changeRequestInput->precision;
-            }
-            if (\strtolower($dataType) == 'decimal') {
-                if ($this->changeRequestInput->scale != null) {
-                    if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
-                        $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
+            if (DataType::isFloatType($dataTypeRef)) {
+                if ($this->changeRequestInput->precision != null) {
+                    if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
+                        $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
                         if (count($instance) > 0) {
-                            $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
+                            $records = array_merge($records, $instance);
                         }
                     }
+                    $refSchema['precision'] = $this->changeRequestInput->precision;
                 }
-                $refSchema['scale'] = $this->changeRequestInput->scale;
+                if (\strtolower($dataType) == 'decimal') {
+                    if ($this->changeRequestInput->scale != null) {
+                        if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
+                            $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), $columnList, "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
+                            if (count($instance) > 0) {
+                                $records = array_merge($records, $instance);
+                            }
+                        }
+                    }
+                    $refSchema['scale'] = $this->changeRequestInput->scale;
+                }
             }
         }
 
@@ -214,58 +196,180 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
             if ($this->changeRequestInput->nullable != null) {
                 if ($this->findInstanceImpactByNullable(\strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true, $refSchema['nullable'])) {
-                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} IS NULL");
+                    $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} IS NULL");
                     if (count($instance) > 0) {
-                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
-                $refSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true;
+                $refSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'Y') == 0;
             }
             
             if ($this->changeRequestInput->unqiue != null) {
-                if ($this->findInstanceImpactByUnique(\strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true, $refSchema['unique'])) {
+                if ($this->findInstanceImpactByUnique(\strcasecmp($this->changeRequestInput->unique, 'Y') == 0, $refSchema['unique'])) {
                     $instance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), $column->getName());
                     if (count($instance) > 0) {
-                        $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
-                $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true;
+                $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0;
             }
-        } else {
-            unset($this->schemaImpactResult[0]['newSchema']['default']);
-            unset($this->schemaImpactResult[0]['newSchema']['nullable']);
-            unset($this->schemaImpactResult[0]['newSchema']['unique']);
         }
 
-        if (count($this->instanceImpactResult[0]) > 0) {
-            $numRows = $this->dbTargetConnection->getNumRows($table->getName());
-            $randomData  = RandomContext::getRandomData(
+        if (count($records) > 0) {
+            $records = array_unique($records, SORT_REGULAR);
+            $numRows = count($records);
+            $randomData = RandomContext::getRandomData(
                 $numRows,
                 $refSchema['dataType'],
-            [
-                'length' => $refSchema['length'],
-                'precision' => $refSchema['precision'],
-                'scale' => $refSchema['scale'],
-                'min' => $refSchema['min'],
-                'max' => $refSchema['max']
-            ],
-            true
-        );
+                [
+                    'length' => $refSchema['length'],
+                    'precision' => $refSchema['precision'],
+                    'scale' => $refSchema['scale'],
+                    'min' => $refSchema['min'],
+                    'max' => $refSchema['max']
+                ],
+                $refSchema['unique']
+            );
 
-            $this->instanceImpactResult[0] = array_unique($this->instanceImpactResult[0], SORT_REGULAR);
-            
-            if (count($randomData) >= count($this->instanceImpactResult[0])) {
-                $randomData = \array_splice($randomData, 0, count($this->instanceImpactResult[0]));
+            $oldValues = [];
+            if($table->isPK($column->getName())) {
+                foreach($records as $record ) {
+                    $oldValues[] = $record;
+                }
             }
-            $this->instanceImpactResult[0] = [
-                'oldInstance' =>  $this->instanceImpactResult[0],
-                'newInstance' => $randomData
+            else {
+                foreach($records as $index => $record ) {
+                    $oldValues[] = $record[$column->getName()];
+                    unset($records[$index][$column->getName()]);
+                }
+            }
+
+            $numRows = count(array_unique($oldValues));
+            $randomData = RandomContext::getRandomData(
+                $numRows,
+                $refSchema['dataType'],
+                [
+                    'length' => $refSchema['length'],
+                    'precision' => $refSchema['precision'],
+                    'scale' => $refSchema['scale'],
+                    'min' => $refSchema['min'],
+                    'max' => $refSchema['max']
+                ],
+                true
+            );
+            $newValues = [];
+            $oldUniques = array_unique($oldValues);
+            foreach($oldUniques as $i => $old) {
+                foreach($oldValues as $oldValue) {
+                    if($old == $oldValue) {
+                        $newValues[$i] = $randomData[$i];
+                    }
+                }
+            }
+            ksort($newValues);
+            
+            $result[$table->getName()][$column->getName()]['instance'] = [
+                'pkRecords' => $records,
+                'newValues' => $newValues,
+                'oldValues' => $oldValues
             ];
-        } else {
-            $this->instanceImpactResult[0] = null;
+
         }
 
-        $this->setImpactToLinkedColumn($this->primaryColumnNode);
+        $q = $this->primaryColumnNode->getLinks();
+
+        while($q) {
+            $node = array_shift($q);
+            $table = $this->database->getTableByName($node->getTableName());
+            $column = $table->getColumnByName($node->getColumnName());
+            $refSchema = [
+                'dataType' => $column->getDataType()->getType(),
+                'length' => $column->getDataType()->getLength(),
+                'precision' => $column->getDataType()->getPrecision(),
+                'scale' => $column->getDataType()->getScale(),
+                'default' => $column->getDefault(),
+                'nullable' => $column->isNullable(),
+                'unique' => $table->isUnique($column->getName()),
+                'min' => $table->getMin($column->getName())['value'],
+                'max' => $table->getMax($column->getName())['value']
+            ];
+
+            $newSchema = $result[$this->primaryColumnNode->getTableName()][$this->primaryColumnNode->getColumnName()]['new'];
+            unset($newSchema['default']);
+            unset($newSchema['nullable']);
+            unset($newSchema['unique']);
+
+            if ($node->getTableName() == $this->functionalRequirementInput->tableName &&
+                $node->getColumnName() == $this->functionalRequirementInput->columnName) {
+                if ($this->changeRequestInput->default != null) {
+                    if ($this->changeRequestInput->default == '#NULL') {
+                        $newSchema['default'] = null;
+                    } else {
+                        $newSchema['default'] = $this->changeRequestInput->default;
+                    }
+                }
+        
+                if ($this->changeRequestInput->nullable != null) {
+                    $newSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'Y') == 0;
+                }
+                    
+                if ($this->changeRequestInput->unqiue != null) {
+                    $newSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0;
+                }
+            }
+
+            if(!$isset($result[$table->getName()])) { $result[$table->getName()] = []; }
+            $result[$table->getName()][$column->getName()] = [
+                'changeType' => 'add',
+                'old' => $refSchema,
+                'new' => $newSchema,
+                'isPK' => $table->isPK($column->getName()),
+                'instance' => []
+            ];
+
+            //$primeInstance = $result[$this->primaryColumnNode->getTableName()][$this->primaryColumnNode->getColumnName()]['instance'];
+            if (count($records) > 0){
+                $columnList = array_unique(array_merge(
+                    $table->getPK()->getColumns(),
+                    [$column->getName()]
+                ));
+                $WHERE_CAUSE = $column->getName()." IN (".implode(",", $oldValues).")";
+                $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, $WHERE_CAUSE);
+                if(count($instance) > 0) {
+                    $oldValuesSec = [];
+                    
+                    
+                    if($table->isPK($column->getName())) {
+                        foreach($instance as $record ) {
+                            $oldValuesSec[] = $record;
+                        }
+                    }
+                    else {
+                        foreach($instance as $index => $record ) {
+                            $oldValuesSec[] = $record[$column->getName()];
+                            unset($instance[$index][$column->getName()]);
+                        }
+                    }
+
+                    $newValuesSec = [];
+                    foreach($oldValuesSec as $i => $oldSec) {
+                        foreach($result[$table->getName()][$column->getName()]['instance']['oldValues'] as $j => $oldPrime) {
+                            if($oldSec == $oldPrime) {
+                                $newValuesSec[$i] = $result[$table->getName()][$column->getName()]['instance']['newValues'][$j];
+                            } 
+                        }
+                    }
+                    ksort($newValuesSec);
+                }
+            }
+
+            if($node->getLinks()) {
+                $q = array_merge($q, $node->getLinks());
+            }
+    
+        }
+
+        
     }
 
     private function findImpactNormalColumn(): array
@@ -302,7 +406,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
         $dataTypeRef = $refSchema['dataType'];
 
-        $this->records = [];
+        $records = [];
         $columnList = array_unique(array_merge(
             $table->getPK()->getColumns(),
             [$column->getName()]
@@ -310,7 +414,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
-                $this->records = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList);
+                $records = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList);
             
                 //return false;
             }
@@ -323,7 +427,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
                     if (count($instance) > 0) {
-                        $this->records = array_merge($this->records, $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
                 $refSchema['length'] = $this->changeRequestInput->length;
@@ -333,7 +437,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} < {$this->changeRequestInput->min}");
                     if (count($instance) > 0) {
-                        $this->records = array_merge($this->records, $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
                 $refSchema['min'] = $this->changeRequestInput->min;
@@ -342,7 +446,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} > {$this->changeRequestInput->max}");
                     if (count($instance) > 0) {
-                        $this->records = array_merge($this->records, $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
                 $refSchema['max'] = $this->changeRequestInput->max;
@@ -360,7 +464,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
                         $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
                         if (count($instance) > 0) {
-                            $this->records = array_merge($this->records, $instance);
+                            $records = array_merge($records, $instance);
                         }
                     }
                     $refSchema['precision'] = $this->changeRequestInput->precision;
@@ -370,7 +474,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
                             $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
                             if (count($instance) > 0) {
-                                $this->records = array_merge($this->records, $instance);
+                                $records = array_merge($records, $instance);
                             }
                         }
                     }
@@ -391,7 +495,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             if ($this->findInstanceImpactByNullable(\strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true, $refSchema['nullable'])) {
                 $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} IS NULL");
                 if (count($instance) > 0) {
-                    $this->records = array_merge($this->records, $instance);
+                    $records = array_merge($records, $instance);
                 }
             }
             $refSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true;
@@ -402,18 +506,32 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $instance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), [ $column->getName() ], $table->getPK()->getColumns());
                 
                 if (count($instance) > 0) {
-                    $this->records = array_merge($this->records, $instance);
+                    $records = array_merge($records, $instance);
                 }
             }
             
-
             $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0 ;
         }
 
-        if (count($this->records) > 0) {
-            $this->records = array_unique($this->records, SORT_REGULAR);
-            $numRows = count($this->records);
-            $randomData = RandomContext::getRandomData(
+        if (count($records) > 0) {
+            $records = array_unique($records, SORT_REGULAR);
+
+            $oldValues = [];
+            if($table->isPK($column->getName())) {
+                foreach($records as $record ) {
+                    $oldValues[] = $record;
+                }
+            }
+            else {
+                foreach($records as $index => $record ) {
+                    $oldValues[] = $record[$column->getName()];
+                    unset($records[$index][$column->getName()]);
+                }
+            }
+
+            if($refSchema['unique']) {
+                $numRows = count($records);
+                $newValues = RandomContext::getRandomData(
                 $numRows,
                 $refSchema['dataType'],
                 [
@@ -423,25 +541,39 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     'min' => $refSchema['min'],
                     'max' => $refSchema['max']
                 ],
-                $refSchema['unique']
-            );
-
-            $oldValues = [];
-            if($table->isPK($column->getName())) {
-                foreach($this->records as $record ) {
-                    $oldValues[] = $record;
-                }
+                true
+                );
             }
             else {
-                foreach($this->records as $index => $record ) {
-                    $oldValues[] = $record[$column->getName()];
-                    unset($this->records[$index][$column->getName()]);
+                $numRows = count(array_unique($oldValues));
+                $randomData = RandomContext::getRandomData(
+                    $numRows,
+                    $refSchema['dataType'],
+                    [
+                        'length' => $refSchema['length'],
+                        'precision' => $refSchema['precision'],
+                        'scale' => $refSchema['scale'],
+                        'min' => $refSchema['min'],
+                        'max' => $refSchema['max']
+                    ],
+                    true
+                );
+                $newValues = [];
+                $oldUniques = array_unique($oldValues);
+                foreach($oldUniques as $i => $old) {
+                    foreach($oldValues as $oldValue) {
+                        if($old == $oldValue) {
+                            $newValues[$i] = $randomData[$i];
+                        }
+                    }
                 }
+                ksort($newValues);
             }
+        
 
             $result[$table->getName()][$column->getNam()]['instance'] = [
-                'pkRecord' => $this->records,
-                'newValues' => $randomData,
+                'pkRecord' => $records,
+                'newValues' => $newValues,
                 'oldValues' => $oldValues
             ];
 
@@ -449,104 +581,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
     }
 
-    private function setImpactToLinkedColumn(Node $start)
-    {
-        foreach ($start->getLinks() as $node) {
-            $table = $this->database->getTableByName($node->getTableName());
-            $column = $table->getColumnByName($node->getColumnName());
-            $refSchema = [
-                'dataType' => $column->getDataType()->getType(),
-                'length' => $column->getDataType()->getLength(),
-                'precision' => $column->getDataType()->getPrecision(),
-                'scale' => $column->getDataType()->getScale(),
-                'default' => $column->getDefault(),
-                'nullable' => $column->isNullable(),
-                'unique' => $table->isUnique($column->getName()),
-                'min' => $table->getMin($column->getName())['value'],
-                'max' => $table->getMax($column->getName())['value']
-            ];
-    
-            // $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
-            //     return $val !== null;
-            // });
-
-            $newSchema = $this->schemaImpactResult[0]['newSchema'];
-            unset($newSchema['min']);
-            unset($newSchema['max']);
-
-            if ($node->getTableName() == $this->functionalRequirementInput->tableName &&
-                $node->getColumnName() == $this->functionalRequirementInput->columnName) {
-                if ($this->changeRequestInput->default != null) {
-                    if ($this->changeRequestInput->default == '#NULL') {
-                        $newSchema['default'] = null;
-                    } else {
-                        $newSchema['default'] = $this->changeRequestInput->default;
-                    }
-                }
-        
-                if ($this->changeRequestInput->nullable != null) {
-                    // if ($this->findInstanceImpactByNullable(\strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true, $refSchema['nullable'])) {
-                    //     // $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), "{$column->getName()} IS NULL");
-                    //     // if (count($instance) > 0) {
-                    //     //     $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
-                    //     // }
-                    // }
-                    $newSchema['nullable'] = \strcasecmp($this->changeRequestInput->nullable, 'N') == 0 ? false : true;
-                }
-                    
-                if ($this->changeRequestInput->unqiue != null) {
-                    // if ($this->findInstanceImpactByUnique(\strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true, $refSchema['unique'])) {
-                    //     $instance = $this->dbTargetConnection->getDuplicateInstance($table->getName(), $column->getName());
-                    //     if (count($instance) > 0) {
-                    //         $this->instanceImpactResult[0] = array_merge($this->instanceImpactResult[0], $instance);
-                    //     }
-                    // }
-                    $newSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'N') == 0 ? false : true;
-                }
-            }
-    
-            $this->schemaImpactResult[] = [
-                'tableName' => $table->getName(),
-                'columnName' => $column->getName(),
-                'changeType' => $this->changeRequestInput->changeType,
-                'oldSchema' => $refSchema,
-                'newSchema' => count($newSchema) > 0 ? $newSchema : null
-            ];
-
-            if ($this->instanceImpactResult[0] !== null) {
-                $oldInstancePrimary = $this->instanceImpactResult[0]['oldInstance'];
-                $oldValueOneCol = [];
-                $strOldValueOneCol = [];
-                foreach ($oldInstancePrimary as $index => $instance) {
-                    $oldValueOneCol[] = $instance[$this->primaryColumnNode->getColumnName()];
-                    $strOldValueOneCol[] = "'{$instance[$this->primaryColumnNode->getColumnName()]}'";
-                }
-                $oldInstanceSecondary = $this->dbTargetConnection->getInstanceByTableName(
-                    $node->getTableName(),
-                    "{$node->getColumnName()} IN (".\implode(",", $strOldValueOneCol).")"
-                );
-                if (count($oldInstanceSecondary) > 0) {
-                    $this->instanceImpactResult[] = [
-                        'oldInstance' => $oldInstanceSecondary,
-                        'newInstance' => []
-                    ];
-                    foreach ($oldInstanceSecondary as $index => $instanceSec) {
-                        foreach ($oldInstancePrimary as $index2 => $instancePri) {
-                            if ($instancePri[$this->primaryColumnNode->getColumnName()] == $instanceSec[$node->getColumnName()]) {
-                                $this->instanceImpactResult[count($this->instanceImpactResult[0])-1]['newInstance'][$index] = $this->instanceImpactResult[0]['newInstance'][$index2];
-                            }
-                        }
-                    }
-                }
-            } else {
-                $this->instanceImpactResult[] = null;
-            }
-
-            if (count($node->getLinks()) > 0) {
-                $this->setImpactToLinkedColumn($node);
-            }
-        }
-    }
 
     public function modify(): bool
     {

@@ -113,7 +113,7 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
                     'new' => $newSchema,
                     'isPK' => false,
                     'instance' => [
-                        'pkRecord' => $records,
+                        'pkRecords' => $records,
                         'oldValues' => $oldValues,
                         'newValues' => []
                     ]
