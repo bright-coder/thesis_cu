@@ -355,13 +355,20 @@ class SqlServer implements DBTargetInterface
         return false;
     }
 
-    public function getDuplicateInstance(string $tableName, array $columnName): array
+    public function getDuplicateInstance(string $tableName, array $checkColumns, array $pkColumns): array
     {
         $strOn = [];
         foreach ($columnName as $column) {
             $strOn[] = "y.".$column."=dt.".$column;
         }
-        $strQuery = "SELECT y.* FROM {$tableName} y 
+        $selectColumn = array_unique(array_merge($pkColumns, $checkColumns), SORT_REGULAR);
+        foreach($selectColumn as $i => $column) {
+            $selectColumn[$i] = 'y.'.$column;
+        }
+
+        $strSelectColumn = implode(',', $selectColumn);
+    
+        $strQuery = "SELECT {$strSelectColumn} FROM {$tableName} y 
             INNER JOIN (SELECT ".implode(",", $columnName)."
                         FROM {$tableName}
                         GROUP BY ".\implode(",", $columnName)."
