@@ -94,14 +94,10 @@ class AnalyzeImpactDBState implements StateInterface
                     }
                     
                 }
-                //dd($changeAnalysis->getKeyConstraintImpactResult());
-
-                
-                //$changeAnalysis->addDBImpactResult($analyzer->analyze());
             }
             dd($changeAnalysis->getSchemaImpactResult());
-            dd($changeAnalysis->getInstanceImpactResult());
-            dd($changeAnalysis->getKeyConstraintImpactResult());
+            //dd($changeAnalysis->getInstanceImpactResult());
+            //dd($changeAnalysis->getKeyConstraintImpactResult());
 
             $cr->status = 1;
             $cr->save();
