@@ -52,7 +52,7 @@ export default {
       filename: "Choose file .xlsx",
       isSave: 0,
       msg: "",
-      tables: {}
+      tables: []
     };
   },
   components: {
@@ -85,15 +85,48 @@ export default {
         if(response.status == 200) {
           vm.isSave = -1
           vm.content = response.data
+          if(vm.contentType == "fr") {
+            for(let i = 0 ; i < vm.content.length; ++i) {
+              for(let j = 0 ; j < vm.content[i].inputs.length ; ++j) {
+                let info = vm.findColumnInfo(vm.content[i].inputs[j].tableName, vm.content[i].inputs[j].columnName)
           
+                vm.content[i].inputs[j] = Object.assign(vm.content[i].inputs[j], info)
+                
+              }
+            }
+          }
         }
+        //console.log(vm.content);
       
       })
       .catch(function(errors){
         vm.isSave = 2
+        console.log(errors)
         if(errors.response.status == 500)
           vm.msg = 'Server Error, please try again later.'
       })
+    },
+    findColumnInfo(tableName, columnName){
+      let info = {}
+      let vm = this
+                for(let i = 0; i < vm.tables.length; ++i) {
+            if(vm.tables[i].name == tableName) {
+              for(let j = 0; j < vm.tables[i].columns.length; ++j) {
+                if(vm.tables[i].columns[j].name == columnName) {
+                  info.dataType = vm.tables[i].columns[j].dataType
+                  info.length = vm.tables[i].columns[j].length
+                  info.precision = vm.tables[i].columns[j].precision
+                  info.scale = vm.tables[i].columns[j].scale
+                  info.default = vm.tables[i].columns[j].default
+                  info.nullable = vm.tables[i].columns[j].nullable
+                  info.unique = vm.tables[i].columns[j].unique
+                  info.min = vm.tables[i].columns[j].min ? vm.tables[i].columns[j].min.value : null
+                  info.max = vm.tables[i].columns[j].max ? vm.tables[i].columns[j].max.value : null
+                }
+              }
+            }
+          }
+          return info
     },
     readFile() {
       if (this.$refs.file.files.length > 0) {
@@ -141,35 +174,11 @@ export default {
         for (var i = 4; i < fr.length; ++i) {
           let input = {
             name: 0 in fr[i] ? fr[i][0] : "",
-            dataType: '',
-            length: '',
-            precision: '',
-            scale: '',
-            default: '',
-            nullable: '',
-            unique: '',
-            min: '',
-            max: '',
             columnName: 1 in fr[i] ? fr[i][1] : "",
             tableName: 2 in fr[i] ? fr[i][2] : ""
           }
-          for(let i = 0; i < tables.length; ++i) {
-            if(tables[i].name == input.tableName) {
-              for(let j = 0; j < tables[i].columns.length; ++j) {
-                if(tables[i].columns[j].name == input.columnName) {
-                  input.dataType = tables[i].columns[j].dataType
-                  input.length = tables[i].columns[j].length
-                  input.precision = tables[i].columns[j].precision
-                  input.scale = tables[i].columns[j].scale
-                  input.default = tables[i].columns[j].default
-                  input.nullable = tables[i].columns[j].nullable
-                  input.unique = tables[i].columns[j].unique
-                  input.min = tables[i].columns[j].min ? tables[i].columns[j].min.value : null
-                  input.max = tables[i].columns[j].max ? tables[i].columns[j].max.value : null
-                }
-              }
-            }
-          }
+          let info = vm.findColumnInfo(input.tableName, input.tableName)
+          Object.assign(input, info)
           inputList.push(input);
         }
         vm.content.push({
@@ -194,7 +203,7 @@ export default {
         .then(function(response) {
  
           vm.tables = response.data;
-          console.log(vm.tables);
+          //console.log(vm.tables);
         })
         .catch(function(errors) {});
     },
@@ -227,7 +236,7 @@ export default {
           testCaseNos: testCaseNos
         });
       }
-      console.log(vm.content);
+      
     },
     sheetToArray(sheet) {
       var result = [];

@@ -24,7 +24,7 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
     }
 
-    public function analyze(): bool {
+    public function analyze(): array {
 
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);

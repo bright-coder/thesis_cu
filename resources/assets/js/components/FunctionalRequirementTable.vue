@@ -6,7 +6,7 @@
                     No. {{ fr.no }}
                 </div>
                 <div class="card-body">
-                    <p> {{ fr.desc }} </p>
+                    <p> {{ fr.description }} </p>
                     <hr>
                     <table class="table table-hover">
                         <thead>

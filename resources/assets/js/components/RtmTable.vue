@@ -9,8 +9,8 @@
             </thead>
             <tbody>
                 <tr v-for="(rel, index) in relations" :key="index" v-if="index >= startIndex && index < startIndex+perPage">
-                    <td width="30%">{{rel.functionalRequirementNo}}</td>
-                    <td>{{rel.testCaseNos.join(" | ") }}</td>
+                    <td width="30%">{{rel.frNo}}</td>
+                    <td>{{rel.tcNoList.join(" | ") }}</td>
                 </tr>
             </tbody>
         </table>

@@ -39,7 +39,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
     }
 
-    public function analyze() : bool
+    public function analyze() : array
     {
         $this->schemaImpact = true;
         

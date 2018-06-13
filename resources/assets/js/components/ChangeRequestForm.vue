@@ -295,6 +295,7 @@ export default {
         min: "",
         max: ""
       },
+      tables: [],
       changeRequestList: [],
       changeRequestIndex: {},
       errors: ""
@@ -324,6 +325,7 @@ export default {
         .catch(function(errors) {});
     },
     getFunctionalList() {
+      this.getDatabase();
       this.selectedFunctional = "-";
       this.functionalList = [];
       this.changeRequestList = [];
@@ -347,6 +349,21 @@ export default {
         .then(function(response) {
           if (response.status == 200) {
             vm.functionalList = response.data;
+            console.log(vm.functionalList);
+            for (let i = 0; i < vm.functionalList.length; ++i) {
+              for (let j = 0; j < vm.functionalList[i].inputs.length; ++j) {
+                let info = vm.findColumnInfo(
+                  vm.functionalList[i].inputs[j].tableName,
+                  vm.functionalList[i].inputs[j].columnName
+                );
+                    
+                vm.functionalList[i].inputs[j] = Object.assign(
+                  vm.functionalList[i].inputs[j],
+                  info
+                );
+                
+              }
+            }
           } else {
             vm.isHaveFr = false;
           }
@@ -433,8 +450,8 @@ export default {
           delete newChangeRequest["scale"];
           ++isNotChange;
         }
-        if(this.changeRequest.default == '') {
-            this.changeRequest.default = null
+        if (this.changeRequest.default == "") {
+          this.changeRequest.default = null;
         }
         if (oldInput.default == this.changeRequest.default) {
           delete newChangeRequest["default"];
@@ -476,7 +493,7 @@ export default {
         let isError = false;
 
         if (this.changeRequest.name in this.changeRequestIndex) {
-            console.log('name already')
+          //console.log("name already exists.");
           isError = true;
           this.errors =
             "Input name : " +
@@ -486,8 +503,10 @@ export default {
           for (let i = 0; i < this.changeRequestList.length; ++i) {
             if (this.changeRequestList[i].changeType == "add") {
               if (
-                this.changeRequestList[i].tableName == newChangeRequest.tableName &&
-                this.changeRequestList[i].columnName == newChangeRequest.columnName
+                this.changeRequestList[i].tableName ==
+                  newChangeRequest.tableName &&
+                this.changeRequestList[i].columnName ==
+                  newChangeRequest.columnName
               ) {
                 isError = true;
                 this.errors =
@@ -507,6 +526,32 @@ export default {
       let name = this.changeRequestList[index].name;
       this.changeRequestList.splice(index, 1);
       delete this.changeRequestIndex[name];
+    },
+    findColumnInfo(tableName, columnName) {
+      let info = {};
+      let vm = this;
+      for (let i = 0; i < vm.tables.length; ++i) {
+        if (vm.tables[i].name == tableName) {
+          for (let j = 0; j < vm.tables[i].columns.length; ++j) {
+            if (vm.tables[i].columns[j].name == columnName) {
+              info.dataType = vm.tables[i].columns[j].dataType;
+              info.length = vm.tables[i].columns[j].length;
+              info.precision = vm.tables[i].columns[j].precision;
+              info.scale = vm.tables[i].columns[j].scale;
+              info.default = vm.tables[i].columns[j].default;
+              info.nullable = vm.tables[i].columns[j].nullable;
+              info.unique = vm.tables[i].columns[j].unique;
+              info.min = vm.tables[i].columns[j].min
+                ? vm.tables[i].columns[j].min.value
+                : null;
+              info.max = vm.tables[i].columns[j].max
+                ? vm.tables[i].columns[j].max.value
+                : null;
+            }
+          }
+        }
+      }
+      return info;
     },
     submitChangeRequest() {
       let vm = this;
@@ -533,7 +578,26 @@ export default {
             response.data.changeRequestId;
         })
         .catch(function(errors) {});
-    }
+    },
+        getDatabase() {
+      let vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.selectedProject + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      })
+        .then(function(response) {
+ 
+          vm.tables = response.data;
+          //console.log(vm.tables);
+        })
+        .catch(function(errors) {});
+    },
   },
   created() {
     this.getProjectList();

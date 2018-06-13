@@ -51888,7 +51888,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       content: [],
       filename: "Choose file .xlsx",
       isSave: 0,
-      msg: ""
+      msg: "",
+      tables: []
     };
   },
 
@@ -51921,11 +51922,44 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         if (response.status == 200) {
           vm.isSave = -1;
           vm.content = response.data;
+          if (vm.contentType == "fr") {
+            for (var i = 0; i < vm.content.length; ++i) {
+              for (var j = 0; j < vm.content[i].inputs.length; ++j) {
+                var info = vm.findColumnInfo(vm.content[i].inputs[j].tableName, vm.content[i].inputs[j].columnName);
+
+                vm.content[i].inputs[j] = Object.assign(vm.content[i].inputs[j], info);
+              }
+            }
+          }
         }
+        //console.log(vm.content);
       }).catch(function (errors) {
         vm.isSave = 2;
+        console.log(errors);
         if (errors.response.status == 500) vm.msg = 'Server Error, please try again later.';
       });
+    },
+    findColumnInfo: function findColumnInfo(tableName, columnName) {
+      var info = {};
+      var vm = this;
+      for (var i = 0; i < vm.tables.length; ++i) {
+        if (vm.tables[i].name == tableName) {
+          for (var j = 0; j < vm.tables[i].columns.length; ++j) {
+            if (vm.tables[i].columns[j].name == columnName) {
+              info.dataType = vm.tables[i].columns[j].dataType;
+              info.length = vm.tables[i].columns[j].length;
+              info.precision = vm.tables[i].columns[j].precision;
+              info.scale = vm.tables[i].columns[j].scale;
+              info.default = vm.tables[i].columns[j].default;
+              info.nullable = vm.tables[i].columns[j].nullable;
+              info.unique = vm.tables[i].columns[j].unique;
+              info.min = vm.tables[i].columns[j].min ? vm.tables[i].columns[j].min.value : null;
+              info.max = vm.tables[i].columns[j].max ? vm.tables[i].columns[j].max.value : null;
+            }
+          }
+        }
+      }
+      return info;
     },
     readFile: function readFile() {
       if (this.$refs.file.files.length > 0) {
@@ -51971,20 +52005,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
         var inputList = [];
         for (var i = 4; i < fr.length; ++i) {
-          inputList.push({
+          var input = {
             name: 0 in fr[i] ? fr[i][0] : "",
-            dataType: 1 in fr[i] ? fr[i][1] : "",
-            length: 2 in fr[i] ? fr[i][2] : "",
-            precision: 3 in fr[i] ? fr[i][3] : "",
-            scale: 4 in fr[i] ? fr[i][4] : "",
-            default: 5 in fr[i] ? fr[i][5] : "",
-            nullable: 6 in fr[i] ? fr[i][6] : "",
-            unique: 7 in fr[i] ? fr[i][7] : "",
-            min: 8 in fr[i] ? fr[i][8] : "",
-            max: 9 in fr[i] ? fr[i][9] : "",
-            columnName: 10 in fr[i] ? fr[i][10] : "",
-            tableName: 11 in fr[i] ? fr[i][11] : ""
-          });
+            columnName: 1 in fr[i] ? fr[i][1] : "",
+            tableName: 2 in fr[i] ? fr[i][2] : ""
+          };
+          var info = vm.findColumnInfo(input.tableName, input.tableName);
+          Object.assign(input, info);
+          inputList.push(input);
         }
         vm.content.push({
           no: no,
@@ -51992,6 +52020,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           inputs: inputList.length > 0 ? inputList : undefined
         });
       });
+    },
+    getDatabase: function getDatabase() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+
+        vm.tables = response.data;
+        //console.log(vm.tables);
+      }).catch(function (errors) {});
     },
     readTcFromExcel: function readTcFromExcel(tcList) {
       var vm = this;
@@ -52022,7 +52067,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           testCaseNos: testCaseNos
         });
       }
-      console.log(vm.content);
     },
     sheetToArray: function sheetToArray(sheet) {
       var result = [];
@@ -52127,6 +52171,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   },
 
   created: function created() {
+    if (this.contentType == 'fr') {
+      this.getDatabase();
+    }
     this.getContent();
   }
 });
@@ -81697,7 +81744,7 @@ var render = function() {
                 ),
                 _vm._v(" "),
                 _c("div", { staticClass: "card-body" }, [
-                  _c("p", [_vm._v(" " + _vm._s(fr.desc) + " ")]),
+                  _c("p", [_vm._v(" " + _vm._s(fr.description) + " ")]),
                   _vm._v(" "),
                   _c("hr"),
                   _vm._v(" "),
@@ -82317,10 +82364,10 @@ var render = function() {
           return index >= _vm.startIndex && index < _vm.startIndex + _vm.perPage
             ? _c("tr", { key: index }, [
                 _c("td", { attrs: { width: "30%" } }, [
-                  _vm._v(_vm._s(rel.functionalRequirementNo))
+                  _vm._v(_vm._s(rel.frNo))
                 ]),
                 _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(rel.testCaseNos.join(" | ")))])
+                _c("td", [_vm._v(_vm._s(rel.tcNoList.join(" | ")))])
               ])
             : _vm._e()
         })
@@ -84718,6 +84765,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         min: "",
         max: ""
       },
+      tables: [],
       changeRequestList: [],
       changeRequestIndex: {},
       errors: ""
@@ -84746,6 +84794,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }).catch(function (errors) {});
     },
     getFunctionalList: function getFunctionalList() {
+      this.getDatabase();
       this.selectedFunctional = "-";
       this.functionalList = [];
       this.changeRequestList = [];
@@ -84767,6 +84816,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }).then(function (response) {
         if (response.status == 200) {
           vm.functionalList = response.data;
+          console.log(vm.functionalList);
+          for (var i = 0; i < vm.functionalList.length; ++i) {
+            for (var j = 0; j < vm.functionalList[i].inputs.length; ++j) {
+              var info = vm.findColumnInfo(vm.functionalList[i].inputs[j].tableName, vm.functionalList[i].inputs[j].columnName);
+
+              vm.functionalList[i].inputs[j] = Object.assign(vm.functionalList[i].inputs[j], info);
+            }
+          }
         } else {
           vm.isHaveFr = false;
         }
@@ -84846,7 +84903,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           delete newChangeRequest["scale"];
           ++isNotChange;
         }
-        if (this.changeRequest.default == '') {
+        if (this.changeRequest.default == "") {
           this.changeRequest.default = null;
         }
         if (oldInput.default == this.changeRequest.default) {
@@ -84889,7 +84946,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         var isError = false;
 
         if (this.changeRequest.name in this.changeRequestIndex) {
-          console.log('name already');
+          //console.log("name already exists.");
           isError = true;
           this.errors = "Input name : " + this.changeRequest.name + " already add in this request.";
         } else {
@@ -84914,6 +84971,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.changeRequestList.splice(index, 1);
       delete this.changeRequestIndex[name];
     },
+    findColumnInfo: function findColumnInfo(tableName, columnName) {
+      var info = {};
+      var vm = this;
+      for (var i = 0; i < vm.tables.length; ++i) {
+        if (vm.tables[i].name == tableName) {
+          for (var j = 0; j < vm.tables[i].columns.length; ++j) {
+            if (vm.tables[i].columns[j].name == columnName) {
+              info.dataType = vm.tables[i].columns[j].dataType;
+              info.length = vm.tables[i].columns[j].length;
+              info.precision = vm.tables[i].columns[j].precision;
+              info.scale = vm.tables[i].columns[j].scale;
+              info.default = vm.tables[i].columns[j].default;
+              info.nullable = vm.tables[i].columns[j].nullable;
+              info.unique = vm.tables[i].columns[j].unique;
+              info.min = vm.tables[i].columns[j].min ? vm.tables[i].columns[j].min.value : null;
+              info.max = vm.tables[i].columns[j].max ? vm.tables[i].columns[j].max.value : null;
+            }
+          }
+        }
+      }
+      return info;
+    },
     submitChangeRequest: function submitChangeRequest() {
       var vm = this;
       var data = JSON.stringify({
@@ -84931,6 +85010,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         dataType: "json"
       }).then(function (response) {
         location.href = "/project/" + vm.selectedProject + "/changeRequest/" + response.data.changeRequestId;
+      }).catch(function (errors) {});
+    },
+    getDatabase: function getDatabase() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.selectedProject + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+
+        vm.tables = response.data;
+        //console.log(vm.tables);
       }).catch(function (errors) {});
     }
   },

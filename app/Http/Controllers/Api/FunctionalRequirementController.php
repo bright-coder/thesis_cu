@@ -31,13 +31,24 @@ class FunctionalRequirementController extends Controller
         $statusCode = 202;
         $frList = FunctionalRequirement::where('projectId', $project->id)->get();
         foreach ($frList as $index => $fr) {
-            $result[$index] = $fr;
-            $frInput = FunctionalRequirementInput::where([
-                ['frId', $fr->id],
-                ['activeFlag', 'Y']
+            $result[$index] = $fr->toArray();
+            unset($result[$index]['projectId']);
+            unset($result[$index]['id']);
+            $frInputList = FunctionalRequirementInput::where([
+                ['frId', $fr->id]
                 ])->get();
-            if($frInput != null) {
-                $result[$index]['inputs'] = $frInput;
+            
+            if(count($frInputList) > 0) {
+                $result[$index]['inputs'] = [];
+                foreach($frInputList as $frInput){
+                    $tempFrInput = $frInput->toArray();
+                    //dd($tempFrInput);
+                    unset($tempFrInput['id']);
+                    unset($tempFrInput['frId']);
+                    $result[$index]['inputs'][] = $tempFrInput;
+                }
+
+                
             } 
         }
         if(count($result) > 0 ) {
@@ -72,6 +83,7 @@ class FunctionalRequirementController extends Controller
         }
 
         $request = $request->json()->all();
+
         DB::beginTransaction();
         try {
             $prefix = Project::find($project->id)->prefix;

@@ -115,23 +115,25 @@ class ChangeRequestController extends Controller
 
         DB::beginTransaction();
         try {
+            $total = count(ChangeRequest::where('projectId', $project->id)->get());
             $changeRequest = new ChangeRequest;
             $changeRequest->projectId = $project->id;
             $changeRequest->status = -1;
             $changeRequest->changeFrId = $functionalRequirement->id;
+            $changeRequest->no = 'CR-'.$project->prefix.'-'.($total+1);
             $changeRequest->save();
             $changeRequestInputList = [];
             foreach ($request['inputs'] as $input) {
                 $changeRequestInput = new ChangeRequestInput;
                 $changeRequestInput->crId = $changeRequest->id;
                 $changeRequestInput->changeType = $input['changeType'];
-                if (\array_key_exists('functionalRequirementInputId', $input)) {
-                    $changeRequestInput->frInputId = $input['functionalRequirementInputId'];
-                }
+                // if (\array_key_exists('frId', $input)) {
+                //     $changeRequestInput->frInputId = $input['frId'];
+                // }
                 if ($changeRequestInput->changeType == 'add') {
                     // must change
-                    if (\array_key_exists('functionalRequirementInputId', $input)) {
-                        $changeRequestInput->frId = $input['functionalRequirementInputId'];
+                    if (\array_key_exists('frId', $input)) {
+                        //$changeRequestInput->frId = $input['frId'];
                     } else {
                         $changeRequestInput->name = $input['name'];
                         $changeRequestInput->dataType = $input['dataType'];
@@ -235,11 +237,11 @@ class ChangeRequestController extends Controller
 
         $changeAnalysis = new ChangeAnalysis($project->id, $changeRequest, $changeRequestInputList);
         $changeAnalysis->analyze();
-        $changeAnalysis->saveSchemaImpact();
-        $changeAnalysis->saveInstanceImpact();
-        $changeAnalysis->saveFrImpact();
-        $changeAnalysis->saveTcImpact();
-        $changeAnalysis->saveRtmRelationImpact();
+        // $changeAnalysis->saveSchemaImpact();
+        // $changeAnalysis->saveInstanceImpact();
+        // $changeAnalysis->saveFrImpact();
+        // $changeAnalysis->saveTcImpact();
+        // $changeAnalysis->saveRtmRelationImpact();
 
         return response()->json(['changeRequestId' => $changeAnalysis->getChangeRequest()->id], 201);
     }

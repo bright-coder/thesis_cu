@@ -38,7 +38,7 @@ class ProjectRequest extends FormRequest
                 'dbType' => 'required|in:sqlsrv',
                 'dbUsername' => 'required|between:2,100',
                 'dbPassword' => 'required|between:4,100',
-                'prefix' => 'required|between:2,10'
+                'prefix' => 'required|between:2,3'
         ];
     }
 

@@ -26,37 +26,31 @@ class RTMController extends Controller
             return response()->json(['msg' => 'Bad Request'], 400);
         }
 
-        $result = [];
-        $statusCode = 202;
+        //$result = [];
+        //$statusCode = 202;
         $rtm = RequirementTraceabilityMatrix::where('projectId', $project->id)
-            ->orderBy('frId', 'asc')->get();
+            ->orderBy('frId', 'asc')->orderBy('tcId', 'asc')->get();
         if(count($rtm) == 0) {
-            return response()->json($result, $statusCode);
+            return response()->json("Not found your RTM", 202);
         }
+        $result = [];
 
         foreach($rtm as $relation) {
-            $frId = $relation->frId;
-            $frNo = FunctionalRequirement::select('no')->where('id', $frId)->first()->no;
-            $testCaseNo = TestCase::where('id', $relation->testCaseId)->first()->no;
-            if(\array_key_exists($frNo,$result)) {
-                $result[$frNo]['testCaseNos'][] = $testCaseNo;
+            if(!isset($result[FunctionalRequirement::where('id', $relation->frId)->first()->no])) {
+                $result[FunctionalRequirement::where('id', $relation->frId)->first()->no] = [];
             }
-            else {
-                $result[$frNo] = [
-                    'functionalRequirementNo' => $frNo,
-                    'testCaseNos' => [$testCaseNo]
-                ];
-            }
+
+            $result[FunctionalRequirement::where('id', $relation->frId)->first()->no][] = 
+                TestCase::where('id', $relation->tcId)->first()->no;
+
+        }
+        $resultNewKey = [];
+        foreach($result as $frNo => $tcNoList) {
+            $resultNewKey[] =  ['frNo' => $frNo, 'tcNoList' => $tcNoList];
         }
 
-        if(count($result) > 0 ) {
-            $newKeyArray = []; // for change key from HS-FR-01 to 0 ,1 , 2
-            foreach($result as $obj) {
-                $newKeyArray[] = $obj;
-            }
-            $statusCode = 200;
-        }
-        return response()->json($newKeyArray, $statusCode);
+
+        return response()->json($resultNewKey, 200);
     }
 
     /**
@@ -83,7 +77,8 @@ class RTMController extends Controller
         if (!$project) {
             return response()->json(['msg' => 'Bad Request'], 400);
         }
-
+        $request = $request->json()->all();
+        $prefix = $project->prefix;
         foreach ($request as $relation) {
             foreach ($relation['testCaseNos'] as $testCaseNo) {
                 $rtm = new RequirementTraceabilityMatrix;
@@ -92,7 +87,7 @@ class RTMController extends Controller
                     'projectId' => $project->id,
                     'no' => "{$prefix}-FR-{$relation['functionalRequirementNo']}",
                 ])->first()->id;
-                $rtm->testCaseId = TestCase::where([
+                $rtm->tcId = TestCase::where([
                     'projectId' => $project->id,
                     'no' => "{$prefix}-TC-{$testCaseNo}",
                 ])->first()->id;

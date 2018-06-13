@@ -77,14 +77,10 @@ class AnalyzeImpactDBState implements StateInterface
                 }
 
             
-                $analyzer->analyze();
-                $analyzer->modify();
+                dd($analyzer->analyze());
+                //$analyzer->modify();
                 
-                $changeAnalysis->addDBImpactResult(
-                    $changeRequestInput->id,
-                    $analyzer->getSchemaImpactResult(),
-                    $analyzer->getInstanceImpactResult()
-                );
+                $changeAnalysis->addDBImpactResult($analyzer->analyze());
             }
             $cr->status = 1;
             $cr->save();
