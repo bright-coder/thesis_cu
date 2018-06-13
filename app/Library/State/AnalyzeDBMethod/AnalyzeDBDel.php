@@ -12,8 +12,8 @@ use App\Model\FunctionalRequirement;
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
 
-class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
-
+class AnalyzeDBDel extends AbstractAnalyzeDBMethod
+{
     private $keyConstraintImpact = [];
     
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
@@ -24,8 +24,8 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         $this->functionalRequirementInput = $this->getFRInputById($changeRequestInput->frInputId);
     }
 
-    public function analyze(): array {
-
+    public function analyze(): array
+    {
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
         $tableName = $table->getName();
@@ -36,21 +36,23 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         
         $foundOther = false;
         foreach ($functionalRequirements as $fr) {
-            if($this->functionalRequirementInput->frId != $fr->id) {
+            if ($this->functionalRequirementInput->frId != $fr->id) {
                 $frInputs = FunctionalRequirementInput::where([
                 ['frId',$fr->id],
                 ['tableName',$table->getName()],
                 ['columnName',$column->getName()],
                 ])->get();
 
-                if(count($frInputs) > 0) {
+                if (count($frInputs) > 0) {
                     $foundOther = true;
                     break;
                 }
             }
         }
 
-        if($foundOther) { return []; }
+        if ($foundOther) {
+            return [];
+        }
 
         $result = [];
         $cckDelete = [];
@@ -68,42 +70,46 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         ];
 
         $records = $this->dbTargetConnection->getInstanceByTableName(
-            $tableName, 
+            $tableName,
             array_merge(
                 $table->getPK()->getColumns(),
                 [$this->functionalRequirementInput->columnName]
             )
         );
         $oldValues = [];
-        foreach($records as $index => $record) {
+        foreach ($records as $index => $record) {
             $oldValues[] = $record[$this->functionalRequirementInput->columnName];
             unset($records[$index][$this->functionalRequirementInput->columnName]);
         }
-            $result[$tableName] = [];
-            if($table->isFK($column->getName())) {
-                foreach($this->findFKRelated($tableName, $columnName) as $fk) {
-                    $fkDelete[] = [
-                        'tableName' => $tableName,
-                        'info' => $fk
-                    ];
-                }
-                
-            }
-            if($table->isUnique($column->getName())) {
-                foreach($this->findUniqueConstraintRelated($tableName, $columnName) as $unique) {
-                    if(count($unique->getColumns()) > 1) {
-                        $cckDelete[] = [
+        $result[$tableName] = [];
+        if ($table->isFK($column->getName())) {
+            foreach ($table->getAllFK() as $fk) {
+                foreach ($fk->getColumns() as $link) {
+                    if ($link['from']['tableName'] == $tableName && $link['from']['columnName'] == $columnName) {
+                        $fkDelete[] = [
                             'tableName' => $tableName,
-                            'info' => $unique
+                            'info' => $fk
                         ];
                     }
                 }
             }
+            //dd($fkDelete);
+        }
+        if ($table->isUnique($column->getName())) {
+            foreach ($this->findUniqueConstraintRelated($tableName, $columnName) as $unique) {
+                if (count($unique->getColumns()) > 1) {
+                    $cckDelete[] = [
+                            'tableName' => $tableName,
+                            'info' => $unique
+                        ];
+                }
+            }
+        }
 
-                $result[$tableName][$columName] = [
-                    'changeType' => 'add',
-                    'old' => [],
-                    'new' => $newSchema,
+        $result[$tableName][$columnName] = [
+                    'changeType' => 'delete',
+                    'old' => $refSchema,
+                    'new' => [],
                     'isPK' => false,
                     'instance' => [
                         'pkRecords' => $records,
@@ -112,7 +118,7 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
                     ]
                 ];
 
-                $result = [
+        $result = [
                     'tableList' => $result,
                     'cckDelete' => $cckDelete,
                     'fkDelete' => $fkDelete
@@ -122,35 +128,33 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         return $result;
     }
 
-    public function modify(): bool {
+    public function modify(): bool
+    {
         //$dbTargetConnection->addColumn($changeRequestInput);
-        if(count($this->schemaImpactResult) > 0) {
+        if (count($this->schemaImpactResult) > 0) {
             $this->dbTargetConnection->disableConstraint();
-            $tableImpact = array_slice($this->schemaImpactResult,0,1);
-            $columnImpact = array_slice($tableImpact['columnList'],0,1);
+            $tableImpact = array_slice($this->schemaImpactResult, 0, 1);
+            $columnImpact = array_slice($tableImpact['columnList'], 0, 1);
             $table = $this->database->getTableByName($tableImpact['tableName']);
-            if($table->isFK($columnImpact['columnName'])) {
+            if ($table->isFK($columnImpact['columnName'])) {
                 $fkName = $table->getFKByColumnName($columnImpact['columnName']);
                 $dbTargetConnection->dropConstraint($tableImpact['tableName'], $fkName->getName());
-                
             }
             
-            $relatedUniques = $this->findUniqueConstraintRelated($tableImpact['tableName'],$columnImpact['columnName']);
+            $relatedUniques = $this->findUniqueConstraintRelated($tableImpact['tableName'], $columnImpact['columnName']);
             foreach ($relatedUniques as $unique) {
-                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'],$unique->getName());
+                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'], $unique->getName());
             }
 
-            $relatedChecks = $this->findCheckConstraintRelated($tableImpact['tableName'],$columnImpact['columnName']);
+            $relatedChecks = $this->findCheckConstraintRelated($tableImpact['tableName'], $columnImpact['columnName']);
             foreach ($relatedChecks as $check) {
-                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'],$check->getName());
+                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'], $check->getName());
             }
 
-            $this->dbTargetConnection->dropColumn($tableImpact['tableName'],$columnImpact['columnName']);
+            $this->dbTargetConnection->dropColumn($tableImpact['tableName'], $columnImpact['columnName']);
 
             $this->dbTargetConnection->enableConstraint();
-            
         }
         return true;
     }
-
 }

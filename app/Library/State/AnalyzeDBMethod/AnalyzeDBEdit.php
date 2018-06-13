@@ -89,7 +89,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         unset($newSchema['tableName']);
         unset($newSchema['columnName']);
 
-        if ($this->$this->functionalRequirementInput->tableName != $this->primaryColumnNode->getTableName() ||
+        if ($this->functionalRequirementInput->tableName != $this->primaryColumnNode->getTableName() ||
             $this->functionalRequirementInput->columnName != $this->primaryColumnNode->getColumnName()) {
             unset($newSchema['default']);
             unset($newSchema['nullable']);
@@ -98,7 +98,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
         $result[$table->getName()] = [];
         $result[$table->getName()][$column->getName()] = [
-            'changeType' => 'add',
+            'changeType' => 'edit',
             'old' => $refSchema,
             'new' => $newSchema,
             'isPK' => $table->isPK($column->getName()),
@@ -127,7 +127,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
                     if (count($instance) > 0) {
-                        $records = array_merge($this->instanceImpactResult[0], $instance);
+                        $records = array_merge($records, $instance);
                     }
                 }
                 $refSchema['length'] = $this->changeRequestInput->length;
@@ -243,7 +243,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $oldValues = [];
             if ($table->isPK($column->getName())) {
                 foreach ($records as $record) {
-                    $oldValues[] = $record;
+                    $oldValues[] = $record[$column->getName()];
                 }
             } else {
                 foreach ($records as $index => $record) {
@@ -251,7 +251,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     unset($records[$index][$column->getName()]);
                 }
             }
-
+            //dd($oldValues);
             $numRows = count(array_unique($oldValues));
             $randomData = RandomContext::getRandomData(
                 $numRows,
@@ -268,9 +268,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $newValues = [];
             $oldUniques = array_unique($oldValues);
             foreach ($oldUniques as $i => $old) {
-                foreach ($oldValues as $oldValue) {
+                $newValue = array_pop($randomData);
+                foreach ($oldValues as $j => $oldValue) {
                     if ($old == $oldValue) {
-                        $newValues[$i] = $randomData[$i];
+                        $newValues[$j] = $newValue;
                     }
                 }
             }
@@ -340,11 +341,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 }
             }
 
-            if (!$isset($result[$table->getName()])) {
+            if (!isset($result[$table->getName()])) {
                 $result[$table->getName()] = [];
             }
             $result[$table->getName()][$column->getName()] = [
-                'changeType' => 'add',
+                'changeType' => 'edit',
                 'old' => $refSchema,
                 'new' => $newSchema,
                 'isPK' => $table->isPK($column->getName()),
@@ -364,7 +365,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     
                     if ($table->isPK($column->getName())) {
                         foreach ($instance as $record) {
-                            $oldValuesSec[] = $record;
+                            $oldValuesSec[] = $record[$column->getName()];
                         }
                     } else {
                         foreach ($instance as $index => $record) {
@@ -375,13 +376,19 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
                     $newValuesSec = [];
                     foreach ($oldValuesSec as $i => $oldSec) {
-                        foreach ($result[$table->getName()][$column->getName()]['instance']['oldValues'] as $j => $oldPrime) {
+                        //dd($result[$table->getName()][$column->getName()]['instance']);
+                        foreach ($result[$this->primaryColumnNode->getTableName()][$this->primaryColumnNode->getColumnName()]['instance']['oldValues'] as $j => $oldPrime) {
                             if ($oldSec == $oldPrime) {
-                                $newValuesSec[$i] = $result[$table->getName()][$column->getName()]['instance']['newValues'][$j];
+                                $newValuesSec[$i] = $result[$this->primaryColumnNode->getTableName()][$this->primaryColumnNode->getColumnName()]['instance']['newValues'][$j];
                             }
                         }
                     }
                     ksort($newValuesSec);
+                    $result[$table->getName()][$column->getName()]['instance'] = [
+                        'pkRecords' => $instance,
+                        'oldValues' => $oldValuesSec,
+                        'newValues' => $newValuesSec
+                    ];
                 }
             }
 
@@ -424,7 +431,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $result = [];
         $result[$table->getName()] = [];
         $result[$table->getName()][$column->getName()] = [
-            'changeType' => 'add',
+            'changeType' => 'edit',
             'old' => [],
             'new' => $newSchema,
             'isPK' => false,
@@ -555,7 +562,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $oldValues = [];
             if ($table->isPK($column->getName())) {
                 foreach ($records as $record) {
-                    $oldValues[] = $record;
+                    $oldValues[] = $record[$column->getName()];
                 }
             } else {
                 foreach ($records as $index => $record) {
@@ -595,9 +602,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $newValues = [];
                 $oldUniques = array_unique($oldValues);
                 foreach ($oldUniques as $i => $old) {
-                    foreach ($oldValues as $oldValue) {
+                    $newValue = array_pop($randomData);
+                    foreach ($oldValues as $j => $oldValue) {
                         if ($old == $oldValue) {
-                            $newValues[$i] = $randomData[$i];
+                            $newValues[$j] = $newValue;
                         }
                     }
                 }

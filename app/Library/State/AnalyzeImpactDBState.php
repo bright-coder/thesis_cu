@@ -77,16 +77,37 @@ class AnalyzeImpactDBState implements StateInterface
                 }
 
             
-                dd($analyzer->analyze());
+                $result = $analyzer->analyze();
                 //$analyzer->modify();
+                if($result) {
+                    foreach($result['tableList'] as $tableName => $columnList) {
+                        foreach($columnList as $columnName => $info) {
+                            $changeAnalysis->addSchemaImpactResult($tableName, $columnName, $info['changeType'], $info['old'], $info['new'], $info['isPK']);
+                            $changeAnalysis->addInstanceResult($tableName, $columnName, $info['instance']['pkRecords'], $info['instance']['oldValues'], $info['instance']['newValues']);
+                        }
+                        foreach($result['cckDelete'] as $cck) {
+                            $changeAnalysis->addKeyConstaintImpactResult($tableName, $cck['info']->getName(), 'UNIQUE', $cck['info']->getColumns());
+                        }
+                        foreach($result['fkDelete'] as $fk) {
+                            $changeAnalysis->addKeyConstaintImpactResult($tableName, $fk['info']->getName(), 'FK', $fk['info']->getColumns());
+                        }
+                    }
+                    
+                }
+                //dd($changeAnalysis->getKeyConstraintImpactResult());
+
                 
-                $changeAnalysis->addDBImpactResult($analyzer->analyze());
+                //$changeAnalysis->addDBImpactResult($analyzer->analyze());
             }
+            dd($changeAnalysis->getSchemaImpactResult());
+            dd($changeAnalysis->getInstanceImpactResult());
+            dd($changeAnalysis->getKeyConstraintImpactResult());
+
             $cr->status = 1;
             $cr->save();
             //dd($changeAnalysis->getDBImpactResult());
-            $changeAnalysis->setState(new AnalyzeImpactFRState);
-            $changeAnalysis->analyze();
+            //$changeAnalysis->setState(new AnalyzeImpactFRState);
+            //$changeAnalysis->analyze();
         }
     }
 

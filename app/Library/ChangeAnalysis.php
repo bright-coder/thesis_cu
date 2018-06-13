@@ -63,15 +63,27 @@ class ChangeAnalysis
                 //composite foreign key
                 $this->schemaImpactResult[$tableName][$columName]['new']['unique'] = 'N';
             }
+            else {
+                $this->schemaImpactResult[$tableName][$columName] = [
+                    'changeType' => $changeType,
+                    'old' => $oldCol,
+                    'new' => $newCol,
+                    'isPK' => $isPK
+                ];
+            }
         } else {
             $this->schemaImpactResult[$tableName][$columName] = [
-            'changeType' => $changeType,
-            'old' => $oldCol,
-            'new' => $newCol,
-            'isPK' => $isPK
-        ];
+                'changeType' => $changeType,
+                'old' => $oldCol,
+                'new' => $newCol,
+                'isPK' => $isPK
+            ];
         }
     }
+
+    public function getSchemaImpactResult() { return $this->schemaImpactResult; }
+    public function getInstanceImpactResult() { return $this->instanceImpactResult; }
+    public function getKeyConstraintImpactResult() { return $this->keyConstraintImpactResult; }
 
     public function addKeyConstaintImpactResult(string $tableName, string $consName, string $consType, array $consColumns) : void {
         if (!array_key_exists($tableName, $this->keyConstraintImpactResult)) {
@@ -86,9 +98,10 @@ class ChangeAnalysis
         }
     }
 
+
     public function addInstanceResult(string $tableName, string $columName, array $pkRecords, array $oldValues = [], array $newValues = []): void
     {
-        if (!array_key_exists($tableName, $this->schemaImpactResult)) {
+        if (!array_key_exists($tableName, $this->instanceImpactResult)) {
             $this->instanceImpactResult[$tableName] = [];
         }
         // array of record
