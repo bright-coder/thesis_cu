@@ -31,8 +31,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                 });
 
                 unset($newSchema['id']);
-                unset($newSchema['changeRequestId']);
-                unset($newSchema['frInputId']);
+                unset($newSchema['crId']);
                 
                 $numRows = $this->dbTargetConnection->getNumRows($tableName);
                 $randomData  = RandomContext::getRandomData(
@@ -61,7 +60,13 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                     ]
                 ];
 
-                return result;
+                $result = [
+                    'tableList' => $result,
+                    'cckDelete' => [],
+                    'fkDelete' => []
+                ];
+
+                return $result;
         
     }
 

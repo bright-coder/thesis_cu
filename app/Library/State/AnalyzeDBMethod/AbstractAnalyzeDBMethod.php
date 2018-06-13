@@ -62,9 +62,12 @@ abstract class AbstractAnalyzeDBMethod
         return $this->schemaImpactResult;
     }
 
-    protected function findFunctionalRequirementInputById(string $id) : FunctionalRequirementInput
+    protected function getFRInput(string $frNo, string $frInputName) : FunctionalRequirementInput
     {
-        return FunctionalRequirementInput::where('id', $id)->first();
+        return FunctionalRequirementInput::where([
+            ['frNo', $frNo],
+            ['name', $frInputName]
+        ])->first();
     }
 
     protected function findUniqueConstraintRelated(string $tableName, string $columnName): array
@@ -95,6 +98,24 @@ abstract class AbstractAnalyzeDBMethod
             }
         }
         return $arrayCheckRelated;
+    }
+
+    protected function findFKRelated(string $tableName, string $columnName) : array
+    {
+        $result = [];
+        foreach ($this->database->getAllTables() as $table) {
+            foreach ($table->getAllFK() as $fk) {
+                foreach ($fk->getColumns() as $link) {
+                    if ($link['to']['tableName'] == $tableName && $link['to']['columnName'] == $columnName) {
+                        $result[] = [
+                            'tableName' => $link['from']['tableName'],
+                            'fk' => $fk
+                        ];
+                    }
+                }
+            }
+        }
+        return $result;
     }
 
     protected function addSchemaImpactResult(string $tableName, string $columnName, string $changeType, array $old, array $new) : void
@@ -134,5 +155,4 @@ abstract class AbstractAnalyzeDBMethod
     }
 
     abstract public function analyze(): array;
-    abstract public function modify(): bool;
 }

@@ -51,7 +51,8 @@ export default {
       content: [],
       filename: "Choose file .xlsx",
       isSave: 0,
-      msg: ""
+      msg: "",
+      tables: {}
     };
   },
   components: {
@@ -138,20 +139,38 @@ export default {
         var description = vm.isKeyExist(fr, 1, 1) ? fr[1][1] : undefined;
         var inputList = [];
         for (var i = 4; i < fr.length; ++i) {
-          inputList.push({
+          let input = {
             name: 0 in fr[i] ? fr[i][0] : "",
-            dataType: 1 in fr[i] ? fr[i][1] : "",
-            length: 2 in fr[i] ? fr[i][2] : "",
-            precision: 3 in fr[i] ? fr[i][3] : "",
-            scale: 4 in fr[i] ? fr[i][4] : "",
-            default: 5 in fr[i] ? fr[i][5] : "",
-            nullable: 6 in fr[i] ? fr[i][6] : "",
-            unique: 7 in fr[i] ? fr[i][7] : "",
-            min: 8 in fr[i] ? fr[i][8] : "",
-            max: 9 in fr[i] ? fr[i][9] : "",
-            columnName: 10 in fr[i] ? fr[i][10] : "",
-            tableName: 11 in fr[i] ? fr[i][11] : ""
-          });
+            dataType: '',
+            length: '',
+            precision: '',
+            scale: '',
+            default: '',
+            nullable: '',
+            unique: '',
+            min: '',
+            max: '',
+            columnName: 1 in fr[i] ? fr[i][1] : "",
+            tableName: 2 in fr[i] ? fr[i][2] : ""
+          }
+          for(let i = 0; i < tables.length; ++i) {
+            if(tables[i].name == input.tableName) {
+              for(let j = 0; j < tables[i].columns.length; ++j) {
+                if(tables[i].columns[j].name == input.columnName) {
+                  input.dataType = tables[i].columns[j].dataType
+                  input.length = tables[i].columns[j].length
+                  input.precision = tables[i].columns[j].precision
+                  input.scale = tables[i].columns[j].scale
+                  input.default = tables[i].columns[j].default
+                  input.nullable = tables[i].columns[j].nullable
+                  input.unique = tables[i].columns[j].unique
+                  input.min = tables[i].columns[j].min ? tables[i].columns[j].min.value : null
+                  input.max = tables[i].columns[j].max ? tables[i].columns[j].max.value : null
+                }
+              }
+            }
+          }
+          inputList.push(input);
         }
         vm.content.push({
           no: no,
@@ -159,6 +178,25 @@ export default {
           inputs: inputList.length > 0 ? inputList : undefined
         });
       });
+    },
+    getDatabase() {
+      let vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      })
+        .then(function(response) {
+ 
+          vm.tables = response.data;
+          console.log(vm.tables);
+        })
+        .catch(function(errors) {});
     },
     readTcFromExcel(tcList) {
       var vm = this;
@@ -297,7 +335,11 @@ export default {
   },
 
   created() {
+    if(this.contentType == 'fr') {
+      this.getDatabase();
+    }
     this.getContent();
+    
   }
 };
 </script>

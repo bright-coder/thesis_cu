@@ -68,7 +68,7 @@ class FunctionalRequirementController extends Controller
         $project = $guard->getProject($projectName);
 
         if(!$project) {
-            return response()->json(['msg' => 'Bad Request'],400);
+            return response()->json(['msg' => 'Bad request'], 400);
         }
 
         $request = $request->json()->all();
@@ -85,14 +85,6 @@ class FunctionalRequirementController extends Controller
                     $frInput = new FunctionalRequirementInput;
                     $frInput->frId = $fr->id;
                     $frInput->name = $input['name'];
-                    $frInput->dataType = $input['dataType'];
-                    $frInput->length = \array_key_exists('length', $input) ? $input['length'] : null;
-                    $frInput->precision = \array_key_exists('precision', $input) ? $input['precision'] : null;
-                    $frInput->scale = \array_key_exists('scale', $input) ? $input['scale'] : null;
-                    $frInput->nullable = $input['nullable'];
-                    $frInput->unique = $input['unique'];
-                    $frInput->min = \array_key_exists('min', $input) ? $input['min'] : null;
-                    $frInput->max = \array_key_exists('max', $input) ? $input['max'] : null;
                     $frInput->tableName = $input['tableName'];
                     $frInput->columnName = $input['columnName'];
                     $frInput->save();
@@ -101,9 +93,9 @@ class FunctionalRequirementController extends Controller
             DB::commit();
         }catch(Exception $e) {
             DB::rollBack();
-            return response()->json(['msg' => "Internal Sever Error."], 500);
+            return response()->json(['msg' => "Internal server error."], 500);
         }
-        return response()->json(['msg' => "Insert success"], 200);
+        return response()->json(['msg' => "Insert functional requirements success."], 200);
 
     }
 

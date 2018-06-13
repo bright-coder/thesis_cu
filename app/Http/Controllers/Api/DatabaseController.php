@@ -29,7 +29,7 @@ class DatabaseController extends Controller
 
         $dbCon = DBTargetConnection::getInstance('sqlsrv', $project->dbServer, $project->dbPort, $project->dbName, $project->dbUsername, $project->dbPassword);
         if (!$dbCon->Connect()) {
-            return response()->json(['msg' => 'Cannot Connect to Target Database.'], 400);
+            return response()->json(['msg' => 'Cannot connect to target database.'], 400);
         } else {
             $databaseBuilder = new DatabaseBuilder($dbCon);
             $databaseBuilder->setUpTablesAndColumns();
@@ -80,7 +80,7 @@ class DatabaseController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**

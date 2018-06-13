@@ -29,7 +29,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
      */
     private $primaryColumnNode = null;
 
-    private $keyConstraintImpact = [];
 
     public function __construct(Database $database, ChangeRequestInput $changeRequestInput, DBTargetInterface $dbTargetConnection)
     {
@@ -58,6 +57,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
         $result = [];
+        $cckDelete = [];
 
         // use Primary Column to find impacted
         // This Impact will affected many table;
@@ -89,11 +89,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         unset($newSchema['tableName']);
         unset($newSchema['columnName']);
 
-        if($this->$this->functionalRequirementInput->tableName != $this->primaryColumnNode->getTableName() ||
+        if ($this->$this->functionalRequirementInput->tableName != $this->primaryColumnNode->getTableName() ||
             $this->functionalRequirementInput->columnName != $this->primaryColumnNode->getColumnName()) {
-                unset($newSchema['default']);
-                unset($newSchema['nullable']);
-                unset($newSchema['unique']);
+            unset($newSchema['default']);
+            unset($newSchema['nullable']);
+            unset($newSchema['unique']);
         }
 
         $result[$table->getName()] = [];
@@ -210,6 +210,15 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     if (count($instance) > 0) {
                         $records = array_merge($records, $instance);
                     }
+                    $uniqueRelated = $this->findUniqueConstraintRelated($table->getName(), $column->getName());
+                    foreach ($uniqueRelated as $unique) {
+                        if (count($unique->getColumns()) > 1) {
+                            $cckDelete[] = [
+                                'tableName' => $table->getName(),
+                                'info' => $unique
+                            ];
+                        }
+                    }
                 }
                 $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0;
             }
@@ -232,13 +241,12 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             );
 
             $oldValues = [];
-            if($table->isPK($column->getName())) {
-                foreach($records as $record ) {
+            if ($table->isPK($column->getName())) {
+                foreach ($records as $record) {
                     $oldValues[] = $record;
                 }
-            }
-            else {
-                foreach($records as $index => $record ) {
+            } else {
+                foreach ($records as $index => $record) {
                     $oldValues[] = $record[$column->getName()];
                     unset($records[$index][$column->getName()]);
                 }
@@ -259,9 +267,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             );
             $newValues = [];
             $oldUniques = array_unique($oldValues);
-            foreach($oldUniques as $i => $old) {
-                foreach($oldValues as $oldValue) {
-                    if($old == $oldValue) {
+            foreach ($oldUniques as $i => $old) {
+                foreach ($oldValues as $oldValue) {
+                    if ($old == $oldValue) {
                         $newValues[$i] = $randomData[$i];
                     }
                 }
@@ -273,12 +281,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'newValues' => $newValues,
                 'oldValues' => $oldValues
             ];
-
         }
 
         $q = $this->primaryColumnNode->getLinks();
 
-        while($q) {
+        while ($q) {
             $node = array_shift($q);
             $table = $this->database->getTableByName($node->getTableName());
             $column = $table->getColumnByName($node->getColumnName());
@@ -301,12 +308,15 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
 
             if ($node->getTableName() == $this->functionalRequirementInput->tableName &&
                 $node->getColumnName() == $this->functionalRequirementInput->columnName) {
-                if ($this->changeRequestInput->default != null) {
-                    if ($this->changeRequestInput->default == '#NULL') {
-                        $newSchema['default'] = null;
-                    } else {
-                        $newSchema['default'] = $this->changeRequestInput->default;
-                    }
+                // if ($this->changeRequestInput->default != null) {
+                //     if ($this->changeRequestInput->default == '#NULL') {
+                //         $newSchema['default'] = null;
+                //     } else {
+                //         $newSchema['default'] = $this->changeRequestInput->default;
+                //     }
+                // }
+                if ($refSchema['default'] != null) {
+                    $newSchema['default'] = null;
                 }
         
                 if ($this->changeRequestInput->nullable != null) {
@@ -315,10 +325,24 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     
                 if ($this->changeRequestInput->unqiue != null) {
                     $newSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0;
+
+                    if (! $newSchema['unique']) {
+                        $uniqueRelated = $this->findUniqueConstraintRelated($node->getTableName(), $node->getColumnName());
+                        foreach ($uniqueRelated as $unique) {
+                            if (count($unique->getColumns()) > 1) {
+                                $cckDelete[] = [
+                                    'tableName' => $node->getTableName(),
+                                    'info' => $unique
+                                ];
+                            }
+                        }
+                    }
                 }
             }
 
-            if(!$isset($result[$table->getName()])) { $result[$table->getName()] = []; }
+            if (!$isset($result[$table->getName()])) {
+                $result[$table->getName()] = [];
+            }
             $result[$table->getName()][$column->getName()] = [
                 'changeType' => 'add',
                 'old' => $refSchema,
@@ -328,48 +352,51 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             ];
 
             //$primeInstance = $result[$this->primaryColumnNode->getTableName()][$this->primaryColumnNode->getColumnName()]['instance'];
-            if (count($records) > 0){
+            if (count($records) > 0) {
                 $columnList = array_unique(array_merge(
                     $table->getPK()->getColumns(),
                     [$column->getName()]
                 ));
                 $WHERE_CAUSE = $column->getName()." IN (".implode(",", $oldValues).")";
                 $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, $WHERE_CAUSE);
-                if(count($instance) > 0) {
+                if (count($instance) > 0) {
                     $oldValuesSec = [];
                     
-                    
-                    if($table->isPK($column->getName())) {
-                        foreach($instance as $record ) {
+                    if ($table->isPK($column->getName())) {
+                        foreach ($instance as $record) {
                             $oldValuesSec[] = $record;
                         }
-                    }
-                    else {
-                        foreach($instance as $index => $record ) {
+                    } else {
+                        foreach ($instance as $index => $record) {
                             $oldValuesSec[] = $record[$column->getName()];
                             unset($instance[$index][$column->getName()]);
                         }
                     }
 
                     $newValuesSec = [];
-                    foreach($oldValuesSec as $i => $oldSec) {
-                        foreach($result[$table->getName()][$column->getName()]['instance']['oldValues'] as $j => $oldPrime) {
-                            if($oldSec == $oldPrime) {
+                    foreach ($oldValuesSec as $i => $oldSec) {
+                        foreach ($result[$table->getName()][$column->getName()]['instance']['oldValues'] as $j => $oldPrime) {
+                            if ($oldSec == $oldPrime) {
                                 $newValuesSec[$i] = $result[$table->getName()][$column->getName()]['instance']['newValues'][$j];
-                            } 
+                            }
                         }
                     }
                     ksort($newValuesSec);
                 }
             }
 
-            if($node->getLinks()) {
+            if ($node->getLinks()) {
                 $q = array_merge($q, $node->getLinks());
             }
-    
         }
-
-        
+        if($result) {
+            $result = [
+                'tableList' => $result,
+                'cckDelete' => $cckDelete,
+                'fkDelete' => []
+            ];
+        }
+        return $result;
     }
 
     private function findImpactNormalColumn(): array
@@ -377,8 +404,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
  
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
-        //dd($this->functionalRequirementInput->columnName);
-        //set refSchema to oldSchema
+
+        $cckDelete = [];
         $refSchema = [
             'dataType' => $column->getDataType()->getType(),
             'length' => $column->getDataType()->getLength(),
@@ -394,7 +421,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
             return $val !== null;
         });
-
+        $result = [];
         $result[$table->getName()] = [];
         $result[$table->getName()][$column->getNam()] = [
             'changeType' => 'add',
@@ -411,7 +438,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $table->getPK()->getColumns(),
             [$column->getName()]
         ));
-
+        $compositeCandidateKeyImpact = [];
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
                 $records = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList);
@@ -481,7 +508,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $refSchema['scale'] = $this->changeRequestInput->scale;
                 }
             }
-        } 
+        }
 
         if ($this->changeRequestInput->default != null) {
             if ($this->changeRequestInput->default == '#NULL') {
@@ -508,6 +535,15 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if (count($instance) > 0) {
                     $records = array_merge($records, $instance);
                 }
+                $uniqueRelated = $this->findUniqueConstraintRelated($table->getName(), $column->getName());
+                foreach ($uniqueRelated as $unique) {
+                    if (count($unique->getColumns()) > 1) {
+                        $cckDelete[] = [
+                            'tableName' => $table->getName(),
+                            'info' => $unique
+                        ];
+                    }
+                }
             }
             
             $refSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0 ;
@@ -517,19 +553,18 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $records = array_unique($records, SORT_REGULAR);
 
             $oldValues = [];
-            if($table->isPK($column->getName())) {
-                foreach($records as $record ) {
+            if ($table->isPK($column->getName())) {
+                foreach ($records as $record) {
                     $oldValues[] = $record;
                 }
-            }
-            else {
-                foreach($records as $index => $record ) {
+            } else {
+                foreach ($records as $index => $record) {
                     $oldValues[] = $record[$column->getName()];
                     unset($records[$index][$column->getName()]);
                 }
             }
 
-            if($refSchema['unique']) {
+            if ($refSchema['unique']) {
                 $numRows = count($records);
                 $newValues = RandomContext::getRandomData(
                 $numRows,
@@ -543,8 +578,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 ],
                 true
                 );
-            }
-            else {
+            } else {
                 $numRows = count(array_unique($oldValues));
                 $randomData = RandomContext::getRandomData(
                     $numRows,
@@ -560,9 +594,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 );
                 $newValues = [];
                 $oldUniques = array_unique($oldValues);
-                foreach($oldUniques as $i => $old) {
-                    foreach($oldValues as $oldValue) {
-                        if($old == $oldValue) {
+                foreach ($oldUniques as $i => $old) {
+                    foreach ($oldValues as $oldValue) {
+                        if ($old == $oldValue) {
                             $newValues[$i] = $randomData[$i];
                         }
                     }
@@ -576,9 +610,17 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'newValues' => $newValues,
                 'oldValues' => $oldValues
             ];
-
-        } 
-
+        }
+        if($result) {
+            $result = [
+                'tableList' => $result,
+                'cckDelete' => $cckDelete,
+                'fkDelete' => []
+            ];
+        }
+        
+        
+        return $result;
     }
 
 
@@ -654,10 +696,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
             if (count($uniqueConstraintList) > 0) {
                 foreach ($uniqueConstraintList as $uniqueConstraint) {
-                    if(count($uniqueConstraint->getColumns()) > 1) {
-                        foreach($uniqueConstraint->getColumns() as $column) {
-                            if($column != $scResult['columnName']) {
-                                
+                    if (count($uniqueConstraint->getColumns()) > 1) {
+                        foreach ($uniqueConstraint->getColumns() as $column) {
+                            if ($column != $scResult['columnName']) {
                             }
                         }
                     }
@@ -701,7 +742,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
 
             if (DataType::isNumericType($dataTypeRef)) {
-
                 $min = $scResult['oldSchema']['min'];
                 if (array_key_exists('min', $scResult['newSchema'])) {
                     $min = $scResult['newSchema']['min'] == '#NULL' ? null : $scResult['newSchema']['min'];
@@ -711,10 +751,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if (array_key_exists('max', $scResult['newSchema'])) {
                     $max = $scResult['newSchema']['max'] == '#NULL' ? null : $scResult['newSchema']['max'];
                 }
-                if($min != null && $max != null) {
+                if ($min != null && $max != null) {
                     $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['columnName'], $min, $max);
                 }
-                
             } else {
                 if (\array_key_exists('dataType', $scResult['newSchema'])) {
                     if (! DataType::isNumericType($scResult['newSchema']['dataType'])) {
@@ -816,21 +855,4 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return $hashFKs;
     }
 
-    private function findFKRelated(string $tableName, string $columnName) : array
-    {
-        $result = [];
-        foreach ($this->database->getAllTables() as $table) {
-            foreach ($table->getAllFK() as $fk) {
-                foreach ($fk->getColumns() as $link) {
-                    if ($link['to']['tableName'] == $tableName && $link['to']['columnName'] == $columnName) {
-                        $result[] = [
-                            'tableName' => $link['from']['tableName'],
-                            'fk' => $fk
-                        ];
-                    }
-                }
-            }
-        }
-        return $result;
-    }
 }

@@ -28,10 +28,12 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
 
         $table = $this->database->getTableByName($this->functionalRequirementInput->tableName);
         $column = $table->getColumnByName($this->functionalRequirementInput->columnName);
+        $tableName = $table->getName();
+        $columnName = $column->getName();
 
         $changeRequest = ChangeRequest::select('projectId')->where('id', $this->changeRequestInput->crId)->first();
         $functionalRequirements = FunctionalRequirement::select('id')->where('projectId', $changeRequest->projectId)->get();
-
+        
         $foundOther = false;
         foreach ($functionalRequirements as $fr) {
             if($this->functionalRequirementInput->frId != $fr->id) {
@@ -51,7 +53,8 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
         if($foundOther) { return []; }
 
         $result = [];
-
+        $cckDelete = [];
+        $fkDelete = [];
         $refSchema = [
             'dataType' => $column->getDataType()->getType(),
             'length' => $column->getDataType()->getLength(),
@@ -76,37 +79,27 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
             $oldValues[] = $record[$this->functionalRequirementInput->columnName];
             unset($records[$index][$this->functionalRequirementInput->columnName]);
         }
-            $result[$tableName] = [
-                'keyConstraintList' => [],
-                'columnList' => []
-            ];
+            $result[$tableName] = [];
             if($table->isFK($column->getName())) {
-                $fk = $table->getFKByColumnName($column->getName());
-                $fkColumns = [];
-                foreach($fk->getColumns() as $link) {
-                    $fkColumns[] = $link['from']['columnName'];
+                foreach($this->findFKRelated($tableName, $columnName) as $fk) {
+                    $fkDelete[] = [
+                        'tableName' => $tableName,
+                        'info' => $fk
+                    ];
                 }
-
-                $result[$tableName]['keyConstraintList'][$fk->getName()] = [
-                    'type' => 'FK',
-                    'columns' => $fkColumns 
-                ];
+                
             }
             if($table->isUnique($column->getName())) {
-                $uniques = $table->getAllUniqueConstraint();
-                foreach($uniques as $unique) {
-                    $uniqueColumn = [];
-                   if(array_search($column->getName(), $unique->getColumns()) !== FALSE && count($unique->getColumns()) > 1 ) {
-                        foreach($unique->getColumns() as $uniqueCol) {
-                            $uniqueColumn[] = $uniqueCol;
-                        }
-                        $result[$tableName]['keyConstraintList'][$unique->getName()] = [
-                            'type' => 'UNIQUE',
-                            'columns' => $uniqueColumn 
+                foreach($this->findUniqueConstraintRelated($tableName, $columnName) as $unique) {
+                    if(count($unique->getColumns()) > 1) {
+                        $cckDelete[] = [
+                            'tableName' => $tableName,
+                            'info' => $unique
                         ];
-                   }
+                    }
                 }
             }
+
                 $result[$tableName][$columName] = [
                     'changeType' => 'add',
                     'old' => [],
@@ -118,6 +111,13 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod {
                         'newValues' => []
                     ]
                 ];
+
+                $result = [
+                    'tableList' => $result,
+                    'cckDelete' => $cckDelete,
+                    'fkDelete' => $fkDelete
+                ];
+                
         
         return $result;
     }

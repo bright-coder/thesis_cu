@@ -59,7 +59,7 @@ class AnalyzeImpactDBState implements StateInterface
             }
             
             foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
-                $this->getDbSchema();
+
                 switch ($changeRequestInput->changeType) {
                     case 'add':
                         $analyzer = new AnalyzeDBAdd($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
