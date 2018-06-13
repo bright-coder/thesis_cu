@@ -62,12 +62,9 @@ abstract class AbstractAnalyzeDBMethod
         return $this->schemaImpactResult;
     }
 
-    protected function getFRInput(string $frNo, string $frInputName) : FunctionalRequirementInput
+    protected function getFRInputById(string $frId) : FunctionalRequirementInput
     {
-        return FunctionalRequirementInput::where([
-            ['frNo', $frNo],
-            ['name', $frInputName]
-        ])->first();
+        return FunctionalRequirementInput::where('id',$frId)->first();
     }
 
     protected function findUniqueConstraintRelated(string $tableName, string $columnName): array

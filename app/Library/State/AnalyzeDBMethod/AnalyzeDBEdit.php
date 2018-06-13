@@ -36,20 +36,20 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $this->changeRequestInput = $changeRequestInput;
         $this->dbTargetConnection = $dbTargetConnection;
         //$this->functionalRequirement = $this->findFunctionalRequirementById($frId);
-        $this->functionalRequirementInput = $this->findFunctionalRequirementInputById($changeRequestInput->frInputId);
+        $this->functionalRequirementInput = $this->getFRInputById($changeRequestInput->frInputId);
     }
 
     public function analyze() : array
     {
         $this->schemaImpact = true;
-        
+
 
         if ($this->database->isLinked($this->functionalRequirementInput->tableName, $this->functionalRequirementInput->columnName)) {
-            $this->findImpactLinkedColumn();
+            return $this->findImpactLinkedColumn();
         } else {
-            $this->findImpactNormalColumn();
+            return $this->findImpactNormalColumn();
         }
-        return false;
+        //return false;
     }
 
     private function findImpactLinkedColumn(): array
@@ -423,7 +423,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         });
         $result = [];
         $result[$table->getName()] = [];
-        $result[$table->getName()][$column->getNam()] = [
+        $result[$table->getName()][$column->getName()] = [
             'changeType' => 'add',
             'old' => [],
             'new' => $newSchema,
@@ -605,7 +605,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
         
 
-            $result[$table->getName()][$column->getNam()]['instance'] = [
+            $result[$table->getName()][$column->getName()]['instance'] = [
                 'pkRecord' => $records,
                 'newValues' => $newValues,
                 'oldValues' => $oldValues
