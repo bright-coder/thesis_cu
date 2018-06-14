@@ -18,6 +18,6 @@ class AbstractModifyDBMethod {
      */
     protected $dbTargetConnection = null;
 
-    
+    abstract public function modify($): array;
 
 }

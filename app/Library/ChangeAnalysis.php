@@ -99,7 +99,7 @@ class ChangeAnalysis
     }
 
 
-    public function addInstanceResult(string $tableName, string $columName, array $pkRecords, array $oldValues = [], array $newValues = []): void
+    public function addInstanceResult(string $tableName, string $columName, array $pkRecords, string $changeType, array $oldValues = [], array $newValues = []): void
     {
         if (!array_key_exists($tableName, $this->instanceImpactResult)) {
             $this->instanceImpactResult[$tableName] = [];
@@ -112,7 +112,8 @@ class ChangeAnalysis
                     'columnList' => [
                         $columName => [
                             'oldValue' => $oldValues ? $oldValues[$index] : [],
-                            'newValue' => $newValues ? $newValues[$index] : []
+                            'newValue' => $newValues ? $newValues[$index] : [],
+                            'changeType' => $changeType
                         ]
                     ]
                 ];
@@ -124,7 +125,8 @@ class ChangeAnalysis
                     if ($pkRecord == $instance['pkRecord']) {
                         $this->instanceImpactResult[$tableName][$indexInstance]['columnList'][$columName] = [
                             'oldValue' => $oldValues ? $oldValues[$index] : [],
-                            'newValue' => $newValues ? $newValues[$index] : []
+                            'newValue' => $newValues ? $newValues[$index] : [],
+                            'changeType' => $changeType
                         ];
                         $memo[$index] = true;
                     }
@@ -138,7 +140,8 @@ class ChangeAnalysis
                             'columnList' => [
                                 $columName => [
                                     'oldValue' => $oldValues ? $oldValues[$index] : [],
-                                    'newValue' => $newValues ? $newValues[$index] : []
+                                    'newValue' => $newValues ? $newValues[$index] : [],
+                                    'changeType' => $changeType
                                 ]
                             ]
                         ];

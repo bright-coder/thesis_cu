@@ -210,7 +210,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     if (count($instance) > 0) {
                         $records = array_merge($records, $instance);
                     }
-                    $uniqueRelated = $this->findUniqueConstraintRelated($table->getName(), $column->getName());
+                    $uniqueRelated = $this->database->findUniqueConstraintRelated($table->getName(), $column->getName());
                     foreach ($uniqueRelated as $unique) {
                         if (count($unique->getColumns()) > 1) {
                             $cckDelete[] = [
@@ -299,7 +299,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'nullable' => $column->isNullable(),
                 'unique' => $table->isUnique($column->getName()),
                 'min' => $table->getMin($column->getName())['value'],
-                'max' => $table->getMax($column->getName())['value']
+                'max' => $table->getMax($column->getName())['value'],
+                'tableName' => $table->getName(),
+                'columnName' => $column->getName()
             ];
 
             $newSchema = $result[$this->primaryColumnNode->getTableName()][$this->primaryColumnNode->getColumnName()]['new'];
@@ -328,7 +330,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $newSchema['unique'] = \strcasecmp($this->changeRequestInput->unique, 'Y') == 0;
 
                     if (! $newSchema['unique']) {
-                        $uniqueRelated = $this->findUniqueConstraintRelated($node->getTableName(), $node->getColumnName());
+                        $uniqueRelated = $this->database->findUniqueConstraintRelated($node->getTableName(), $node->getColumnName());
                         foreach ($uniqueRelated as $unique) {
                             if (count($unique->getColumns()) > 1) {
                                 $cckDelete[] = [
@@ -422,7 +424,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             'nullable' => $column->isNullable(),
             'unique' => $table->isUnique($column->getName()),
             'min' => $table->getMin($column->getName())['value'],
-            'max' => $table->getMax($column->getName())['value']
+            'max' => $table->getMax($column->getName())['value'],
+            'tableName' => $table->getName(),
+            'columnName' => $column->getName()
         ];
 
         $newSchema = array_filter($this->changeRequestInput->toArray(), function ($val) {
@@ -432,7 +436,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $result[$table->getName()] = [];
         $result[$table->getName()][$column->getName()] = [
             'changeType' => 'edit',
-            'old' => [],
+            'old' => $refSchema,
             'new' => $newSchema,
             'isPK' => false,
             'instance' => []
@@ -542,7 +546,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 if (count($instance) > 0) {
                     $records = array_merge($records, $instance);
                 }
-                $uniqueRelated = $this->findUniqueConstraintRelated($table->getName(), $column->getName());
+                $uniqueRelated = $this->database->findUniqueConstraintRelated($table->getName(), $column->getName());
                 foreach ($uniqueRelated as $unique) {
                     if (count($unique->getColumns()) > 1) {
                         $cckDelete[] = [
@@ -614,7 +618,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         
 
             $result[$table->getName()][$column->getName()]['instance'] = [
-                'pkRecord' => $records,
+                'pkRecords' => $records,
                 'newValues' => $newValues,
                 'oldValues' => $oldValues
             ];
@@ -629,167 +633,6 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         
         
         return $result;
-    }
-
-
-    public function modify(): bool
-    {
-        
-        //$dbTargetConnection->addColumn($changeRequestInput);
-        $pkFkTrace = [];
-        foreach ($this->schemaImpactResult as $index => $scResult) {
-            $this->dbTargetConnection->disableConstraint();
-            $columnDetail = [
-                'length' => \array_key_exists('length', $scResult['newSchema']) ?
-                $scResult['newSchema']['length'] : $scResult['oldSchema']['length'],
-            'precision' => \array_key_exists('precision', $scResult['newSchema']) ?
-                $columnDetail['newSchema']['precision'] : $scResult['oldSchema']['precision'],
-            'scale' => \array_key_exists('scale', $scResult['newSchema']) ?
-                $scResult['newSchema']['scale'] : $scResult['oldSchema']['scale'],
-                'dataType' => \array_key_exists('dataType', $scResult['newSchema']) ?
-                $scResult['newSchema']['dataType'] : $scResult['oldSchema']['dataType'],
-                'nullable' => \array_key_exists('nullable', $scResult['newSchema']) ?
-                $scResult['newSchema']['nullable'] : $scResult['oldSchema']['nullable'],
-                'tableName' => $scResult['tableName'],
-                'columnName' => $scResult['columnName']."_#temp",
-                'default' => \array_key_exists('default', $scResult['newSchema']) ? $scResult['newSchema']['default'] : $scResult['oldSchema']['default']
-            ];
-            //dd($columnDetail);
-            //dd($columnDetail);
-            //$default = \array_key_exists('default', $scResult['newSchema']) ? $scResult['newSchema']['default'] : $scResult['oldSchema']['default'];
-            
-            $this->dbTargetConnection->addColumn($columnDetail);
-            
-
-            $default = $scResult['oldSchema']['default'] == '(NULL)' ? null : $scResult['oldSchema']['default'] ;
-            
-            if (\array_key_exists('default', $scResult['newSchema'])) {
-                $default = $scResult['newSchema']['default'];
-                if ($default == '#NULL') {
-                    $default = null;
-                }
-            }
-
-            $nullable = $scResult['oldSchema']['nullable'];
-            if (\array_key_exists('nullable', $scResult['newSchema'])) {
-                $nullable = $scResult['newSchema']['nullable'];
-            }
-
-            if ($default === null && $nullable === false) {
-                $default = '';
-            }
-            
-
-            if ($this->instanceImpactResult[$index] != null) {
-                $this->dbTargetConnection->updateInstance(
-                    $scResult['tableName'],
-                    $scResult['columnName']."_#temp",
-                    $this->instanceImpactResult[$index]['oldInstance'],
-                    $this->instanceImpactResult[$index]['newInstance'],
-                    $scResult['columnName']
-                );
-            } else {
-                $oldValues = [];
-                foreach ($this->dbTargetConnection->getInstanceByTableName($scResult['tableName']) as $oldRecord) {
-                    $oldValues[] = $oldRecord[$scResult['columnName']];
-                }
-                $this->dbTargetConnection->updateInstance(
-                    $scResult['tableName'],
-                    $scResult['columnName']."_#temp",
-                    $this->dbTargetConnection->getInstanceByTableName($scResult['tableName']),
-                    $oldValues,
-                    $scResult['columnName']
-                );
-            }
-            $uniqueConstraintList = $this->findUniqueConstraintRelated($scResult['tableName'], $scResult['columnName']);
-            if (count($uniqueConstraintList) > 0) {
-                foreach ($uniqueConstraintList as $uniqueConstraint) {
-                    if (count($uniqueConstraint->getColumns()) > 1) {
-                        foreach ($uniqueConstraint->getColumns() as $column) {
-                            if ($column != $scResult['columnName']) {
-                            }
-                        }
-                    }
-                    $this->dbTargetConnection->dropConstraint($scResult['tableName'], $uniqueConstraint->getName());
-                }
-            }
-            $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
-            if (count($checkConstraintList) > 0) {
-                foreach ($checkConstraintList as $checkConstraint) {
-                    $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
-                }
-            }
-            if ($this->database->getTableByName($scResult['tableName'])->isPK($scResult['columnName'])) {
-                $fkRelatedList = $this->findFKRelated($scResult['tableName'], $scResult['columnName']);
-                foreach ($fkRelatedList as $fkRelated) {
-                    $this->dbTargetConnection->dropConstraint($fkRelated['tableName'], $fkRelated['fk']->getName());
-                }
-                $this->dbTargetConnection->dropConstraint($scResult['tableName'], $this->database->getTableByName($scResult['tableName'])->getPK()->getName());
-                $pkFkTrace[] = [
-                    'pk' => [
-                        'tableName' => $scResult['tableName'],
-                        'name' => $this->database->getTableByName($scResult['tableName'])->getPK()->getName(),
-                        'columns' => $this->database->getTableByName($scResult['tableName'])->getPK()->getColumns()
-                    ],
-                    'fks' => $fkRelatedList
-                ];
-            }
-            $this->dbTargetConnection->dropColumn($scResult['tableName'], $scResult['columnName']);
-            $this->dbTargetConnection->updateColumn($columnDetail);
-            $this->dbTargetConnection->updateColumnName($scResult['tableName'], $scResult['columnName']."_#temp", $scResult['columnName']);
-
-            if (\array_key_exists('unique', $scResult['newSchema'])) {
-                if (strcmp($scResult['newSchema']['unique'], 'Y') == 0) { //&& $scResult['oldSchema']['unique'] === false
-                    $this->dbTargetConnection->addUniqueConstraint($scResult['tableName'], $scResult['columnName']);
-                }
-            }
-
-            $dataTypeRef = $scResult['oldSchema']['dataType'];
-            if (\array_key_exists('dataType', $scResult['newSchema'])) {
-                $dataTypeRef = $scResult['newSchema']['dataType'];
-            }
-
-            if (DataType::isNumericType($dataTypeRef)) {
-                $min = $scResult['oldSchema']['min'];
-                if (array_key_exists('min', $scResult['newSchema'])) {
-                    $min = $scResult['newSchema']['min'] == '#NULL' ? null : $scResult['newSchema']['min'];
-                }
-
-                $max = $scResult['oldSchema']['max'];
-                if (array_key_exists('max', $scResult['newSchema'])) {
-                    $max = $scResult['newSchema']['max'] == '#NULL' ? null : $scResult['newSchema']['max'];
-                }
-                if ($min != null && $max != null) {
-                    $this->dbTargetConnection->addCheckConstraint($scResult['tableName'], $scResult['columnName'], $min, $max);
-                }
-            } else {
-                if (\array_key_exists('dataType', $scResult['newSchema'])) {
-                    if (! DataType::isNumericType($scResult['newSchema']['dataType'])) {
-                        $checkConstraintList = $this->findCheckConstraintRelated($scResult['tableName'], $scResult['columnName']);
-                        if (count($checkConstraintList) > 0) {
-                            foreach ($checkConstraintList as $checkConstraint) {
-                                $this->dbTargetConnection->dropConstraint($scResult['tableName'], $checkConstraint->getName());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        foreach ($pkFkTrace as $trace) {
-            $this->dbTargetConnection->addPrimaryKeyConstraint(
-                    $trace['pk']['tableName'],
-                $trace['pk']['columns'],
-                $trace['pk']['name']
-                );
-            foreach ($trace['fks'] as $fkRelated) {
-                $this->dbTargetConnection->addForeignKeyConstraint($fkRelated['tableName'], $fkRelated['fk']->getColumns(), $fkRelated['fk']->getName());
-            }
-        }
-
-        $this->dbTargetConnection->enableConstraint();
-
-        return true;
     }
 
     private function findInstanceImpactByDataType(string $changeDataType, string $dbColumnDataType): bool

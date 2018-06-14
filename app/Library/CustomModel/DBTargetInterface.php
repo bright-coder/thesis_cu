@@ -20,21 +20,9 @@ interface DBTargetInterface
     public function getFkConstraints(string $tableName): array;
     public function getCheckConstraints(string $tableName): array;
     public function getUniqueConstraints(string $tableName): array;
-    public function dropConstraint(string $tableName, string $constraint) : bool;
-    public function dropColumn(string $tableName, string $columnName): bool;
-    public function addColumn(array $columnDetail): bool;
-    public function updateColumn(array $columnDetail): bool;
-    public function updateInstance(string $tableName, string $newColumnName, array $refValues, array $newData, $default): bool;
-    public function updateColumnName(string $tableName, string $oldColumnName, string $newColumnName) : bool;
-    public function addUniqueConstraint(string $tableName, string $columnName) : bool;
-    public function addPrimaryKeyConstraint(string $tableName, array $columnName, string $constraintName) : bool;
-    public function addForeignKeyConstraint(string $tableName, array $links, string $constraintName) : bool;
-    public function addCheckConstraint(string $tableName, string $columnName, $min, $max) : bool;
-    public function setNullable(string $tableName, string $columnName, array $columnDetail): bool;
     public function getInstanceByTableName(string $tableName, array $columnList = [], string $condition = ''): array;
     public function getDuplicateInstance(string $tableName, array $checkColumns, array $pkColumns): array;
     public function getNumRows(string $tableName): int;
-    public function disableConstraint(string $tableName): bool;
-    public function enableConstraint(string $tableName): bool;
+    public function updateDatabase(array $scImpacts, array $insImpacts, array $keyImpacts, Database $dbTarget): bool;
 
 }

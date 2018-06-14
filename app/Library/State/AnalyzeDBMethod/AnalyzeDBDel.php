@@ -96,7 +96,7 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod
             //dd($fkDelete);
         }
         if ($table->isUnique($column->getName())) {
-            foreach ($this->findUniqueConstraintRelated($tableName, $columnName) as $unique) {
+            foreach ($this->database->findUniqueConstraintRelated($tableName, $columnName) as $unique) {
                 if (count($unique->getColumns()) > 1) {
                     $cckDelete[] = [
                             'tableName' => $tableName,
@@ -128,33 +128,4 @@ class AnalyzeDBDel extends AbstractAnalyzeDBMethod
         return $result;
     }
 
-    public function modify(): bool
-    {
-        //$dbTargetConnection->addColumn($changeRequestInput);
-        if (count($this->schemaImpactResult) > 0) {
-            $this->dbTargetConnection->disableConstraint();
-            $tableImpact = array_slice($this->schemaImpactResult, 0, 1);
-            $columnImpact = array_slice($tableImpact['columnList'], 0, 1);
-            $table = $this->database->getTableByName($tableImpact['tableName']);
-            if ($table->isFK($columnImpact['columnName'])) {
-                $fkName = $table->getFKByColumnName($columnImpact['columnName']);
-                $dbTargetConnection->dropConstraint($tableImpact['tableName'], $fkName->getName());
-            }
-            
-            $relatedUniques = $this->findUniqueConstraintRelated($tableImpact['tableName'], $columnImpact['columnName']);
-            foreach ($relatedUniques as $unique) {
-                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'], $unique->getName());
-            }
-
-            $relatedChecks = $this->findCheckConstraintRelated($tableImpact['tableName'], $columnImpact['columnName']);
-            foreach ($relatedChecks as $check) {
-                $this->dbTargetConnection->dropConstraint($tableImpact['tableName'], $check->getName());
-            }
-
-            $this->dbTargetConnection->dropColumn($tableImpact['tableName'], $columnImpact['columnName']);
-
-            $this->dbTargetConnection->enableConstraint();
-        }
-        return true;
-    }
 }

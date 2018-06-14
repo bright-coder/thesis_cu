@@ -47,7 +47,6 @@ class AnalyzeImpactDBState implements StateInterface
 
     public function analyze(ChangeAnalysis $changeAnalysis) : void
     {
-        
         $cr = $changeAnalysis->getChangeRequest();
         $projectId = $changeAnalysis->getProjectId();
         if ($this->connectTargetDB($projectId)) {
@@ -59,7 +58,6 @@ class AnalyzeImpactDBState implements StateInterface
             }
             
             foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
-
                 switch ($changeRequestInput->changeType) {
                     case 'add':
                         $analyzer = new AnalyzeDBAdd($this->dbTarget, $changeRequestInput, $this->dbTargetConnection);
@@ -79,33 +77,54 @@ class AnalyzeImpactDBState implements StateInterface
             
                 $result = $analyzer->analyze();
                 //$analyzer->modify();
-                if($result) {
-                    foreach($result['tableList'] as $tableName => $columnList) {
-                        foreach($columnList as $columnName => $info) {
+                if ($result) {
+                    
+                    foreach ($result['tableList'] as $tableName => $columnList) {
+                        foreach ($columnList as $columnName => $info) {
+                            
                             $changeAnalysis->addSchemaImpactResult($tableName, $columnName, $info['changeType'], $info['old'], $info['new'], $info['isPK']);
-                            $changeAnalysis->addInstanceResult($tableName, $columnName, $info['instance']['pkRecords'], $info['instance']['oldValues'], $info['instance']['newValues']);
+                            if($info['instance']) {
+                                $changeAnalysis->addInstanceResult($tableName, $columnName, 
+                                    $info['instance']['pkRecords'], 
+                                    $info['changeType'], 
+                                    $info['instance']['oldValues'], 
+                                    $info['instance']['newValues']
+                                );
+                            }
                         }
-                        foreach($result['cckDelete'] as $cck) {
+                        foreach ($result['cckDelete'] as $cck) {
                             $changeAnalysis->addKeyConstaintImpactResult($tableName, $cck['info']->getName(), 'UNIQUE', $cck['info']->getColumns());
                         }
-                        foreach($result['fkDelete'] as $fk) {
+                        foreach ($result['fkDelete'] as $fk) {
                             $changeAnalysis->addKeyConstaintImpactResult($tableName, $fk['info']->getName(), 'FK', $fk['info']->getColumns());
                         }
                     }
-                    
                 }
             }
-            dd($changeAnalysis->getSchemaImpactResult());
+            $this->dbTargetConnection->updateDatabase(
+                $changeAnalysis->getSchemaImpactResult(),
+                $changeAnalysis->getInstanceImpactResult(),
+                $changeAnalysis->getKeyConstraintImpactResult(),
+                $this->dbTarget
+            );
+        
+            //dd($changeAnalysis->getSchemaImpactResult());
             //dd($changeAnalysis->getInstanceImpactResult());
             //dd($changeAnalysis->getKeyConstraintImpactResult());
 
             $cr->status = 1;
             $cr->save();
-            //dd($changeAnalysis->getDBImpactResult());
+
             //$changeAnalysis->setState(new AnalyzeImpactFRState);
             //$changeAnalysis->analyze();
         }
     }
+
+    private function modify(array $scImpacts, array $insImpacts, array $keyImpacts): void
+    {
+        
+    }
+
 
     private function validateChangeRequestInput(array $changeRequestInputList) : bool
     {
@@ -120,26 +139,21 @@ class AnalyzeImpactDBState implements StateInterface
                     if ($changeRequestInput->unique != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Unique at Primary key column.';
-                    }
-                    else if ($changeRequestInput->nullable != null) {
+                    } elseif ($changeRequestInput->nullable != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Nullable at Primary key column.';
                     }
-                }
-                else if ($table->isFK($frInput->columnName)) {
+                } elseif ($table->isFK($frInput->columnName)) {
                     if ($changeRequestInput->default != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Default at Foreign Key column.';
-                    }
-                    else if ($changeRequestInput->min != null) {
+                    } elseif ($changeRequestInput->min != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Min at Foreign Key column.';
-                    }
-                    else if ($changeRequestInput->max != null) {
+                    } elseif ($changeRequestInput->max != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Max at Foreign Key column.';
-                    }
-                    else if ($this->changeRequestInput->unique != null) {
+                    } elseif ($this->changeRequestInput->unique != null) {
                         if (\strcasecmp($this->changeRequestInput->unique, 'Y') == 0) {
                             $duplicateInstance = $this->dbTarget->getDuplicateInstance($table->getName(), [$frInput->columnName]);
                             if (count($duplicateInstance > 0)) {
@@ -148,29 +162,26 @@ class AnalyzeImpactDBState implements StateInterface
                                 $changeRequestInput->errorMessage = 'Conflict with Referential Integrity Constraint.';
                             }
                         }
-                    }
-                    else if ($this->changeRequestInput->nullable != null) {
+                    } elseif ($this->changeRequestInput->nullable != null) {
                         if (\strcasecmp($this->changeRequestInput->nullable, 'N') == 0) {
                             $nullInstance =  $this->dbTarget->getInstanceByTableName($table->getName(), "{$frInput->columnName} IS NULL");
                             if (count($nullInstance) > 0) {
                                 $changeRequestInput->status = 0;
                                 $changeRequestInput->errorMessage = 'Conflict with Referential Integrity Constraint.';
-                                
                             }
                         }
                     }
                 }
-            }
-            else if($changeRequestInput->changeType == 'delete') {
+            } elseif ($changeRequestInput->changeType == 'delete') {
                 $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->frInputId)->first();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
             
-                if($table->isPK($frInput->columnName)) {
+                if ($table->isPK($frInput->columnName)) {
                     $changeRequestInput->status = 0;
                     $changeRequestInput->errorMessage = 'Cannot delete Primary key column.';
                 }
             }
-            if($changeRequestInput->status == 0) {
+            if ($changeRequestInput->status == 0) {
                 $result = false;
             }
             $changeRequestInput->save();
@@ -204,5 +215,4 @@ class AnalyzeImpactDBState implements StateInterface
         $databaseBuilder->setUpTablesAndColumns();
         $this->dbTarget = $databaseBuilder->getDatabase();
     }
-
 }
