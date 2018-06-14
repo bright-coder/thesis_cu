@@ -162,7 +162,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
             if (DataType::isFloatType($dataTypeRef)) {
                 if ($this->changeRequestInput->precision != null) {
-                    if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
+                    if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'] ? $refSchema['precision'] : 999 )) {
                         $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
                         if (count($instance) > 0) {
                             $records = array_merge($records, $instance);
@@ -170,9 +170,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     }
                     $refSchema['precision'] = $this->changeRequestInput->precision;
                 }
-                if (\strtolower($dataType) == 'decimal') {
+                if (\strtolower($dataTypeRef) == 'decimal') {
                     if ($this->changeRequestInput->scale != null) {
-                        if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
+                        if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'] ? $refSchema['scale'] : 999 )) {
                             $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), $columnList, "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
                             if (count($instance) > 0) {
                                 $records = array_merge($records, $instance);
@@ -282,6 +282,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'newValues' => $newValues,
                 'oldValues' => $oldValues
             ];
+            $result[$table->getName()][$column->getName()]['isImpactAll'] = $this->dbTargetConnection->getNumRows($table->getName()) == count($newValues);
         }
 
         $q = $this->primaryColumnNode->getLinks();
@@ -389,8 +390,9 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $result[$table->getName()][$column->getName()]['instance'] = [
                         'pkRecords' => $instance,
                         'oldValues' => $oldValuesSec,
-                        'newValues' => $newValuesSec
+                        'newValues' => $newValuesSec,
                     ];
+                    $result[$table->getName()][$column->getName()]['isImpactAll'] = $this->dbTargetConnection->getNumRows($table->getName()) == count($newValuesSec);
                 }
             }
 
@@ -499,7 +501,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             }
             if (DataType::isFloatType($dataTypeRef)) {
                 if ($this->changeRequestInput->precision != null) {
-                    if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'])) {
+                    if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'] ? $refSchema['precision'] : 999)) {
                         $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
                         if (count($instance) > 0) {
                             $records = array_merge($records, $instance);
@@ -507,7 +509,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     }
                     $refSchema['precision'] = $this->changeRequestInput->precision;
                 }
-                if (\strtolower($dataType) == 'decimal') {
+                if (\strtolower($dataTypeRef) == 'decimal') {
                     if ($this->changeRequestInput->scale != null) {
                         if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
                             $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
@@ -575,6 +577,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 }
             }
 
+            //dd($refSchema);
             if ($refSchema['unique']) {
                 $numRows = count($records);
                 $newValues = RandomContext::getRandomData(
@@ -622,6 +625,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 'newValues' => $newValues,
                 'oldValues' => $oldValues
             ];
+            $result[$table->getName()][$column->getName()]['isImpactAll'] = $this->dbTargetConnection->getNumRows($table->getName()) == count($newValues);
         }
         if($result) {
             $result = [

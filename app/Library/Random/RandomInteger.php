@@ -17,7 +17,7 @@ class RandomInteger implements RandomInterface {
         if($min == null) {
             $min = 1;
         }
-        if($max = null) {
+        if($max == null) {
             $mxa = 10000000;
         }
         $range = $max-$min;
@@ -39,25 +39,31 @@ class RandomInteger implements RandomInterface {
             }
         }
         else {
-            if ($range+1 < $numRows) {
-                throw new \Exception("Invalid range", 1);
-            }
-            else if ($range+1 == $numRows) {
-                for($i = $min; $i <= $max ; ++$i){
-                    $this->randomData[$i] = false;
-                }
-            }
-            else {
-                $max = $min + $rangeAvg;
-                for($i = 0; $i < 5; ++$i){
-                    while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
-                        $r = rand($min,$max);
-                        if(!isset($this->randomData[$r])){
-                            $this->randomData[$r] = false;
-                        }
-                    }
-                    $min = $max ;
-                    $max = $min + $rangeAvg;
+            // if ($range+1 < $numRows) {
+            //     throw new \Exception("Invalid range", 1);
+            // }
+            // else if ($range+1 == $numRows) {
+            //     for($i = $min; $i <= $max ; ++$i){
+            //         $this->randomData[$i] = false;
+            //     }
+            // }
+            // else {
+            //     $max = $min + $rangeAvg;
+            //     for($i = 0; $i < 5; ++$i){
+            //         while(sizeof($this->randomData) < $numRows * (0.2 * ($i+1)) ){
+            //             $r = rand($min,$max);
+            //             if(!isset($this->randomData[$r])){
+            //                 $this->randomData[$r] = false;
+            //             }
+            //         }
+            //         $min = $max ;
+            //         $max = $min + $rangeAvg;
+            //     }
+            // }
+            while(sizeof($this->randomData) < $numRows ){
+                $r = rand($min,$max);
+                if(!isset($this->randomData[$r])){
+                    $this->randomData[$r] = false;
                 }
             }
             $newResult = [];

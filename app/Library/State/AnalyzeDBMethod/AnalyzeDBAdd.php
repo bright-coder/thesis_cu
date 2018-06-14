@@ -48,7 +48,7 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
                 );
                 
                 $result[$tableName] = [];
-                $result[$tableName][$columName] = [
+                $result[$tableName][$columnName] = [
                     'changeType' => 'add',
                     'old' => [],
                     'new' => $newSchema,

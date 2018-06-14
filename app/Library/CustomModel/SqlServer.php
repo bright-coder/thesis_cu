@@ -478,6 +478,9 @@ class SqlServer implements DBTargetInterface
                             break;
                         
                         default: // EDIT
+                        if(!isset($columnEdit[$tableName])) {
+                            $columnEdit[$tableName] = [];
+                        }
                         $columnEdit[$tableName][] = $columnName;
                         $columnDetail = [
                             'length' => isset($info['new']['length']) ? $info['new']['length'] : $info['old']['length'],
@@ -611,7 +614,6 @@ class SqlServer implements DBTargetInterface
             
             foreach($insImpacts as $tableName => $recordList) {
                 foreach($recordList as $row) {
-                    $columnEdit[$tableName] = [];
                     $newInsColumns = [];
                     foreach($row['columnList'] as $columnName => $info) {
                         if($info['changeType'] == 'add') {
@@ -626,6 +628,7 @@ class SqlServer implements DBTargetInterface
                 }
             
             }
+            
             foreach($columnEdit as $tableName => $columnList) {
                 //dd($columnList);
                 foreach($columnList as $columnName) {
@@ -638,7 +641,9 @@ class SqlServer implements DBTargetInterface
 
             foreach($notNullTrace as $tableName => $columnList) {
                 foreach($columnList as $columnName => $info) {
+                    //dd($insImpacts);
                     $this->conObj->query($this->updateColumnSQL($info));
+                    
                 }
             }
             
