@@ -44,9 +44,9 @@ class ChangeAnalysis
         $this->state = new AnalyzeImpactDBState;
     }
 
-    public function getChangeFunctionalRequirementId(): string
+    public function getChangeFrId(): string
     {
-        return $this->changeRequest->changeFunctionalRequirementId;
+        return $this->changeRequest->changeFrId;
     }
 
     public function addSchemaImpactResult(string $tableName, string $columName, string $changeType, array $oldCol, array $newCol, bool $isPK) : void
@@ -166,7 +166,7 @@ class ChangeAnalysis
         return $this->dbImpactResult;
     }
 
-    public function setFRImpactResult(array $frImpactResult) : void
+    public function addFRImpactResult(array $frImpactResult) : void
     {
         $this->frImpactResult = $frImpactResult;
     }
@@ -176,7 +176,7 @@ class ChangeAnalysis
         return $this->frImpactResult;
     }
 
-    public function setRtmImpactResult(array $rtmImpactResult): void
+    public function addRtmImpactResult(array $rtmImpactResult): void
     {
         $this->rtmImpactResult = $rtmImpactResult;
     }
@@ -186,11 +186,6 @@ class ChangeAnalysis
         return $this->rtmImpactResult;
     }
 
-
-    public function addInstanceImpact(string $changeRequestInputId, array $impactResult) : void
-    {
-        $this->instanceImpactResult[$changeRequestInputId] = $impactResult;
-    }
 
     public function isConsistent() : bool
     {
