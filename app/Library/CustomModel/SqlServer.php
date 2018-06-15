@@ -481,7 +481,65 @@ class SqlServer implements DBTargetInterface
                         if(!isset($columnEdit[$tableName])) {
                             $columnEdit[$tableName] = [];
                         }
-                        $columnEdit[$tableName][] = $columnName;
+
+                        $isCompat = true;
+                        if(isset($info['new']['dataType'])){
+                            switch (strtolower($info['new']['dataType'])) {
+                                case 'char':
+                                case 'varchar':
+                                    $catNew = 1;
+                                    break;
+                                case 'nchar':
+                                case 'nvarchar':
+                                    $catNew = 2;
+                                    break;
+                                case 'int' :
+                                    $catNew = 3;
+                                    break;
+                                case 'float':
+                                    $catNew = 4;
+                                    break;
+                                case 'decimal':
+                                    $catNew = 5;
+                                    break;
+                                case 'date':
+                                    $catNew = 6;
+                                    break;
+                                case 'datetime' :
+                                    $catNew = 7;
+                                    break;
+                            }
+
+                            switch (strtolower($info['old']['dataType'])) {
+                                case 'char':
+                                case 'varchar':
+                                    $cat = 1;
+                                    break;
+                                case 'nchar':
+                                case 'nvarchar':
+                                    $cat = 2;
+                                    break;
+                                case 'int' :
+                                    $cat = 3;
+                                    break;
+                                case 'float':
+                                    $cat = 4;
+                                    break;
+                                case 'decimal':
+                                    $cat = 5;
+                                    break;
+                                case 'date':
+                                    $cat = 6;
+                                    break;
+                                case 'datetime' :
+                                    $cat = 7;
+                                    break;
+                            }
+                            $isCompat = $cat == $catNew;
+
+                        }
+
+                        $columnEdit[$tableName][] = ['isCompat' => $isCompat, 'columnName' => $columnName];
                         $columnDetail = [
                             'length' => isset($info['new']['length']) ? $info['new']['length'] : $info['old']['length'],
                             'precision' => isset($info['new']['precision']) ? $info['new']['precision'] : $info['old']['precision'],
@@ -494,8 +552,11 @@ class SqlServer implements DBTargetInterface
                             'max' => isset($info['new']['max']) ? $info['new']['max'] : $info['old']['max'],
                             'tableName' => $info['old']['tableName'],
                             'columnName' => $info['old']['columnName']."#temp",
+
                         ];
                         $this->conObj->query($this->addColumnSQL($columnDetail));
+
+                        
     
                         if ($dbTarget->getTableByName($tableName)->isFK($columnName)) {
                             foreach ($dbTarget->getTableByName($tableName)->getAllFK() as $fk) {
@@ -610,8 +671,6 @@ class SqlServer implements DBTargetInterface
                 }
             }
             
-
-            
             foreach($insImpacts as $tableName => $recordList) {
                 foreach($recordList as $row) {
                     $newInsColumns = [];
@@ -631,11 +690,14 @@ class SqlServer implements DBTargetInterface
             
             foreach($columnEdit as $tableName => $columnList) {
                 //dd($columnList);
-                foreach($columnList as $columnName) {
-                    $tempCol = $columnName.'#temp';
-                    $this->conObj->query("UPDATE {$tableName} SET {$tempCol} = {$columnName} WHERE {$columnName} IS NULL");
-                    $this->conObj->query($this->dropColumnSQL($tableName, $columnName));
-                    $this->conObj->query($this->updateColumnNameSQL($tableName, $columnName.'#temp', $columnName));
+                foreach($columnList as $info) {
+                    $tempCol = $info['columnName'].'#temp';
+                    if($info['isCompat']) {
+                        $this->conObj->query("UPDATE {$tableName} SET {$tempCol} = {$info['columnName']}  WHERE {$info['columnName']} IS NULL");
+                    }
+                    
+                    $this->conObj->query($this->dropColumnSQL($tableName, $info['columnName']));
+                    $this->conObj->query($this->updateColumnNameSQL($tableName, $info['columnName'].'#temp', $info['columnName']));
                 }
             }
 

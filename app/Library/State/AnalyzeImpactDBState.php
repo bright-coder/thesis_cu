@@ -115,14 +115,9 @@ class AnalyzeImpactDBState implements StateInterface
             $cr->status = 1;
             $cr->save();
 
-            //$changeAnalysis->setState(new AnalyzeImpactFRState);
-            //$changeAnalysis->analyze();
+            $changeAnalysis->setState(new AnalyzeImpactFRState);
+            $changeAnalysis->analyze();
         }
-    }
-
-    private function modify(array $scImpacts, array $insImpacts, array $keyImpacts): void
-    {
-        
     }
 
 

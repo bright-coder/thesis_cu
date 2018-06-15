@@ -55,6 +55,10 @@ class AnalyzeImpactFRState implements StateInterface
 
     public function analyze(ChangeAnalysis $changeAnalysis): void
     {
+        foreach ($scImpacts as $tableName => $columnList) {
+            foreach ($columnList as $columnName => $info) {
+            }
+        }
         foreach ($changeAnalysis->getAllChangeRequestInput() as $changeRequestInput) {
             if ($changeRequestInput->changeType == 'add') {
                 // add already exist input in database
