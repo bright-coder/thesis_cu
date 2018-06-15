@@ -35,14 +35,78 @@ class AnalyzeImpactTCState implements StateInterface
     public function analyze(ChangeAnalysis $changeAnalysis): void
     {
         $projectId = $changeAnalysis->getProjectId();
-        $rtmId = RequirementTraceabilityMatrix::where('projectId', $projectId)->first()->id;
+        $this->connectTargetDB($projectId);
 
         $tcNoList = [];
         $tcAll = TestCase::where('projectId', $projectId)->get();
-        foreach ($tcAll as $tc) {
-            $tcNoList[] = intval(explode('-', $tc->no)[2]);
+
+        $tcResult = [];
+        foreach ($changeAnalysis->getFrImpactResult() as $frNo => $frInputList) {
+            $frId = FunctionalRequirement::where([
+                ['projectId', $changeAnalysis->getProjectId()],
+                ['no', $frNo]
+            ])->first()->id;
+            
+            $isDelete = false;
+            foreach ($frInputList as $name => $info) {
+                if ($info['add'] || $info['delete']) {
+                    $isDelete = true;
+                }
+            }
+
+            $tcList = RequirementTraceabilityMatrix::where('frId', $frId)->get();
+            foreach ($tcList as $tc) {
+                $tcNo = TestCase::where('id', $tc->id)->first()->no;
+                if (!isset($tcResult[$tcNo])) {
+                    $tcResult[$tcNo] = ['changeType' => $isDelete ? 'delete' : 'edit', 'tcInputList' => [] ,'frId' => $frId] ;
+                    foreach (TestCase::where('tcId', $tc->id)->get() as $tcInput) {
+                        $tcResult[$tcNo]['tcInputList'][$tcInput->name] = ['old' => $tcInput->testData, 'new' => ''];
+                    }
+                }
+            }
+
         }
-        sort($tcNoList);
+
+        $tcNew = [];
+        $frImpact = $changeAnalysis->getFrImpactResult();
+        foreach($tcResult as $tcNo => $tcInfo) {
+            if($tcInfo['changeType'] == 'delete') {
+                $last = count(TestCase::where('projectId', $projectId)->get());
+                $tcOld = TestCase::where([
+                    ['projectId', $projectId],
+                    ['no', $tcNo]
+                ])->first();
+                $prefix = Project::where('id', $projectId)->first()->prefix;
+                $tcNew = new TestCase;
+                $tcNew->no = $prefix."-TC-".($last+1);
+                $tcNew->type = $tcOld->type;
+                $tcNew->save();
+                $tcOld->delete();
+                $frNo = FunctionalRequirement::where('id', $tcInfo['frId'])->first()->no; 
+                foreach($tcInfo['tcInputList'] as $name => $testData) {
+                    $isImpact = false;
+                    foreach ($frImpact[$frNo] as $frName => $info) {
+                        if($frName == $name){
+                            $isImpact = true;
+                            if($info['changeType'] == 'add') {
+                                $newData = $this->dbTargetConnection->getInstanceByTableName($info['tableName'], [$info['columnName']]);
+                                $total = count($newData);
+                                $pickAt = rand(0, $total-1);
+                                $tcInput = new TestCaseInput;
+                                $tcInput->tcId = $tcNew->id;
+                                $tcInput->name = $frName;
+                                $tcInput->testData = $newData[$pickAt][$columnName] ;
+                                $tcInput->save();
+                            }
+                            elseif($info['changType'] == 'edit') {
+
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
 
         foreach ($changeAnalysis->getFrImpactResult() as $frImpact) {
             $tcList = RequirementTraceabilityMatrixRelation::where([
@@ -122,10 +186,9 @@ class AnalyzeImpactTCState implements StateInterface
                             }
                         }
                     }
-                    if(!empty($tcInputChangeList)) {
+                    if (!empty($tcInputChangeList)) {
                         $this->addTcImpactResult($frImpact['id'], null, 'edit', $oldTc->testCaseId, $tcInputChangeList);
                     }
-                    
                 }
             }
         }
@@ -134,6 +197,25 @@ class AnalyzeImpactTCState implements StateInterface
         //dd($changeAnalysis->getTcImpactResult());
         $changeAnalysis->setState(new AnalyzeImpactRTMState);
         $changeAnalysis->analyze();
+    }
+
+    private function connectTargetDB(string $projectId): bool
+    {
+        $project = Project::where('id', $projectId)->first();
+        $this->dbTargetConnection = DBTargetConnection::getInstance(
+            $project->dbType,
+            $project->dbServer,
+            $project->dbPort,
+            $project->dbName,
+            $project->dbUsername,
+            $project->dbPassword
+        );
+
+        if (!$this->dbTargetConnection->connect()) {
+            return false;
+        }
+
+        return true;
     }
 
     private function findOldValue(string $tcId, string $inputName): string
@@ -223,7 +305,6 @@ class AnalyzeImpactTCState implements StateInterface
                         foreach ($frImpact['inputList'] as $frInput) {
                             if ($frInput['changeType'] == 'add') {
                                 if ($this->connectTargetDB($projectId)) {
-                                    
                                     $instanceList = $this->dbTargetConnection->getInstanceByTableName($frInput['new']['tableName']);
                                     $numRows = count($instanceList);
                                     $pickId = rand(1, $numRows) -1 ;
