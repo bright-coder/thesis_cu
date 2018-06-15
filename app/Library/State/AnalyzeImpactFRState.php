@@ -19,8 +19,9 @@ class AnalyzeImpactFRState implements StateInterface
 
     public function analyze(ChangeAnalysis $changeAnalysis): void
     {
+        
         $result = [];
-        foreach ($scImpacts as $tableName => $columnList) {
+        foreach ($changeAnalysis->getSchemaImpactResult() as $tableName => $columnList) {
             foreach ($columnList as $columnName => $info) {
                 if (!isset($result[$tableName])) {
                     $result[$tableName] = [];
