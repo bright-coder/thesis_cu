@@ -463,8 +463,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         if (DataType::isStringType($dataTypeRef)) {
-            if ($this->changeRequestInput->length != null) {
-                if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'])) {
+            if ($this->changeRequestInput->length != null && $refSchema['length'] != null) {
+                if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'] ? $refSchema['length'] : 9999 )) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
                     if (count($instance) > 0) {
                         $records = array_merge($records, $instance);
@@ -473,7 +473,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $refSchema['length'] = $this->changeRequestInput->length;
             }
         } elseif (DataType::isNumericType($dataTypeRef)) {
-            if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL') {
+            if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL' && $refSchema['min'] != null) {
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} < {$this->changeRequestInput->min}");
                     if (count($instance) > 0) {
@@ -482,7 +482,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 }
                 $refSchema['min'] = $this->changeRequestInput->min;
             }
-            if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL') {
+            if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL' && $refSchema['max'] != null) {
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} > {$this->changeRequestInput->max}");
                     if (count($instance) > 0) {
@@ -500,7 +500,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $refSchema['max'] = null;
             }
             if (DataType::isFloatType($dataTypeRef)) {
-                if ($this->changeRequestInput->precision != null) {
+                if ($this->changeRequestInput->precision != null && $refSchema['precision'] != null) {
                     if ($this->findInstanceImpactByPrecision($this->changeRequestInput->precision, $refSchema['precision'] ? $refSchema['precision'] : 999)) {
                         $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()})-1 > {$this->changeRequestInput->precision}");
                         if (count($instance) > 0) {
@@ -510,7 +510,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                     $refSchema['precision'] = $this->changeRequestInput->precision;
                 }
                 if (\strtolower($dataTypeRef) == 'decimal') {
-                    if ($this->changeRequestInput->scale != null) {
+                    if ($this->changeRequestInput->scale != null && $refSchema['scale'] != null) {
                         if ($this->findInstanceImpactByScale($this->changeRequestInput->scale, $refSchema['scale'])) {
                             $instance = $this->dbTargetConnection->getInstanceByTableName($table-getName(), "LEN(SUBSTRING({$column->getName()},CHARINDEX('.', {$column->getName()})+1, 4000)) > {$this->changeRequestInput->scale}");
                             if (count($instance) > 0) {

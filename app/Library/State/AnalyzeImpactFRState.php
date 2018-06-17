@@ -38,10 +38,7 @@ class AnalyzeImpactFRState implements StateInterface
                 }
                 $result[$crInput->tableName][$crInput->columnName] = $info['changeType'];
             } elseif ($crInput->changeType == 'delete') {
-                $frInput = FunctionalRequirementInput::where([
-                    ['frId', $changeAnalysis->getChangeFrId()],
-                    ['name', $crInput->name],
-                ])->first();
+                $frInput = FunctionalRequirementInput::where('id', $crInput->frInputId)->first();
                 if (!isset($result[$frInput->tableName])) {
                     if (!isset($frResult[$frNo])) {
                         $frResult[$frNo] = [];
@@ -71,7 +68,7 @@ class AnalyzeImpactFRState implements StateInterface
                 if ($changeType == 'add') {
                     $frNo = FunctionalRequirement::where('id', $changeAnalysis->getChangeFrId())->first()->no;
                     $frInputName = ChangeRequestInput::where([
-                        ['id', $changeAnalysis->getChangeRequest()->id],
+                        ['crId', $changeAnalysis->getChangeRequest()->id],
                         ['tableName', $tableName],
                         ['columnName', $columnName],
                         ['changeType', 'add']
@@ -100,7 +97,7 @@ class AnalyzeImpactFRState implements StateInterface
                             if (!isset($frResult[$frNo])) {
                                 $frResult[$frNo] = [];
                             }
-                            $frResult[$frNo][$frInputName] = [
+                            $frResult[$frNo][$frInput->name] = [
                                 'tableName' => $tableName,
                                 'columnName' => $columnName,
                                 'changeType' => $changeType
@@ -112,7 +109,7 @@ class AnalyzeImpactFRState implements StateInterface
             }
         }
 
-        $changeAnalysis->setFRImpactResult($frResult);
+        $changeAnalysis->addFRImpactResult($frResult);
     
         foreach($frResult as $frNo => $frInputList) {
 

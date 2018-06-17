@@ -109,7 +109,7 @@ class AnalyzeImpactDBState implements StateInterface
             );
         
             //dd($changeAnalysis->getSchemaImpactResult());
-            //dd($changeAnalysis->getInstanceImpactResult());
+            //dd($changeAnalysis->getInstanceImpactResult()['Rent_User']);
             //dd($changeAnalysis->getKeyConstraintImpactResult());
 
             $cr->status = 1;
@@ -139,17 +139,18 @@ class AnalyzeImpactDBState implements StateInterface
                         $changeRequestInput->errorMessage = 'Cannot change Nullable at Primary key column.';
                     }
                 } elseif ($table->isFK($frInput->columnName)) {
-                    if ($changeRequestInput->default != null) {
-                        $changeRequestInput->status = 0;
-                        $changeRequestInput->errorMessage = 'Cannot change Default at Foreign Key column.';
-                    } elseif ($changeRequestInput->min != null) {
+                    // if ($changeRequestInput->default != null) {
+                    //     $changeRequestInput->status = 0;
+                    //     $changeRequestInput->errorMessage = 'Cannot change Default at Foreign Key column.';
+                    // } else
+                    if ($changeRequestInput->min != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Min at Foreign Key column.';
                     } elseif ($changeRequestInput->max != null) {
                         $changeRequestInput->status = 0;
                         $changeRequestInput->errorMessage = 'Cannot change Max at Foreign Key column.';
-                    } elseif ($this->changeRequestInput->unique != null) {
-                        if (\strcasecmp($this->changeRequestInput->unique, 'Y') == 0) {
+                    } elseif ($changeRequestInput->unique != null) {
+                        if (\strcasecmp($changeRequestInput->unique, 'Y') == 0) {
                             $duplicateInstance = $this->dbTarget->getDuplicateInstance($table->getName(), [$frInput->columnName]);
                             if (count($duplicateInstance > 0)) {
                                 // cannot modify impact; Referential Integrity;
@@ -157,8 +158,8 @@ class AnalyzeImpactDBState implements StateInterface
                                 $changeRequestInput->errorMessage = 'Conflict with Referential Integrity Constraint.';
                             }
                         }
-                    } elseif ($this->changeRequestInput->nullable != null) {
-                        if (\strcasecmp($this->changeRequestInput->nullable, 'N') == 0) {
+                    } elseif ($changeRequestInput->nullable != null) {
+                        if (\strcasecmp($changeRequestInput->nullable, 'N') == 0) {
                             $nullInstance =  $this->dbTarget->getInstanceByTableName($table->getName(), "{$frInput->columnName} IS NULL");
                             if (count($nullInstance) > 0) {
                                 $changeRequestInput->status = 0;

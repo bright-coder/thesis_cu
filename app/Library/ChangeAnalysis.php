@@ -151,7 +151,7 @@ class ChangeAnalysis
         }
     }
 
-    public function setTcImpactResult(array $tcImpactResult): void
+    public function addTcImpactResult(array $tcImpactResult): void
     {
         $this->tcImpactResult = $tcImpactResult;
     }
@@ -218,126 +218,8 @@ class ChangeAnalysis
 
     public function saveSchemaImpact()
     {
-        $changeRequestId = $this->getChangeRequest()->id;
-        $tableImpactMem = [];
-        foreach ($this->dbImpactResult as $crInputId => $dbImpactList) {
-            foreach ($dbImpactList['schema'] as $schema) {
-                // if (!array_key_exists($schema['tableName'], $tableImpactMem)) {
-                //     $newTableImpact = new TableImpact;
-                //     $newTableImpact->name = $schema['tableName'];
-                //     $newTableImpact->changeRequestId = $changeRequestId;
-                //     $newTableImpact->save();
-                    
-                //     $tableImpactMem[ $schema['tableName'] ] = $newTableImpact->id;
-                // }
-                if ($schema['changeType'] == 'add') {
-                    $newColumnImpact = new ColumnImpact;
-                    $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableName = $schema['tableName'];
-                    $newColumnImpact->changeRequestInputId = $crInputId;
-                    $newColumnImpact->changeType = 'add';
-                    $newColumnImpact->versionType = 'new';
-                    if (array_key_exists('dataType', $schema['newSchema'])) {
-                        $newColumnImpact->dataType = $schema['newSchema']['dataType'];
-                    }
-                    if (array_key_exists('length', $schema['newSchema'])) {
-                        $newColumnImpact->length = $schema['newSchema']['length'];
-                    }
-                    if (array_key_exists('precision', $schema['newSchema'])) {
-                        $newColumnImpact->precision = $schema['newSchema']['precision'];
-                    }
-                    if (array_key_exists('scale', $schema['newSchema'])) {
-                        $newColumnImpact->scale = $schema['newSchema']['scale'];
-                    }
-                    if (array_key_exists('default', $schema['newSchema'])) {
-                        $newColumnImpact->default = $schema['newSchema']['default'];
-                    }
-                    if (array_key_exists('nullable', $schema['newSchema'])) {
-                        $newColumnImpact->nullable = $schema['newSchema']['nullable'];
-                    }
-                    if (array_key_exists('unique', $schema['newSchema'])) {
-                        $newColumnImpact->unique = $schema['newSchema']['unique'];
-                    }
-                    if (array_key_exists('min', $schema['newSchema'])) {
-                        $newColumnImpact->min = $schema['newSchema']['min'];
-                    }
-                    if (array_key_exists('max', $schema['newSchema'])) {
-                        $newColumnImpact->max = $schema['newSchema']['max'];
-                    }
-                    
-                    $newColumnImpact->save();
-                } elseif ($schema['changeType'] == 'edit') {
-                    $newColumnImpact = new ColumnImpact;
-                    $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableName = $schema['tableName'];
-                    $newColumnImpact->changeRequestInputId = $crInputId;
-                    $newColumnImpact->changeType = 'edit';
-                    $newColumnImpact->versionType = 'old';
-                    $newColumnImpact->dataType = $schema['oldSchema']['dataType'];
-                    $newColumnImpact->length = $schema['oldSchema']['length'];
-                    $newColumnImpact->precision = $schema['oldSchema']['precision'];
-                    $newColumnImpact->scale = $schema['oldSchema']['scale'];
-                    $newColumnImpact->default = $schema['oldSchema']['default'];
-                    $newColumnImpact->nullable = $schema['oldSchema']['nullable'] ? 'Y' : 'N';
-                    $newColumnImpact->unique = $schema['oldSchema']['unique'] ? 'Y' : 'N';
-                    $newColumnImpact->min = $schema['oldSchema']['min'];
-                    $newColumnImpact->max = $schema['oldSchema']['max'];
-                    $newColumnImpact->save();
-
-                    $newColumnImpact = new ColumnImpact;
-                    $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableName = $schema['tableName'];
-                    $newColumnImpact->changeRequestInputId = $crInputId;
-                    $newColumnImpact->changeType = 'edit';
-                    $newColumnImpact->versionType = 'new';
-                    if (array_key_exists('dataType', $schema['newSchema'])) {
-                        $newColumnImpact->dataType = $schema['newSchema']['dataType'];
-                    }
-                    if (array_key_exists('length', $schema['newSchema'])) {
-                        $newColumnImpact->length = $schema['newSchema']['length'];
-                    }
-                    if (array_key_exists('precision', $schema['newSchema'])) {
-                        $newColumnImpact->precision = $schema['newSchema']['precision'];
-                    }
-                    if (array_key_exists('scale', $schema['newSchema'])) {
-                        $newColumnImpact->scale = $schema['newSchema']['scale'];
-                    }
-                    if (array_key_exists('default', $schema['newSchema'])) {
-                        $newColumnImpact->default = $schema['newSchema']['default'];
-                    }
-                    if (array_key_exists('nullable', $schema['newSchema'])) {
-                        $newColumnImpact->nullable = $schema['newSchema']['nullable'];
-                    }
-                    if (array_key_exists('unique', $schema['newSchema'])) {
-                        $newColumnImpact->unique = $schema['newSchema']['unique'];
-                    }
-                    if (array_key_exists('min', $schema['newSchema'])) {
-                        $newColumnImpact->min = $schema['newSchema']['min'];
-                    }
-                    if (array_key_exists('max', $schema['newSchema'])) {
-                        $newColumnImpact->max = $schema['newSchema']['max'];
-                    }
-                    $newColumnImpact->save();
-                } else {
-                    $newColumnImpact = new ColumnImpact;
-                    $newColumnImpact->name = $schema['columnName'];
-                    $newColumnImpact->tableName = $schema['tableName'];
-                    $newColumnImpact->changeRequestInputId = $crInputId;
-                    $newColumnImpact->changeType = 'delete';
-                    $newColumnImpact->versionType = 'old';
-                    $newColumnImpact->dataType = $schema['oldSchema']['dataType'];
-                    $newColumnImpact->length = $schema['oldSchema']['length'];
-                    $newColumnImpact->precision = $schema['oldSchema']['precision'];
-                    $newColumnImpact->scale = $schema['oldSchema']['scale'];
-                    $newColumnImpact->default = $schema['oldSchema']['default'];
-                    $newColumnImpact->nullable = $schema['oldSchema']['nullable'] ? 'Y' : 'N';
-                    $newColumnImpact->unique = $schema['oldSchema']['unique'] ? 'Y' : 'N';
-                    $newColumnImpact->min = $schema['oldSchema']['min'];
-                    $newColumnImpact->max = $schema['oldSchema']['max'];
-                    $newColumnImpact->save();
-                }
-            }
-        }
+        
+          
     }
 
     public function saveInstanceImpact()

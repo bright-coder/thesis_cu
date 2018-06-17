@@ -220,6 +220,7 @@ class ChangeRequestController extends Controller
                         ['name' , $input['name']]
                         ])->first()->id;
                 } elseif ($changeRequestInput->changeType == 'delete') {
+                    $changeRequestInput->name = $input['name'];
                     $changeRequestInput->frInputId = FunctionalRequirementInput::where([
                         ['frId', $functionalRequirement->id],
                         ['name' , $input['name']]
