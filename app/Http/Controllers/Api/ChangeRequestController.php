@@ -276,7 +276,7 @@ class ChangeRequestController extends Controller
             'changeFrNo' => FunctionalRequirement::where('id', $changeRequest->changeFrId)->first()->no,
             'status' => 'success',
             'crInputList' => [],
-            'impactList' => (new ImpactResult($changeRequestId))->getImpact()
+            'impactList' => (new ImpactResult($changeRequestId))->getImpact('json')
         ];
         foreach($changeRequestInputList as $crInput) {
             if($crInput->changeType != 'add') {

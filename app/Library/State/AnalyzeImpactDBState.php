@@ -114,6 +114,9 @@ class AnalyzeImpactDBState implements StateInterface
 
             $cr->status = 1;
             $cr->save();
+            $changeAnalysis->saveSchemaImpact();
+            $changeAnalysis->saveInstanceImpact();
+            $changeAnalysis->saveKeyConstraintImpact();
 
             $changeAnalysis->setState(new AnalyzeImpactFRState);
             $changeAnalysis->analyze();

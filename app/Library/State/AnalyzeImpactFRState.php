@@ -135,7 +135,8 @@ class AnalyzeImpactFRState implements StateInterface
                 }
             }
         }
-        //dd($changeAnalysis->getFrImpactResult());
+
+        $changeAnalysis->saveFrImpact();
         $changeAnalysis->setState(new AnalyzeImpactTCState);
         $changeAnalysis->analyze();
     }

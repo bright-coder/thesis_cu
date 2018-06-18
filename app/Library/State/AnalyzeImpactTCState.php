@@ -219,7 +219,7 @@ class AnalyzeImpactTCState implements StateInterface
         }
 
         $changeAnalysis->addTcImpactResult(array_merge($tcResult, $tcNewResult));
-        //dd($changeAnalysis->getTcImpactResult());
+        $changeAnalysis->saveTcImpact();
         $changeAnalysis->setState(new AnalyzeImpactRTMState);
         $changeAnalysis->analyze();
     }

@@ -50,6 +50,7 @@ class AnalyzeImpactRTMState implements StateInterface
         }
         
         $changeAnalysis->addRtmImpactResult($result);
+        $changeAnalysis->saveRtmRelationImpact();
     }
 
 }
