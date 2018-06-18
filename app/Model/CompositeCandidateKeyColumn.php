@@ -4,8 +4,8 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RtmRelationImpact extends Model
+class CompositeCandidateKeyColumn extends Model
 {
-    protected $table = "RTM_RELATION_IMPACT";
+    protected $table = "COMPOSITE_CANDIDATE_KEY_COLUMN";
     public $timestamps = false;
 }

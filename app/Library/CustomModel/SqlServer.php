@@ -496,15 +496,15 @@ class SqlServer implements DBTargetInterface
                                 }
                                 $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$info['new'][$columnName]]);
                             }
-                             if (isset($info['min']) || isset($info['max'])) {
+                             if (isset($info['new']['min']) || isset($info['new']['max'])) {
                                  
                                  if (!isset($checkTrace[$tableName])) {
                                      $checkTrace[$tableName] = [];
                                  }
                                  $checkTrace[$tableName][$columnName] = [
                                     'columnName' => $columnName,
-                                    'max' => isset($info['max']) ? $info['max'] : null,
-                                    'min' => isset($info['min']) ? $info['min'] : null,
+                                    'max' => isset($info['new']['max']) ? $info['new']['max'] : null,
+                                    'min' => isset($info['new']['min']) ? $info['new']['min'] : null,
                                 ];
                              }
                             break;

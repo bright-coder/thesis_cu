@@ -4,8 +4,8 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OldInstance extends Model
+class RecordImpact extends Model
 {
-    protected $table = "OLD_INSTANCE";
+    protected $table = "RECORD_IMPACT";
     public $timestamps = false;
 }

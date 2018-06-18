@@ -198,14 +198,16 @@ class ProjectController extends Controller
 
             foreach ($crs as $cr) {
                 foreach (DB::table('CHANGE_REQUEST_INPUT')->where('crId', $cr->id)->get() as $crInput) {
-                    foreach (DB::table('INSTANCE_IMPACT')->where('crId', $crInput->id)->get() as $insNew) {
-                        DB::table('OLD_INSTANCE')->where('instanceImpactId', $insNew->id)->delete();
-                        DB::table('INSTANCE_IMPACT')->where('id', $insNew->id)->delete();
-                    }
-                    DB::table('COLUMN_IMPACT')->where('crId', $crInput->id)->delete();
+                    
                     DB::table('CHANGE_REQUEST_INPUT')->where('id', $crInput->id)->delete();
                 }
-                
+
+                foreach(DB::table('RECORD_IMPACT')->where('crId', $cr->id)->get() as $recImpact) {
+                    DB::table('OLD_RECORD')->where('recImpactId', $recImpact->id)->delete();
+                    DB::table('INSTANCE_IMPACT')->where('recImpactId', $recImpact->id)->delete();
+                }
+                DB::table('RECORD_IMPACT')->where('crId', $cr->id)->delete();
+
                 DB::table('FR_INPUT_IMPACT')->where('crId', $cr->id)->delete();
     
                 foreach(DB::table('TC_IMPACT')->where('crId', $cr->id)->get() as $tcImpact) {
@@ -231,7 +233,6 @@ class ProjectController extends Controller
                 DB::table('FUNCTIONAL_REQUIREMENT_INPUT')->where('frId', $fr->id)->delete();
                 DB::table('FUNCTIONAL_REQUIREMENT')->where('id', $fr->id)->delete();
             }
-            
             DB::table('PROJECT')->where('id', $project->id)->delete();
 
             DB::commit();

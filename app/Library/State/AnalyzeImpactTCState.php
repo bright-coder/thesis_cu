@@ -71,7 +71,7 @@ class AnalyzeImpactTCState implements StateInterface
                 if (!isset($tcResult[$tcNo])) {
                     $tcResult[$tcNo] = ['changeType' => $isDelete ? 'delete' : 'edit', 'tcInputList' => [] ,'frId' => $frId, 'tcId' => $tc->tcId] ;
                     foreach (TestCaseInput::where('tcId', $tc->tcId)->get() as $tcInput) {
-                        $tcResult[$tcNo]['tcInputList'][$tcInput->name] = ['old' => $tcInput->testData, 'new' => ''];
+                        $tcResult[$tcNo]['tcInputList'][$tcInput->name] = ['old' => $tcInput->testData, 'new' => null];
                     }
                 }
             }
@@ -96,64 +96,85 @@ class AnalyzeImpactTCState implements StateInterface
                 $frNo = FunctionalRequirement::where('id', $tcInfo['frId'])->first()->no;
                 $frInputList = FunctionalRequirementInput::where('frId', $tcInfo['frId'])->get();
                 
-                foreach($frInputList as $frInput) {
-                    $tcInput = new TestCaseInput;
-                    $tcInput->tcId = $tcNew->id;
-                    $tcInput->name = $frInput->name;
-                    $testData = TestCaseInput::where([
+                foreach ($frInputList as $frInput) {
+                    $tcInputOld = TestCaseInput::where([
                         ['tcId', $tcOld->id],
                         ['name', $frInput->name]
-                    ])->first()->testData;
-                    if($this->isCanUse($frInput->frId, $frInput->name, $testData)) {
-                        $tcInput->testData = $testData;
-                        $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => '', 'new' => $testData];
-                        $tcInput->save();
+                    ])->first();
+                    if ($tcInputOld) {
+                        $testData = $tcInputOld->testData;
+                        $tcInput = new TestCaseInput;
+                        $tcInput->tcId = $tcNew->id;
+                        $tcInput->name = $frInput->name;
+                        $testData = TestCaseInput::where([
+                        ['tcId', $tcOld->id],
+                        ['name', $frInput->name]
+                            ])->first()->testData;
+                        if ($this->isCanUse($frInput->frId, $frInput->name, $testData)) {
+                            $tcInput->testData = $testData;
+                            $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $testData];
+                            $tcInput->save();
                         //dd($tcInput);
-                    }
-                    else {
-                        if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
-                            foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
-                                if (isset($row['columnList'][$frInput->columnName])) {
-                                    $info = $row['columnList'][$frInput->columnName];
-                                    if ($info['changeType'] == 'edit') {
-                                        $tcInput = new TestCaseInput;
-                                        $tcInput->tcId = $tcNew->id;
-                                        $tcInput->name = $name;
-                                        $tcInput->testData = $info['newValue'] ;
-                                        $tcInput->save();
-                                        $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => '', 'new' => $tcInput->testData];
+                        } else {
+                            if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
+                                $isAdd = false;
+                                foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
+                                    if (isset($row['columnList'][$frInput->columnName])) {
+                                        $info = $row['columnList'][$frInput->columnName];
+                                        if ($info['changeType'] == 'edit') {
+                                            $tcInput = new TestCaseInput;
+                                            $tcInput->tcId = $tcNew->id;
+                                            $tcInput->name = $name;
+                                            $tcInput->testData = $info['newValue'] ;
+                                            $tcInput->save();
+                                            $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
+                                            $isAdd = true;
+                                            break;
+                                        }
+                                    }
+                                    if ($isAdd) {
+                                        break;
                                     }
                                 }
+                            } else {
+                                $newData = $this->dbTargetConnection->getInstanceByTableName($frInput->tableName, [$frInput->columnName]);
+                                $total = count($newData);
+                                $pickAt = rand(0, $total-1);
+                                $tcInput = new TestCaseInput;
+                                $tcInput->tcId = $tcNew->id;
+                                $tcInput->name = $name;
+                                $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
+                                $tcInput->save();
+                                $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
                             }
-                        } else {
-                            $newData = $this->dbTargetConnection->getInstanceByTableName($frInput->tableName, [$frInput->columnName]);
-                            $total = count($newData);
-                            $pickAt = rand(0, $total-1);
-                            $tcInput = new TestCaseInput;
-                            $tcInput->tcId = $tcNew->id;
-                            $tcInput->name = $name;
-                            $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
-                            $tcInput->save();
-                            $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => '', 'new' => $tcInput->testData];
                         }
+                    } else {
+                        $newData = $this->dbTargetConnection->getInstanceByTableName($frInput->tableName, [$frInput->columnName]);
+                        $total = count($newData);
+                        $pickAt = rand(0, $total-1);
+                        $tcInput = new TestCaseInput;
+                        $tcInput->tcId = $tcNew->id;
+                        $tcInput->name = $name;
+                        $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
+                        $tcInput->save();
+                        $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => '', 'new' => $tcInput->testData];
                     }
+                    
                     //$tcInput->testData = $testData['old'] ;
                 }
-                if($tcOld->type == 'invalid') {
+                if ($tcOld->type == 'invalid') {
                     $tcInputInvalid = TestCaseInput::where('tcId', $tcNew->id)->orderBy('id', 'asc')->first();
                     $tcInputInvalid->testData = $this->genInvalidTestData($projectId, $tcInputInvalid->name);
                     $tcInputInvalid->save();
                     $tcNewResult[$tcNew->no]['tcInputList'][$tcInputInvalid->name]['new'] = $tcInputInvalid->testData;
                 }
                 $tcOld->delete();
-            }
-            else {
+            } else {
                 $tcOld = TestCase::where([
                     ['projectId', $projectId],
                     ['no', $tcNo]
                 ])->first();
-                foreach($tcInfo['tcInputList'] as $name => $testData) {
-                        
+                foreach ($tcInfo['tcInputList'] as $name => $testData) {
                     if (!$this->isCanUse($tcInfo['frId'], $name, $testData['old'])) {
                         $frInput = FunctionalRequirementInput::where([
                             ['frId', $tcInfo['frId']],
@@ -161,18 +182,18 @@ class AnalyzeImpactTCState implements StateInterface
                         ])->first();
                         if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
                             foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
-                                    if (isset($row['columnList'][$frInput->columnName])) {
-                                        $info = $row['columnList'][$frInput->columnName];
-                                        if ($info['changeType'] == 'edit') {
-                                            $tcInput = TestCaseInput::where([
+                                if (isset($row['columnList'][$frInput->columnName])) {
+                                    $info = $row['columnList'][$frInput->columnName];
+                                    if ($info['changeType'] == 'edit') {
+                                        $tcInput = TestCaseInput::where([
                                                 ['tcId', $tcOld->id],
                                                 ['name', $name]
                                             ])->first();
-                                            $tcInput->testData = $info['newValue'];
-                                            $tcInput->save();
-                                            $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
-                                        }
+                                        $tcInput->testData = $info['newValue'];
+                                        $tcInput->save();
+                                        $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
                                     }
+                                }
                             }
                         } else {
                             $newData = $this->dbTargetConnection->getInstanceByTableName($info['tableName'], [$info['columnName']]);
@@ -186,17 +207,15 @@ class AnalyzeImpactTCState implements StateInterface
                             $tcInput->save();
                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = $newData[$pickAt][$columnName];
                         }
-                    } 
+                    }
                 }
-                if($tcOld->type == 'invalid') {
+                if ($tcOld->type == 'invalid') {
                     $tcInputInvalid = TestCaseInput::where('tcId', $tcOld->id)->orderBy('id', 'asc')->first();
                     $tcInputInvalid->testData = $this->genInvalidTestData($projectId, $tcInputInvalid->name);
                     $tcInputInvalid->save();
                     $tcResult[$tcNo]['tcInputList'][$tcInputInvalid->name]['new'] = $tcInputInvalid->testData;
                 }
-                
             }
-            
         }
 
         $changeAnalysis->addTcImpactResult(array_merge($tcResult, $tcNewResult));
@@ -205,7 +224,8 @@ class AnalyzeImpactTCState implements StateInterface
         $changeAnalysis->analyze();
     }
 
-    private function genInvalidTestData(int $frId, string $name) {
+    private function genInvalidTestData(int $frId, string $name)
+    {
         $frInput = FunctionalRequirementInput::where([
             ['frId', $frId],
             ['name', $name]
@@ -234,7 +254,6 @@ class AnalyzeImpactTCState implements StateInterface
 
     private function isCanUse(int $frId, string $name, $testData): bool
     {
-        
         $frInput = FunctionalRequirementInput::where([
             ['frId', $frId],
             ['name', $name]
@@ -343,14 +362,16 @@ class AnalyzeImpactTCState implements StateInterface
             
                 if ($this->validateDateTime($testData, 'Y-m-d') === false) {
                     return false;
+                } else {
+                    return true;
                 }
-                else return true;
                 // no break
             case 'datetime':
-                if ($this->validateDateTime($testData, 'Y-m-d H:i:s') === false ) {
+                if ($this->validateDateTime($testData, 'Y-m-d H:i:s') === false) {
                     return false;
+                } else {
+                    return true;
                 }
-                else return true;
                 // no break
             default:
                 return true;
@@ -393,5 +414,4 @@ class AnalyzeImpactTCState implements StateInterface
         $databaseBuilder->setUpTablesAndColumns();
         $this->dbTarget = $databaseBuilder->getDatabase();
     }
-
 }
