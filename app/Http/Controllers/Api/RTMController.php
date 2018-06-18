@@ -80,12 +80,12 @@ class RTMController extends Controller
         $request = $request->json()->all();
         $prefix = $project->prefix;
         foreach ($request as $relation) {
-            foreach ($relation['testCaseNos'] as $testCaseNo) {
+            foreach ($relation['tcNoList'] as $testCaseNo) {
                 $rtm = new RequirementTraceabilityMatrix;
                 $rtm->projectId = $project->id;
                 $rtm->frId = FunctionalRequirement::where([
                     'projectId' => $project->id,
-                    'no' => "{$prefix}-FR-{$relation['functionalRequirementNo']}",
+                    'no' => "{$prefix}-FR-{$relation['frNo']}",
                 ])->first()->id;
                 $rtm->tcId = TestCase::where([
                     'projectId' => $project->id,

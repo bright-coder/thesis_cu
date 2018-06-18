@@ -27,9 +27,9 @@ class RTMRequest extends FormRequest
     public function rules()
     {
         return [
-            '*.functionalRequirementNo' => 'required|numeric',
-            '*.testCaseNos' => 'required|array|min:1',
-            '*.testCaseNos.*' => 'required|numeric'
+            '*.frNo' => 'required|numeric',
+            '*.tcNoList' => 'required|array|min:1',
+            '*.tcNoList.*' => 'required|numeric'
             //
         ];
     }

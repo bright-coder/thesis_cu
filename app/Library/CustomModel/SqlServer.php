@@ -749,7 +749,9 @@ class SqlServer implements DBTargetInterface
                         }
                     }
                     //dd($row['pkRecord']);
-                    $this->conObj->query($this->updateInstanceSQL($tableName, $row['pkRecord'], $newInsColumns));
+                    if($newInsColumns) {
+                        $this->conObj->query($this->updateInstanceSQL($tableName, $row['pkRecord'], $newInsColumns));
+                    }
                 }
             }
             

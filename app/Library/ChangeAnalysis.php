@@ -330,37 +330,14 @@ class ChangeAnalysis
 
     public function saveTcImpact()
     {
-        $changeRequestId = $this->getChangeRequest()->id;
-        foreach ($this->tcImpactResult as $tcImpact) {
-            $newTcImpact = new TcImpact;
-            $newTcImpact->changeRequestId = $changeRequestId;
-            $newTcImpact->no = $tcImpact['changeType'] == 'add' ? $tcImpact['newNo'] : TestCase::find($tcImpact['oldTcId'])->no;
-            $newTcImpact->changeType = $tcImpact['changeType'];
-            $newTcImpact->save();
-            
-            if ($tcImpact['changeType'] == 'edit' && !empty($tcImpact['tcInputEdit'])) {
-                foreach ($tcImpact['tcInputEdit'] as $tcInputEdit) {
-                    $newTcInputEdit = new TcInputImpact;
-                    $newTcInputEdit->tcImpactId = $newTcImpact->id;
-                    $newTcInputEdit->inputName = $tcInputEdit['inputName'];
-                    $newTcInputEdit->testDataOld = $tcInputEdit['old'];
-                    $newTcInputEdit->testDataNew = $tcInputEdit['new'];
-                    $newTcInputEdit->save();
-                }
-            }
-        }
     }
 
     public function saveRtmRelationImpact()
     {
-        $changeRequestId = $this->getChangeRequest()->id;
-        foreach ($this->rtmImpactResult as $rtmImpact) {
-            $newRtmImpact = new RtmRelationImpact;
-            $newRtmImpact->changeRequestId = $changeRequestId;
-            $newRtmImpact->functionalRequirementNo = $rtmImpact['functionalRequirementNo'];
-            $newRtmImpact->testCaseNo = $rtmImpact['testCaseNo'];
-            $newRtmImpact->changeType = $rtmImpact['changeType'];
-            $newRtmImpact->save();
-        }
+
+    }
+
+    public function saveKeyConstraintImpact() {
+        
     }
 }

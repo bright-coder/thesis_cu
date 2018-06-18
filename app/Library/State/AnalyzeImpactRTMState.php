@@ -10,9 +10,6 @@ use App\Model\TestCase;
 
 class AnalyzeImpactRTMState implements StateInterface
 {
-    private $rtmImpactResult = [];
-    private $rtmId;
-    private $projectId;
 
     public function getStateName(): String
     {
@@ -22,43 +19,37 @@ class AnalyzeImpactRTMState implements StateInterface
     public function analyze(ChangeAnalysis $changeAnalysis): void
     {   
         $projectId = $changeAnalysis->getProjectId();
-        $this->projectId = $changeAnalysis->getProjectId();
-        $this->rtmId = RequirementTraceabilityMatrix::where('projectId', $projectId)->first()->id;
         $tcImpactResult = $changeAnalysis->getTcImpactResult();
         $result = [];
         foreach($tcImpactResult as $tcNo => $tcInfo) {
             if($tcInfo['changeType'] == 'add') {
                 $rtm = new RequirementTraceabilityMatrix;
                 $rtm->projectId = $projectId;
-                $rtm->tcId = TestCase::where([
-                    ['projectId', $projectId],
-                    ['no', $tcNo]
-                ])->first()->id;
+                $rtm->tcId = $tcInfo['tcId'];
                 $rtm->frId = $tcInfo['frId'];
                 $rtm->save();
                 $frNo = FunctionalRequirement::where('id', $tcInfo['frId'])->first()->no;
-                if(!isset($rtm[$frNo])) {
-                    $rtm[$frNo] = [];
+                if(!isset($result[$frNo])) {
+                    $result[$frNo] = [];
                 }
-                $rtm[$frNo][$tcNo] = 'add';
+                $result[$frNo][$tcNo] = 'add';
             }
             elseif($tcInfo['changeType'] == 'delete') {
-                $tcId = TestCase::where([
-                    ['projectId', $projectId],
-                    ['no', $tcNo]
-                ])->first()->id;
+                $tcId = $tcInfo['tcId'];
                 $rtm = RequirementTraceabilityMatrix::where([
                     ['projectId', $projectId],
                     ['tcId', $tcId],
-                    ['frId', $frId]
+                    ['frId', $tcInfo['frId']]
                 ])->delete();
-                if(!isset($rtm[$frNo])) {
-                    $rtm[$frNo] = [];
+                $frNo = FunctionalRequirement::where('id', $tcInfo['frId'])->first()->no;
+                if(!isset($result[$frNo])) {
+                    $result[$frNo] = [];
                 }
-                $rtm[$frNo][$tcNo] = 'delete';
+                $result[$frNo][$tcNo] = 'delete';
             }
         }
-        $changeAnalysis->addRtmImpactResult($this->rtmImpactResult);
+        
+        $changeAnalysis->addRtmImpactResult($result);
     }
 
 }

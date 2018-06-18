@@ -51989,6 +51989,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             } else if (vm.contentType == "tc") {
               vm.readTcFromExcel(listOfSheet);
             } else if (vm.contentType == "rtm") {
+              //console.log('11');
               vm.readRtmFromExcel(listOfSheet[0]);
             }
           }
@@ -52061,12 +52062,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var vm = this;
       for (var i = 1; i < rtm.length; ++i) {
         var frNo = this.isKeyExist(rtm, i, 0) ? rtm[i].shift() : undefined;
-        var testCaseNos = vm.filter_array(rtm[i]);
+        var tcNoList = vm.filter_array(rtm[i]);
         vm.content.push({
-          functionalRequirementNo: frNo,
-          testCaseNos: testCaseNos
+          frNo: frNo,
+          tcNoList: tcNoList
         });
       }
+      console.log(vm.content);
     },
     sheetToArray: function sheetToArray(sheet) {
       var result = [];
