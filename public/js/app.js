@@ -86721,129 +86721,205 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: "impact-result",
-  props: ["accessToken", "projectName", "changeRequestId"],
-  data: function data() {
-    return {
-      status: "",
-      frNo: "",
-      crInputList: [],
-      columnImpactEditIndex: 0,
-      impact: {
-        schema: "",
-        instance: "",
-        fr: "",
-        tc: "",
-        rtm: "",
-        key: ""
-      },
-      database: ""
-    };
-  },
+    name: "impact-result",
+    props: ["accessToken", "projectName", "changeRequestId"],
+    data: function data() {
+        return {
+            status: "",
+            frNo: "",
+            crInputList: [],
+            columnImpactEditIndex: 0,
+            impact: {
+                schema: "",
+                instance: "",
+                fr: "",
+                tc: "",
+                rtm: "",
+                key: ""
+            },
+            database: ""
+        };
+    },
 
-  methods: {
-    getImpact: function getImpact() {
-      var vm = this;
-      axios({
-        url: "/api/v1/projects/" + this.projectName + "/changeRequests/" + this.changeRequestId,
-        method: "GET",
-        data: null,
-        headers: {
-          Authorization: "Bearer " + this.accessToken,
-          "Content-Type": "application/json; charset=utf-8"
+    methods: {
+        getImpact: function getImpact() {
+            var vm = this;
+            axios({
+                url: "/api/v1/projects/" + this.projectName + "/changeRequests/" + this.changeRequestId,
+                method: "GET",
+                data: null,
+                headers: {
+                    Authorization: "Bearer " + this.accessToken,
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                dataType: "json"
+            }).then(function (response) {
+                vm.impact.schema = response.data.impactList.schema;
+                vm.impact.instance = response.data.impactList.instance;
+                vm.impact.fr = response.data.impactList.functionalRequirments;
+                vm.impact.tc = response.data.impactList.testCases;
+                vm.impact.rtm = response.data.impactList.rtm;
+                vm.status = response.data.status;
+                vm.frNo = response.data.changeFrNo;
+                vm.crInputList = response.data.crInputList;
+
+                //console.log(response.data);
+            }).catch(function (errors) {});
         },
-        dataType: "json"
-      }).then(function (response) {
-        vm.impact.schema = response.data.impactList.schema;
-        vm.impact.instance = response.data.impactList.instance;
-        vm.impact.fr = response.data.impactList.functionalRequirments;
-        vm.impact.tc = response.data.impactList.testCases;
-        vm.impact.rtm = response.data.impactList.rtm;
-        vm.status = response.data.status;
-        vm.frNo = response.data.changeFrNo;
-        vm.crInputList = response.data.crInputList;
-
-        console.log(response.data);
-      }).catch(function (errors) {});
-    },
-    isColumnImpact: function isColumnImpact(instanceIndex, tableIndex, columnIndex) {
-      var impactIndex = -1;
-      for (var i = 0; i < this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder.length; ++i) {
-        if (this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnName == this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder[i]) {
-          impactIndex = i;
-          break;
-        }
-      }
-      return impactIndex == columnIndex;
-    },
-    getNoCrInput: function getNoCrInput(crInputId) {
-      for (var i = 0; i < this.crInputList.length; ++i) {
-        if (crInputId == this.crInputList[i].id) {
-          return i + 1;
-        }
-      }
-      return -1;
-    },
-    getDatabase: function getDatabase() {
-      var vm = this;
-      axios({
-        url: "/api/v1/projects/" + this.projectName + "/databases",
-        method: "GET",
-        data: null,
-        headers: {
-          Authorization: "Bearer " + this.accessToken,
-          "Content-Type": "application/json; charset=utf-8"
+        isColumnImpact: function isColumnImpact(instanceIndex, tableIndex, columnIndex) {
+            var impactIndex = -1;
+            for (var i = 0; i < this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder.length; ++i) {
+                if (this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnName == this.impact.instance[instanceIndex].tableImpactList[tableIndex].columnOrder[i]) {
+                    impactIndex = i;
+                    break;
+                }
+            }
+            return impactIndex == columnIndex;
         },
-        dataType: "json"
-      }).then(function (response) {
+        getNoCrInput: function getNoCrInput(crInputId) {
+            for (var i = 0; i < this.crInputList.length; ++i) {
+                if (crInputId == this.crInputList[i].id) {
+                    return i + 1;
+                }
+            }
+            return -1;
+        },
+        getDatabase: function getDatabase() {
+            var vm = this;
+            axios({
+                url: "/api/v1/projects/" + this.projectName + "/databases",
+                method: "GET",
+                data: null,
+                headers: {
+                    Authorization: "Bearer " + this.accessToken,
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                dataType: "json"
+            }).then(function (response) {
 
-        vm.database = response.data;
-        console.log(vm.database);
-      }).catch(function (errors) {});
-    },
-    findColOrder: function findColOrder(tableName) {
-      for (var i = 0; i < this.database.length; ++i) {
-        if (tableName == this.database[i].name) {
-          return this.database[i].instance.columnOrder;
-        }
-      }
-    },
-    findChangeType: function findChangeType(index, colName) {
-      for (var i = 0; i < this.impact.schema[index].columnList.length; ++i) {
-        if (this.impact.schema[index].columnList[i].columnName == colName) {
-          return this.impact.schema[index].columnList[i].changeType;
-        }
-      }
-      return 'normal';
-    },
-    findImpactRec: function findImpactRec(index, tableName) {
-      var $columnOrder = this.database[index].instance.columnOrder;
+                vm.database = response.data;
+                //console.log(vm.database);
+            }).catch(function (errors) {});
+        },
+        findColOrder: function findColOrder(tableName) {
+            for (var i = 0; i < this.database.length; ++i) {
+                if (tableName == this.database[i].name) {
+                    var result = [];
+                    result = result.concat(this.database[i].instance.columnOrder);
+                    for (var j = 0; j < this.impact.schema.length; ++j) {
+                        if (this.impact.schema[j].tableName == tableName) {
+                            for (var k = 0; k < this.impact.schema[j].columnList.length; ++k) {
+                                if (this.impact.schema[j].columnList[k].changeType == 'delete') {
+                                    result.push(this.impact.schema[j].columnList[k].columnName);
+                                }
+                            }
+                        }
+                    }
+                    return result;
+                }
+            }
+        },
+        findChangeType: function findChangeType(index, colName) {
+            for (var i = 0; i < this.impact.schema[index].columnList.length; ++i) {
+                if (this.impact.schema[index].columnList[i].columnName == colName) {
+                    return this.impact.schema[index].columnList[i].changeType;
+                }
+            }
+            return 'normal';
+        },
+        findImpactRec: function findImpactRec(tableName) {
+            var columnOrder = this.findColOrder(tableName);
+            var index = 0;
+            var insTable = [];
+            for (var i = 0; i < this.impact.instance.length; ++i) {
+                if (this.impact.instance[i].tableName == tableName) {
+                    insTable = this.impact.instance[i].recordList;
+                    break;
+                }
+            }
+            for (var _i = 0; _i < this.database.length; ++_i) {
 
-      var insTable = [];
-      for (var i = 0; i < this.impact.instance.length; ++i) {
-        if (this.impact.instance.tableName == tableName) {
-          insTable = this.impact.instance.recordList;
-          break;
-        }
-      }
-      $result = [];
-      for (var _i = 0; _i < insTable.length; ++_i) {}
-    },
-    findColIndex: function findColIndex(orderCol, colName) {
+                if (this.database[_i].name == tableName) {
 
-      for (var i = 0; i < orderCol.length; ++i) {
-        if (orderCol[i] == colName) {
-          return i;
+                    index = _i;
+                    break;
+                }
+            }
+
+            var result = [];
+            //console.log(this.database[index]);
+            for (var _i2 = 0; _i2 < insTable.length; ++_i2) {
+                var sum = {};
+                for (var key in insTable[_i2].pkRecord) {
+                    sum[key] = { old: insTable[_i2].pkRecord[key], new: null };
+                }
+                for (var key in insTable[_i2].columnList) {
+                    sum[key] = insTable[_i2].columnList[key];
+                }
+
+                for (var j = 0; j < this.database[index].instance.records.length; ++j) {
+                    //let insRecord = this.database[index].instance.records[j];
+                    var record = [];
+                    //console.log(this.database[index].instance.records[j]);
+                    for (var k = 0; k < this.database[index].instance.records[j].length; ++k) {
+                        record.push({ old: this.database[index].instance.records[j][k], new: null });
+                    }
+                    //console.log(record);
+
+                    if (columnOrder.length > this.database[index].instance.records[j].length) {
+                        var increment = columnOrder.length - this.database[index].instance.records[j].length;
+
+                        for (var _k = 0; _k < increment; ++_k) {
+                            record.push({ old: null, new: null });
+                        }
+                    }
+
+                    var found = true;
+                    for (key in sum) {
+                        var vIndex = this.findColIndex(columnOrder, key);
+                        if (vIndex <= this.database[index].instance.records[j].length - 1) {
+                            var dataCompare = sum[key].new != null ? sum[key].new : sum[key].old;
+                            if (this.database[index].instance.records[j][vIndex] != dataCompare) {
+                                //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
+                                found = false;
+                                break;
+                            } else {
+                                record[vIndex] = sum[key];
+                            }
+                        } else {
+                            record[vIndex].old = sum[key].old;
+                        }
+                    }
+
+                    if (found) {
+                        result.push(record);
+                    }
+                }
+            }
+
+            return result;
+        },
+        findColIndex: function findColIndex(orderCol, colName) {
+
+            for (var i = 0; i < orderCol.length; ++i) {
+                if (orderCol[i] == colName) {
+                    return i;
+                }
+            }
+            return -1;
         }
-      }
+    },
+    created: function created() {
+        this.getDatabase();
+        this.getImpact();
     }
-  },
-  created: function created() {
-    this.getImpact();
-    this.getDatabase();
-  }
 });
 
 /***/ }),
@@ -87522,12 +87598,47 @@ var render = function() {
                                           ),
                                           _vm._v(" "),
                                           _vm._l(
-                                            _vm.findImpactRec(
-                                              index,
-                                              _vm.tableName
-                                            ),
+                                            _vm.findImpactRec(table.tableName),
                                             function(record, recIndex) {
-                                              return _c("tr", { key: recIndex })
+                                              return _c(
+                                                "tr",
+                                                { key: recIndex },
+                                                _vm._l(record, function(
+                                                  value,
+                                                  valueIndex
+                                                ) {
+                                                  return value.old != null &&
+                                                    value.new != null
+                                                    ? _c(
+                                                        "td",
+                                                        { key: valueIndex },
+                                                        [
+                                                          _vm._v(
+                                                            " \n                                                        " +
+                                                              _vm._s(
+                                                                value.old
+                                                              ) +
+                                                              " -> " +
+                                                              _vm._s(
+                                                                value.new
+                                                              ) +
+                                                              "\n                                                    "
+                                                          )
+                                                        ]
+                                                      )
+                                                    : _c("td", [
+                                                        _vm._v(
+                                                          "\n                                                        " +
+                                                            _vm._s(
+                                                              value.old
+                                                                ? value.old
+                                                                : value.new
+                                                            ) +
+                                                            "\n                                                    "
+                                                        )
+                                                      ])
+                                                })
+                                              )
                                             }
                                           )
                                         ],

@@ -90,7 +90,7 @@ class ImpactResult
            }
            $insImpactList = [];
            foreach(InstanceImpact::where('recImpactId', $recImpact->id)->get() as $insImpact) {
-               $insImpactList[$insImpact->columnName] = ['old' => $insImpact->old, 'new' => $insImpact->new];
+               $insImpactList[$insImpact->columnName] = ['old' => $insImpact->oldValue, 'new' => $insImpact->newValue];
            }
            $table[$recImpact->tableName][] = ['pkRecord' => $pkRecordList, 'columnList' => $insImpactList];
        }

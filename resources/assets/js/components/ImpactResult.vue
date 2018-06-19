@@ -235,8 +235,13 @@
                                                             {{colHead}}
                                                         </td>
                                                     </tr>
-                                                    <tr v-for="(record, recIndex) in findImpactRec(index, tableName)" :key="recIndex">
-
+                                                    <tr v-for="(record, recIndex) in findImpactRec(table.tableName)" :key="recIndex">
+                                                        <td v-for="(value, valueIndex) in record" :key="valueIndex" v-if="value.old !=null && value.new !=null"> 
+                                                            {{ value.old }} -> {{ value.new }}
+                                                        </td>
+                                                        <td v-else>
+                                                            {{ value.old ? value.old : value.new }}
+                                                        </td>
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -391,7 +396,7 @@ export default {
           vm.frNo = response.data.changeFrNo;
           vm.crInputList = response.data.crInputList;
         
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(function(errors) {});
     },
@@ -439,14 +444,25 @@ export default {
         .then(function(response) {
         
           vm.database = response.data;
-          console.log(vm.database);
+          //console.log(vm.database);
         })
         .catch(function(errors) {});
     },
     findColOrder(tableName) {
         for(let i=0; i < this.database.length ; ++i) {
             if(tableName == this.database[i].name) {
-                return this.database[i].instance.columnOrder;
+                let result = [];
+                result = result.concat(this.database[i].instance.columnOrder);
+                for(let j=0; j < this.impact.schema.length; ++j) {
+                    if(this.impact.schema[j].tableName == tableName) {
+                        for(let k=0; k < this.impact.schema[j].columnList.length; ++k) {
+                            if(this.impact.schema[j].columnList[k].changeType == 'delete') {
+                                result.push(this.impact.schema[j].columnList[k].columnName);
+                            }
+                        }
+                    }
+                }
+                return result;
             }
         }
     },
@@ -458,20 +474,79 @@ export default {
         }
         return 'normal'
     },
-    findImpactRec(index, tableName) {
-        let $columnOrder = this.database[index].instance.columnOrder;
-
+    findImpactRec(tableName) {
+         let columnOrder = this.findColOrder(tableName);
+        let index = 0;
         let insTable = [];
         for(let i = 0; i < this.impact.instance.length ; ++i) {
-            if(this.impact.instance.tableName == tableName) {
-                insTable = this.impact.instance.recordList;
+            if(this.impact.instance[i].tableName == tableName) {
+                insTable = this.impact.instance[i].recordList;
                 break;
             }
         }
-        $result = [];
-        for(let i = 0; i < insTable.length; ++i) {
-
+        for(let i = 0 ; i < this.database.length ; ++i) {
+       
+            if(this.database[i].name == tableName) {
+                
+                index = i;
+                break;
+            }
         }
+        
+        let result = [];
+        //console.log(this.database[index]);
+        for(let i = 0; i < insTable.length; ++i) {
+            let sum = {};
+            for(var key in insTable[i].pkRecord) {
+                sum[key] = {old : insTable[i].pkRecord[key], new: null};
+            }
+            for(var key in insTable[i].columnList) {
+                sum[key] = insTable[i].columnList[key];
+            }
+            
+            for(let j = 0 ; j < this.database[index].instance.records.length ; ++j ){
+                //let insRecord = this.database[index].instance.records[j];
+                let record = [];
+                //console.log(this.database[index].instance.records[j]);
+                for(let k = 0 ; k < this.database[index].instance.records[j].length ; ++k) {
+                    record.push({old : this.database[index].instance.records[j][k] , new : null})
+                }
+                //console.log(record);
+          
+                if(columnOrder.length > this.database[index].instance.records[j].length) {
+                    let increment = columnOrder.length - this.database[index].instance.records[j].length;
+
+                    for(let k = 0; k < increment ; ++k) {
+                        record.push({old : null, new : null});
+                    }
+                }
+
+                let found = true;
+                for(key in sum) {
+                     let vIndex = this.findColIndex(columnOrder, key);
+                     if(vIndex <= this.database[index].instance.records[j].length-1) {
+                         let dataCompare = sum[key].new != null ? sum[key].new : sum[key].old;
+                         if(this.database[index].instance.records[j][vIndex] != dataCompare) {
+                             //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
+                             found = false;
+                             break;
+                         }
+                         else {
+                            record[vIndex] = sum[key];
+                         }
+                     }else {
+                         record[vIndex].old = sum[key].old;
+                     }
+                }
+                
+                if(found) {
+                    result.push(record);
+                }
+            }
+            
+        }
+       
+        return result;
 
     },
     findColIndex(orderCol, colName) {
@@ -481,11 +556,12 @@ export default {
                 return i;
             }
         }
+        return -1;
     }
   },
   created() {
-    this.getImpact();
     this.getDatabase();
+    this.getImpact();
   }
 };
 </script>
