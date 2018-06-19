@@ -83,7 +83,7 @@ class ImpactResult
                $table[$recImpact->tableName] = [];
            }
             $pkRecordList = [];
-           
+           //dd($recImpact->id);
            foreach(PkRecord::where('recImpactId', $recImpact->id)->get() as $pkRecord) {
             
                 $pkRecordList[$pkRecord->columnName] = $pkRecord->value;
@@ -101,7 +101,7 @@ class ImpactResult
                
                $tableJson[] = ['tableName' => $tableName, 'recordList' => $recordList];
            }
-           
+           //dd($tableJson);
            return $tableJson;
        }
 

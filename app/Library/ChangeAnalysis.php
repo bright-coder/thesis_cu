@@ -328,7 +328,7 @@ class ChangeAnalysis
             $tcImpact->save();
             foreach($info['tcInputList'] as $name => $inputInfo) {
                 $tcInputImpact = new TcInputImpact;
-                $tcInputImpact->tcImpactId = $tcImpact->save();
+                $tcInputImpact->tcImpactId = $tcImpact->id;
                 $tcInputImpact->name = $name;
                 $tcInputImpact->testDataOld = $inputInfo['old'];
                 $tcInputImpact->testDataNew = $inputInfo['new'];

@@ -86726,6 +86726,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "impact-result",
@@ -86770,7 +86775,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 vm.frNo = response.data.changeFrNo;
                 vm.crInputList = response.data.crInputList;
 
-                //console.log(response.data);
+                console.log(vm.impact);
             }).catch(function (errors) {});
         },
         isColumnImpact: function isColumnImpact(instanceIndex, tableIndex, columnIndex) {
@@ -86805,7 +86810,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }).then(function (response) {
 
                 vm.database = response.data;
-                //console.log(vm.database);
+                console.log(vm.database);
             }).catch(function (errors) {});
         },
         findColOrder: function findColOrder(tableName) {
@@ -86826,6 +86831,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 }
             }
         },
+        findTotalRecImpact: function findTotalRecImpact(tableName) {
+            for (var i = 0; i < this.impact.instance.length; ++i) {
+                if (this.impact.instance[i].tableName == tableName) {
+                    return this.impact.instance[i].recordList.length;
+                    break;
+                }
+            }
+        },
         findChangeType: function findChangeType(index, colName) {
             for (var i = 0; i < this.impact.schema[index].columnList.length; ++i) {
                 if (this.impact.schema[index].columnList[i].columnName == colName) {
@@ -86841,6 +86854,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             for (var i = 0; i < this.impact.instance.length; ++i) {
                 if (this.impact.instance[i].tableName == tableName) {
                     insTable = this.impact.instance[i].recordList;
+                    //console.log(this.impact.instance[i].recordList);
                     break;
                 }
             }
@@ -86854,7 +86868,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
 
             var result = [];
-            //console.log(this.database[index]);
+            //console.log(insTable);
             for (var _i2 = 0; _i2 < insTable.length; ++_i2) {
                 var sum = {};
                 for (var key in insTable[_i2].pkRecord) {
@@ -86863,7 +86877,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 for (var key in insTable[_i2].columnList) {
                     sum[key] = insTable[_i2].columnList[key];
                 }
-
+                //console.log(insTable[i]);
                 for (var j = 0; j < this.database[index].instance.records.length; ++j) {
                     //let insRecord = this.database[index].instance.records[j];
                     var record = [];
@@ -86886,6 +86900,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                         var vIndex = this.findColIndex(columnOrder, key);
                         if (vIndex <= this.database[index].instance.records[j].length - 1) {
                             var dataCompare = sum[key].new != null ? sum[key].new : sum[key].old;
+                            console.log(sum[key]);
                             if (this.database[index].instance.records[j][vIndex] != dataCompare) {
                                 //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
                                 found = false;
@@ -86903,7 +86918,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     }
                 }
             }
-
+            //console.log(result);
             return result;
         },
         findColIndex: function findColIndex(orderCol, colName) {
@@ -87540,7 +87555,22 @@ var render = function() {
                             [
                               _c("div", { staticClass: "card" }, [
                                 _c("div", { staticClass: "card-header" }, [
-                                  _vm._v(_vm._s(table.tableName))
+                                  _vm._v(_vm._s(table.tableName) + " "),
+                                  _c(
+                                    "span",
+                                    { staticClass: "badge badge-info" },
+                                    [
+                                      _vm._v(
+                                        "\n                                                    " +
+                                          _vm._s(
+                                            _vm.findTotalRecImpact(
+                                              table.tableName
+                                            )
+                                          ) +
+                                          "\n                                                "
+                                      )
+                                    ]
+                                  )
                                 ]),
                                 _vm._v(" "),
                                 _c("div", { staticClass: "card-body" }, [
@@ -87708,61 +87738,62 @@ var render = function() {
                                       )
                                     ]),
                                     _vm._v(" "),
-                                    tc.changeType == "edit"
-                                      ? _c("div", { staticClass: "card-hr" }, [
-                                          _c("hr"),
+                                    _c("div", { staticClass: "card-hr" }, [
+                                      _c("hr"),
+                                      _vm._v(" "),
+                                      _c(
+                                        "table",
+                                        { staticClass: "table table-hover" },
+                                        [
+                                          _vm._m(4, true),
                                           _vm._v(" "),
                                           _c(
-                                            "table",
-                                            {
-                                              staticClass: "table table-hover"
-                                            },
-                                            [
-                                              _vm._m(4, true),
-                                              _vm._v(" "),
-                                              _c(
-                                                "tbody",
-                                                _vm._l(tc.inputs, function(
-                                                  tcInputEdit,
-                                                  tcInputIndex
-                                                ) {
-                                                  return _c(
-                                                    "tr",
-                                                    { key: tcInputIndex },
-                                                    [
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            tcInputEdit.name
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _vm._v(" "),
-                                                      _c("td", [
+                                            "tbody",
+                                            _vm._l(tc.tcInputList, function(
+                                              input,
+                                              tcInputIndex
+                                            ) {
+                                              return _c(
+                                                "tr",
+                                                { key: tcInputIndex },
+                                                [
+                                                  _c("td", [
+                                                    _vm._v(_vm._s(input.name))
+                                                  ]),
+                                                  _vm._v(" "),
+                                                  input.old != null &&
+                                                  input.new != null
+                                                    ? _c("td", [
                                                         _vm._v(
                                                           "\n                                                                " +
-                                                            _vm._s(
-                                                              tcInputEdit.oldData
-                                                            ) +
+                                                            _vm._s(input.old) +
                                                             "  \n                                                                "
                                                         ),
                                                         _vm._m(5, true),
                                                         _vm._v(
                                                           "\n                                                                 " +
+                                                            _vm._s(input.new) +
+                                                            "\n                                                            "
+                                                        )
+                                                      ])
+                                                    : _c("td", [
+                                                        _vm._v(
+                                                          "\n                                                                " +
                                                             _vm._s(
-                                                              tcInputEdit.newData
+                                                              input.new
+                                                                ? input.new
+                                                                : input.old
                                                             ) +
                                                             "\n                                                            "
                                                         )
                                                       ])
-                                                    ]
-                                                  )
-                                                })
+                                                ]
                                               )
-                                            ]
+                                            })
                                           )
-                                        ])
-                                      : _vm._e()
+                                        ]
+                                      )
+                                    ])
                                   ])
                                 ]),
                                 _vm._v(" "),

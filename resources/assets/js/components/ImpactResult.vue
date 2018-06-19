@@ -225,7 +225,9 @@
                                 <br>
                                 <div class="card-hr" v-for="(table,index) in impact.schema" :key="index">
                                     <div class="card">
-                                        <div class="card-header">{{ table.tableName }}</div>
+                                        <div class="card-header">{{ table.tableName }} <span class="badge badge-info">
+                                                        {{ findTotalRecImpact(table.tableName )}}
+                                                    </span></div>
                                         <div class="card-body">
                                             <table class="table table-hover table-bordered">
                                                 <thead>
@@ -266,7 +268,7 @@
                                                         {{ tc.changeType }}
                                                     </span>
                                                 </h5>
-                                                <div class="card-hr" v-if="tc.changeType == 'edit'">
+                                                <div class="card-hr">
                                                     <hr>
                                                     <table class="table table-hover">
                                                         <thead>
@@ -276,14 +278,17 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr v-for="(tcInputEdit, tcInputIndex) in tc.inputs" :key="tcInputIndex">
-                                                                <td>{{ tcInputEdit.name }}</td>
-                                                                <td>
-                                                                    {{ tcInputEdit.oldData }} &nbsp;
+                                                            <tr v-for="(input, tcInputIndex) in tc.tcInputList" :key="tcInputIndex">
+                                                                <td>{{ input.name }}</td>
+                                                                <td v-if="input.old != null && input.new != null">
+                                                                    {{ input.old }} &nbsp;
                                                                     <span class="text-warning">
                                                                         <i class="fas fa-arrow-right"></i>
                                                                     </span>
-                                                                    &nbsp;{{tcInputEdit.newData}}
+                                                                    &nbsp;{{input.new}}
+                                                                </td>
+                                                                <td v-else>
+                                                                    {{input.new ? input.new : input.old}}
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -396,7 +401,7 @@ export default {
           vm.frNo = response.data.changeFrNo;
           vm.crInputList = response.data.crInputList;
         
-          //console.log(response.data);
+          console.log(vm.impact);
         })
         .catch(function(errors) {});
     },
@@ -444,7 +449,7 @@ export default {
         .then(function(response) {
         
           vm.database = response.data;
-          //console.log(vm.database);
+          console.log(vm.database);
         })
         .catch(function(errors) {});
     },
@@ -466,6 +471,14 @@ export default {
             }
         }
     },
+    findTotalRecImpact(tableName){
+        for(let i = 0; i < this.impact.instance.length ; ++i) {
+            if(this.impact.instance[i].tableName == tableName) {
+                return this.impact.instance[i].recordList.length;
+                break;
+            }
+        }
+    },
     findChangeType(index, colName) {
         for(let i=0; i < this.impact.schema[index].columnList.length ; ++i) {
             if(this.impact.schema[index].columnList[i].columnName == colName) {
@@ -481,6 +494,7 @@ export default {
         for(let i = 0; i < this.impact.instance.length ; ++i) {
             if(this.impact.instance[i].tableName == tableName) {
                 insTable = this.impact.instance[i].recordList;
+                //console.log(this.impact.instance[i].recordList);
                 break;
             }
         }
@@ -494,7 +508,7 @@ export default {
         }
         
         let result = [];
-        //console.log(this.database[index]);
+        //console.log(insTable);
         for(let i = 0; i < insTable.length; ++i) {
             let sum = {};
             for(var key in insTable[i].pkRecord) {
@@ -502,8 +516,9 @@ export default {
             }
             for(var key in insTable[i].columnList) {
                 sum[key] = insTable[i].columnList[key];
+                
             }
-            
+           //console.log(insTable[i]);
             for(let j = 0 ; j < this.database[index].instance.records.length ; ++j ){
                 //let insRecord = this.database[index].instance.records[j];
                 let record = [];
@@ -526,6 +541,7 @@ export default {
                      let vIndex = this.findColIndex(columnOrder, key);
                      if(vIndex <= this.database[index].instance.records[j].length-1) {
                          let dataCompare = sum[key].new != null ? sum[key].new : sum[key].old;
+                         console.log(sum[key]);
                          if(this.database[index].instance.records[j][vIndex] != dataCompare) {
                              //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
                              found = false;
@@ -545,7 +561,7 @@ export default {
             }
             
         }
-       
+       //console.log(result);
         return result;
 
     },

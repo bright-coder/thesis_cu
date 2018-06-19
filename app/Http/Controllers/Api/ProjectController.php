@@ -203,7 +203,7 @@ class ProjectController extends Controller
                 }
 
                 foreach(DB::table('RECORD_IMPACT')->where('crId', $cr->id)->get() as $recImpact) {
-                    DB::table('OLD_RECORD')->where('recImpactId', $recImpact->id)->delete();
+                    DB::table('PK_RECORD')->where('recImpactId', $recImpact->id)->delete();
                     DB::table('INSTANCE_IMPACT')->where('recImpactId', $recImpact->id)->delete();
                 }
                 DB::table('RECORD_IMPACT')->where('crId', $cr->id)->delete();
@@ -223,7 +223,7 @@ class ProjectController extends Controller
                 }
 
                 foreach(DB::table('FOREIGN_KEY_IMPACT')->where('crId', $cr->id)->get() as $fkImpact) {
-                    DB::table('FOREIGN_KEY_COLUMN')->where('cckImpactId', $fkImpact->id)->delete();
+                    DB::table('FOREIGN_KEY_COLUMN')->where('fkImpactId', $fkImpact->id)->delete();
                     DB::table('FOREIGN_KEY_IMPACT')->where('id', $fkImpact->id)->delete();
                 }
                 DB::table('CHANGE_REQUEST')->where('id', $cr->id)->delete();
