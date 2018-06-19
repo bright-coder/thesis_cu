@@ -86731,6 +86731,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "impact-result",
@@ -87648,7 +87650,11 @@ var render = function() {
                                                               _vm._s(
                                                                 value.old
                                                               ) +
-                                                              " -> " +
+                                                              " "
+                                                          ),
+                                                          _vm._m(4, true),
+                                                          _vm._v(
+                                                            " " +
                                                               _vm._s(
                                                                 value.new
                                                               ) +
@@ -87745,7 +87751,7 @@ var render = function() {
                                         "table",
                                         { staticClass: "table table-hover" },
                                         [
-                                          _vm._m(4, true),
+                                          _vm._m(5, true),
                                           _vm._v(" "),
                                           _c(
                                             "tbody",
@@ -87769,7 +87775,7 @@ var render = function() {
                                                             _vm._s(input.old) +
                                                             "  \n                                                                "
                                                         ),
-                                                        _vm._m(5, true),
+                                                        _vm._m(6, true),
                                                         _vm._v(
                                                           "\n                                                                 " +
                                                             _vm._s(input.new) +
@@ -87824,7 +87830,7 @@ var render = function() {
                                   "table",
                                   { staticClass: "table table-hover" },
                                   [
-                                    _vm._m(6),
+                                    _vm._m(7),
                                     _vm._v(" "),
                                     _c(
                                       "tbody",
@@ -88037,6 +88043,14 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "text-warning" }, [
+      _c("i", { staticClass: "fas fa-arrow-circle-right" })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", { staticClass: "bg-info text-white" }, [
         _c("td", [_vm._v("Input Name")]),
@@ -88050,7 +88064,7 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("span", { staticClass: "text-warning" }, [
-      _c("i", { staticClass: "fas fa-arrow-right" })
+      _c("i", { staticClass: "fas fa-arrow-circle-right" })
     ])
   },
   function() {

@@ -239,7 +239,9 @@
                                                     </tr>
                                                     <tr v-for="(record, recIndex) in findImpactRec(table.tableName)" :key="recIndex">
                                                         <td v-for="(value, valueIndex) in record" :key="valueIndex" v-if="value.old !=null && value.new !=null"> 
-                                                            {{ value.old }} -> {{ value.new }}
+                                                            {{ value.old }} <span class="text-warning">
+                                                                        <i class="fas fa-arrow-circle-right"></i>
+                                                                    </span> {{ value.new }}
                                                         </td>
                                                         <td v-else>
                                                             {{ value.old ? value.old : value.new }}
@@ -283,7 +285,7 @@
                                                                 <td v-if="input.old != null && input.new != null">
                                                                     {{ input.old }} &nbsp;
                                                                     <span class="text-warning">
-                                                                        <i class="fas fa-arrow-right"></i>
+                                                                        <i class="fas fa-arrow-circle-right"></i>
                                                                     </span>
                                                                     &nbsp;{{input.new}}
                                                                 </td>
