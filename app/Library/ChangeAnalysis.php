@@ -378,7 +378,7 @@ class ChangeAnalysis
                         $fkColumn = new ForeignKeyColumn;
                         $fkColumn->fkImpactId = $fkImpact->id;
                         $fkColumn->referencingColumnName = $link['from']['columnName'];
-                        $fkColumn->referencedTable = $link['to']['tableName'];
+                        $fkColumn->referencedTableName = $link['to']['tableName'];
                         $fkColumn->referencedColumnName = $link['to']['columnName'];
                         $fkColumn->save();
                     }

@@ -100,8 +100,8 @@
                                 <div class="card-hr" v-for="(fr,index) in impact.fr" :key="index">
                                     <div class="card">
                                         <div class="card-header">
-                                            {{ fr.functionalRequirementNo }}
-                                            <span class="badge badge-info">{{ fr.inputs.length }}</span>
+                                            {{ fr.no }}
+                                            <span class="badge badge-info">{{ fr.frInputList.length }}</span>
                                         </div>
                                         <div class="card-body">
                                             <table class="table table-hover">
@@ -109,7 +109,7 @@
                                                     <tr class="bg-info text-white">
                                                         <th></th>
                                                         <th>Name</th>
-                                                        <th>DataType</th>
+                                                        <!-- <th>DataType</th>
                                                         <th>Length</th>
                                                         <th>Precision</th>
                                                         <th>Scale</th>
@@ -117,7 +117,7 @@
                                                         <th>Nullable</th>
                                                         <th>Unique</th>
                                                         <th>Min</th>
-                                                        <th>Max</th>
+                                                        <th>Max</th> -->
                                                         <th>Table name</th>
                                                         <th>Column name</th>
                                                         <th>ChangeType</th>
@@ -125,10 +125,10 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr v-for="(input, inputIndex) in fr.inputs" :key="inputIndex">
+                                                    <tr v-for="(input, inputIndex) in fr.frInputList" :key="inputIndex">
                                                         <td>{{ inputIndex+1 }}</td>
                                                         <td>{{ input.name }} </td>
-                                                        <td>{{ input.changeType == 'delete' ? input.old.dataType : input.new.dataType }}</td>
+                                                        <!-- <td>{{ input.changeType == 'delete' ? input.old.dataType : input.new.dataType }}</td>
                                                         <td>{{ input.changeType == 'delete' ? input.old.length : input.new.length }} </td>
                                                         <td>{{ input.changeType == 'delete' ? input.old.precision : input.new.precision }}</td>
                                                         <td>{{ input.changeType == 'delete' ? input.old.scale : input.new.scale }}</td>
@@ -138,9 +138,9 @@
                                                         <td v-if="input.changeType != 'delete'" v-bind:class="[input.new.unique == 'N' ? 'text-danger' : 'text-success']">{{ input.new.unique }}</td>
                                                         <td v-else v-bind:class="[input.old.unique == 'N' ? 'text-danger' : 'text-success']">{{ input.old.unique }}</td>
                                                         <td>{{ input.changeType == 'delete' ? input.old.min : input.new.min }}</td>
-                                                        <td>{{ input.changeType == 'delete' ? input.old.max : input.new.max }}</td>
-                                                        <td>{{ input.changeType == 'delete' ? input.old.tableName : input.new.tableName }}</td>
-                                                        <td>{{ input.changeType == 'delete' ? input.old.columnName : input.new.columnName }}</td>
+                                                        <td>{{ input.changeType == 'delete' ? input.old.max : input.new.max }}</td> -->
+                                                        <td>{{ input.tableName}}</td>
+                                                        <td>{{ input.columnName}}</td>
                                                         <td>
                                                             <span class="badge" v-bind:class="[input.changeType == 'add' ? 'badge-success' : input.changeType == 'edit' ? 'badge-warning' : 'badge-danger']">{{ input.changeType }}</span>
                                                         </td>
@@ -156,7 +156,7 @@
                                 <div class="card-hr" v-for="(table,index) in impact.schema" :key="index">
                                     <div class="card">
                                         <div class="card-header">
-                                            {{ table.name }}
+                                            {{ table.tableName }}
                                             <span class="badge badge-info">{{ table.columnList.length }}</span>
                                         </div>
                                         <div class="card-body">
@@ -181,7 +181,7 @@
                                                 <tbody>
                                                     <tr v-for="(column, columnIndex) in table.columnList" :key="columnIndex">
                                                         <td>{{ columnIndex+1 }}</td>
-                                                        <td>{{ column.name }} </td>
+                                                        <td>{{ column.columnName }} </td>
                                                         <td>{{ column.changeType == 'delete' ? column.old.dataType : column.new.dataType }}</td>
                                                         <td>{{ column.changeType == 'delete' ? column.old.length : column.new.length }} </td>
                                                         <td>{{ column.changeType == 'delete' ? column.old.precision : column.new.precision }}</td>
@@ -206,6 +206,7 @@
                             </div>
                             <div class="tab-pane fade" id="pills-instance" role="tabpanel" aria-labelledby="pills-instance-tab">
                                 <div class="card">
+                                
                                     <div class="card-body">
                                         <h5>
                                             <span class="text-success">
@@ -222,50 +223,26 @@
                                 </div>
 
                                 <br>
-                                <div class="card-hr" v-for="(instance,index) in impact.instance" :key="index">
+                                <div class="card-hr" v-for="(table,index) in impact.schema" :key="index">
                                     <div class="card">
+                                        <div class="card-header">{{ table.tableName }}</div>
                                         <div class="card-body">
-                                            <h5 class="card-title">Impacted by Change Request Input : {{ getNoCrInput(instance.crInputId) }}</h5>
-                                            <hr>
-                                            <div class="card-br" v-for="(table, tableIndex) in instance.tableImpactList" :key="tableIndex">
-                                                <div class="card">
-                                                    <div class="card-header">{{ table.tableName }}</div>
-                                                    <div class="card-body">
-                                                        <table class="table table-hover table-bordered">
-                                                            <thead>
-                                                                <tr class="bg-info text-white">
-                                                                    <td v-for="(columnName, cNameIndex) in table.columnOrder" :key="cNameIndex" v-bind:class="[
-                                                                        table.columnName == columnName && table.changeType == 'edit' ? 'bg-warning' :
-                                                                        table.columnName == columnName && table.changeType == 'delete' ? 'bg-danger' : ''
-                                                                    ]">
-                                                                        {{ columnName }}
-                                                                    </td>
+                                            <table class="table table-hover table-bordered">
+                                                <thead>
+                                                    <tr class="bg-info text-white">
+                                                        <td v-for="(colHead, colIndex) in findColOrder(table.tableName)" :key="colIndex"
+                                                            v-bind:class="[findChangeType(index, colHead) == 'add' ? 'bg-success' : findChangeType(index, colHead) == 'edit' ? 'bg-warning' : findChangeType(index, colHead) == 'normal' ? 'bg-info' : 'bg-danger' ]">
+                                                            {{colHead}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr v-for="(record, recIndex) in findImpactRec(index, tableName)" :key="recIndex">
 
-                                                                    <td v-if="table.changeType == 'add'" class="bg-success"> {{ table.columnName }}</td>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr v-for="(oldRecords, oldIndex) in table.records.old" :key="oldIndex">
-                                                                    <td v-for="(oldValue, oldValueIndex) in oldRecords" :key="oldValueIndex">
-                                                                        {{ oldValue }}
-                                                                        <span v-if="table.changeType == 'edit' && isColumnImpact(index,tableIndex ,oldValueIndex)">
-                                                                            &nbsp;
-                                                                            <span class="text-warning">
-                                                                                <i class="fas fa-arrow-right"></i>
-                                                                            </span>
-                                                                            &nbsp;{{table.records.new[oldIndex]}}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td v-if="table.changeType == 'add'"> {{ table.records.new[oldIndex] }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-
-                                                    </div>
-                                                </div>
-
-                                                <br v-if="instance.tableImpactList.length-1 != tableIndex">
-                                            </div>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            
+                                            
+                                            
 
                                         </div>
                                     </div>
@@ -335,11 +312,11 @@
                                                     <tbody>
                                                         <tr v-for="(rtm,index) in impact.rtm" :key="index">
                                                             <td>{{index+1}}</td>
-                                                            <td>{{ rtm.functionalRequirementNo }}</td>
+                                                            <td>{{ rtm.frNo }}</td>
                                                             <td>
                                                                 <i class="fas" v-bind:class="[rtm.changeType == 'add' ? 'fa-link' : 'fa-unlink']"></i>
                                                             </td>
-                                                            <td>{{ rtm.testCaseNo }}</td>
+                                                            <td>{{ rtm.tcNo }}</td>
                                                             <td>
                                                                 <span class="badge" v-bind:class="[rtm.changeType == 'add' ? 'badge-success' : 'badge-danger']">
                                                                     {{ rtm.changeType }}
@@ -381,8 +358,10 @@ export default {
         instance: "",
         fr: "",
         tc: "",
-        rtm: ""
-      }
+        rtm: "",
+        key: ""
+      },
+      database :""
     };
   },
   methods: {
@@ -411,6 +390,7 @@ export default {
           vm.status = response.data.status;
           vm.frNo = response.data.changeFrNo;
           vm.crInputList = response.data.crInputList;
+        
           console.log(response.data);
         })
         .catch(function(errors) {});
@@ -443,10 +423,69 @@ export default {
         }
       }
       return -1;
+    },
+    getDatabase() {
+      let vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      })
+        .then(function(response) {
+        
+          vm.database = response.data;
+          console.log(vm.database);
+        })
+        .catch(function(errors) {});
+    },
+    findColOrder(tableName) {
+        for(let i=0; i < this.database.length ; ++i) {
+            if(tableName == this.database[i].name) {
+                return this.database[i].instance.columnOrder;
+            }
+        }
+    },
+    findChangeType(index, colName) {
+        for(let i=0; i < this.impact.schema[index].columnList.length ; ++i) {
+            if(this.impact.schema[index].columnList[i].columnName == colName) {
+                return this.impact.schema[index].columnList[i].changeType;
+            }
+        }
+        return 'normal'
+    },
+    findImpactRec(index, tableName) {
+        let $columnOrder = this.database[index].instance.columnOrder;
+
+        let insTable = [];
+        for(let i = 0; i < this.impact.instance.length ; ++i) {
+            if(this.impact.instance.tableName == tableName) {
+                insTable = this.impact.instance.recordList;
+                break;
+            }
+        }
+        $result = [];
+        for(let i = 0; i < insTable.length; ++i) {
+
+        }
+
+    },
+    findColIndex(orderCol, colName) {
+
+        for(let i =0 ; i < orderCol.length ; ++i) {
+            if(orderCol[i] == colName) {
+                return i;
+            }
+        }
     }
   },
   created() {
     this.getImpact();
+    this.getDatabase();
   }
 };
 </script>

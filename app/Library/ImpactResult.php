@@ -34,7 +34,7 @@ class ImpactResult
         return [
             'schema' => $this->getSchemaImpact($type),
             'instance' => $this->getInstanceImpact($type),
-            'keys' => $this->getKeyImpact(),
+            'keys' => $this->getKeyImpact($type),
             'functionalRequirments' => $this->getFrImpact($type),
             'testCases' => $this->getTcImpact($type),
             'rtm' => $this->getRtmImpact($type)
@@ -46,22 +46,23 @@ class ImpactResult
         $table = [];
         foreach(ColumnImpact::where('crId', $this->changeRequestId)->get() as $colImpact) {
             if(!isset($table[$colImpact->tableName])) {
-                $table[$colImpact->tableName] = ['changeType' => $colImpact->changeType ,'old' => null, 'new' => null]; 
+                $table[$colImpact->tableName] = []; 
             }
+            $table[$colImpact->tableName][$colImpact->name] =['changeType' => $colImpact->changeType ,'old' => null, 'new' => null];
             if($colImpact->versionType == 'old') {
-                $table[$colImpact->tableName]['old'] = $colImpact;
+                $table[$colImpact->tableName][$colImpact->name]['old'] = $colImpact;
             }
             else{
-                $table[$colImpact->tableName]['new'] = $colImpact;
+                $table[$colImpact->tableName][$colImpact->name]['new'] = $colImpact;
             }
         }
 
         if($type == 'json') {
             $tableJson = [];
             foreach($table as $tableName => $colList) {
-                $aTable = ['tableName' => $tableName, 'colList' => []];
-                foreach($colList as $columnname => $info) {
-                    $aTable['colList'][] = ['columnName' => $columnname, 
+                $aTable = ['tableName' => $tableName, 'columnList' => []];
+                foreach($colList as $columnName => $info) {
+                    $aTable['columnList'][] = ['columnName' => $columnName, 
                         'changeType' => $info['changeType'],
                         'old' => $info['old'],
                         'new' => $info['new']
@@ -82,8 +83,10 @@ class ImpactResult
                $table[$recImpact->tableName] = [];
            }
             $pkRecordList = [];
+           
            foreach(PkRecord::where('recImpactId', $recImpact->id)->get() as $pkRecord) {
-                $pkRecordList[$pkRecord->columnName] = $value;
+            
+                $pkRecordList[$pkRecord->columnName] = $pkRecord->value;
            }
            $insImpactList = [];
            foreach(InstanceImpact::where('recImpactId', $recImpact->id)->get() as $insImpact) {
@@ -95,8 +98,10 @@ class ImpactResult
        if($type == 'json') {
            $tableJson = [];
            foreach($table as $tableName => $recordList) {
+               
                $tableJson[] = ['tableName' => $tableName, 'recordList' => $recordList];
            }
+           
            return $tableJson;
        }
 
@@ -143,7 +148,7 @@ class ImpactResult
                 $tc[$tcImpact->no] = ['changeType' => $tcImpact->changeType, 'tcInputList' => []];
             }
             foreach(TcInputImpact::where('tcImpactId', $tcImpact->id)->get() as $tcInputImpact) {
-                $tc[$tcImpact->no]['tcInputList'][$tcInputImpact->no] = [
+                $tc[$tcImpact->no]['tcInputList'][$tcInputImpact->name] = [
                     'old' => $tcInputImpact->testDataOld,
                     'new' => $tcInputImpact->testDataNew
                 ];
@@ -155,12 +160,13 @@ class ImpactResult
             foreach($tc as $no => $info) {
                 $aTc = ['no' => $no, 'changeType' => $info['changeType'], 'tcInputList' => []];
                 
-                foreach($info['tcInputList'] as $tcInput) {
-                    $aTc['tcInputList'][] = ['name' => $tcInput['name'],
+                foreach($info['tcInputList'] as $name => $tcInput) {
+                    $aTc['tcInputList'][] = ['name' => $name,
                         'old' => $tcInput['old'],
                         'new' => $tcInput['new']
                     ];
                 }
+                $tcJson[] = $aTc;
             }
             
             return $tcJson;
@@ -193,7 +199,7 @@ class ImpactResult
         return $rtm;
     }
 
-    private function getKeyImpactResult(string $type): array 
+    private function getKeyImpact(string $type): array 
     {
         $table = [];
         foreach(CompositeCandidateKeyImpact::where('crId', $this->changeRequestId)->get() as $cckImpact) {
@@ -216,8 +222,8 @@ class ImpactResult
 
             foreach(ForeignKeyColumn::where('fkImpactId', $fkImpact->id)->get() as $link) {
                 $table[$fkImpact->fkTableName][$fkImpact->fkName]['columns'][] = [
-                    'from' => ['tableName' => $fkTableName, 'columnName' => $link->referencingColumnName],
-                    'to' => ['tableName' => $link->referencedTable, 'columnName' => $link->referencedColumnName]
+                    'from' => ['tableName' => $fkImpact->fkTableName, 'columnName' => $link->referencingColumnName],
+                    'to' => ['tableName' => $link->referencedTableName, 'columnName' => $link->referencedColumnName]
                 ];
             }
         }

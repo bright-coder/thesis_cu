@@ -51928,6 +51928,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 var info = vm.findColumnInfo(vm.content[i].inputs[j].tableName, vm.content[i].inputs[j].columnName);
 
                 vm.content[i].inputs[j] = Object.assign(vm.content[i].inputs[j], info);
+                //console.log(vm.content[i].inputs[j]);
               }
             }
           }
@@ -52020,6 +52021,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           desc: description,
           inputs: inputList.length > 0 ? inputList : undefined
         });
+        for (var _i = 0; _i < vm.content.length; ++_i) {
+          for (var j = 0; j < vm.content[_i].inputs.length; ++j) {
+            var _info = vm.findColumnInfo(vm.content[_i].inputs[j].tableName, vm.content[_i].inputs[j].columnName);
+
+            vm.content[_i].inputs[j] = Object.assign(vm.content[_i].inputs[j], _info);
+            //console.log(vm.content[i].inputs[j]);
+          }
+        }
       });
     },
     getDatabase: function getDatabase() {
@@ -86712,29 +86721,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "impact-result",
@@ -86750,8 +86736,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         instance: "",
         fr: "",
         tc: "",
-        rtm: ""
-      }
+        rtm: "",
+        key: ""
+      },
+      database: ""
     };
   },
 
@@ -86776,6 +86764,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         vm.status = response.data.status;
         vm.frNo = response.data.changeFrNo;
         vm.crInputList = response.data.crInputList;
+
         console.log(response.data);
       }).catch(function (errors) {});
     },
@@ -86796,10 +86785,64 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
       }
       return -1;
+    },
+    getDatabase: function getDatabase() {
+      var vm = this;
+      axios({
+        url: "/api/v1/projects/" + this.projectName + "/databases",
+        method: "GET",
+        data: null,
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        dataType: "json"
+      }).then(function (response) {
+
+        vm.database = response.data;
+        console.log(vm.database);
+      }).catch(function (errors) {});
+    },
+    findColOrder: function findColOrder(tableName) {
+      for (var i = 0; i < this.database.length; ++i) {
+        if (tableName == this.database[i].name) {
+          return this.database[i].instance.columnOrder;
+        }
+      }
+    },
+    findChangeType: function findChangeType(index, colName) {
+      for (var i = 0; i < this.impact.schema[index].columnList.length; ++i) {
+        if (this.impact.schema[index].columnList[i].columnName == colName) {
+          return this.impact.schema[index].columnList[i].changeType;
+        }
+      }
+      return 'normal';
+    },
+    findImpactRec: function findImpactRec(index, tableName) {
+      var $columnOrder = this.database[index].instance.columnOrder;
+
+      var insTable = [];
+      for (var i = 0; i < this.impact.instance.length; ++i) {
+        if (this.impact.instance.tableName == tableName) {
+          insTable = this.impact.instance.recordList;
+          break;
+        }
+      }
+      $result = [];
+      for (var _i = 0; _i < insTable.length; ++_i) {}
+    },
+    findColIndex: function findColIndex(orderCol, colName) {
+
+      for (var i = 0; i < orderCol.length; ++i) {
+        if (orderCol[i] == colName) {
+          return i;
+        }
+      }
     }
   },
   created: function created() {
     this.getImpact();
+    this.getDatabase();
   }
 });
 
@@ -87107,13 +87150,13 @@ var render = function() {
                               _c("div", { staticClass: "card-header" }, [
                                 _vm._v(
                                   "\n                                        " +
-                                    _vm._s(fr.functionalRequirementNo) +
+                                    _vm._s(fr.no) +
                                     "\n                                        "
                                 ),
                                 _c(
                                   "span",
                                   { staticClass: "badge badge-info" },
-                                  [_vm._v(_vm._s(fr.inputs.length))]
+                                  [_vm._v(_vm._s(fr.frInputList.length))]
                                 )
                               ]),
                               _vm._v(" "),
@@ -87126,7 +87169,7 @@ var render = function() {
                                     _vm._v(" "),
                                     _c(
                                       "tbody",
-                                      _vm._l(fr.inputs, function(
+                                      _vm._l(fr.frInputList, function(
                                         input,
                                         inputIndex
                                       ) {
@@ -87140,157 +87183,11 @@ var render = function() {
                                           ]),
                                           _vm._v(" "),
                                           _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.dataType
-                                                  : input.new.dataType
-                                              )
-                                            )
+                                            _vm._v(_vm._s(input.tableName))
                                           ]),
                                           _vm._v(" "),
                                           _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.length
-                                                  : input.new.length
-                                              ) + " "
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.precision
-                                                  : input.new.precision
-                                              )
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.scale
-                                                  : input.new.scale
-                                              )
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.default
-                                                  : input.new.default
-                                              )
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          input.changeType != "delete"
-                                            ? _c(
-                                                "td",
-                                                {
-                                                  class: [
-                                                    input.new.nullable == "N"
-                                                      ? "text-danger"
-                                                      : "text-success"
-                                                  ]
-                                                },
-                                                [
-                                                  _vm._v(
-                                                    _vm._s(input.new.nullable)
-                                                  )
-                                                ]
-                                              )
-                                            : _c(
-                                                "td",
-                                                {
-                                                  class: [
-                                                    input.old.nullable == "N"
-                                                      ? "text-danger"
-                                                      : "text-success"
-                                                  ]
-                                                },
-                                                [
-                                                  _vm._v(
-                                                    _vm._s(input.old.nullable)
-                                                  )
-                                                ]
-                                              ),
-                                          _vm._v(" "),
-                                          input.changeType != "delete"
-                                            ? _c(
-                                                "td",
-                                                {
-                                                  class: [
-                                                    input.new.unique == "N"
-                                                      ? "text-danger"
-                                                      : "text-success"
-                                                  ]
-                                                },
-                                                [
-                                                  _vm._v(
-                                                    _vm._s(input.new.unique)
-                                                  )
-                                                ]
-                                              )
-                                            : _c(
-                                                "td",
-                                                {
-                                                  class: [
-                                                    input.old.unique == "N"
-                                                      ? "text-danger"
-                                                      : "text-success"
-                                                  ]
-                                                },
-                                                [
-                                                  _vm._v(
-                                                    _vm._s(input.old.unique)
-                                                  )
-                                                ]
-                                              ),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.min
-                                                  : input.new.min
-                                              )
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.max
-                                                  : input.new.max
-                                              )
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.tableName
-                                                  : input.new.tableName
-                                              )
-                                            )
-                                          ]),
-                                          _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                input.changeType == "delete"
-                                                  ? input.old.columnName
-                                                  : input.new.columnName
-                                              )
-                                            )
+                                            _vm._v(_vm._s(input.columnName))
                                           ]),
                                           _vm._v(" "),
                                           _c("td", [
@@ -87342,7 +87239,7 @@ var render = function() {
                               _c("div", { staticClass: "card-header" }, [
                                 _vm._v(
                                   "\n                                        " +
-                                    _vm._s(table.name) +
+                                    _vm._s(table.tableName) +
                                     "\n                                        "
                                 ),
                                 _c(
@@ -87371,7 +87268,9 @@ var render = function() {
                                           ]),
                                           _vm._v(" "),
                                           _c("td", [
-                                            _vm._v(_vm._s(column.name) + " ")
+                                            _vm._v(
+                                              _vm._s(column.columnName) + " "
+                                            )
                                           ]),
                                           _vm._v(" "),
                                           _c("td", [
@@ -87558,228 +87457,85 @@ var render = function() {
                         _vm._v(" "),
                         _c("br"),
                         _vm._v(" "),
-                        _vm._l(_vm.impact.instance, function(instance, index) {
+                        _vm._l(_vm.impact.schema, function(table, index) {
                           return _c(
                             "div",
                             { key: index, staticClass: "card-hr" },
                             [
                               _c("div", { staticClass: "card" }, [
-                                _c(
-                                  "div",
-                                  { staticClass: "card-body" },
-                                  [
-                                    _c("h5", { staticClass: "card-title" }, [
-                                      _vm._v(
-                                        "Impacted by Change Request Input : " +
-                                          _vm._s(
-                                            _vm.getNoCrInput(instance.crInputId)
-                                          )
-                                      )
-                                    ]),
-                                    _vm._v(" "),
-                                    _c("hr"),
-                                    _vm._v(" "),
-                                    _vm._l(instance.tableImpactList, function(
-                                      table,
-                                      tableIndex
-                                    ) {
-                                      return _c(
-                                        "div",
-                                        {
-                                          key: tableIndex,
-                                          staticClass: "card-br"
-                                        },
+                                _c("div", { staticClass: "card-header" }, [
+                                  _vm._v(_vm._s(table.tableName))
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "card-body" }, [
+                                  _c(
+                                    "table",
+                                    {
+                                      staticClass:
+                                        "table table-hover table-bordered"
+                                    },
+                                    [
+                                      _c(
+                                        "thead",
                                         [
-                                          _c("div", { staticClass: "card" }, [
-                                            _c(
-                                              "div",
-                                              { staticClass: "card-header" },
-                                              [_vm._v(_vm._s(table.tableName))]
-                                            ),
-                                            _vm._v(" "),
-                                            _c(
-                                              "div",
-                                              { staticClass: "card-body" },
-                                              [
-                                                _c(
-                                                  "table",
+                                          _c(
+                                            "tr",
+                                            {
+                                              staticClass: "bg-info text-white"
+                                            },
+                                            _vm._l(
+                                              _vm.findColOrder(table.tableName),
+                                              function(colHead, colIndex) {
+                                                return _c(
+                                                  "td",
                                                   {
-                                                    staticClass:
-                                                      "table table-hover table-bordered"
+                                                    key: colIndex,
+                                                    class: [
+                                                      _vm.findChangeType(
+                                                        index,
+                                                        colHead
+                                                      ) == "add"
+                                                        ? "bg-success"
+                                                        : _vm.findChangeType(
+                                                            index,
+                                                            colHead
+                                                          ) == "edit"
+                                                          ? "bg-warning"
+                                                          : _vm.findChangeType(
+                                                              index,
+                                                              colHead
+                                                            ) == "normal"
+                                                            ? "bg-info"
+                                                            : "bg-danger"
+                                                    ]
                                                   },
                                                   [
-                                                    _c("thead", [
-                                                      _c(
-                                                        "tr",
-                                                        {
-                                                          staticClass:
-                                                            "bg-info text-white"
-                                                        },
-                                                        [
-                                                          _vm._l(
-                                                            table.columnOrder,
-                                                            function(
-                                                              columnName,
-                                                              cNameIndex
-                                                            ) {
-                                                              return _c(
-                                                                "td",
-                                                                {
-                                                                  key: cNameIndex,
-                                                                  class: [
-                                                                    table.columnName ==
-                                                                      columnName &&
-                                                                    table.changeType ==
-                                                                      "edit"
-                                                                      ? "bg-warning"
-                                                                      : table.columnName ==
-                                                                          columnName &&
-                                                                        table.changeType ==
-                                                                          "delete"
-                                                                        ? "bg-danger"
-                                                                        : ""
-                                                                  ]
-                                                                },
-                                                                [
-                                                                  _vm._v(
-                                                                    "\n                                                                    " +
-                                                                      _vm._s(
-                                                                        columnName
-                                                                      ) +
-                                                                      "\n                                                                "
-                                                                  )
-                                                                ]
-                                                              )
-                                                            }
-                                                          ),
-                                                          _vm._v(" "),
-                                                          table.changeType ==
-                                                          "add"
-                                                            ? _c(
-                                                                "td",
-                                                                {
-                                                                  staticClass:
-                                                                    "bg-success"
-                                                                },
-                                                                [
-                                                                  _vm._v(
-                                                                    " " +
-                                                                      _vm._s(
-                                                                        table.columnName
-                                                                      )
-                                                                  )
-                                                                ]
-                                                              )
-                                                            : _vm._e()
-                                                        ],
-                                                        2
-                                                      )
-                                                    ]),
-                                                    _vm._v(" "),
-                                                    _c(
-                                                      "tbody",
-                                                      _vm._l(
-                                                        table.records.old,
-                                                        function(
-                                                          oldRecords,
-                                                          oldIndex
-                                                        ) {
-                                                          return _c(
-                                                            "tr",
-                                                            { key: oldIndex },
-                                                            [
-                                                              _vm._l(
-                                                                oldRecords,
-                                                                function(
-                                                                  oldValue,
-                                                                  oldValueIndex
-                                                                ) {
-                                                                  return _c(
-                                                                    "td",
-                                                                    {
-                                                                      key: oldValueIndex
-                                                                    },
-                                                                    [
-                                                                      _vm._v(
-                                                                        "\n                                                                    " +
-                                                                          _vm._s(
-                                                                            oldValue
-                                                                          ) +
-                                                                          "\n                                                                    "
-                                                                      ),
-                                                                      table.changeType ==
-                                                                        "edit" &&
-                                                                      _vm.isColumnImpact(
-                                                                        index,
-                                                                        tableIndex,
-                                                                        oldValueIndex
-                                                                      )
-                                                                        ? _c(
-                                                                            "span",
-                                                                            [
-                                                                              _vm._v(
-                                                                                "\n                                                                         \n                                                                        "
-                                                                              ),
-                                                                              _vm._m(
-                                                                                4,
-                                                                                true
-                                                                              ),
-                                                                              _vm._v(
-                                                                                "\n                                                                         " +
-                                                                                  _vm._s(
-                                                                                    table
-                                                                                      .records
-                                                                                      .new[
-                                                                                      oldIndex
-                                                                                    ]
-                                                                                  ) +
-                                                                                  "\n                                                                    "
-                                                                              )
-                                                                            ]
-                                                                          )
-                                                                        : _vm._e()
-                                                                    ]
-                                                                  )
-                                                                }
-                                                              ),
-                                                              _vm._v(" "),
-                                                              table.changeType ==
-                                                              "add"
-                                                                ? _c("td", [
-                                                                    _vm._v(
-                                                                      " " +
-                                                                        _vm._s(
-                                                                          table
-                                                                            .records
-                                                                            .new[
-                                                                            oldIndex
-                                                                          ]
-                                                                        )
-                                                                    )
-                                                                  ])
-                                                                : _vm._e()
-                                                            ],
-                                                            2
-                                                          )
-                                                        }
-                                                      )
+                                                    _vm._v(
+                                                      "\n                                                        " +
+                                                        _vm._s(colHead) +
+                                                        "\n                                                    "
                                                     )
                                                   ]
                                                 )
-                                              ]
+                                              }
                                             )
-                                          ]),
+                                          ),
                                           _vm._v(" "),
-                                          instance.tableImpactList.length - 1 !=
-                                          tableIndex
-                                            ? _c("br")
-                                            : _vm._e()
-                                        ]
+                                          _vm._l(
+                                            _vm.findImpactRec(
+                                              index,
+                                              _vm.tableName
+                                            ),
+                                            function(record, recIndex) {
+                                              return _c("tr", { key: recIndex })
+                                            }
+                                          )
+                                        ],
+                                        2
                                       )
-                                    })
-                                  ],
-                                  2
-                                )
+                                    ]
+                                  )
+                                ])
                               ]),
                               _vm._v(" "),
                               _vm.impact.instance.length > 0 &&
@@ -87851,7 +87607,7 @@ var render = function() {
                                               staticClass: "table table-hover"
                                             },
                                             [
-                                              _vm._m(5, true),
+                                              _vm._m(4, true),
                                               _vm._v(" "),
                                               _c(
                                                 "tbody",
@@ -87879,7 +87635,7 @@ var render = function() {
                                                             ) +
                                                             "  \n                                                                "
                                                         ),
-                                                        _vm._m(6, true),
+                                                        _vm._m(5, true),
                                                         _vm._v(
                                                           "\n                                                                 " +
                                                             _vm._s(
@@ -87926,7 +87682,7 @@ var render = function() {
                                   "table",
                                   { staticClass: "table table-hover" },
                                   [
-                                    _vm._m(7),
+                                    _vm._m(6),
                                     _vm._v(" "),
                                     _c(
                                       "tbody",
@@ -87937,13 +87693,7 @@ var render = function() {
                                         return _c("tr", { key: index }, [
                                           _c("td", [_vm._v(_vm._s(index + 1))]),
                                           _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(
-                                              _vm._s(
-                                                rtm.functionalRequirementNo
-                                              )
-                                            )
-                                          ]),
+                                          _c("td", [_vm._v(_vm._s(rtm.frNo))]),
                                           _vm._v(" "),
                                           _c("td", [
                                             _c("i", {
@@ -87956,9 +87706,7 @@ var render = function() {
                                             })
                                           ]),
                                           _vm._v(" "),
-                                          _c("td", [
-                                            _vm._v(_vm._s(rtm.testCaseNo))
-                                          ]),
+                                          _c("td", [_vm._v(_vm._s(rtm.tcNo))]),
                                           _vm._v(" "),
                                           _c("td", [
                                             _c(
@@ -88076,24 +87824,6 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Name")]),
         _vm._v(" "),
-        _c("th", [_vm._v("DataType")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Length")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Precision")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Scale")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Default")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Nullable")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Unique")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Min")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Max")]),
-        _vm._v(" "),
         _c("th", [_vm._v("Table name")]),
         _vm._v(" "),
         _c("th", [_vm._v("Column name")]),
@@ -88159,14 +87889,6 @@ var staticRenderFns = [
           _vm._v(" Delete\n                                    ")
         ])
       ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("span", { staticClass: "text-warning" }, [
-      _c("i", { staticClass: "fas fa-arrow-right" })
     ])
   },
   function() {

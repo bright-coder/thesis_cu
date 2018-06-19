@@ -91,7 +91,7 @@ export default {
                 let info = vm.findColumnInfo(vm.content[i].inputs[j].tableName, vm.content[i].inputs[j].columnName)
           
                 vm.content[i].inputs[j] = Object.assign(vm.content[i].inputs[j], info)
-                
+                //console.log(vm.content[i].inputs[j]);
               }
             }
           }
@@ -187,6 +187,14 @@ export default {
           desc: description,
           inputs: inputList.length > 0 ? inputList : undefined
         });
+                    for(let i = 0 ; i < vm.content.length; ++i) {
+              for(let j = 0 ; j < vm.content[i].inputs.length ; ++j) {
+                let info = vm.findColumnInfo(vm.content[i].inputs[j].tableName, vm.content[i].inputs[j].columnName)
+          
+                vm.content[i].inputs[j] = Object.assign(vm.content[i].inputs[j], info)
+                //console.log(vm.content[i].inputs[j]);
+              }
+            }
       });
     },
     getDatabase() {

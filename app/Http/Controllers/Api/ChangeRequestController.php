@@ -279,7 +279,8 @@ class ChangeRequestController extends Controller
             'impactList' => (new ImpactResult($changeRequestId))->getImpact('json')
         ];
         foreach($changeRequestInputList as $crInput) {
-            if($crInput->changeType != 'add') {
+            if($crInput->changeType == 'edit') {
+                //dd($crInput);
                 $crInput->name = FunctionalRequirementInput::where('id', $crInput->frInputId)->first()->name;
             }
             if($crInput->status == 0) {

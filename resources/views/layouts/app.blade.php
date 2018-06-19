@@ -54,7 +54,7 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{{ route('changeRequestCreate') }}"><i class="fas fa-plus"></i> New Change Request</a>
               <a class="dropdown-item" href="{{ route('changeRequest') }}"><i class="fas fa-list-ol"></i> Change Request History</a>
-              <div class="dropdown-divider"></div>
+              {{-- <div class="dropdown-divider"></div> --}}
             </div>
           </li>
         </ul>
