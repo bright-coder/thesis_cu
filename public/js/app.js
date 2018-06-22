@@ -82866,6 +82866,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "database-table",
@@ -83411,7 +83413,7 @@ var render = function() {
                                                     "div",
                                                     {
                                                       key: fkIndex,
-                                                      staticClass: "col-md-4"
+                                                      staticClass: "col-md-12"
                                                     },
                                                     [
                                                       _c(
@@ -83466,7 +83468,7 @@ var render = function() {
                                                                                   _vm._s(
                                                                                     fkLink
                                                                                       .from
-                                                                                      .columnName
+                                                                                      .tableName
                                                                                   )
                                                                                 )
                                                                               ]
@@ -83475,7 +83477,16 @@ var render = function() {
                                                                               " "
                                                                             ),
                                                                             _c(
-                                                                              "td"
+                                                                              "td",
+                                                                              [
+                                                                                _vm._v(
+                                                                                  _vm._s(
+                                                                                    fkLink
+                                                                                      .from
+                                                                                      .columnName
+                                                                                  )
+                                                                                )
+                                                                              ]
                                                                             ),
                                                                             _vm._v(
                                                                               " "
@@ -83571,7 +83582,7 @@ var render = function() {
                                                     "div",
                                                     {
                                                       key: ckIndex,
-                                                      staticClass: "col-md-4"
+                                                      staticClass: "col-md-6"
                                                     },
                                                     [
                                                       _c(
@@ -83858,11 +83869,11 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", { staticClass: "table-dark" }, [
-        _c("td", [_vm._v("From")]),
+        _c("td", { staticClass: "bg-info" }, [_vm._v("Referencing Table")]),
         _vm._v(" "),
-        _c("td", [_vm._v("To")]),
+        _c("td", { staticClass: "bg-info" }, [_vm._v("Column")]),
         _vm._v(" "),
-        _c("td", [_vm._v("Table")]),
+        _c("td", [_vm._v("Referenced Table")]),
         _vm._v(" "),
         _c("td", [_vm._v("Column")])
       ])
@@ -83874,11 +83885,11 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", { staticClass: "table-dark" }, [
-        _c("td", [_vm._v("Column")]),
+        _c("td", { staticClass: "bg-info" }, [_vm._v("Column")]),
         _vm._v(" "),
-        _c("td", [_vm._v("Min")]),
+        _c("td", { staticClass: "bg-info" }, [_vm._v("Min")]),
         _vm._v(" "),
-        _c("td", [_vm._v("Max")])
+        _c("td", { staticClass: "bg-info" }, [_vm._v("Max")])
       ])
     ])
   }

@@ -113,7 +113,7 @@
                                             <span class="badge badge-secondary">{{ table.constraints.FKs.length}} </span>
                                         </h4>
                                         <div class="row">
-                                            <div class="col-md-4" v-for="(fk, fkIndex) in table.constraints.FKs" :key="fkIndex">
+                                            <div class="col-md-12" v-for="(fk, fkIndex) in table.constraints.FKs" :key="fkIndex">
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <strong>{{ fk.name }}</strong>
@@ -121,16 +121,18 @@
                                                         <table class="table table-hover">
                                                             <thead>
                                                                 <tr class="table-dark">
-                                                                    <td>From</td>
-                                                                    <td>To</td>
-                                                                    <td>Table</td>
+                                                                    <td class="bg-info">Referencing Table</td>
+                                                                    <td class="bg-info">Column</td>
+                                                                    <!-- <td>to</td> -->
+                                                                    <td>Referenced Table</td>
                                                                     <td>Column</td>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 <tr v-for="(fkLink, fkLinkIndex) in fk.links" :key="fkLinkIndex">
+                                                                    <td>{{ fkLink.from.tableName }}</td>
                                                                     <td>{{ fkLink.from.columnName }}</td>
-                                                                    <td></td>
+                                                                    <!-- <td></td> -->
                                                                     <td>{{ fkLink.to.tableName }}</td>
                                                                     <td>{{ fkLink.to.columnName }}</td>
                                                                 </tr>
@@ -149,7 +151,7 @@
                                             <span class="badge badge-secondary">{{ table.constraints.checks.length}} </span>
                                         </h4>
                                         <div class="row">
-                                            <div class="col-md-4" v-for="(ck, ckIndex) in table.constraints.checks" :key="ckIndex">
+                                            <div class="col-md-6" v-for="(ck, ckIndex) in table.constraints.checks" :key="ckIndex">
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <strong>{{ ck.name }}</strong>
@@ -157,9 +159,9 @@
                                                         <table class="table table-hover">
                                                             <thead>
                                                                 <tr class="table-dark">
-                                                                    <td>Column</td>
-                                                                    <td>Min</td>
-                                                                    <td>Max</td>
+                                                                    <td class="bg-info">Column</td>
+                                                                    <td class="bg-info">Min</td>
+                                                                    <td class="bg-info">Max</td>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>

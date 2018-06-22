@@ -92,7 +92,7 @@ class AnalyzeImpactTCState implements StateInterface
                 $tcNew->no = $prefix."-TC-".($last+1);
                 $tcNew->type = $tcOld->type;
                 $tcNew->save();
-                $tcNewResult[$tcNew->no] = ['changeType' => 'add', 'tcInputList' => [] ,'frId' => $frId, 'tcId' => $tcNew->id];
+                $tcNewResult[$tcNew->no] = ['changeType' => 'add', 'tcInputList' => [] ,'frId' => $tcInfo['frId'], 'tcId' => $tcNew->id];
                 $frNo = FunctionalRequirement::where('id', $tcInfo['frId'])->first()->no;
                 $frInputList = FunctionalRequirementInput::where('frId', $tcInfo['frId'])->get();
                 
