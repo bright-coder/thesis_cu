@@ -22,6 +22,9 @@ final class DataTypeFactory
             case DataType::FLOAT:
                 return new _Float($detail['precision']);
                 break;
+            case DataType::REAL:
+                return new Real($detail['precision']);
+                break;
             case DataType::DECIMAL:
                 return new Decimal($detail['precision'], $detail['scale']);
                 break;

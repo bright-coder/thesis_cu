@@ -168,7 +168,7 @@ class AnalyzeImpactTCState implements StateInterface
                 }
                 if ($tcOld->type == 'invalid') {
                     $tcInputInvalid = TestCaseInput::where('tcId', $tcNew->id)->orderBy('id', 'asc')->first();
-                    $tcInputInvalid->testData = $this->genInvalidTestData($projectId, $tcInputInvalid->name);
+                    $tcInputInvalid->testData = $this->genInvalidTestData($tcInfo['frId'], $tcInputInvalid->name);
                     $tcInputInvalid->save();
                     $tcNewResult[$tcNew->no]['tcInputList'][$tcInputInvalid->name]['new'] = $tcInputInvalid->testData;
                 }
@@ -179,7 +179,9 @@ class AnalyzeImpactTCState implements StateInterface
                     ['no', $tcNo]
                 ])->first();
                 foreach ($tcInfo['tcInputList'] as $name => $testData) {
+                    
                     if (!$this->isCanUse($tcInfo['frId'], $name, $testData['old'])) {
+                        //dd($testData['old']);
                         $frInput = FunctionalRequirementInput::where([
                             ['frId', $tcInfo['frId']],
                             ['name', $name]
@@ -211,22 +213,34 @@ class AnalyzeImpactTCState implements StateInterface
                                 ['tcId', $tcOld->id],
                                 ['name', $name]
                             ])->first();
-                            $tcInput->testData = $newData[$pickAt][$columnName];
+                            $tcInput->testData = $newData[$pickAt][$info['columnName']];
                             $tcInput->save();
-                            $tcResult[$tcNo]['tcInputList'][$name]['new'] = $newData[$pickAt][$columnName];
+                            $tcResult[$tcNo]['tcInputList'][$name]['new'] = $newData[$pickAt][$info['columnName']];
                         }
                     }
                 }
                 if ($tcOld->type == 'invalid') {
                     $tcInputInvalid = TestCaseInput::where('tcId', $tcOld->id)->orderBy('id', 'asc')->first();
-                    $tcInputInvalid->testData = $this->genInvalidTestData($projectId, $tcInputInvalid->name);
+                    $tcInputInvalid->testData = $this->genInvalidTestData($tcInfo['frId'], $tcInputInvalid->name);
                     $tcInputInvalid->save();
                     $tcResult[$tcNo]['tcInputList'][$tcInputInvalid->name]['new'] = $tcInputInvalid->testData;
                 }
             }
         }
-
-        $changeAnalysis->addTcImpactResult(array_merge($tcResult, $tcNewResult));
+        $result = array_merge($tcResult, $tcNewResult);
+        foreach($result as $tcNo => $tcInfo) {
+            $isDelete = true;
+            foreach($tcInfo['tcInputList'] as $tcName => $data) {
+                if($data['new'] != null) {
+                    $isDelete = false;
+                    break;
+                }
+            }
+            if($isDelete) {
+                unset($result[$tcNo]);
+            }
+        }
+        $changeAnalysis->addTcImpactResult($result);
         $changeAnalysis->saveTcImpact();
         $changeAnalysis->setState(new AnalyzeImpactRTMState);
         $changeAnalysis->analyze();
@@ -249,6 +263,7 @@ class AnalyzeImpactTCState implements StateInterface
                 return substr(str_shuffle(MD5(microtime())), $column->getDataType()->getLength()+5, $column->getDataType()->getLength()+10);
             case 'int':
             case 'float':
+            case 'real':
             case 'decimal':
                 return substr(str_shuffle(MD5(microtime())), 10, 15);
             case 'date':
@@ -280,6 +295,7 @@ class AnalyzeImpactTCState implements StateInterface
                 } else {
                     return true;
                 }
+            
                 // no break
                 case 'nchar':
                 case 'nvarchar':
@@ -312,6 +328,7 @@ class AnalyzeImpactTCState implements StateInterface
                 }
                 // no break
             case 'float':
+            case 'real' :
                 if (is_numeric($testData)) {
                     $mantissaPrecisionMax = $column->getDataType()->getPrecision();
                     //$maxP = $mantissaPrecision < 24 ? 7 : 15;

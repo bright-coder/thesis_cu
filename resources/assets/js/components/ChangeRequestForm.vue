@@ -188,11 +188,12 @@
                                         <input type="number" class="form-control" v-model="changeRequest.length" required>
                                     </div>
                                 </div>
-                                <div class="form-group row" v-if="changeRequest.dataType.indexOf('float') != -1 || changeRequest.dataType.indexOf('decimal') != -1">
+                                <div class="form-group row" v-if="changeRequest.dataType.indexOf('float') != -1 || changeRequest.dataType.indexOf('decimal') != -1 || changeRequest.dataType.indexOf('real') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Precision</label>
-                                    <div class="col-sm-10">
+                                    <div class="col-sm-10" v-if="changeRequest.dataType.indexOf('decimal') != -1">
                                         <input type="number" class="form-control" v-model="changeRequest.precision" required>
                                     </div>
+                                    <label v-else class="col-sm-10 col-form-label">{{ changeRequest.precision }}</label>
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('decimal') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Scale</label>

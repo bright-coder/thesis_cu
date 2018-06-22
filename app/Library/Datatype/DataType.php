@@ -10,6 +10,7 @@ final class DataType {
     const NVARCHAR = 'nvarchar';
     const INTEGER = 'int';
     const FLOAT = 'float';
+    const REAL = 'real';
     const DECIMAL = 'decimal';
     const DATE = 'date';
     const DATETIME = 'datetime';
@@ -35,6 +36,7 @@ final class DataType {
             case DataType::INTEGER :
             case DataType::FLOAT :
             case DataType::DECIMAL :
+            case DataType::REAL:
                 return true;
 
             default:

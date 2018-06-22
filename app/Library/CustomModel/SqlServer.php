@@ -213,6 +213,31 @@ class SqlServer implements DBTargetInterface
         return [];
     }
 
+    private function getDefaultConstraintSQL(string $tableName, string $columnName): string
+    {
+        return "SELECT
+            default_constraints.name as consName
+        FROM 
+            sys.all_columns
+        
+                INNER JOIN
+            sys.tables
+                ON all_columns.object_id = tables.object_id
+        
+                INNER JOIN 
+            sys.schemas
+                ON tables.schema_id = schemas.schema_id
+        
+                INNER JOIN
+            sys.default_constraints
+                ON all_columns.default_object_id = default_constraints.object_id
+        
+        WHERE 
+                schemas.name = 'dbo'
+            AND tables.name = '$tableName'
+            AND all_columns.name = '$columnName'";
+    }
+
     private function dropConstraintSQL(string $tableName, string $constraint) : string
     {
         // $stmt = $this->conObj->prepare("ALTER TABLE $tableName DROP CONSTRAINT $constraint");
@@ -265,7 +290,7 @@ class SqlServer implements DBTargetInterface
 
     private function getStrSqlNullable(bool $isNullable): string
     {
-        return !$isNullable ? 'NOT NULL' : 'NULL';
+        return !$isNullable ? 'NOT NULL' : '';
     }
 
     private function getStrSqlDataType(string $dataType, array $info = ['length' => null , 'precision' => null , 'scale' => null]): string
@@ -314,13 +339,13 @@ class SqlServer implements DBTargetInterface
                 $strSqlNullable = $this->getStrSqlNullable($columnDetail['nullable']);
             }
         } else {
-            $strSqlNullable = "NULL";
+            $strSqlNullable = "";
         }
 
         
 
-        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable." ".$strSqlDefault;
-        
+        $strQuery = "ALTER TABLE ".$columnDetail['tableName']." ALTER COLUMN ".$columnDetail['columnName']." ".$strSqlDataType." ".$strSqlNullable;
+
         return $strQuery;
         // $stmt = $this->conObj->prepare($strQuery);
         // if ($stmt->execute()) {
@@ -332,7 +357,7 @@ class SqlServer implements DBTargetInterface
     public function getDuplicateInstance(string $tableName, array $checkColumns, array $pkColumns): array
     {
         $strOn = [];
-        foreach ($columnName as $column) {
+        foreach ($checkColumns as $column) {
             $strOn[] = "y.".$column."=dt.".$column;
         }
         $selectColumn = array_unique(array_merge($pkColumns, $checkColumns), SORT_REGULAR);
@@ -343,9 +368,9 @@ class SqlServer implements DBTargetInterface
         $strSelectColumn = implode(',', $selectColumn);
     
         $strQuery = "SELECT {$strSelectColumn} FROM {$tableName} y 
-            INNER JOIN (SELECT ".implode(",", $columnName)."
+            INNER JOIN (SELECT ".implode(",", $checkColumns)."
                         FROM {$tableName}
-                        GROUP BY ".\implode(",", $columnName)."
+                        GROUP BY ".\implode(",", $checkColumns)."
                         HAVING COUNT(*)>1
         ) dt ON ".\implode(" AND ", $strOn);
         $stmt = $this->conObj->prepare($strQuery);
@@ -443,8 +468,8 @@ class SqlServer implements DBTargetInterface
                 $pkTrace[$table->getName()] = $table->getPK();
             }
 
-            foreach($dbTarget->getAllTables() as $table) {
-                foreach($table->getAllCheckConstraint() as $check){
+            foreach ($dbTarget->getAllTables() as $table) {
+                foreach ($table->getAllCheckConstraint() as $check) {
                     $this->conObj->query($this->dropConstraintSQL($table->getName(), $check->getName()));
                     $minAllColumn = $check->getDetail()['min'];
                     $min = null;
@@ -466,7 +491,7 @@ class SqlServer implements DBTargetInterface
             foreach ($dbTarget->getAllTables() as $table) {
                 foreach ($table->getAllUniqueConstraint() as $unique) {
                     $this->conObj->query($this->dropConstraintSQL($table->getName(), $unique->getName()));
-                    $unique[$table->getName()][] = $unique;
+                    $uniqueTrace[$table->getName()][] = $unique;
                 }
             }
 
@@ -497,7 +522,6 @@ class SqlServer implements DBTargetInterface
                                 $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$info['new'][$columnName]]);
                             }
                              if (isset($info['new']['min']) || isset($info['new']['max'])) {
-                                 
                                  if (!isset($checkTrace[$tableName])) {
                                      $checkTrace[$tableName] = [];
                                  }
@@ -522,6 +546,12 @@ class SqlServer implements DBTargetInterface
                             foreach ($arrayCheckRelated as $check) {
                                 $this->conObj->query($this->dropConstraintSQL($tableName, $check->getName()));
                                 $consUnTrace[$check->getName()] = true;
+                            }
+                            if($info['old']['default'] != null) {
+                               $defaultCons = $this->conObj->query($this->getDefaultConstraintSQL($tableName, $columnName));
+                               foreach($defaultCons as $row) {
+                                   $this->conObj->query($this->dropConstraintSQL($tableName, $row['consName']));
+                               }
                             }
                             $this->conObj->query($this->dropColumnSQL($tableName, $columnName));
                             break;
@@ -610,91 +640,37 @@ class SqlServer implements DBTargetInterface
                                 }
                             }
                         }
-                        $columnEdit[$tableName][] = ['isCompat' => $isCompat, 'columnName' => $columnName, 'isInsImpact' => $isInsImpact];
+                        if($info['old']['default'] != null) {
+                            $defaultCons = $this->conObj->query($this->getDefaultConstraintSQL($tableName, $columnName));
+                            foreach($defaultCons as $row) {
+                                $this->conObj->query($this->dropConstraintSQL($tableName, $row['consName']));
+                            }
+                         }
+                        
+                         $detail = $columnDetail;
+                            $detail['columnName'] = $columnName;
+                        $columnEdit[$tableName][] = ['isCompat' => $isCompat, 'columnName' => $columnName, 'isInsImpact' => $isInsImpact, 'detail' => $detail];
                         
                         if ($isInsImpact) {
                             $this->conObj->query($this->addColumnSQL($columnDetail));
+                        } else {
+                            $detail = $columnDetail;
+                            $detail['columnName'] = $columnName;
+                            $this->conObj->query($this->updateColumnSQL($detail));
+
+                            if($columnDetail['default'] != null && $columnDetail['default'] != '#NULL') {
+                                $default = $columnDetail['default'];
+                                $consName = "DF_".$tableName."_".$columnName;
+                                $this->conObj->query("alter table $tableName add constraint {$consName} default '$default' for $columnName");
+                            }
+                            //unset($notNullTrace[$tableName][$columnName]);
                         }
                         
                         
-                        // if ($dbTarget->getTableByName($tableName)->isFK($columnName)) {
-                        //     foreach ($dbTarget->getTableByName($tableName)->getAllFK() as $fk) {
-                        //         foreach ($fk->getColumns() as $link) {
-                        //             if ($link['from']['tableName'] == $tableName && $link['from']['columnName']) {
-                        //                 $isTrace = true;
-                        //                 if ($keyImpacts) {
-                        //                     if (isset($keyImpacts[$tableName])) {
-                        //                         if (isset($keyImpacts[$tableName][$fk->getName()])) {
-                        //                             $isTrace = false;
-                        //                         }
-                        //                     }
-                        //                 }
-                        //                 if ($isTrace) {
-                        //                     if (!isset($fkTrace[$tableName])) {
-                        //                         $fkTrace[$tableName] = [];
-                        //                     }
-                        //                     $fkTrace[$tableName][$fk->getName()] = $fk;
-                        //                 }
-                        //             }
-                        //         }
-                        //             $this->conObj->query($this->dropConstraintSQL($fkTableName, $fk->getName()));
-                                
-                                
-                        //     }
-                        // }
-                        
-                        // if ($info['isPK']) {
-                        //     foreach ($dbTarget->findFKRelated($tableName, $columnName) as $fk) {
-                        //         $fk = $fk['fk'];
-                        //         $fkTableName = $fk->getColumns()[0]['from']['tableName'];
-                        //         $isTrace = true;
-                        //         if ($keyImpacts) {
-                        //             if (isset($keyImpacts[$fkTableName])) {
-                        //                 if (isset($keyImpacts[$fkTableName][$fk->getName()])) {
-                        //                     $isTrace = false;
-                        //                 }
-                        //             }
-                        //         }
-                        //         if ($isTrace) {
-                        //             if (!isset($fkTrace[$fkTableName])) {
-                        //                 $fkTrace[$fkTableName] = [];
-                        //             }
-                        //             $fkTrace[$fkTableName][$fk->getName()] = $fk;
-                        //         }
-                                
-                        //             $this->conObj->query($this->dropConstraintSQL($fkTableName, $fk->getName()));
-                                
-                                
-                        //     }
-                        //     if (!isset($pkTrace[$tableName])) {
-                        //         $pkTrace[$tableName] = $dbTarget->getTableByName($tableName)->getPK();
-                        //     }
-                        //     dd($dbTarget->getTableByName($tableName)->getPK()->getName());
-                        //         $this->conObj->query($this->dropConstraintSQL($tableName, $dbTarget->getTableByName($tableName)->getPK()->getName()));
-
-                             
-                            
-                        // }
-                        
                         if ($columnDetail['unique'] == 'Y' || $columnDetail['unique'] == true) {
-                            // foreach ($dbTarget->findUniqueConstraintRelated($tableName, $columnName) as $unique) {
-                            //     $isTrace = true;
-                            //     if ($keyImpacts) {
-                            //         if (isset($keyImpacts[$tableName])) {
-                            //             if (isset($keyImpacts[$tableName][$unique->getName()])) {
-                            //                 $isTrace = false;
-                            //             }
-                            //         }
-                            //     }
-                            //     if ($isTrace) {
-                            //         if (!isset($uniqueTrace[$tableName])) {
-                            //             $uniqueTrace[$tableName] = [];
-                            //         }
-                            //         $uniqueTrace[$tableName][] = $unique;
-                            //     }
-                            // }
+
                             if ($columnDetail['unique'] == 'Y') {
-                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$info['new'][$columnName]]);
+                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$info['old']['columnName']]);
                             }
                         }
     
@@ -702,8 +678,11 @@ class SqlServer implements DBTargetInterface
                             if (!isset($notNullTrace[$tableName])) {
                                 $notNullTrace[$tableName] = [];
                             }
-                            $notNullTrace[$tableName][$columnName] = $columnDetail;
-                            $notNullTrace[$tableName][$columnName]['columnName'] = $columnName;
+                            if($isInsImpact) {
+                                $notNullTrace[$tableName][$columnName] = $columnDetail;
+                                $notNullTrace[$tableName][$columnName]['columnName'] = $columnName;
+                            }
+                            
                         }
                         
                         switch ($columnDetail['dataType']) {
@@ -749,7 +728,7 @@ class SqlServer implements DBTargetInterface
                         }
                     }
                     //dd($row['pkRecord']);
-                    if($newInsColumns) {
+                    if ($newInsColumns) {
                         $this->conObj->query($this->updateInstanceSQL($tableName, $row['pkRecord'], $newInsColumns));
                     }
                 }
@@ -761,12 +740,22 @@ class SqlServer implements DBTargetInterface
                     if ($info['isInsImpact']) {
                         $tempCol = $info['columnName'].'#temp';
                         if ($info['isCompat']) {
-                            $this->conObj->query("UPDATE {$tableName} SET {$tempCol} = {$info['columnName']}  WHERE {$info['columnName']} IS NULL");
+                            $columnName = $info['columnName'];
+                            $this->conObj->query("UPDATE {$tableName} SET {$tempCol} = $columnName  WHERE {$tempCol} IS NULL");
                         }
-                        
+                        //if($scImpacts[])
                         $this->conObj->query($this->dropColumnSQL($tableName, $info['columnName']));
                         $this->conObj->query($this->updateColumnNameSQL($tableName, $info['columnName'].'#temp', $info['columnName']));
+                       
+                        $default = $info['detail']['default'];
+                        $columName = $info['columnName'];
+                        if($default != null && $default != '#NULL') {
+                            $consName = "DF_".$tableName."_".$info['columnName'];
+                            $this->conObj->query("alter table $tableName add constraint {$consName} default '$default' for $columnName"); 
+                        }
+                        
                     }
+                    
                 }
             }
 
@@ -799,7 +788,6 @@ class SqlServer implements DBTargetInterface
 
             foreach ($checkTrace as $tableName => $checkList) {
                 foreach ($checkList as $columnName => $info) {
-                    
                     $this->conObj->query($this->addCheckConstraintSQL($tableName, $columnName, $info['min'], $info['max']));
                 }
             }

@@ -81,7 +81,10 @@ class Column
 
     public function getDefault()
     {
-        return $this->default;
+        $default = str_replace("(","",$this->default);
+        $default = str_replace(")","",$default);
+        $default = str_replace("'","",$default);
+        return $default;
     }
 
 }

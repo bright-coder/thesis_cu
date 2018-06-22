@@ -84763,6 +84763,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["accessToken", "selectedProjectInit", "selectedFunctionalRequirementInit"],
@@ -85770,7 +85771,8 @@ var render = function() {
                             : _vm._e(),
                           _vm._v(" "),
                           _vm.changeRequest.dataType.indexOf("float") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("decimal") != -1
+                          _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("real") != -1
                             ? _c("div", { staticClass: "form-group row" }, [
                                 _c(
                                   "label",
@@ -85781,35 +85783,49 @@ var render = function() {
                                   [_vm._v("Precision")]
                                 ),
                                 _vm._v(" "),
-                                _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.changeRequest.precision,
-                                        expression: "changeRequest.precision"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: { type: "number", required: "" },
-                                    domProps: {
-                                      value: _vm.changeRequest.precision
-                                    },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
+                                _vm.changeRequest.dataType.indexOf("decimal") !=
+                                -1
+                                  ? _c("div", { staticClass: "col-sm-10" }, [
+                                      _c("input", {
+                                        directives: [
+                                          {
+                                            name: "model",
+                                            rawName: "v-model",
+                                            value: _vm.changeRequest.precision,
+                                            expression:
+                                              "changeRequest.precision"
+                                          }
+                                        ],
+                                        staticClass: "form-control",
+                                        attrs: { type: "number", required: "" },
+                                        domProps: {
+                                          value: _vm.changeRequest.precision
+                                        },
+                                        on: {
+                                          input: function($event) {
+                                            if ($event.target.composing) {
+                                              return
+                                            }
+                                            _vm.$set(
+                                              _vm.changeRequest,
+                                              "precision",
+                                              $event.target.value
+                                            )
+                                          }
                                         }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "precision",
-                                          $event.target.value
+                                      })
+                                    ])
+                                  : _c(
+                                      "label",
+                                      {
+                                        staticClass: "col-sm-10 col-form-label"
+                                      },
+                                      [
+                                        _vm._v(
+                                          _vm._s(_vm.changeRequest.precision)
                                         )
-                                      }
-                                    }
-                                  })
-                                ])
+                                      ]
+                                    )
                               ])
                             : _vm._e(),
                           _vm._v(" "),

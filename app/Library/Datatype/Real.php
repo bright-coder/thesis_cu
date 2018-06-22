@@ -5,17 +5,17 @@ namespace App\Library\Datatype;
 use App\Library\Datatype\DataType;
 use App\Library\Datatype\DataTypeInterface;
 
-class _Float implements DataTypeInterface {
+class Real implements DataTypeInterface {
     private $n;
     private $precision;
 
-    public function __construct(int $n = 53){
+    public function __construct(int $n = 24){
         $this->n = $n;
-        $this->precision = 15;
+        $this->precision = 7;
     }
 
     public function getType(): string{
-        return DataType::FLOAT ;
+        return DataType::REAL ;
     }
 
     public function getLength()
@@ -32,6 +32,4 @@ class _Float implements DataTypeInterface {
     {
         return null;
     }
-    
-
 }
