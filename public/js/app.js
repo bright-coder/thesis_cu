@@ -84764,6 +84764,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["accessToken", "selectedProjectInit", "selectedFunctionalRequirementInit"],
@@ -84965,6 +84968,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
               delete newChangeRequest[key];
             }
           });
+          if (this.changeRequest.dataType == 'float') {
+            this.changeRequest.precision = 15;
+          } else if (this.changeRequest.dataType == 'real') {
+            this.changeRequest.precision = 7;
+          }
         }
         var isError = false;
 
@@ -85703,6 +85711,10 @@ var render = function() {
                                     _vm._v("int")
                                   ]),
                                   _vm._v(" "),
+                                  _c("option", { attrs: { value: "real" } }, [
+                                    _vm._v("real")
+                                  ]),
+                                  _vm._v(" "),
                                   _c("option", { attrs: { value: "float" } }, [
                                     _vm._v("float")
                                   ]),
@@ -85822,7 +85834,13 @@ var render = function() {
                                       },
                                       [
                                         _vm._v(
-                                          _vm._s(_vm.changeRequest.precision)
+                                          _vm._s(
+                                            _vm.changeRequest.dataType.indexOf(
+                                              "float"
+                                            ) != -1
+                                              ? 15
+                                              : 7
+                                          )
                                         )
                                       ]
                                     )
@@ -86053,7 +86071,8 @@ var render = function() {
                           _vm._v(" "),
                           _vm.changeRequest.dataType.indexOf("int") != -1 ||
                           _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("float") != -1
+                          _vm.changeRequest.dataType.indexOf("float") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("real") != -1
                             ? _c("div", { staticClass: "form-group row" }, [
                                 _c(
                                   "label",
@@ -86096,7 +86115,8 @@ var render = function() {
                           _vm._v(" "),
                           _vm.changeRequest.dataType.indexOf("int") != -1 ||
                           _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("float") != -1
+                          _vm.changeRequest.dataType.indexOf("float") != -1 ||
+                          _vm.changeRequest.dataType.indexOf("real") != -1
                             ? _c("div", { staticClass: "form-group row" }, [
                                 _c(
                                   "label",

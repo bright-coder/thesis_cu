@@ -175,6 +175,7 @@
                                             <option value="nchar">nchar</option>
                                             <option value="nvarchar">nvarchar</option>
                                             <option value="int">int</option>
+                                            <option value="real">real</option>
                                             <option value="float">float</option>
                                             <option value="decimal">decimal</option>
                                             <option value="date">date</option>
@@ -193,7 +194,7 @@
                                     <div class="col-sm-10" v-if="changeRequest.dataType.indexOf('decimal') != -1">
                                         <input type="number" class="form-control" v-model="changeRequest.precision" required>
                                     </div>
-                                    <label v-else class="col-sm-10 col-form-label">{{ changeRequest.precision }}</label>
+                                    <label v-else class="col-sm-10 col-form-label">{{ changeRequest.dataType.indexOf('float') != -1 ? 15 : 7 }}</label>
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('decimal') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Scale</label>
@@ -222,7 +223,8 @@
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('int') != -1 ||
                             changeRequest.dataType.indexOf('decimal') != -1 ||
-                            changeRequest.dataType.indexOf('float') != -1">
+                            changeRequest.dataType.indexOf('float') != -1 ||
+                            changeRequest.dataType.indexOf('real') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Min</label>
                                     <div class="col-sm-10">
                                         <input type="number" class="form-control" v-model="changeRequest.min">
@@ -230,7 +232,8 @@
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('int') != -1 ||
                             changeRequest.dataType.indexOf('decimal') != -1 ||
-                            changeRequest.dataType.indexOf('float') != -1">
+                            changeRequest.dataType.indexOf('float') != -1 ||
+                            changeRequest.dataType.indexOf('real') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Max</label>
                                     <div class="col-sm-10">
                                         <input type="number" class="form-control" v-model="changeRequest.max">
@@ -490,6 +493,12 @@ export default {
               delete newChangeRequest[key];
             }
           });
+          if(this.changeRequest.dataType == 'float') {
+              this.changeRequest.precision = 15;
+          }
+          else if(this.changeRequest.dataType == 'real') {
+              this.changeRequest.precision = 7;
+          }
         }
         let isError = false;
 
