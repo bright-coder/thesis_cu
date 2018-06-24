@@ -252,7 +252,6 @@
                                             
                                             
                                             
-
                                         </div>
                                     </div>
                                     <hr v-if="impact.instance.length > 0 && index != impact.instance.length -1">
@@ -546,6 +545,7 @@ export default {
                          console.log(sum[key]);
                          if(this.database[index].instance.records[j][vIndex] != dataCompare) {
                              //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
+                             console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
                              found = false;
                              break;
                          }
@@ -559,6 +559,7 @@ export default {
                 
                 if(found) {
                     result.push(record);
+                    //console.log('fuck');
                 }
             }
             

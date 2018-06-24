@@ -81,7 +81,7 @@ class AnalyzeImpactTCState implements StateInterface
         $frImpact = $changeAnalysis->getFrImpactResult();
         foreach ($tcResult as $tcNo => $tcInfo) {
             if ($tcInfo['changeType'] == 'delete') {
-                $last = TestCase::where('projectId', $projectId)->orderBy('id','desc')->first();
+                $last = TestCase::where('projectId', $projectId)->orderBy('id', 'desc')->first();
                 $last = intval(explode("-", $last)[2]);
                 $tcOld = TestCase::where([
                     ['projectId', $projectId],
@@ -123,34 +123,43 @@ class AnalyzeImpactTCState implements StateInterface
                                     if (isset($row['columnList'][$frInput->columnName])) {
                                         $info = $row['columnList'][$frInput->columnName];
                                         if ($info['changeType'] == 'edit') {
-                                            if($info['oldValue'] == $testData) {
-                                                $tcInput = new TestCaseInput;
-                                            $tcInput->tcId = $tcNew->id;
-                                            $tcInput->name = $name;
-                                            $tcInput->testData = $info['newValue'] ;
-                                            $tcInput->save();
-                                            $tcNewResult[$tcNew->no]['tcInputList'][$name] = ['old' => null, 'new' => $tcInput->testData];
-                                            $isAdd = true;
-                                            break;
-                                        }
-                                            
-                                            
+                                            if ($info['oldValue'] == $testData) {
+                                                //     $tcInput = new TestCaseInput;
+                                                // $tcInput->tcId = $tcNew->id;
+                                                // $tcInput->name = $name;
+                                                $tcInput->testData = $info['newValue'] ;
+                                                $tcInput->save();
+                                                $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
+                                                $isAdd = true;
+                                                break;
+                                            }
                                         }
                                     }
                                     if ($isAdd) {
                                         break;
                                     }
                                 }
+                                if ($isAdd == false) {
+                                    $newData = $this->dbTargetConnection->getInstanceByTableName($frInput->tableName, [$frInput->columnName]);
+                                    $total = count($newData);
+                                    $pickAt = rand(0, $total-1);
+                                    // $tcInput = new TestCaseInput;
+                                    // $tcInput->tcId = $tcNew->id;
+                                    // $tcInput->name = $name;
+                                    $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
+                                    $tcInput->save();
+                                    $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
+                                }
                             } else {
                                 $newData = $this->dbTargetConnection->getInstanceByTableName($frInput->tableName, [$frInput->columnName]);
                                 $total = count($newData);
                                 $pickAt = rand(0, $total-1);
-                                $tcInput = new TestCaseInput;
-                                $tcInput->tcId = $tcNew->id;
-                                $tcInput->name = $name;
+                                // $tcInput = new TestCaseInput;
+                                // $tcInput->tcId = $tcNew->id;
+                                // $tcInput->name = $name;
                                 $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
                                 $tcInput->save();
-                                $tcNewResult[$tcNew->no]['tcInputList'][$name] = ['old' => null, 'new' => $tcInput->testData];
+                                $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
                             }
                         }
                     } else {
@@ -180,7 +189,6 @@ class AnalyzeImpactTCState implements StateInterface
                     ['no', $tcNo]
                 ])->first();
                 foreach ($tcInfo['tcInputList'] as $name => $testData) {
-                    
                     if (!$this->isCanUse($tcInfo['frId'], $name, $testData['old'])) {
                         //dd($testData['old']);
                         $frInput = FunctionalRequirementInput::where([
@@ -196,13 +204,11 @@ class AnalyzeImpactTCState implements StateInterface
                                             ['tcId', $tcOld->id],
                                             ['name', $name]
                                         ])->first();
-                                        if($info['oldValue'] == $tcInput->testData) {
+                                        if ($info['oldValue'] == $tcInput->testData) {
                                             $tcInput->testData = $info['newValue'];
                                             $tcInput->save();
                                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
                                         }
-                                        
-                                        
                                     }
                                 }
                             }
@@ -229,20 +235,19 @@ class AnalyzeImpactTCState implements StateInterface
             }
         }
         $result = array_merge($tcResult, $tcNewResult);
-        foreach($result as $tcNo => $tcInfo) {
-            if($tcInfo['changeType'] != 'delete') {
+        foreach ($result as $tcNo => $tcInfo) {
+            if ($tcInfo['changeType'] != 'delete') {
                 $isDelete = true;
-            foreach($tcInfo['tcInputList'] as $tcName => $data) {
-                if($data['new'] != null) {
-                    $isDelete = false;
-                    break;
+                foreach ($tcInfo['tcInputList'] as $tcName => $data) {
+                    if ($data['new'] != null) {
+                        $isDelete = false;
+                        break;
+                    }
                 }
-            }
-                if($isDelete) {
+                if ($isDelete) {
                     unset($result[$tcNo]);
                 }
             }
-            
         }
         $changeAnalysis->addTcImpactResult($result);
         $changeAnalysis->saveTcImpact();
@@ -259,24 +264,38 @@ class AnalyzeImpactTCState implements StateInterface
         $table = $this->dbTarget->getTableByName($frInput->tableName);
         $column = $table->getColumnByName($frInput->columnName);
 
+        $length = 10;
+
         switch ($column->getDataType()->getType()) {
             case 'varchar':
             case 'char':
             case 'nchar':
             case 'nvarchar':
-                return substr(str_shuffle(MD5(microtime())), $column->getDataType()->getLength()+5, $column->getDataType()->getLength()+10);
+                $length =  $column->getDataType()->getLength()+15 ;
+                break;
             case 'int':
             case 'float':
             case 'real':
             case 'decimal':
-                return substr(str_shuffle(MD5(microtime())), 10, 15);
+                $length = 10;
+                break;
             case 'date':
             case 'datetime':
-                return substr(str_shuffle(MD5(microtime())), 5, 10);
+                $length = 10;
+                break;
             default:
-                return substr(str_shuffle(MD5(microtime())), 5, 10);
+                $length = 10;
+                
                 break;
         }
+
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 
     private function isCanUse(int $frId, string $name, $testData): bool
@@ -332,7 +351,7 @@ class AnalyzeImpactTCState implements StateInterface
                 }
                 // no break
             case 'float':
-            case 'real' :
+            case 'real':
                 if (is_numeric($testData)) {
                     $mantissaPrecisionMax = $column->getDataType()->getPrecision();
                     //$maxP = $mantissaPrecision < 24 ? 7 : 15;

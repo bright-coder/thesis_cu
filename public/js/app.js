@@ -86779,7 +86779,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "impact-result",
@@ -86952,6 +86951,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                             console.log(sum[key]);
                             if (this.database[index].instance.records[j][vIndex] != dataCompare) {
                                 //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
+                                console.log(this.database[index].instance.records[j][vIndex] + " " + dataCompare);
                                 found = false;
                                 break;
                             } else {
@@ -86964,6 +86964,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                     if (found) {
                         result.push(record);
+                        //console.log('fuck');
                     }
                 }
             }

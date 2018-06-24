@@ -402,7 +402,7 @@ class SqlServer implements DBTargetInterface
         $min = $min == null ? "" : $columnName." >= ".$min;
         $max = $max == null ? "" : $columnName." <= ".$max;
         $AND = ($min == null) || ($max == null) ? "" : "AND";
-        $checkName = "{$tableName}_{$columnName}_CHECK";
+        $checkName = "{$tableName}_{$columnName}_CK";
 
         return "ALTER TABLE $tableName ADD CONSTRAINT $checkName CHECK ($min $AND $max)";
     }
@@ -631,6 +631,7 @@ class SqlServer implements DBTargetInterface
                             'columnName' => $columnName."#temp",
 
                         ];
+                        //dd($insImpacts);
                         $isInsImpact = false;
                         if (isset($insImpacts[$tableName])) {
                             foreach ($insImpacts[$tableName] as $row) {

@@ -123,7 +123,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         if (DataType::isStringType($dataTypeRef)) {
-            if ($this->changeRequestInput->length != null) {
+            if ($this->changeRequestInput->length != null && $refSchema['length'] != null) {
                 if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "LEN({$column->getName()}) > {$this->changeRequestInput->length}");
                     if (count($instance) > 0) {
@@ -473,7 +473,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 $refSchema['length'] = $this->changeRequestInput->length;
             }
         } elseif (DataType::isNumericType($dataTypeRef)) {
-            if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL' && $refSchema['min'] != null) {
+            if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL') {
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} < {$this->changeRequestInput->min}");
                     if (count($instance) > 0) {
@@ -482,9 +482,10 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                 }
                 $refSchema['min'] = $this->changeRequestInput->min;
             }
-            if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL' && $refSchema['max'] != null) {
+            if ($this->changeRequestInput->max != null && $this->changeRequestInput->max != '#NULL') {
                 if ($this->findInstanceImpactByMax($this->changeRequestInput->max, $refSchema['max'])) {
                     $instance = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList, "{$column->getName()} > {$this->changeRequestInput->max}");
+                    
                     if (count($instance) > 0) {
                         $records = array_merge($records, $instance);
                     }

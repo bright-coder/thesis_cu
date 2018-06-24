@@ -21,14 +21,14 @@ class RandomDateTime implements RandomInterface
         if (!$isUnique) {
             while (sizeof($this->randomData) < $numRows) {
                 $val = rand($min, $max);
-                $this->randomData[] = date('Y-m-d H:i:s', $val);
+                $this->randomData[] = strval(date('Y-m-d H:i:s', $val)).".000";
             }
         } else {
 
             if ($max - $min >= $numRows) {
                 $min = \DateTime::createFromFormat('Y-m-d H:i:s', '1970-01-01 00:00:00');
                 while (sizeof($this->randomData) < $numRows) {
-                    $this->randomData[] = $min->format('Y-m-d H:i:s');
+                    $this->randomData[] = strval($min->format('Y-m-d H:i:s'))."000";
                     $min->modify('+1 second');
                 }
 
