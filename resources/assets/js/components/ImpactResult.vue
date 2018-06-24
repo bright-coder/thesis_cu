@@ -543,7 +543,7 @@ export default {
                      if(vIndex <= this.database[index].instance.records[j].length-1) {
                          let dataCompare = sum[key].new != null ? sum[key].new : sum[key].old;
                          console.log(sum[key]);
-                         if(this.database[index].instance.records[j][vIndex] != dataCompare) {
+                         if(this.database[index].instance.records[j][vIndex].trim() != dataCompare.trim()) {
                              //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
                              console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
                              found = false;

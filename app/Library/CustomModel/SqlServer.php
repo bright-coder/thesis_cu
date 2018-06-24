@@ -432,7 +432,7 @@ class SqlServer implements DBTargetInterface
         foreach ($pkColumns as $columnName => $value) {
             $pkColumnsStr[] = $columnName." = '{$value}'";
         }
-        $pkColumnsStr = implode(", ", $pkColumnsStr);
+        $pkColumnsStr = implode(" AND ", $pkColumnsStr);
         $newInsColumnsStr = [];
         foreach ($newInsColumns as $columnName => $value) {
             $newInsColumnsStr[] = $columnName." = '{$value}'";

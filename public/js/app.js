@@ -86949,7 +86949,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                         if (vIndex <= this.database[index].instance.records[j].length - 1) {
                             var dataCompare = sum[key].new != null ? sum[key].new : sum[key].old;
                             console.log(sum[key]);
-                            if (this.database[index].instance.records[j][vIndex] != dataCompare) {
+                            if (this.database[index].instance.records[j][vIndex].trim() != dataCompare.trim()) {
                                 //console.log(this.database[index].instance.records[j][vIndex]+" "+dataCompare);
                                 console.log(this.database[index].instance.records[j][vIndex] + " " + dataCompare);
                                 found = false;
