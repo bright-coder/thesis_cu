@@ -454,6 +454,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         $compositeCandidateKeyImpact = [];
         if ($this->changeRequestInput->dataType != null) {
             if ($this->findInstanceImpactByDataType($this->changeRequestInput->dataType, $refSchema['dataType'])) {
+                
                 $records = $this->dbTargetConnection->getInstanceByTableName($table->getName(), $columnList);
             
                 //return false;
@@ -461,7 +462,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
             $refSchema['dataType'] = $this->changeRequestInput->dataType;
             $dataTypeRef = $this->changeRequestInput->dataType;
         }
-
+       
         if (DataType::isStringType($dataTypeRef)) {
             if ($this->changeRequestInput->length != null && $refSchema['length'] != null) {
                 if ($this->findInstanceImpactByLength($this->changeRequestInput->length, $refSchema['length'] ? $refSchema['length'] : 9999 )) {
@@ -644,10 +645,11 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
     {
         $char = ['varchar', 'char'];
         $unicodeChar = ['nvarchar', 'nchar'];
-        if (array_search($changeDataType, $char) && array_search($dbColumnDataType, $char)) {
+        if (array_search($changeDataType, $char) !== false && array_search($dbColumnDataType, $char) !== false) {
+            
             return false;
         }
-        if (array_search($changeDataType, $unicodeChar) && array_search($dbColumnDataType, $unicodeChar)) {
+        if (array_search($changeDataType, $unicodeChar) !== false && array_search($dbColumnDataType, $unicodeChar) !== false) {
             return false;
         }
         if ($changeDataType == $dbColumnDataType) {

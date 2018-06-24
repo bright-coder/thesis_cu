@@ -655,11 +655,13 @@ class SqlServer implements DBTargetInterface
                         if ($isInsImpact) {
                             $this->conObj->query($this->addColumnSQL($columnDetail));
                         } else {
+                            //dd($columnName);
                             $detail = $columnDetail;
                             $detail['columnName'] = $columnName;
                             $this->conObj->query($this->updateColumnSQL($detail));
 
                             if($columnDetail['default'] != null && $columnDetail['default'] != '#NULL') {
+                                //dd($columnName);
                                 $default = $columnDetail['default'];
                                 $consName = "DF_".$tableName."_".$columnName;
                                 $this->conObj->query("alter table $tableName add constraint {$consName} default '$default' for $columnName");
@@ -748,12 +750,12 @@ class SqlServer implements DBTargetInterface
                         $this->conObj->query($this->dropColumnSQL($tableName, $info['columnName']));
                         $this->conObj->query($this->updateColumnNameSQL($tableName, $info['columnName'].'#temp', $info['columnName']));
                        
-                        $default = $info['detail']['default'];
-                        $columName = $info['columnName'];
-                        if($default != null && $default != '#NULL') {
-                            $consName = "DF_".$tableName."_".$info['columnName'];
-                            $this->conObj->query("alter table $tableName add constraint {$consName} default '$default' for $columnName"); 
-                        }
+                        // $default = $info['detail']['default'];
+                        // $columName = $info['columnName'];
+                        // if($default != null && $default != '#NULL') {
+                        //     $consName = "DF_".$tableName."_".$info['columnName'];
+                        //     $this->conObj->query("alter table $tableName add constraint {$consName} default '$default' for $columnName"); 
+                        // }
                         
                     }
                     

@@ -112,10 +112,36 @@ class AnalyzeImpactTCState implements StateInterface
                         ['name', $frInput->name]
                             ])->first()->testData;
                         if ($this->isCanUse($frInput->frId, $frInput->name, $testData)) {
-                            $tcInput->testData = $testData;
-                            $tcNewResult[$tcNew->no]['tcInputList'][$frInput->name] = ['old' => null, 'new' => $testData];
-                            $tcInput->save();
-                        //dd($tcInput);
+                            if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
+                                $isAdd = false;
+                                foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
+                                    if (isset($row['columnList'][$frInput->columnName])) {
+                                        $info = $row['columnList'][$frInput->columnName];
+                                        if ($info['changeType'] == 'edit') {
+                                            if ($info['oldValue'] == $testData) {
+                                                //     $tcInput = new TestCaseInput;
+                                                // $tcInput->tcId = $tcNew->id;
+                                                // $tcInput->name = $name;
+                                                $tcInput->testData = $info['newValue'] ;
+                                                $tcInput->save();
+                                                $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
+                                                $isAdd = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if ($isAdd) {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($isAdd == false) {
+                                $tcInput->testData = $testData;
+                                $tcNewResult[$tcNew->no]['tcInputList'][$frInput->name] = ['old' => null, 'new' => $testData];
+                                $tcInput->save();
+                            }
+                            
                         } else {
                             if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
                                 $isAdd = false;
@@ -223,6 +249,30 @@ class AnalyzeImpactTCState implements StateInterface
                             $tcInput->testData = $newData[$pickAt][$info['columnName']];
                             $tcInput->save();
                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = trim($newData[$pickAt][$info['columnName']]);
+                        }
+                    }
+                    else {
+                        $frInput = FunctionalRequirementInput::where([
+                            ['frId', $tcInfo['frId']],
+                            ['name', $name]
+                        ])->first();
+                        if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
+                            foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
+                                if (isset($row['columnList'][$frInput->columnName])) {
+                                    $info = $row['columnList'][$frInput->columnName];
+                                    if ($info['changeType'] == 'edit') {
+                                        $tcInput = TestCaseInput::where([
+                                            ['tcId', $tcOld->id],
+                                            ['name', $name]
+                                        ])->first();
+                                        if ($info['oldValue'] == $tcInput->testData) {
+                                            $tcInput->testData = $info['newValue'];
+                                            $tcInput->save();
+                                            $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
