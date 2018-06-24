@@ -157,7 +157,7 @@ class AnalyzeImpactTCState implements StateInterface
                                 // $tcInput = new TestCaseInput;
                                 // $tcInput->tcId = $tcNew->id;
                                 // $tcInput->name = $name;
-                                $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
+                                $tcInput->testData = trim($newData[$pickAt][$frInput->columnName]);
                                 $tcInput->save();
                                 $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
                             }
@@ -222,7 +222,7 @@ class AnalyzeImpactTCState implements StateInterface
                             ])->first();
                             $tcInput->testData = $newData[$pickAt][$info['columnName']];
                             $tcInput->save();
-                            $tcResult[$tcNo]['tcInputList'][$name]['new'] = $newData[$pickAt][$info['columnName']];
+                            $tcResult[$tcNo]['tcInputList'][$name]['new'] = trim($newData[$pickAt][$info['columnName']]);
                         }
                     }
                 }
