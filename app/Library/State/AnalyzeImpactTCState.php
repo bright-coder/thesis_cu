@@ -230,16 +230,19 @@ class AnalyzeImpactTCState implements StateInterface
         }
         $result = array_merge($tcResult, $tcNewResult);
         foreach($result as $tcNo => $tcInfo) {
-            $isDelete = true;
+            if($tcInfo['changeType'] != 'delete') {
+                $isDelete = true;
             foreach($tcInfo['tcInputList'] as $tcName => $data) {
                 if($data['new'] != null) {
                     $isDelete = false;
                     break;
                 }
             }
-            if($isDelete) {
-                unset($result[$tcNo]);
+                if($isDelete) {
+                    unset($result[$tcNo]);
+                }
             }
+            
         }
         $changeAnalysis->addTcImpactResult($result);
         $changeAnalysis->saveTcImpact();
