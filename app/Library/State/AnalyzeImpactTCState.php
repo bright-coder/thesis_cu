@@ -141,7 +141,6 @@ class AnalyzeImpactTCState implements StateInterface
                                 $tcNewResult[$tcNew->no]['tcInputList'][$frInput->name] = ['old' => null, 'new' => $testData];
                                 $tcInput->save();
                             }
-                            
                         } else {
                             if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
                                 $isAdd = false;
@@ -222,6 +221,7 @@ class AnalyzeImpactTCState implements StateInterface
                             ['name', $name]
                         ])->first();
                         if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
+                            $isEdit = false;
                             foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
                                 if (isset($row['columnList'][$frInput->columnName])) {
                                     $info = $row['columnList'][$frInput->columnName];
@@ -234,8 +234,21 @@ class AnalyzeImpactTCState implements StateInterface
                                             $tcInput->testData = $info['newValue'];
                                             $tcInput->save();
                                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
+                                            $isEdit = true;
                                         }
                                     }
+                                }
+                                if ($isEdit == false) {
+                                    $newData = $this->dbTargetConnection->getInstanceByTableName($frInput->tableName, [$frInput->columnName]);
+                                    $total = count($newData);
+                                    $pickAt = rand(0, $total-1);
+                                    $tcInput = TestCaseInput::where([
+                                ['tcId', $tcOld->id],
+                                ['name', $name]
+                            ])->first();
+                                    $tcInput->testData = trim($newData[$pickAt][$frInput->columnName]);
+                                    $tcInput->save();
+                                    $tcResult[$tcNo]['tcInputList'][$name]['new'] = trim($newData[$pickAt][$frInput->columnName]);
                                 }
                             }
                         } else {
@@ -246,12 +259,11 @@ class AnalyzeImpactTCState implements StateInterface
                                 ['tcId', $tcOld->id],
                                 ['name', $name]
                             ])->first();
-                            $tcInput->testData = $newData[$pickAt][$info['columnName']];
+                            $tcInput->testData = trim($newData[$pickAt][$info['columnName']]);
                             $tcInput->save();
                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = trim($newData[$pickAt][$info['columnName']]);
                         }
-                    }
-                    else {
+                    } else {
                         $frInput = FunctionalRequirementInput::where([
                             ['frId', $tcInfo['frId']],
                             ['name', $name]

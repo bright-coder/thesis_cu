@@ -673,7 +673,7 @@ class SqlServer implements DBTargetInterface
                         if ($columnDetail['unique'] == 'Y' || $columnDetail['unique'] == true) {
 
                             if ($columnDetail['unique'] == 'Y') {
-                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$info['old']['columnName']]);
+                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$tableName.$columnName, [$info['old']['columnName']]);
                             }
                         }
     
