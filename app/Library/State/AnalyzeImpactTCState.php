@@ -81,7 +81,8 @@ class AnalyzeImpactTCState implements StateInterface
         $frImpact = $changeAnalysis->getFrImpactResult();
         foreach ($tcResult as $tcNo => $tcInfo) {
             if ($tcInfo['changeType'] == 'delete') {
-                $last = count(TestCase::where('projectId', $projectId)->get());
+                $last = TestCase::where('projectId', $projectId)->orderBy('id','desc')->first();
+                $last = intval(explode("-", $last)[2]);
                 $tcOld = TestCase::where([
                     ['projectId', $projectId],
                     ['no', $tcNo]

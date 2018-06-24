@@ -519,7 +519,7 @@ class SqlServer implements DBTargetInterface
                                 if (!isset($uniqueTrace[$tableName])) {
                                     $uniqueTrace[$tableName] = [];
                                 }
-                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$info['new'][$columnName]]);
+                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$columnName, [$columnName]);
                             }
                              if (isset($info['new']['min']) || isset($info['new']['max'])) {
                                  if (!isset($checkTrace[$tableName])) {

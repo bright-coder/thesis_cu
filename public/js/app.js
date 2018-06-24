@@ -82049,7 +82049,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       startIndex: 0,
       pages: 1,
       active: 1,
-      perPage: 4
+      perPage: 20
     };
   },
   created: function created() {

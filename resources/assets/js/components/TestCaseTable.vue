@@ -53,7 +53,7 @@ export default {
       startIndex: 0,
       pages: 1,
       active: 1,
-      perPage: 4
+      perPage: 20
     };
   },
   created() {
