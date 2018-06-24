@@ -222,7 +222,7 @@ class Table
         $this->checkConstraints[$checkConstraint->getName()] = $checkConstraint;
     }
 
-    public function getCheckConstraintByName(string $name): Unique
+    public function getCheckConstraintByName(string $name): Check
     {
         return $this->checkConstraints[$name];
     }

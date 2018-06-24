@@ -25,6 +25,7 @@ class RandomContext {
                 $randomType = new RandomNString();
                 break;
             case DataType::FLOAT :
+            case DataType::REAL :
                 $randomType = new RandomFloat();
                 break;
             case DataType::DECIMAL :
