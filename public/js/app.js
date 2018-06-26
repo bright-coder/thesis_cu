@@ -84910,92 +84910,148 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     addChangeRequest: function addChangeRequest() {
       var newChangeRequest = Object.assign({}, this.changeRequest);
-      if (this.changeRequest.changeType == "edit") {
-        var oldInput = this.functionalList[this.selectedFunctional].inputs[this.changeRequest.oldInputIndex];
-        var isNotChange = 0;
-        if (oldInput.dataType == this.changeRequest.dataType) {
-          delete newChangeRequest["dataType"];
-          ++isNotChange;
-        }
-        if (oldInput.length == this.changeRequest.length) {
-          delete newChangeRequest["length"];
-          ++isNotChange;
-        }
-        if (oldInput.precision == this.changeRequest.precision) {
-          delete newChangeRequest["precision"];
-          ++isNotChange;
-        }
-        if (oldInput.scale == this.changeRequest.scale) {
-          delete newChangeRequest["scale"];
-          ++isNotChange;
-        }
-        if (this.changeRequest.default == "") {
-          this.changeRequest.default = null;
-        }
-        if (oldInput.default == this.changeRequest.default) {
-          delete newChangeRequest["default"];
-          ++isNotChange;
-        }
-        if (oldInput.nullable == this.changeRequest.nullable) {
-          delete newChangeRequest["nullable"];
-          ++isNotChange;
-        }
-        if (oldInput.unique == this.changeRequest.unique) {
-          delete newChangeRequest["unique"];
-          ++isNotChange;
-        }
-        if (oldInput.min == this.changeRequest.min) {
-          delete newChangeRequest["min"];
-          ++isNotChange;
-        }
-        if (oldInput.max == this.changeRequest.max) {
-          delete newChangeRequest["max"];
-          ++isNotChange;
-        }
-        delete newChangeRequest["tableName"];
-        delete newChangeRequest["columnName"];
-        if (isNotChange != 9) {
-          this.changeRequestList.push(newChangeRequest);
-          this.changeRequestIndex[this.changeRequest.name] = true;
-          $("#modal").modal("hide");
-        } else {
-          this.errors = "Nothing is changed.";
-        }
-      } else {
-        if (this.changeRequest.changeType == "add") {
-          Object.keys(newChangeRequest).forEach(function (key) {
-            if (!newChangeRequest[key]) {
-              delete newChangeRequest[key];
-            }
-          });
-          if (this.changeRequest.dataType == 'float') {
-            this.changeRequest.precision = 15;
-          } else if (this.changeRequest.dataType == 'real') {
-            this.changeRequest.precision = 7;
-          }
-        }
-        var isError = false;
 
-        if (this.changeRequest.name in this.changeRequestIndex) {
-          //console.log("name already exists.");
-          isError = true;
-          this.errors = "Input name : " + this.changeRequest.name + " already add in this request.";
-        } else {
-          for (var i = 0; i < this.changeRequestList.length; ++i) {
-            if (this.changeRequestList[i].changeType == "add") {
-              if (this.changeRequestList[i].tableName == newChangeRequest.tableName && this.changeRequestList[i].columnName == newChangeRequest.columnName) {
-                isError = true;
-                this.errors = "Cannot add the same table name and column name in this request.";
-              }
-            }
-          }
-        }
-        if (!isError) {
-          this.changeRequestList.push(newChangeRequest);
-          this.changeRequestIndex[this.changeRequest.name] = true;
-          $("#modal").modal("hide");
+      if (this.isValid(newChangeRequest)) {
+        this.changeRequestList.push(newChangeRequest);
+        this.changeRequestIndex[this.changeRequest.name] = true;
+        $("#modal").modal("hide");
+      }
+    },
+    isValid: function isValid(crInput) {
+      if (crInput.changeType == "add") {
+        return this.validateAdd(crInput);
+      }
+      if (crInput.changeType == "edit") {
+        return this.validateEdit(crInput);
+      }
+    },
+    validateAlready: function validateAlready(name) {
+
+      if (name in this.changeRequestIndex || this.isInFr(name)) {
+
+        this.errors = "Input name : " + name + " already Exists.";
+        alert(this.errors);
+        return false;
+      }
+      return true;
+    },
+    isInFr: function isInFr(name) {
+      for (var i = 0; i < this.functionalList[this.selectedFunctional].inputs.length; ++i) {
+        if (this.functionalList[this.selectedFunctional].inputs[i].name == name) {
+          return true;
         }
       }
+      return false;
+    },
+    validateSameColumnAndTable: function validateSameColumnAndTable(table, column) {
+      for (var i = 0; i < this.changeRequestList.length; ++i) {
+        if (this.changeRequestList[i].changeType == "add") {
+          if (this.changeRequestList[i].tableName == table && this.changeRequestList[i].columnName == column) {
+            this.errors = "Cannot add the same table name and column name in this request.";
+            return false;
+          }
+        }
+      }
+      return true;
+    },
+    validateAdd: function validateAdd(crInput) {
+      Object.keys(crInput).forEach(function (key) {
+        if (!crInput[key]) {
+          delete crInput[key];
+        }
+      });
+      if (crInput.dataType == "float") {
+        crInput.precision = 15;
+      } else if (crInput.dataType == "real") {
+        crInput.precision = 7;
+      }
+      // validate
+      if (!this.validateAlready(crInput.name)) {
+        return false;
+      }
+      if (!this.validateSameColumnAndTable(crInput.tableName, crInput.columnName)) {
+        return false;
+      }
+      if (this.isNumber(crInput.dataType)) {
+        if (crInput.max && crInput.min) {
+          if (!this.validateMinMax(crInput.max && crInput.min)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
+    validateEdit: function validateEdit(crInput) {
+      var oldInput = this.functionalList[this.selectedFunctional].inputs[this.changeRequest.oldInputIndex];
+      var isNotChange = 0;
+      if (oldInput.dataType == this.changeRequest.dataType) {
+        delete crInput["dataType"];
+        ++isNotChange;
+      }
+      if (oldInput.length == this.changeRequest.length) {
+        delete crInput["length"];
+        ++isNotChange;
+      }
+      if (oldInput.precision == this.changeRequest.precision) {
+        delete crInput["precision"];
+        ++isNotChange;
+      }
+      if (oldInput.scale == this.changeRequest.scale) {
+        delete crInput["scale"];
+        ++isNotChange;
+      }
+      if (this.changeRequest.default == "") {
+        crInput.default = null;
+      }
+      if (oldInput.default == this.changeRequest.default) {
+        delete crInput["default"];
+        ++isNotChange;
+      }
+      if (oldInput.nullable == this.changeRequest.nullable) {
+        delete crInput["nullable"];
+        ++isNotChange;
+      }
+      if (oldInput.unique == this.changeRequest.unique) {
+        delete crInput["unique"];
+        ++isNotChange;
+      }
+      if (oldInput.min == this.changeRequest.min) {
+        delete crInput["min"];
+        ++isNotChange;
+      }
+      if (oldInput.max == this.changeRequest.max) {
+        delete crInput["max"];
+        ++isNotChange;
+      }
+      delete crInput["tableName"];
+      delete crInput["columnName"];
+
+      if (isNotChange == 9) {
+        this.errors = "Nothing is changed.";
+        return false;
+      }
+      var refDatype = 'dataType' in crInput ? crInput.dataType : oldInput.dataType;
+      if (this.isNumber(refDatype)) {
+        var min = 'min' in crInput ? crInput.min : oldInput.min;
+        var max = 'max' in crInput ? crInput.max : oldInput.max;
+        if (min && max) {
+          if (!this.validateMinMax(min, max)) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    },
+    validateMinMax: function validateMinMax(min, max) {
+      return max >= min;
+    },
+    isString: function isString(dataType) {
+      return dataType.indexOf("char") != -1;
+    },
+    isNumber: function isNumber(dataType) {
+      var number = { int: true, float: true, real: true, decimal: true };
+      return dataType in number;
     },
     deleteChangeRequest: function deleteChangeRequest(index) {
       var name = this.changeRequestList[index].name;
@@ -85055,7 +85111,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         dataType: "json"
       }).then(function (response) {
-
         vm.tables = response.data;
         //console.log(vm.tables);
       }).catch(function (errors) {});
