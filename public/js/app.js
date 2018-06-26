@@ -85864,7 +85864,12 @@ var render = function() {
                                           }
                                         ],
                                         staticClass: "form-control",
-                                        attrs: { type: "number", required: "" },
+                                        attrs: {
+                                          type: "number",
+                                          required: "",
+                                          min: "1",
+                                          max: "38"
+                                        },
                                         domProps: {
                                           value: _vm.changeRequest.precision
                                         },
@@ -85924,7 +85929,11 @@ var render = function() {
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number", required: "" },
+                                    attrs: {
+                                      type: "number",
+                                      required: "",
+                                      max: _vm.changeRequest.precision
+                                    },
                                     domProps: {
                                       value: _vm.changeRequest.scale
                                     },

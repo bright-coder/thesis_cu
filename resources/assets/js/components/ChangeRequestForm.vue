@@ -192,14 +192,14 @@
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('float') != -1 || changeRequest.dataType.indexOf('decimal') != -1 || changeRequest.dataType.indexOf('real') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Precision</label>
                                     <div class="col-sm-10" v-if="changeRequest.dataType.indexOf('decimal') != -1">
-                                        <input type="number" class="form-control" v-model="changeRequest.precision" required>
+                                        <input type="number" class="form-control" v-model="changeRequest.precision" required min='1' max="38">
                                     </div>
                                     <label v-else class="col-sm-10 col-form-label">{{ changeRequest.dataType.indexOf('float') != -1 ? 15 : 7 }}</label>
                                 </div>
                                 <div class="form-group row" v-if="changeRequest.dataType.indexOf('decimal') != -1">
                                     <label for="" class="col-sm-2 col-form-label">Scale</label>
                                     <div class="col-sm-10">
-                                        <input type="number" class="form-control" v-model="changeRequest.scale" required>
+                                        <input type="number" class="form-control" v-model="changeRequest.scale" required v-bind:max="changeRequest.precision">
                                     </div>
                                 </div>
                                 <div class="form-group row">
