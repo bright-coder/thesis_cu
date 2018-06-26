@@ -130,8 +130,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         $records = array_merge($records, $instance);
                     }
                 }
-                $refSchema['length'] = $this->changeRequestInput->length;
             }
+            $refSchema['length'] = $this->changeRequestInput->length ? $this->changeRequestInput->length : $refSchema['length'];
         } elseif (DataType::isNumericType($dataTypeRef)) {
             if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL') {
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
@@ -225,6 +225,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         if (count($records) > 0) {
+            dd($refSchema['length']);
             $records = array_unique($records, SORT_REGULAR);
             $numRows = count($records);
             $randomData = RandomContext::getRandomData(
@@ -471,8 +472,8 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
                         $records = array_merge($records, $instance);
                     }
                 }
-                $refSchema['length'] = $this->changeRequestInput->length;
             }
+            $refSchema['length'] = $this->changeRequestInput->length ? $this->changeRequestInput->length : $refSchema['length'];
         } elseif (DataType::isNumericType($dataTypeRef)) {
             if ($this->changeRequestInput->min != null && $this->changeRequestInput->min != '#NULL') {
                 if ($this->findInstanceImpactByMin($this->changeRequestInput->min, $refSchema['min'])) {
@@ -659,7 +660,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         return true;
     }
 
-    private function findInstanceImpactByLength(int $changeLength, int $dbColumnLength): bool
+    private function findInstanceImpactByLength(int $changeLength, $dbColumnLength): bool
     {
         return $changeLength >= $dbColumnLength ? false : true;
     }
