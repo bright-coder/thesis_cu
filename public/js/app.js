@@ -84767,6 +84767,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["accessToken", "selectedProjectInit", "selectedFunctionalRequirementInit"],
@@ -86234,33 +86237,56 @@ var render = function() {
                             _vm._v(" "),
                             _vm.changeRequest.changeType == "add"
                               ? _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.changeRequest.tableName,
-                                        expression: "changeRequest.tableName"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: { type: "text", required: "" },
-                                    domProps: {
-                                      value: _vm.changeRequest.tableName
-                                    },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.changeRequest.tableName,
+                                          expression: "changeRequest.tableName"
                                         }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "tableName",
-                                          $event.target.value
-                                        )
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { required: "" },
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.$set(
+                                            _vm.changeRequest,
+                                            "tableName",
+                                            $event.target.multiple
+                                              ? $$selectedVal
+                                              : $$selectedVal[0]
+                                          )
+                                        }
                                       }
-                                    }
-                                  })
+                                    },
+                                    _vm._l(_vm.tables, function(table, tIndex) {
+                                      return _c(
+                                        "option",
+                                        {
+                                          key: tIndex,
+                                          domProps: { value: table.name }
+                                        },
+                                        [_vm._v(_vm._s(table.name))]
+                                      )
+                                    })
+                                  )
                                 ])
                               : _c(
                                   "label",

@@ -242,7 +242,10 @@
                                 <div class="form-group row">
                                     <label for="" class="col-sm-2 col-form-label">Table</label>
                                     <div class="col-sm-10" v-if="changeRequest.changeType == 'add'">
-                                        <input type="text" class="form-control" v-model="changeRequest.tableName" required>
+                                        <!-- <input type="text" class="form-control" v-model="changeRequest.tableName" required> -->
+                                        <select class="form-control" v-model="changeRequest.tableName" required>
+                                            <option :value="table.name" v-for="(table, tIndex) in tables" :key="tIndex">{{ table.name }}</option>
+                                        </select>
                                     </div>
                                     <label v-else class="col-sm-10 col-form-label">{{ changeRequest.tableName }}</label>
                                 </div>
