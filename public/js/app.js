@@ -85048,7 +85048,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       return true;
     },
     validateMinMax: function validateMinMax(min, max) {
-      return max >= min;
+      if (min > max) {
+        this.errors = "MIN must be less than or equal to MAX.";
+        return false;
+      }
+      return true;
     },
     isString: function isString(dataType) {
       return dataType.indexOf("char") != -1;

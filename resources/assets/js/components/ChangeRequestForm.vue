@@ -569,7 +569,11 @@ export default {
       return true;
     },
     validateMinMax(min, max) {
-      return max >= min;
+        if(min > max) {
+            this.errors = "MIN must be less than or equal to MAX."
+            return false
+        }
+      return true;
     },
     isString(dataType) {
       return dataType.indexOf("char") != -1;
