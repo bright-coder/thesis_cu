@@ -18,8 +18,9 @@ class RandomInteger implements RandomInterface {
             $min = 1;
         }
         if($max == null) {
-            $mxa = 10000000;
+            $max = 10000000;
         }
+        //dd($max);
         $range = $max-$min;
         $rangeAvg = $range/5;
         //dd($info);

@@ -24,7 +24,7 @@ use App\Model\CompositeCandidateKeyColumn;
 use App\Model\CompositeCandidateKeyImpact;
 use App\Model\ForeignKeyColumn;
 use App\Model\ForeignKeyImpact;
-
+use DB;
 
 class ChangeAnalysis
 {
@@ -289,6 +289,7 @@ class ChangeAnalysis
                    $pkRecord->columnName = $columnName;
                    $pkRecord->value = $value;
                    $pkRecord->save();
+                   DB::unprepared("update PK_RECORD set value = N'{$value}' WHERE id = '$pkRecord->id'");
                }
                foreach($row['columnList'] as $columnName => $info) {
                    $instImpact = new InstanceImpact;
@@ -297,6 +298,7 @@ class ChangeAnalysis
                    $instImpact->oldValue = $info['oldValue'];
                    $instImpact->recImpactId = $recImpact->id;
                    $instImpact->save();
+                   DB::unprepared("update INSTANCE_IMPACT set newValue = N'{$info['newValue']}', oldValue = N'{$info['oldValue']}' WHERE id = '$instImpact->id'");
                }
            }
        }
@@ -333,6 +335,12 @@ class ChangeAnalysis
                 $tcInputImpact->testDataOld = $inputInfo['old'];
                 $tcInputImpact->testDataNew = $inputInfo['new'];
                 $tcInputImpact->save();
+                if($inputInfo['old'] != null) {
+                    DB::unprepared("update TC_INPUT_IMPACT set testDataOld = N'{$inputInfo['old']}' WHERE id = $tcInputImpact->id");
+                }
+                if($inputInfo['new'] != null) {
+                    DB::unprepared("update TC_INPUT_IMPACT set testDataNew = N'{$inputInfo['new']}' WHERE id = $tcInputImpact->id");
+                }
             }
         }
     }

@@ -225,7 +225,7 @@ class AnalyzeDBEdit extends AbstractAnalyzeDBMethod
         }
 
         if (count($records) > 0) {
-            dd($refSchema['length']);
+           // dd($refSchema['length']);
             $records = array_unique($records, SORT_REGULAR);
             $numRows = count($records);
             $randomData = RandomContext::getRandomData(

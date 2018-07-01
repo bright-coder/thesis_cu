@@ -8,4 +8,6 @@ class InstanceImpact extends Model
 {
     protected $table = "INSTANCE_IMPACT";
     public $timestamps = false;
+
+
 }

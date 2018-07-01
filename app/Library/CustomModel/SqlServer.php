@@ -428,14 +428,30 @@ class SqlServer implements DBTargetInterface
 
     private function updateInstanceSQL(string $tableName, array $pkColumns, array $newInsColumns): string
     {
+        //dd($pkColumns);
         $pkColumnsStr = [];
-        foreach ($pkColumns as $columnName => $value) {
-            $pkColumnsStr[] = $columnName." = '{$value}'";
+        foreach ($pkColumns as $columnName => $info) {
+            $value = $info['value'];
+            if($info['dataType'] != 'nchar' && $info['dataType'] != 'nvarchar'){
+                
+                $pkColumnsStr[] = $columnName." = '{$value}'";
+            }
+            else {
+                $pkColumnsStr[] = $columnName." = N'{$value}'";
+            }
+            
         }
         $pkColumnsStr = implode(" AND ", $pkColumnsStr);
         $newInsColumnsStr = [];
-        foreach ($newInsColumns as $columnName => $value) {
-            $newInsColumnsStr[] = $columnName." = '{$value}'";
+        foreach ($newInsColumns as $columnName => $info) {
+            $value = $info['value'];
+            if($info['dataType'] != 'nchar' && $info['dataType'] != 'nvarchar') {
+                $newInsColumnsStr[] = $columnName." = '{$value}'";
+            }
+            else {
+                //$newInsColumnsStr[] = $columnName." = N'{$value}'";
+                $newInsColumnsStr[] = $columnName." = N'{$value}'";
+            }
         }
         $newInsColumnsStr = implode(", ", $newInsColumnsStr);
         return "UPDATE {$tableName} SET {$newInsColumnsStr} WHERE {$pkColumnsStr}";
@@ -670,11 +686,14 @@ class SqlServer implements DBTargetInterface
                         }
                         
                         
-                        if ($columnDetail['unique'] == 'Y' || $columnDetail['unique'] == true) {
+                        // if ($columnDetail['unique'] == 'Y' || $columnDetail['unique'] == true) {
 
-                            if ($columnDetail['unique'] == 'Y') {
-                                $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$tableName.$columnName, [$info['old']['columnName']]);
-                            }
+                        //     if ($columnDetail['unique'] == 'Y') {
+                        //         $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$tableName.$columnName, [$info['old']['columnName']]);
+                        //     }
+                        // }
+                        if(isset($info['new']['unique'])) {
+                            $uniqueTrace[$tableName][] = new Unique('UNIQUE#new_'.$tableName.$columnName, [$info['old']['columnName']]);
                         }
     
                         if ($columnDetail['nullable'] == 'N' || $columnDetail['nullable'] == false) {
@@ -701,7 +720,7 @@ class SqlServer implements DBTargetInterface
                             if (array_key_exists('max', $info['new'])) {
                                 $max = $info['new']['max'] == '#NULL' ? null : $info['new']['max'];
                             }
-                            if ($min != null && $max != null) {
+                            if ($min != null || $max != null) {
                                 if (!isset($checkTrace[$tableName])) {
                                     $checkTrace[$tableName] = [];
                                 }
@@ -732,7 +751,39 @@ class SqlServer implements DBTargetInterface
                     }
                     //dd($row['pkRecord']);
                     if ($newInsColumns) {
-                        $this->conObj->query($this->updateInstanceSQL($tableName, $row['pkRecord'], $newInsColumns));
+                        $table = $dbTarget->getTableByName($tableName);
+                        $pkRecordWdataType = [];
+                        $newInsColumnsWdataType = [];
+                        foreach($row['pkRecord'] as $columnName => $value) {
+                            $column = $table->getColumnByName($columnName);
+                            
+                            $pkRecordWdataType[$columnName] = ['value' => $value, 'dataType' => $column->getDataType()->getType()];
+                        }
+                        //dd($newInsColumns);
+                        foreach($newInsColumns as $columnName => $value) {
+                            $column = $table->getColumnByName($columnName);
+                            $dataType = null;
+                            if($column == null) {
+                                foreach ($scImpacts as $tableNameSc => $columnList) {
+                                    foreach ($columnList as $columnNameSc => $info) {
+                                        if($info['changeType'] == 'add') {
+                                            if($columnName == $columnNameSc && $tableName == $tableNameSc) {
+                                                //dd($info);
+                                                $dataType = $info['new']['dataType'];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                $dataType = $column->getDataType()->getType();
+                            }
+                            $newInsColumnsWdataType[$columnName] = ['value' => $value, 'dataType' => $dataType];
+                        }
+                        //dd($pkRecordWdataType);
+                        //dd($newInsColumnsWdataType);
+                        //dd($this->updateInstanceSQL($tableName, $pkRecordWdataType, $newInsColumnsWdataType));
+                        $this->conObj->query($this->updateInstanceSQL($tableName, $pkRecordWdataType, $newInsColumnsWdataType));
                     }
                 }
             }

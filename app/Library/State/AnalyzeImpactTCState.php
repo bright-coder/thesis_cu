@@ -141,6 +141,7 @@ class AnalyzeImpactTCState implements StateInterface
                                 $tcInput->testData = $testData;
                                 $tcNewResult[$tcNew->no]['tcInputList'][$frInput->name] = ['old' => null, 'new' => $testData];
                                 $tcInput->save();
+                                DB::unprepared("update TEST_CASE_INPUT set testData = N'{$testData}' WHERE id = '$tcInput->id'");
                             }
                         } else {
                             if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
@@ -155,6 +156,7 @@ class AnalyzeImpactTCState implements StateInterface
                                                 // $tcInput->name = $name;
                                                 $tcInput->testData = $info['newValue'] ;
                                                 $tcInput->save();
+                                                DB::unprepared("update TEST_CASE_INPUT set testData = N'{$info['newValue']}' WHERE id = '$tcInput->id'");
                                                 $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
                                                 $isAdd = true;
                                                 break;
@@ -172,8 +174,10 @@ class AnalyzeImpactTCState implements StateInterface
                                     // $tcInput = new TestCaseInput;
                                     // $tcInput->tcId = $tcNew->id;
                                     // $tcInput->name = $name;
-                                    $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
+                                    $td = trim($newData[$pickAt][$frInput->columnName]);
+                                    $tcInput->testData = trim($newData[$pickAt][$frInput->columnName]) ;
                                     $tcInput->save();
+                                   DB::unprepared("update TEST_CASE_INPUT set testData = N'{$td}' WHERE id = '$tcInput->id'");
                                     $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
                                 }
                             } else {
@@ -183,8 +187,10 @@ class AnalyzeImpactTCState implements StateInterface
                                 // $tcInput = new TestCaseInput;
                                 // $tcInput->tcId = $tcNew->id;
                                 // $tcInput->name = $name;
+                                $td = trim($newData[$pickAt][$frInput->columnName]);
                                 $tcInput->testData = trim($newData[$pickAt][$frInput->columnName]);
                                 $tcInput->save();
+                                DB::unprepared("update TEST_CASE_INPUT set testData = N'{$td}' WHERE id = '$tcInput->id'");
                                 $tcNewResult[$tcNew->no]['tcInputList'][$tcInput->name] = ['old' => null, 'new' => $tcInput->testData];
                             }
                         }
@@ -195,8 +201,10 @@ class AnalyzeImpactTCState implements StateInterface
                         $tcInput = new TestCaseInput;
                         $tcInput->tcId = $tcNew->id;
                         $tcInput->name = $frInput->name;
+                        $td = trim($newData[$pickAt][$frInput->columnName]);
                         $tcInput->testData = $newData[$pickAt][$frInput->columnName] ;
                         $tcInput->save();
+                        DB::unprepared("update TEST_CASE_INPUT set testData = N'{$td}' WHERE id = '$tcInput->id'");
                         $tcNewResult[$tcNew->no]['tcInputList'][$frInput->name] = ['old' => null, 'new' => $tcInput->testData];
                     }
                     
@@ -234,6 +242,7 @@ class AnalyzeImpactTCState implements StateInterface
                                         if ($info['oldValue'] == $tcInput->testData) {
                                             $tcInput->testData = $info['newValue'];
                                             $tcInput->save();
+                                           DB::unprepared("update TEST_CASE_INPUT set testData = N'{$info['newValue']}' WHERE id = '$tcInput->id'");
                                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
                                             $isEdit = true;
                                         }
@@ -247,8 +256,10 @@ class AnalyzeImpactTCState implements StateInterface
                                 ['tcId', $tcOld->id],
                                 ['name', $name]
                             ])->first();
+                                    $td = trim($newData[$pickAt][$frInput->columnName]);
                                     $tcInput->testData = trim($newData[$pickAt][$frInput->columnName]);
                                     $tcInput->save();
+                                   DB::unprepared("update TEST_CASE_INPUT set testData = N'{$td}' WHERE id = '$tcInput->id'");
                                     $tcResult[$tcNo]['tcInputList'][$name]['new'] = trim($newData[$pickAt][$frInput->columnName]);
                                 }
                             }
@@ -260,8 +271,10 @@ class AnalyzeImpactTCState implements StateInterface
                                 ['tcId', $tcOld->id],
                                 ['name', $name]
                             ])->first();
+                            $td = trim($newData[$pickAt][$info['columnName']]);
                             $tcInput->testData = trim($newData[$pickAt][$info['columnName']]);
                             $tcInput->save();
+                           DB::unprepared("update TEST_CASE_INPUT set testData = N'{$td}' WHERE id = '$tcInput->id'");
                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = trim($newData[$pickAt][$info['columnName']]);
                         }
                     } else {
@@ -281,6 +294,7 @@ class AnalyzeImpactTCState implements StateInterface
                                         if ($info['oldValue'] == $tcInput->testData) {
                                             $tcInput->testData = $info['newValue'];
                                             $tcInput->save();
+                                            DB::unprepared("update TEST_CASE_INPUT set testData = N'{$info['newValue']}' WHERE id = '$tcInput->id'");
                                             $tcResult[$tcNo]['tcInputList'][$name]['new'] = $info['newValue'];
                                         }
                                     }
