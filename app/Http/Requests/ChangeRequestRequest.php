@@ -29,12 +29,6 @@ class ChangeRequestRequest extends FormRequest
             'functionalRequirementNo' => 'required',
             'inputs' => 'required|array|min:1',
             'inputs.*.changeType' => 'required|string|in:add,edit,delete',
-            'inputs.*.name' => 'required_if:inputs.*.changeType,add,edit,delete|string',
-            'inputs.*.dataType' => 'required_if:inputs.*.changeType,add|string|in:int,float,decimal,char,varchar,nchar,nvarchar,date,datetime',
-            'inputs.*.length' => 'required_if:inputs.*.dataType,char,varchar,nchar,nvarchar|numeric',
-            'inputs.*.precision' => 'required_if:inputs.*.dataType,float,decimal|numeric',
-            'inputs.*.unique' => 'required_if:inputs.*.changeType,add|string|size:1|in:Y,N,y,n',
-            'inputs.*.nullable' => 'required_if:inputs.*.changeType,add|string|size:1|in:Y,N,y,n',
             'inputs.*.tableName' => 'required_if:inputs.*.changeType,add|string|min:2',
             'inputs.*.columnName' => 'required_if:inputs.*.changeType,add|string|min:2',
 

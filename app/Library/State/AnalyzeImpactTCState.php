@@ -112,8 +112,9 @@ class AnalyzeImpactTCState implements StateInterface
                         ['name', $frInput->name]
                             ])->first()->testData;
                         if ($this->isCanUse($frInput->frId, $frInput->name, $testData)) {
+                            $isAdd = false;
                             if (isset($changeAnalysis->getInstanceImpactResult()[$frInput->tableName])) {
-                                $isAdd = false;
+                                
                                 foreach ($changeAnalysis->getInstanceImpactResult()[$frInput->tableName] as $row) {
                                     if (isset($row['columnList'][$frInput->columnName])) {
                                         $info = $row['columnList'][$frInput->columnName];

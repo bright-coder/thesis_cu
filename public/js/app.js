@@ -84770,6 +84770,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["accessToken", "selectedProjectInit", "selectedFunctionalRequirementInit"],
@@ -84794,6 +84806,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         min: "",
         max: ""
       },
+      listInputAdd: [],
+      addType: 0,
       tables: [],
       changeRequestList: [],
       changeRequestIndex: {},
@@ -84881,6 +84895,31 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         tableName: "",
         columnName: ""
       };
+      this.addType = 0;
+      this.getInputList();
+    },
+    setColTable: function setColTable(name) {
+      for (var i = 0; i < this.listInputAdd.length; ++i) {
+        if (this.listInputAdd[i].name == name) {
+          this.changeRequest.tableName = this.listInputAdd[i].tableName;
+          this.changeRequest.columnName = this.listInputAdd[i].columnName;
+        }
+      }
+    },
+    getInputList: function getInputList() {
+      this.listInputAdd = [];
+      var objIndex = {};
+      for (var i = 0; i < this.functionalList.length; ++i) {
+        for (var j = 0; j < this.functionalList[i].inputs.length; ++j) {
+          objIndex[this.functionalList[i].inputs[j].name] = { tableName: this.functionalList[i].inputs[j].tableName, columnName: this.functionalList[i].inputs[j].columnName };
+        }
+      }
+      for (var _i = 0; _i < this.functionalList[this.selectedFunctional].inputs.length; ++_i) {
+        delete objIndex[this.functionalList[this.selectedFunctional].inputs[_i].name];
+      }
+      for (var key in objIndex) {
+        this.listInputAdd.push({ name: key, tableName: objIndex[key].tableName, columnName: objIndex[key].columnName });
+      }
     },
     editInput: function editInput(inputIndex) {
       this.errors = "";
@@ -84901,8 +84940,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         columnName: input.columnName,
         oldInputIndex: inputIndex
       };
+      this.addType = 1;
     },
     deleteInput: function deleteInput(inputIndex) {
+      this.addType = 0;
       this.errors = "";
       var input = this.functionalList[this.selectedFunctional].inputs[inputIndex];
       this.changeRequest = {
@@ -84912,12 +84953,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       };
     },
     addChangeRequest: function addChangeRequest() {
-      var newChangeRequest = Object.assign({}, this.changeRequest);
+      if (this.addType == 0 && this.changeRequest.changeType == "add") {
 
-      if (this.isValid(newChangeRequest)) {
+        this.changeRequest = {
+          changeType: this.changeRequest.changeType,
+          name: this.changeRequest.name,
+          dataType: "",
+          length: "",
+          precision: "",
+          scale: "",
+          default: "",
+          nullable: "",
+          unique: "",
+          min: "",
+          max: "",
+          tableName: this.changeRequest.tableName,
+          columnName: this.changeRequest.columnName
+        };
+        var newChangeRequest = Object.assign({}, this.changeRequest);
         this.changeRequestList.push(newChangeRequest);
         this.changeRequestIndex[this.changeRequest.name] = true;
         $("#modal").modal("hide");
+      } else {
+        var _newChangeRequest = Object.assign({}, this.changeRequest);
+        if (this.isValid(_newChangeRequest)) {
+          this.changeRequestList.push(_newChangeRequest);
+          this.changeRequestIndex[this.changeRequest.name] = true;
+          $("#modal").modal("hide");
+        }
       }
     },
     isValid: function isValid(crInput) {
@@ -84930,14 +84993,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       return true;
     },
     validateAlready: function validateAlready(name) {
-
-      if (name in this.changeRequestIndex || this.isInFr(name)) {
-
-        this.errors = "Input name : " + name + " already Exists.";
-        alert(this.errors);
+      if (name in this.changeRequestIndex || this.isInFr(name) || this.isInProject(name)) {
+        this.errors = "Input name : " + name + " already exists in this project.";
+        //alert(this.errors);
         return false;
       }
       return true;
+    },
+    isInProject: function isInProject(name) {
+      for (var i = 0; i < this.functionalList.length; ++i) {
+        for (var j = 0; j < this.functionalList[i].inputs.length; ++j) {
+          if (name == this.functionalList[i].inputs[j].name) {
+            return true;
+          }
+        }
+      }
+      return false;
     },
     isInFr: function isInFr(name) {
       for (var i = 0; i < this.functionalList[this.selectedFunctional].inputs.length; ++i) {
@@ -84951,7 +85022,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       for (var i = 0; i < this.changeRequestList.length; ++i) {
         if (this.changeRequestList[i].changeType == "add") {
           if (this.changeRequestList[i].tableName == table && this.changeRequestList[i].columnName == column) {
-            this.errors = "Cannot add the same table name and column name in this request.";
+            this.errors = "this column already is use.";
+            return false;
+          }
+        }
+      }
+      for (var _i2 = 0; _i2 < this.functionalList.length; ++_i2) {
+        for (var j = 0; j < this.functionalList[_i2].inputs.length; ++j) {
+          if (table == this.functionalList[_i2].inputs[j].tableName && column == this.functionalList[_i2].inputs[j].columnName) {
+            this.errors = "this column already is use.";
             return false;
           }
         }
@@ -85034,10 +85113,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.errors = "Nothing is changed.";
         return false;
       }
-      var refDatype = 'dataType' in crInput ? crInput.dataType : oldInput.dataType;
+      var refDatype = "dataType" in crInput ? crInput.dataType : oldInput.dataType;
       if (this.isNumber(refDatype)) {
-        var min = 'min' in crInput ? crInput.min : oldInput.min;
-        var max = 'max' in crInput ? crInput.max : oldInput.max;
+        var min = "min" in crInput ? crInput.min : oldInput.min;
+        var max = "max" in crInput ? crInput.max : oldInput.max;
         if (min && max) {
           if (!this.validateMinMax(min, max)) {
             return false;
@@ -85140,7 +85219,7 @@ var render = function() {
   return _c("div", { staticClass: "container-fluid" }, [
     _c("div", { staticClass: "card" }, [
       _c("div", { staticClass: "card-header bg-success text-white" }, [
-        _vm._v("\n            New Change Request\n        ")
+        _vm._v("\n      New Change Request\n    ")
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "card-body" }, [
@@ -85190,9 +85269,9 @@ var render = function() {
                       { key: index, domProps: { value: project.name } },
                       [
                         _vm._v(
-                          "\n                                " +
+                          "\n                " +
                             _vm._s(project.name) +
-                            "\n                            "
+                            "\n              "
                         )
                       ]
                     )
@@ -85256,9 +85335,9 @@ var render = function() {
                               { key: index, domProps: { value: index } },
                               [
                                 _vm._v(
-                                  "\n                                " +
+                                  "\n                " +
                                     _vm._s(functional.no) +
-                                    "\n                            "
+                                    "\n              "
                                 )
                               ]
                             )
@@ -85274,9 +85353,9 @@ var render = function() {
                   _vm._v("Functional Requirement")
                 ]),
                 _c("br"),
-                _vm._v(" Please\n                    "),
+                _vm._v(" Please\n          "),
                 _c("a", { attrs: { href: "/project" } }, [_vm._v("upload")]),
-                _vm._v(" functional requirement first.\n                ")
+                _vm._v(" functional requirement first.\n        ")
               ])
         ]),
         _vm._v(" "),
@@ -85430,9 +85509,7 @@ var render = function() {
               _vm.changeRequestList.length > 0
                 ? _c("div", { staticClass: "card" }, [
                     _c("div", { staticClass: "card-header" }, [
-                      _vm._v(
-                        "\n                        Change Request List\n                    "
-                      )
+                      _vm._v("\n            Change Request List\n          ")
                     ]),
                     _vm._v(" "),
                     _c("div", { staticClass: "card-body" }, [
@@ -85650,612 +85727,46 @@ var render = function() {
                     _vm.changeRequest.changeType == "add" ||
                     _vm.changeRequest.changeType == "edit"
                       ? _c("div", [
-                          _c("div", { staticClass: "form-group row" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass: "col-sm-2 col-form-label",
-                                attrs: { for: "" }
-                              },
-                              [_vm._v("Name")]
-                            ),
-                            _vm._v(" "),
-                            _vm.changeRequest.changeType == "add"
-                              ? _c(
-                                  "div",
-                                  {
-                                    staticClass: "col-sm-10 align-text-bottom"
-                                  },
-                                  [
-                                    _c("input", {
-                                      directives: [
-                                        {
-                                          name: "model",
-                                          rawName: "v-model",
-                                          value: _vm.changeRequest.name,
-                                          expression: "changeRequest.name"
-                                        }
-                                      ],
-                                      staticClass: "form-control",
-                                      attrs: { type: "text", required: "" },
-                                      domProps: {
-                                        value: _vm.changeRequest.name
-                                      },
-                                      on: {
-                                        input: function($event) {
-                                          if ($event.target.composing) {
-                                            return
-                                          }
-                                          _vm.$set(
-                                            _vm.changeRequest,
-                                            "name",
-                                            $event.target.value
-                                          )
-                                        }
-                                      }
-                                    })
-                                  ]
-                                )
-                              : _c(
-                                  "label",
-                                  { staticClass: "col-sm-10 col-form-label" },
-                                  [_vm._v(_vm._s(_vm.changeRequest.name))]
-                                )
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group row" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass: "col-sm-2 col-form-label",
-                                attrs: { for: "" }
-                              },
-                              [_vm._v("Data Type")]
-                            ),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-sm-10" }, [
-                              _c(
-                                "select",
-                                {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.changeRequest.dataType,
-                                      expression: "changeRequest.dataType"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  on: {
-                                    change: function($event) {
-                                      var $$selectedVal = Array.prototype.filter
-                                        .call($event.target.options, function(
-                                          o
-                                        ) {
-                                          return o.selected
-                                        })
-                                        .map(function(o) {
-                                          var val =
-                                            "_value" in o ? o._value : o.value
-                                          return val
-                                        })
-                                      _vm.$set(
-                                        _vm.changeRequest,
-                                        "dataType",
-                                        $event.target.multiple
-                                          ? $$selectedVal
-                                          : $$selectedVal[0]
-                                      )
-                                    }
-                                  }
-                                },
-                                [
-                                  _c("option", { attrs: { value: "char" } }, [
-                                    _vm._v("char")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "option",
-                                    { attrs: { value: "varchar" } },
-                                    [_vm._v("varchar")]
-                                  ),
-                                  _vm._v(" "),
-                                  _c("option", { attrs: { value: "nchar" } }, [
-                                    _vm._v("nchar")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "option",
-                                    { attrs: { value: "nvarchar" } },
-                                    [_vm._v("nvarchar")]
-                                  ),
-                                  _vm._v(" "),
-                                  _c("option", { attrs: { value: "int" } }, [
-                                    _vm._v("int")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("option", { attrs: { value: "real" } }, [
-                                    _vm._v("real")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("option", { attrs: { value: "float" } }, [
-                                    _vm._v("float")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "option",
-                                    { attrs: { value: "decimal" } },
-                                    [_vm._v("decimal")]
-                                  ),
-                                  _vm._v(" "),
-                                  _c("option", { attrs: { value: "date" } }, [
-                                    _vm._v("date")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "option",
-                                    { attrs: { value: "datetime" } },
-                                    [_vm._v("datetime")]
-                                  )
-                                ]
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _vm.changeRequest.dataType.indexOf("char") != -1
-                            ? _c("div", { staticClass: "form-group row" }, [
+                          _vm.changeRequest.changeType == "add" &&
+                          _vm.addType == 0
+                            ? _c("div", { staticClass: "div" }, [
                                 _c(
-                                  "label",
+                                  "button",
                                   {
-                                    staticClass: "col-sm-2 col-form-label",
-                                    attrs: { for: "" }
+                                    staticClass: "btn btn-success",
+                                    attrs: { type: "button" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.addType = 1
+                                      }
+                                    }
                                   },
-                                  [_vm._v("Length")]
+                                  [_vm._v(" add new input")]
                                 ),
                                 _vm._v(" "),
-                                _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
+                                _c("hr"),
+                                _vm._v(" "),
+                                _c("label", { staticClass: "col-form-label" }, [
+                                  _vm._v(" add input from project")
+                                ]),
+                                _c("br"),
+                                _vm._v(" "),
+                                _c(
+                                  "select",
+                                  {
                                     directives: [
                                       {
                                         name: "model",
                                         rawName: "v-model",
-                                        value: _vm.changeRequest.length,
-                                        expression: "changeRequest.length"
+                                        value: _vm.changeRequest.name,
+                                        expression: "changeRequest.name"
                                       }
                                     ],
                                     staticClass: "form-control",
-                                    attrs: { type: "number", required: "" },
-                                    domProps: {
-                                      value: _vm.changeRequest.length
-                                    },
+                                    attrs: { required: "" },
                                     on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "length",
-                                          $event.target.value
-                                        )
-                                      }
-                                    }
-                                  })
-                                ])
-                              ])
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _vm.changeRequest.dataType.indexOf("float") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("real") != -1
-                            ? _c("div", { staticClass: "form-group row" }, [
-                                _c(
-                                  "label",
-                                  {
-                                    staticClass: "col-sm-2 col-form-label",
-                                    attrs: { for: "" }
-                                  },
-                                  [_vm._v("Precision")]
-                                ),
-                                _vm._v(" "),
-                                _vm.changeRequest.dataType.indexOf("decimal") !=
-                                -1
-                                  ? _c("div", { staticClass: "col-sm-10" }, [
-                                      _c("input", {
-                                        directives: [
-                                          {
-                                            name: "model",
-                                            rawName: "v-model",
-                                            value: _vm.changeRequest.precision,
-                                            expression:
-                                              "changeRequest.precision"
-                                          }
-                                        ],
-                                        staticClass: "form-control",
-                                        attrs: {
-                                          type: "number",
-                                          required: "",
-                                          min: "1",
-                                          max: "38"
-                                        },
-                                        domProps: {
-                                          value: _vm.changeRequest.precision
-                                        },
-                                        on: {
-                                          input: function($event) {
-                                            if ($event.target.composing) {
-                                              return
-                                            }
-                                            _vm.$set(
-                                              _vm.changeRequest,
-                                              "precision",
-                                              $event.target.value
-                                            )
-                                          }
-                                        }
-                                      })
-                                    ])
-                                  : _c(
-                                      "label",
-                                      {
-                                        staticClass: "col-sm-10 col-form-label"
-                                      },
-                                      [
-                                        _vm._v(
-                                          _vm._s(
-                                            _vm.changeRequest.dataType.indexOf(
-                                              "float"
-                                            ) != -1
-                                              ? 15
-                                              : 7
-                                          )
-                                        )
-                                      ]
-                                    )
-                              ])
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _vm.changeRequest.dataType.indexOf("decimal") != -1
-                            ? _c("div", { staticClass: "form-group row" }, [
-                                _c(
-                                  "label",
-                                  {
-                                    staticClass: "col-sm-2 col-form-label",
-                                    attrs: { for: "" }
-                                  },
-                                  [_vm._v("Scale")]
-                                ),
-                                _vm._v(" "),
-                                _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.changeRequest.scale,
-                                        expression: "changeRequest.scale"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: {
-                                      type: "number",
-                                      required: "",
-                                      max: _vm.changeRequest.precision
-                                    },
-                                    domProps: {
-                                      value: _vm.changeRequest.scale
-                                    },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "scale",
-                                          $event.target.value
-                                        )
-                                      }
-                                    }
-                                  })
-                                ])
-                              ])
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group row" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass: "col-sm-2 col-form-label",
-                                attrs: { for: "" }
-                              },
-                              [_vm._v("Default")]
-                            ),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-sm-10" }, [
-                              _c("input", {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.changeRequest.default,
-                                    expression: "changeRequest.default"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { type: "text" },
-                                domProps: { value: _vm.changeRequest.default },
-                                on: {
-                                  input: function($event) {
-                                    if ($event.target.composing) {
-                                      return
-                                    }
-                                    _vm.$set(
-                                      _vm.changeRequest,
-                                      "default",
-                                      $event.target.value
-                                    )
-                                  }
-                                }
-                              })
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group row" }, [
-                            _c("label", {
-                              staticClass: "col-sm-2 form-control-label"
-                            }),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-sm-4" }, [
-                              _c("label", { staticClass: "checkbox-inline" }, [
-                                _c("input", {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.changeRequest.nullable,
-                                      expression: "changeRequest.nullable"
-                                    }
-                                  ],
-                                  attrs: {
-                                    name: "nullable",
-                                    type: "checkbox",
-                                    "true-value": "Y",
-                                    "false-value": "N"
-                                  },
-                                  domProps: {
-                                    checked: Array.isArray(
-                                      _vm.changeRequest.nullable
-                                    )
-                                      ? _vm._i(
-                                          _vm.changeRequest.nullable,
-                                          null
-                                        ) > -1
-                                      : _vm._q(_vm.changeRequest.nullable, "Y")
-                                  },
-                                  on: {
-                                    change: function($event) {
-                                      var $$a = _vm.changeRequest.nullable,
-                                        $$el = $event.target,
-                                        $$c = $$el.checked ? "Y" : "N"
-                                      if (Array.isArray($$a)) {
-                                        var $$v = null,
-                                          $$i = _vm._i($$a, $$v)
-                                        if ($$el.checked) {
-                                          $$i < 0 &&
-                                            _vm.$set(
-                                              _vm.changeRequest,
-                                              "nullable",
-                                              $$a.concat([$$v])
-                                            )
-                                        } else {
-                                          $$i > -1 &&
-                                            _vm.$set(
-                                              _vm.changeRequest,
-                                              "nullable",
-                                              $$a
-                                                .slice(0, $$i)
-                                                .concat($$a.slice($$i + 1))
-                                            )
-                                        }
-                                      } else {
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "nullable",
-                                          $$c
-                                        )
-                                      }
-                                    }
-                                  }
-                                }),
-                                _vm._v(
-                                  " Nullable\n                                    "
-                                )
-                              ])
-                            ]),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-sm-4" }, [
-                              _c("label", { staticClass: "checkbox-inline" }, [
-                                _c("input", {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.changeRequest.unique,
-                                      expression: "changeRequest.unique"
-                                    }
-                                  ],
-                                  attrs: {
-                                    name: "unique",
-                                    type: "checkbox",
-                                    "true-value": "Y",
-                                    "false-value": "N"
-                                  },
-                                  domProps: {
-                                    checked: Array.isArray(
-                                      _vm.changeRequest.unique
-                                    )
-                                      ? _vm._i(_vm.changeRequest.unique, null) >
-                                        -1
-                                      : _vm._q(_vm.changeRequest.unique, "Y")
-                                  },
-                                  on: {
-                                    change: function($event) {
-                                      var $$a = _vm.changeRequest.unique,
-                                        $$el = $event.target,
-                                        $$c = $$el.checked ? "Y" : "N"
-                                      if (Array.isArray($$a)) {
-                                        var $$v = null,
-                                          $$i = _vm._i($$a, $$v)
-                                        if ($$el.checked) {
-                                          $$i < 0 &&
-                                            _vm.$set(
-                                              _vm.changeRequest,
-                                              "unique",
-                                              $$a.concat([$$v])
-                                            )
-                                        } else {
-                                          $$i > -1 &&
-                                            _vm.$set(
-                                              _vm.changeRequest,
-                                              "unique",
-                                              $$a
-                                                .slice(0, $$i)
-                                                .concat($$a.slice($$i + 1))
-                                            )
-                                        }
-                                      } else {
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "unique",
-                                          $$c
-                                        )
-                                      }
-                                    }
-                                  }
-                                }),
-                                _vm._v(
-                                  " Unique\n                                    "
-                                )
-                              ])
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _vm.changeRequest.dataType.indexOf("int") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("float") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("real") != -1
-                            ? _c("div", { staticClass: "form-group row" }, [
-                                _c(
-                                  "label",
-                                  {
-                                    staticClass: "col-sm-2 col-form-label",
-                                    attrs: { for: "" }
-                                  },
-                                  [_vm._v("Min")]
-                                ),
-                                _vm._v(" "),
-                                _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.changeRequest.min,
-                                        expression: "changeRequest.min"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: { type: "number" },
-                                    domProps: { value: _vm.changeRequest.min },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "min",
-                                          $event.target.value
-                                        )
-                                      }
-                                    }
-                                  })
-                                ])
-                              ])
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _vm.changeRequest.dataType.indexOf("int") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("decimal") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("float") != -1 ||
-                          _vm.changeRequest.dataType.indexOf("real") != -1
-                            ? _c("div", { staticClass: "form-group row" }, [
-                                _c(
-                                  "label",
-                                  {
-                                    staticClass: "col-sm-2 col-form-label",
-                                    attrs: { for: "" }
-                                  },
-                                  [_vm._v("Max")]
-                                ),
-                                _vm._v(" "),
-                                _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.changeRequest.max,
-                                        expression: "changeRequest.max"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: { type: "number" },
-                                    domProps: { value: _vm.changeRequest.max },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "max",
-                                          $event.target.value
-                                        )
-                                      }
-                                    }
-                                  })
-                                ])
-                              ])
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group row" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass: "col-sm-2 col-form-label",
-                                attrs: { for: "" }
-                              },
-                              [_vm._v("Table")]
-                            ),
-                            _vm._v(" "),
-                            _vm.changeRequest.changeType == "add"
-                              ? _c("div", { staticClass: "col-sm-10" }, [
-                                  _c(
-                                    "select",
-                                    {
-                                      directives: [
-                                        {
-                                          name: "model",
-                                          rawName: "v-model",
-                                          value: _vm.changeRequest.tableName,
-                                          expression: "changeRequest.tableName"
-                                        }
-                                      ],
-                                      staticClass: "form-control",
-                                      attrs: { required: "" },
-                                      on: {
-                                        change: function($event) {
+                                      change: [
+                                        function($event) {
                                           var $$selectedVal = Array.prototype.filter
                                             .call(
                                               $event.target.options,
@@ -86272,79 +85783,877 @@ var render = function() {
                                             })
                                           _vm.$set(
                                             _vm.changeRequest,
-                                            "tableName",
+                                            "name",
                                             $event.target.multiple
                                               ? $$selectedVal
                                               : $$selectedVal[0]
                                           )
-                                        }
-                                      }
-                                    },
-                                    _vm._l(_vm.tables, function(table, tIndex) {
-                                      return _c(
-                                        "option",
-                                        {
-                                          key: tIndex,
-                                          domProps: { value: table.name }
                                         },
-                                        [_vm._v(_vm._s(table.name))]
-                                      )
-                                    })
-                                  )
-                                ])
-                              : _c(
-                                  "label",
-                                  { staticClass: "col-sm-10 col-form-label" },
-                                  [_vm._v(_vm._s(_vm.changeRequest.tableName))]
-                                )
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group row" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass: "col-sm-2 col-form-label",
-                                attrs: { for: "" }
-                              },
-                              [_vm._v("Column")]
-                            ),
-                            _vm._v(" "),
-                            _vm.changeRequest.changeType == "add"
-                              ? _c("div", { staticClass: "col-sm-10" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.changeRequest.columnName,
-                                        expression: "changeRequest.columnName"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: { type: "text", required: "" },
-                                    domProps: {
-                                      value: _vm.changeRequest.columnName
-                                    },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
+                                        function($event) {
+                                          _vm.setColTable(
+                                            _vm.changeRequest.name
+                                          )
                                         }
-                                        _vm.$set(
-                                          _vm.changeRequest,
-                                          "columnName",
-                                          $event.target.value
-                                        )
-                                      }
+                                      ]
                                     }
+                                  },
+                                  _vm._l(_vm.listInputAdd, function(
+                                    input,
+                                    indexInputAddList
+                                  ) {
+                                    return _c(
+                                      "option",
+                                      {
+                                        key: indexInputAddList,
+                                        domProps: { value: input.name }
+                                      },
+                                      [_vm._v(_vm._s(input.name))]
+                                    )
                                   })
-                                ])
-                              : _c(
-                                  "label",
-                                  { staticClass: "col-sm-10 col-form-label" },
-                                  [_vm._v(_vm._s(_vm.changeRequest.columnName))]
                                 )
-                          ])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.addType == 1
+                            ? _c("div", [
+                                _c("div", { staticClass: "form-group row" }, [
+                                  _c(
+                                    "label",
+                                    {
+                                      staticClass: "col-sm-2 col-form-label",
+                                      attrs: { for: "" }
+                                    },
+                                    [_vm._v("Name")]
+                                  ),
+                                  _vm._v(" "),
+                                  _vm.changeRequest.changeType == "add"
+                                    ? _c(
+                                        "div",
+                                        {
+                                          staticClass:
+                                            "col-sm-10 align-text-bottom"
+                                        },
+                                        [
+                                          _c("input", {
+                                            directives: [
+                                              {
+                                                name: "model",
+                                                rawName: "v-model",
+                                                value: _vm.changeRequest.name,
+                                                expression: "changeRequest.name"
+                                              }
+                                            ],
+                                            staticClass: "form-control",
+                                            attrs: {
+                                              type: "text",
+                                              required: ""
+                                            },
+                                            domProps: {
+                                              value: _vm.changeRequest.name
+                                            },
+                                            on: {
+                                              input: function($event) {
+                                                if ($event.target.composing) {
+                                                  return
+                                                }
+                                                _vm.$set(
+                                                  _vm.changeRequest,
+                                                  "name",
+                                                  $event.target.value
+                                                )
+                                              }
+                                            }
+                                          })
+                                        ]
+                                      )
+                                    : _c(
+                                        "label",
+                                        {
+                                          staticClass:
+                                            "col-sm-10 col-form-label"
+                                        },
+                                        [_vm._v(_vm._s(_vm.changeRequest.name))]
+                                      )
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "form-group row" }, [
+                                  _c(
+                                    "label",
+                                    {
+                                      staticClass: "col-sm-2 col-form-label",
+                                      attrs: { for: "" }
+                                    },
+                                    [_vm._v("Data Type")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("div", { staticClass: "col-sm-10" }, [
+                                    _c(
+                                      "select",
+                                      {
+                                        directives: [
+                                          {
+                                            name: "model",
+                                            rawName: "v-model",
+                                            value: _vm.changeRequest.dataType,
+                                            expression: "changeRequest.dataType"
+                                          }
+                                        ],
+                                        staticClass: "form-control",
+                                        on: {
+                                          change: function($event) {
+                                            var $$selectedVal = Array.prototype.filter
+                                              .call(
+                                                $event.target.options,
+                                                function(o) {
+                                                  return o.selected
+                                                }
+                                              )
+                                              .map(function(o) {
+                                                var val =
+                                                  "_value" in o
+                                                    ? o._value
+                                                    : o.value
+                                                return val
+                                              })
+                                            _vm.$set(
+                                              _vm.changeRequest,
+                                              "dataType",
+                                              $event.target.multiple
+                                                ? $$selectedVal
+                                                : $$selectedVal[0]
+                                            )
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "char" } },
+                                          [_vm._v("char")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "varchar" } },
+                                          [_vm._v("varchar")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "nchar" } },
+                                          [_vm._v("nchar")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "nvarchar" } },
+                                          [_vm._v("nvarchar")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "int" } },
+                                          [_vm._v("int")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "real" } },
+                                          [_vm._v("real")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "float" } },
+                                          [_vm._v("float")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "decimal" } },
+                                          [_vm._v("decimal")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "date" } },
+                                          [_vm._v("date")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "option",
+                                          { attrs: { value: "datetime" } },
+                                          [_vm._v("datetime")]
+                                        )
+                                      ]
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _vm.changeRequest.dataType.indexOf("char") != -1
+                                  ? _c(
+                                      "div",
+                                      { staticClass: "form-group row" },
+                                      [
+                                        _c(
+                                          "label",
+                                          {
+                                            staticClass:
+                                              "col-sm-2 col-form-label",
+                                            attrs: { for: "" }
+                                          },
+                                          [_vm._v("Length")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "div",
+                                          { staticClass: "col-sm-10" },
+                                          [
+                                            _c("input", {
+                                              directives: [
+                                                {
+                                                  name: "model",
+                                                  rawName: "v-model",
+                                                  value:
+                                                    _vm.changeRequest.length,
+                                                  expression:
+                                                    "changeRequest.length"
+                                                }
+                                              ],
+                                              staticClass: "form-control",
+                                              attrs: {
+                                                type: "number",
+                                                required: ""
+                                              },
+                                              domProps: {
+                                                value: _vm.changeRequest.length
+                                              },
+                                              on: {
+                                                input: function($event) {
+                                                  if ($event.target.composing) {
+                                                    return
+                                                  }
+                                                  _vm.$set(
+                                                    _vm.changeRequest,
+                                                    "length",
+                                                    $event.target.value
+                                                  )
+                                                }
+                                              }
+                                            })
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _vm.changeRequest.dataType.indexOf("float") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("decimal") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("real") != -1
+                                  ? _c(
+                                      "div",
+                                      { staticClass: "form-group row" },
+                                      [
+                                        _c(
+                                          "label",
+                                          {
+                                            staticClass:
+                                              "col-sm-2 col-form-label",
+                                            attrs: { for: "" }
+                                          },
+                                          [_vm._v("Precision")]
+                                        ),
+                                        _vm._v(" "),
+                                        _vm.changeRequest.dataType.indexOf(
+                                          "decimal"
+                                        ) != -1
+                                          ? _c(
+                                              "div",
+                                              { staticClass: "col-sm-10" },
+                                              [
+                                                _c("input", {
+                                                  directives: [
+                                                    {
+                                                      name: "model",
+                                                      rawName: "v-model",
+                                                      value:
+                                                        _vm.changeRequest
+                                                          .precision,
+                                                      expression:
+                                                        "changeRequest.precision"
+                                                    }
+                                                  ],
+                                                  staticClass: "form-control",
+                                                  attrs: {
+                                                    type: "number",
+                                                    required: "",
+                                                    min: "1",
+                                                    max: "38"
+                                                  },
+                                                  domProps: {
+                                                    value:
+                                                      _vm.changeRequest
+                                                        .precision
+                                                  },
+                                                  on: {
+                                                    input: function($event) {
+                                                      if (
+                                                        $event.target.composing
+                                                      ) {
+                                                        return
+                                                      }
+                                                      _vm.$set(
+                                                        _vm.changeRequest,
+                                                        "precision",
+                                                        $event.target.value
+                                                      )
+                                                    }
+                                                  }
+                                                })
+                                              ]
+                                            )
+                                          : _c(
+                                              "label",
+                                              {
+                                                staticClass:
+                                                  "col-sm-10 col-form-label"
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(
+                                                    _vm.changeRequest.dataType.indexOf(
+                                                      "float"
+                                                    ) != -1
+                                                      ? 15
+                                                      : 7
+                                                  )
+                                                )
+                                              ]
+                                            )
+                                      ]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _vm.changeRequest.dataType.indexOf("decimal") !=
+                                -1
+                                  ? _c(
+                                      "div",
+                                      { staticClass: "form-group row" },
+                                      [
+                                        _c(
+                                          "label",
+                                          {
+                                            staticClass:
+                                              "col-sm-2 col-form-label",
+                                            attrs: { for: "" }
+                                          },
+                                          [_vm._v("Scale")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "div",
+                                          { staticClass: "col-sm-10" },
+                                          [
+                                            _c("input", {
+                                              directives: [
+                                                {
+                                                  name: "model",
+                                                  rawName: "v-model",
+                                                  value:
+                                                    _vm.changeRequest.scale,
+                                                  expression:
+                                                    "changeRequest.scale"
+                                                }
+                                              ],
+                                              staticClass: "form-control",
+                                              attrs: {
+                                                type: "number",
+                                                required: "",
+                                                max: _vm.changeRequest.precision
+                                              },
+                                              domProps: {
+                                                value: _vm.changeRequest.scale
+                                              },
+                                              on: {
+                                                input: function($event) {
+                                                  if ($event.target.composing) {
+                                                    return
+                                                  }
+                                                  _vm.$set(
+                                                    _vm.changeRequest,
+                                                    "scale",
+                                                    $event.target.value
+                                                  )
+                                                }
+                                              }
+                                            })
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "form-group row" }, [
+                                  _c(
+                                    "label",
+                                    {
+                                      staticClass: "col-sm-2 col-form-label",
+                                      attrs: { for: "" }
+                                    },
+                                    [_vm._v("Default")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("div", { staticClass: "col-sm-10" }, [
+                                    _c("input", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.changeRequest.default,
+                                          expression: "changeRequest.default"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: { type: "text" },
+                                      domProps: {
+                                        value: _vm.changeRequest.default
+                                      },
+                                      on: {
+                                        input: function($event) {
+                                          if ($event.target.composing) {
+                                            return
+                                          }
+                                          _vm.$set(
+                                            _vm.changeRequest,
+                                            "default",
+                                            $event.target.value
+                                          )
+                                        }
+                                      }
+                                    })
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "form-group row" }, [
+                                  _c("label", {
+                                    staticClass: "col-sm-2 form-control-label"
+                                  }),
+                                  _vm._v(" "),
+                                  _c("div", { staticClass: "col-sm-4" }, [
+                                    _c(
+                                      "label",
+                                      { staticClass: "checkbox-inline" },
+                                      [
+                                        _c("input", {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value: _vm.changeRequest.nullable,
+                                              expression:
+                                                "changeRequest.nullable"
+                                            }
+                                          ],
+                                          attrs: {
+                                            name: "nullable",
+                                            type: "checkbox",
+                                            "true-value": "Y",
+                                            "false-value": "N"
+                                          },
+                                          domProps: {
+                                            checked: Array.isArray(
+                                              _vm.changeRequest.nullable
+                                            )
+                                              ? _vm._i(
+                                                  _vm.changeRequest.nullable,
+                                                  null
+                                                ) > -1
+                                              : _vm._q(
+                                                  _vm.changeRequest.nullable,
+                                                  "Y"
+                                                )
+                                          },
+                                          on: {
+                                            change: function($event) {
+                                              var $$a =
+                                                  _vm.changeRequest.nullable,
+                                                $$el = $event.target,
+                                                $$c = $$el.checked ? "Y" : "N"
+                                              if (Array.isArray($$a)) {
+                                                var $$v = null,
+                                                  $$i = _vm._i($$a, $$v)
+                                                if ($$el.checked) {
+                                                  $$i < 0 &&
+                                                    _vm.$set(
+                                                      _vm.changeRequest,
+                                                      "nullable",
+                                                      $$a.concat([$$v])
+                                                    )
+                                                } else {
+                                                  $$i > -1 &&
+                                                    _vm.$set(
+                                                      _vm.changeRequest,
+                                                      "nullable",
+                                                      $$a
+                                                        .slice(0, $$i)
+                                                        .concat(
+                                                          $$a.slice($$i + 1)
+                                                        )
+                                                    )
+                                                }
+                                              } else {
+                                                _vm.$set(
+                                                  _vm.changeRequest,
+                                                  "nullable",
+                                                  $$c
+                                                )
+                                              }
+                                            }
+                                          }
+                                        }),
+                                        _vm._v(
+                                          " Nullable\n                    "
+                                        )
+                                      ]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("div", { staticClass: "col-sm-4" }, [
+                                    _c(
+                                      "label",
+                                      { staticClass: "checkbox-inline" },
+                                      [
+                                        _c("input", {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value: _vm.changeRequest.unique,
+                                              expression: "changeRequest.unique"
+                                            }
+                                          ],
+                                          attrs: {
+                                            name: "unique",
+                                            type: "checkbox",
+                                            "true-value": "Y",
+                                            "false-value": "N"
+                                          },
+                                          domProps: {
+                                            checked: Array.isArray(
+                                              _vm.changeRequest.unique
+                                            )
+                                              ? _vm._i(
+                                                  _vm.changeRequest.unique,
+                                                  null
+                                                ) > -1
+                                              : _vm._q(
+                                                  _vm.changeRequest.unique,
+                                                  "Y"
+                                                )
+                                          },
+                                          on: {
+                                            change: function($event) {
+                                              var $$a =
+                                                  _vm.changeRequest.unique,
+                                                $$el = $event.target,
+                                                $$c = $$el.checked ? "Y" : "N"
+                                              if (Array.isArray($$a)) {
+                                                var $$v = null,
+                                                  $$i = _vm._i($$a, $$v)
+                                                if ($$el.checked) {
+                                                  $$i < 0 &&
+                                                    _vm.$set(
+                                                      _vm.changeRequest,
+                                                      "unique",
+                                                      $$a.concat([$$v])
+                                                    )
+                                                } else {
+                                                  $$i > -1 &&
+                                                    _vm.$set(
+                                                      _vm.changeRequest,
+                                                      "unique",
+                                                      $$a
+                                                        .slice(0, $$i)
+                                                        .concat(
+                                                          $$a.slice($$i + 1)
+                                                        )
+                                                    )
+                                                }
+                                              } else {
+                                                _vm.$set(
+                                                  _vm.changeRequest,
+                                                  "unique",
+                                                  $$c
+                                                )
+                                              }
+                                            }
+                                          }
+                                        }),
+                                        _vm._v(" Unique\n                    ")
+                                      ]
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _vm.changeRequest.dataType.indexOf("int") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("decimal") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("float") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("real") != -1
+                                  ? _c(
+                                      "div",
+                                      { staticClass: "form-group row" },
+                                      [
+                                        _c(
+                                          "label",
+                                          {
+                                            staticClass:
+                                              "col-sm-2 col-form-label",
+                                            attrs: { for: "" }
+                                          },
+                                          [_vm._v("Min")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "div",
+                                          { staticClass: "col-sm-10" },
+                                          [
+                                            _c("input", {
+                                              directives: [
+                                                {
+                                                  name: "model",
+                                                  rawName: "v-model",
+                                                  value: _vm.changeRequest.min,
+                                                  expression:
+                                                    "changeRequest.min"
+                                                }
+                                              ],
+                                              staticClass: "form-control",
+                                              attrs: { type: "number" },
+                                              domProps: {
+                                                value: _vm.changeRequest.min
+                                              },
+                                              on: {
+                                                input: function($event) {
+                                                  if ($event.target.composing) {
+                                                    return
+                                                  }
+                                                  _vm.$set(
+                                                    _vm.changeRequest,
+                                                    "min",
+                                                    $event.target.value
+                                                  )
+                                                }
+                                              }
+                                            })
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _vm.changeRequest.dataType.indexOf("int") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("decimal") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("float") !=
+                                  -1 ||
+                                _vm.changeRequest.dataType.indexOf("real") != -1
+                                  ? _c(
+                                      "div",
+                                      { staticClass: "form-group row" },
+                                      [
+                                        _c(
+                                          "label",
+                                          {
+                                            staticClass:
+                                              "col-sm-2 col-form-label",
+                                            attrs: { for: "" }
+                                          },
+                                          [_vm._v("Max")]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "div",
+                                          { staticClass: "col-sm-10" },
+                                          [
+                                            _c("input", {
+                                              directives: [
+                                                {
+                                                  name: "model",
+                                                  rawName: "v-model",
+                                                  value: _vm.changeRequest.max,
+                                                  expression:
+                                                    "changeRequest.max"
+                                                }
+                                              ],
+                                              staticClass: "form-control",
+                                              attrs: { type: "number" },
+                                              domProps: {
+                                                value: _vm.changeRequest.max
+                                              },
+                                              on: {
+                                                input: function($event) {
+                                                  if ($event.target.composing) {
+                                                    return
+                                                  }
+                                                  _vm.$set(
+                                                    _vm.changeRequest,
+                                                    "max",
+                                                    $event.target.value
+                                                  )
+                                                }
+                                              }
+                                            })
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "form-group row" }, [
+                                  _c(
+                                    "label",
+                                    {
+                                      staticClass: "col-sm-2 col-form-label",
+                                      attrs: { for: "" }
+                                    },
+                                    [_vm._v("Table")]
+                                  ),
+                                  _vm._v(" "),
+                                  _vm.changeRequest.changeType == "add"
+                                    ? _c("div", { staticClass: "col-sm-10" }, [
+                                        _c(
+                                          "select",
+                                          {
+                                            directives: [
+                                              {
+                                                name: "model",
+                                                rawName: "v-model",
+                                                value:
+                                                  _vm.changeRequest.tableName,
+                                                expression:
+                                                  "changeRequest.tableName"
+                                              }
+                                            ],
+                                            staticClass: "form-control",
+                                            attrs: { required: "" },
+                                            on: {
+                                              change: function($event) {
+                                                var $$selectedVal = Array.prototype.filter
+                                                  .call(
+                                                    $event.target.options,
+                                                    function(o) {
+                                                      return o.selected
+                                                    }
+                                                  )
+                                                  .map(function(o) {
+                                                    var val =
+                                                      "_value" in o
+                                                        ? o._value
+                                                        : o.value
+                                                    return val
+                                                  })
+                                                _vm.$set(
+                                                  _vm.changeRequest,
+                                                  "tableName",
+                                                  $event.target.multiple
+                                                    ? $$selectedVal
+                                                    : $$selectedVal[0]
+                                                )
+                                              }
+                                            }
+                                          },
+                                          _vm._l(_vm.tables, function(
+                                            table,
+                                            tIndex
+                                          ) {
+                                            return _c(
+                                              "option",
+                                              {
+                                                key: tIndex,
+                                                domProps: { value: table.name }
+                                              },
+                                              [_vm._v(_vm._s(table.name))]
+                                            )
+                                          })
+                                        )
+                                      ])
+                                    : _c(
+                                        "label",
+                                        {
+                                          staticClass:
+                                            "col-sm-10 col-form-label"
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(_vm.changeRequest.tableName)
+                                          )
+                                        ]
+                                      )
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "form-group row" }, [
+                                  _c(
+                                    "label",
+                                    {
+                                      staticClass: "col-sm-2 col-form-label",
+                                      attrs: { for: "" }
+                                    },
+                                    [_vm._v("Column")]
+                                  ),
+                                  _vm._v(" "),
+                                  _vm.changeRequest.changeType == "add"
+                                    ? _c("div", { staticClass: "col-sm-10" }, [
+                                        _c("input", {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value:
+                                                _vm.changeRequest.columnName,
+                                              expression:
+                                                "changeRequest.columnName"
+                                            }
+                                          ],
+                                          staticClass: "form-control",
+                                          attrs: { type: "text", required: "" },
+                                          domProps: {
+                                            value: _vm.changeRequest.columnName
+                                          },
+                                          on: {
+                                            input: function($event) {
+                                              if ($event.target.composing) {
+                                                return
+                                              }
+                                              _vm.$set(
+                                                _vm.changeRequest,
+                                                "columnName",
+                                                $event.target.value
+                                              )
+                                            }
+                                          }
+                                        })
+                                      ])
+                                    : _c(
+                                        "label",
+                                        {
+                                          staticClass:
+                                            "col-sm-10 col-form-label"
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(_vm.changeRequest.columnName)
+                                          )
+                                        ]
+                                      )
+                                ])
+                              ])
+                            : _vm._e()
                         ])
                       : _vm._e(),
                     _vm._v(" "),
@@ -86357,9 +86666,9 @@ var render = function() {
                           },
                           [
                             _vm._v(
-                              "\n                            " +
+                              "\n              " +
                                 _vm._s(_vm.errors) +
-                                "\n                        "
+                                "\n            "
                             )
                           ]
                         )

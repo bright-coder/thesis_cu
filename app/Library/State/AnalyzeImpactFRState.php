@@ -36,16 +36,18 @@ class AnalyzeImpactFRState implements StateInterface
                 if (!isset($result[$crInput->tableName])) {
                     $result[$crInput->tableName] = [];
                 }
-                $result[$crInput->tableName][$crInput->columnName] = $info['changeType'];
+                $result[$crInput->tableName][$crInput->columnName] = 'add';
             } elseif ($crInput->changeType == 'delete') {
                 $frInput = FunctionalRequirementInput::where('id', $crInput->frInputId)->first();
+                $fr = FunctionalRequirement::where('id', $frInput->frId)->first();
+                $frNo = $fr->no;
                 if (!isset($result[$frInput->tableName])) {
                     if (!isset($frResult[$frNo])) {
                         $frResult[$frNo] = [];
                     }
-                    $frResult[$frNo][$frInputName] = [
-                        'tableName' => $tableName,
-                        'columnName' => $columnName,
+                    $frResult[$frNo][$frInput->name] = [
+                        'tableName' => $frInput->tableName,
+                        'columnName' => $frInput->columnName,
                         'changeType' => 'delete'
                     ];
                 } else {
@@ -53,9 +55,9 @@ class AnalyzeImpactFRState implements StateInterface
                         if (!isset($frResult[$frNo])) {
                             $frResult[$frNo] = [];
                         }
-                        $frResult[$frNo][$frInputName] = [
-                            'tableName' => $tableName,
-                            'columnName' => $columnName,
+                        $frResult[$frNo][$frInput->name] = [
+                            'tableName' => $frInput->tableName,
+                            'columnName' => $frInput->columnName,
                             'changeType' => 'delete'
                         ];
                     }

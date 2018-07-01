@@ -185,6 +185,17 @@ class ChangeRequestController extends Controller
     
                         $changeRequestInput->tableName = $input['tableName'];
                         $changeRequestInput->columnName = $input['columnName'];
+                        $fr = FunctionalRequirement::where('projectId', $project->id)->get();
+                        foreach($fr as $frDB) {
+                            $frInput = FunctionalRequirementInput::where([
+                                ['frId', $frDB->id],
+                                ['name', $input['name']]
+                            ])->first();
+                            if($frInput) {
+                                $changeRequestInput->frInputId = $frInput->id;
+                                break;
+                            }
+                        }
                     }
                 } elseif ($changeRequestInput->changeType == 'edit') {
                     if (\array_key_exists('dataType', $input)) {

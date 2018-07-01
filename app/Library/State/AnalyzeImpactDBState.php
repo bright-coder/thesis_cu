@@ -173,9 +173,27 @@ class AnalyzeImpactDBState implements StateInterface
                 }
             } elseif ($changeRequestInput->changeType == 'delete') {
                 $frInput = FunctionalRequirementInput::where('id', $changeRequestInput->frInputId)->first();
+                $fr = FunctionalRequirement::where('id', $frInput->frId)->first();
+                $project = Project::where('id', $fr->projectId)->first();
+                $functionalRequirements = FunctionalRequirement::where('projectId', $project->id)->get();
                 $table = $this->dbTarget->getTableByName($frInput->tableName);
-            
-                if ($table->isPK($frInput->columnName)) {
+                
+                $foundOther = false;
+                foreach ($functionalRequirements as $frAll) {
+                    if ($fr->id != $frAll->id) {
+                        $frInputs = FunctionalRequirementInput::where([
+                        ['frId',$fr->id],
+                        ['name', $changeRequestInput->name]
+                        ])->first();
+        
+                        if ($frInputs) {
+                            $foundOther = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($table->isPK($frInput->columnName) && $foundOther == false) {
                     $changeRequestInput->status = 0;
                     $changeRequestInput->errorMessage = 'Cannot delete Primary key column.';
                 }

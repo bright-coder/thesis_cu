@@ -4,6 +4,7 @@ namespace App\Library\State\AnalyzeDBMethod;
 
 use App\Library\State\AnalyzeDBMethod\AbstractAnalyzeDBMethod;
 use App\Model\ChangeRequestInput;
+use App\Model\FunctionalRequirementInput;
 use App\Library\Database\Database;
 use App\Library\CustomModel\DBTargetInterface;
 use App\Library\Random\RandomContext;
@@ -21,7 +22,9 @@ class AnalyzeDBAdd extends AbstractAnalyzeDBMethod
     public function analyze(): array
     {
         $result = [];
-
+        
+        if($this->changeRequestInput->frInputId != null) { return [];}
+        
             $tableName = $this->changeRequestInput->tableName;
             $columnName = $this->changeRequestInput->columnName;
             $table = $this->database->getTableByName($tableName);
